@@ -24,17 +24,99 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
   >
     <slot />
 
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
     <script>
+      // Define form functions globally before Alpine.js loads
+      window.loginForm = function () {
+        return {
+          email: "",
+          password: "",
+          error: "",
+          loading: false,
+          async handleLogin() {
+            this.error = "";
+            this.loading = true;
+
+            try {
+              const response = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  email: this.email,
+                  password: this.password,
+                }),
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                this.error = data.error || "Login failed";
+              } else {
+                window.location.href = "/dashboard";
+              }
+            } catch (error) {
+              this.error = "An error occurred. Please try again.";
+            } finally {
+              this.loading = false;
+            }
+          },
+        };
+      };
+
+      window.registerForm = function () {
+        return {
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          error: "",
+          loading: false,
+          async handleRegister() {
+            this.error = "";
+            this.loading = true;
+
+            try {
+              const response = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  username: this.username,
+                  email: this.email,
+                  password: this.password,
+                  confirmPassword: this.confirmPassword,
+                }),
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                if (Array.isArray(data.error)) {
+                  this.error = data.error[0].message || "Registration failed";
+                } else {
+                  this.error = data.error || "Registration failed";
+                }
+              } else {
+                window.location.href = "/dashboard";
+              }
+            } catch (error) {
+              this.error = "An error occurred. Please try again.";
+            } finally {
+              this.loading = false;
+            }
+          },
+        };
+      };
+
       // Dark mode toggle
       const theme = localStorage.getItem("theme") || "light";
       if (theme === "dark") {
         document.documentElement.classList.add("dark");
       }
     </script>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
   </body>
 </html>
 

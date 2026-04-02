@@ -20,22 +20,28 @@ if (!sessionId) {
             Split
           </h1>
           <div class="flex items-center gap-4">
+            <!-- User Info -->
+            <div class="text-right hidden sm:block">
+              <p
+                id="userName"
+                class="text-sm font-semibold text-slate-900 dark:text-white"
+              >
+                Loading...
+              </p>
+              <p
+                id="userEmail"
+                class="text-xs text-slate-600 dark:text-slate-400"
+              >
+              </p>
+            </div>
+
             <!-- Theme toggle -->
             <button
               id="themeToggle"
-              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg font-bold"
               aria-label="Toggle dark mode"
             >
-              <svg
-                id="sunIcon"
-                class="w-5 h-5 text-slate-600 dark:text-slate-400"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                ></path>
-              </svg>
+              <span id="themeIcon">☀️</span>
             </button>
 
             <!-- Logout button -->
@@ -57,9 +63,16 @@ if (!sessionId) {
         <div
           class="md:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8"
         >
-          <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Welcome back!
+          <h2
+            id="welcomeMessage"
+            class="text-3xl font-bold text-slate-900 dark:text-white mb-1"
+          >
           </h2>
+          <p
+            id="welcomeEmail"
+            class="text-lg text-slate-600 dark:text-slate-400 mb-4"
+          >
+          </p>
           <p class="text-slate-600 dark:text-slate-400">
             Click the buttons below to create a new event or group and start
             tracking expenses.
@@ -137,31 +150,167 @@ if (!sessionId) {
     </main>
   </div>
 
-  <script>
-    // Theme toggle
-    const themeToggle = document.getElementById(
-      "themeToggle",
-    ) as HTMLButtonElement;
-    themeToggle.addEventListener("click", () => {
-      const html = document.documentElement;
-      if (html.classList.contains("dark")) {
-        html.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-      } else {
-        html.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      }
-    });
+  <script is:inline>
+    console.log("Dashboard script loaded");
 
-    // Logout
-    const logoutBtn = document.getElementById("logoutBtn") as HTMLButtonElement;
-    logoutBtn.addEventListener("click", async () => {
+    // Load user info
+    async function loadUserInfo() {
       try {
-        await fetch("/api/auth/logout", { method: "POST" });
-        window.location.href = "/";
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const user = await response.json();
+          const username = user.username || user.email;
+
+          console.log("🔧 loadUserInfo called with username:", username);
+
+          const userName = document.getElementById("userName");
+          if (userName) {
+            userName.textContent = `Welcome ${username}`;
+            console.log("✓ Set header userName to: Welcome " + username);
+          }
+
+          const userEmail = document.getElementById("userEmail");
+          if (userEmail) {
+            userEmail.textContent = user.email;
+            console.log("✓ Set header userEmail to:", user.email);
+          }
+
+          const welcomeMessage = document.getElementById("welcomeMessage");
+          console.log("🔍 welcomeMessage element:", welcomeMessage);
+          console.log(
+            "🔍 welcomeMessage HTML before:",
+            welcomeMessage?.innerHTML,
+          );
+
+          if (welcomeMessage) {
+            // Use plain text first to test
+            welcomeMessage.textContent = `Welcome ${username}!`;
+            console.log(
+              "✓ Set welcomeMessage textContent to: Welcome " + username + "!",
+            );
+            console.log(
+              "🔍 welcomeMessage text after:",
+              welcomeMessage.textContent,
+            );
+          } else {
+            console.error("✗✗✗ welcomeMessage element NOT found!");
+          }
+
+          const welcomeEmail = document.getElementById("welcomeEmail");
+          if (welcomeEmail) {
+            welcomeEmail.textContent = user.email;
+            console.log("✓ Set welcomeEmail to:", user.email);
+          }
+        }
       } catch (error) {
-        console.error("Logout error:", error);
+        console.error("Failed to load user info:", error);
       }
-    });
+    }
+
+    // Update theme emoji based on dark class
+    function updateThemeIcon() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById("themeIcon");
+
+      if (html.classList.contains("dark")) {
+        if (themeIcon) themeIcon.textContent = "🌙";
+      } else {
+        if (themeIcon) themeIcon.textContent = "☀️";
+      }
+    }
+
+    // Initialize dashboard with event listeners
+    async function initializeDashboard() {
+      console.log("Initializing dashboard...");
+
+      // Load user info first (before other initialization)
+      await loadUserInfo();
+      updateThemeIcon();
+
+      // Theme toggle
+      const themeToggle = document.getElementById("themeToggle");
+      console.log("Theme toggle button:", themeToggle);
+
+      if (themeToggle) {
+        console.log("Button found, adding click listener");
+        themeToggle.addEventListener("click", () => {
+          console.log("Theme button clicked!");
+          const html = document.documentElement;
+          const body = document.body;
+          const mainWrapper = document.querySelector(".min-h-screen");
+          console.log("Current classes:", html.className);
+
+          if (html.classList.contains("dark")) {
+            console.log("Removing dark class");
+            html.classList.remove("dark");
+            if (body) {
+              body.style.setProperty(
+                "background-color",
+                "rgb(255, 255, 255)",
+                "important",
+              );
+              body.style.setProperty("color", "rgb(15, 23, 42)", "important");
+            }
+            if (mainWrapper) {
+              mainWrapper.style.setProperty(
+                "background-color",
+                "rgb(245, 246, 248)",
+                "important",
+              );
+            }
+            localStorage.setItem("theme", "light");
+          } else {
+            console.log("Adding dark class");
+            html.classList.add("dark");
+            if (body) {
+              body.style.setProperty(
+                "background-color",
+                "rgb(6, 6, 10)",
+                "important",
+              );
+              body.style.setProperty(
+                "color",
+                "rgb(248, 250, 252)",
+                "important",
+              );
+            }
+            if (mainWrapper) {
+              mainWrapper.style.setProperty(
+                "background-color",
+                "rgb(6, 6, 10)",
+                "important",
+              );
+            }
+            localStorage.setItem("theme", "dark");
+          }
+          console.log("New classes:", html.className);
+          updateThemeIcon();
+        });
+      } else {
+        console.error("Theme toggle button not found!");
+      }
+
+      // Logout button
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+          try {
+            await fetch("/api/auth/logout", { method: "POST" });
+            window.location.href = "/";
+          } catch (error) {
+            console.error("Logout error:", error);
+          }
+        });
+      }
+    }
+
+    // Wait for DOM to be ready
+    if (document.readyState === "loading") {
+      console.log("DOM still loading, waiting for DOMContentLoaded");
+      document.addEventListener("DOMContentLoaded", initializeDashboard);
+    } else {
+      console.log("DOM already ready, initializing now");
+      initializeDashboard();
+    }
   </script>
 </Layout>

@@ -19,23 +19,18 @@ import Layout from "../../layouts/Layout.astro";
           Create your account
         </p>
 
-        <form
-          @submit.prevent="handleRegister"
-          class="space-y-6"
-          x-data="registerForm()"
-        >
+        <form id="registerForm" class="space-y-6">
           <div>
             <label
-              for="username"
+              for="registerUsername"
               class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
             >
               Username
             </label>
             <input
               type="text"
-              id="username"
+              id="registerUsername"
               name="username"
-              x-model="username"
               required
               class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
               placeholder="johndoe"
@@ -44,16 +39,15 @@ import Layout from "../../layouts/Layout.astro";
 
           <div>
             <label
-              for="email"
+              for="registerEmail"
               class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
             >
               Email Address
             </label>
             <input
               type="email"
-              id="email"
+              id="registerEmail"
               name="email"
-              x-model="email"
               required
               class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
               placeholder="you@example.com"
@@ -62,16 +56,15 @@ import Layout from "../../layouts/Layout.astro";
 
           <div>
             <label
-              for="password"
+              for="registerPassword"
               class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
             >
               Password
             </label>
             <input
               type="password"
-              id="password"
+              id="registerPassword"
               name="password"
-              x-model="password"
               required
               class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
               placeholder="••••••••"
@@ -83,16 +76,15 @@ import Layout from "../../layouts/Layout.astro";
 
           <div>
             <label
-              for="confirmPassword"
+              for="registerConfirmPassword"
               class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
             >
               Confirm Password
             </label>
             <input
               type="password"
-              id="confirmPassword"
+              id="registerConfirmPassword"
               name="confirmPassword"
-              x-model="confirmPassword"
               required
               class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
               placeholder="••••••••"
@@ -100,19 +92,16 @@ import Layout from "../../layouts/Layout.astro";
           </div>
 
           <div
-            x-show="error"
-            class="p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-red-800 dark:text-red-200"
+            id="registerError"
+            class="p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-red-800 dark:text-red-200 hidden"
           >
-            <p x-text="error"></p>
           </div>
 
           <button
             type="submit"
-            x-bind:disabled="loading"
             class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-base"
           >
-            <span x-show="!loading">Create Account</span>
-            <span x-show="loading">Creating...</span>
+            Create Account
           </button>
         </form>
 

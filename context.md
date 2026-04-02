@@ -269,7 +269,6 @@ If starting a new chat session with the AI agent, simply mention:
 ```
 humans                   (base entity: id, first_name, last_name, dob, gender, phone, created_at)
 
-
 email_history            (human_id, email, effective_from, effective_to)
 addresses                (street, city, state, postal_code, country)
 addressable              (address_id, entity_type, entity_id, effective_from/to)
@@ -308,3 +307,23 @@ postgresql://neondb_owner:npg_0lxTYBLMgh2r@ep-twilight-flower-anebzpau-pooler.c-
 ### NPX Integration Command
 
 npx neonctl@latest init
+
+username: alice
+email= alice.test@test
+password: AlicePass123
+
+username='charlie';
+email='charlie@test.com';
+password='CharliePass123'; 
+confirmPassword='CharliePass123'
+
+username='frank';
+ email='frank@test.com';
+ password='FrankPass123'; 
+ confirmPassword='FrankPass123'}
+ 
+username='grace';
+ email='grace@test.com'; 
+ password='GracePass123'; confirmPassword='GracePass123'}
+
+

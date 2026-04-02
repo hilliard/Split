@@ -24,107 +24,129 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
   >
     <slot />
 
-    <script>
-      // Define form functions globally before Alpine.js loads
-      window.loginForm = function () {
-        console.log("Initializing loginForm");
-        return {
-          email: "",
-          password: "",
-          error: "",
-          loading: false,
-          async handleLogin() {
-            console.log("handleLogin called");
-            this.error = "";
-            this.loading = true;
+    <script is:inline>
+      // Dark mode initialization - run ASAP before rendering to prevent flash
+      const savedTheme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const theme = savedTheme || (prefersDark ? "dark" : "light");
 
-            try {
-              const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  email: this.email,
-                  password: this.password,
-                }),
-              });
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
 
-              const data = await response.json();
-              console.log("Login response:", response.status, data);
+      // Initialize form handlers
+      document.addEventListener("DOMContentLoaded", () => {
+        // Setup register form
+        const registerForm = document.getElementById("registerForm");
+        if (registerForm) {
+          registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const username =
+              document.getElementById("registerUsername")?.value || "";
+            const email = document.getElementById("registerEmail")?.value || "";
+            const password =
+              document.getElementById("registerPassword")?.value || "";
+            const confirmPassword =
+              document.getElementById("registerConfirmPassword")?.value || "";
+            const errorDiv = document.getElementById("registerError");
+            const submitBtn = registerForm.querySelector(
+              'button[type="submit"]',
+            );
 
-              if (!response.ok) {
-                this.error = data.error || "Login failed";
-              } else {
-                window.location.href = "/dashboard";
-              }
-            } catch (error) {
-              console.error("Login error:", error);
-              this.error = "An error occurred. Please try again.";
-            } finally {
-              this.loading = false;
+            if (errorDiv) {
+              errorDiv.innerHTML = "";
+              errorDiv.classList.add("hidden");
             }
-          },
-        };
-      };
-
-      window.registerForm = function () {
-        console.log("Initializing registerForm");
-        return {
-          username: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          error: "",
-          loading: false,
-          async handleRegister() {
-            console.log("handleRegister called");
-            this.error = "";
-            this.loading = true;
+            if (submitBtn) submitBtn.disabled = true;
 
             try {
               const response = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  username: this.username,
-                  email: this.email,
-                  password: this.password,
-                  confirmPassword: this.confirmPassword,
+                  username,
+                  email,
+                  password,
+                  confirmPassword,
                 }),
               });
 
               const data = await response.json();
-              console.log("Register response:", response.status, data);
 
               if (!response.ok) {
-                if (Array.isArray(data.error)) {
-                  this.error = data.error[0].message || "Registration failed";
-                } else {
-                  this.error = data.error || "Registration failed";
+                const errorMsg = Array.isArray(data.error)
+                  ? data.error[0]?.message || "Registration failed"
+                  : data.error || "Registration failed";
+                if (errorDiv) {
+                  errorDiv.innerHTML = errorMsg;
+                  errorDiv.classList.remove("hidden");
                 }
               } else {
                 window.location.href = "/dashboard";
               }
             } catch (error) {
               console.error("Register error:", error);
-              this.error = "An error occurred. Please try again.";
+              if (errorDiv) {
+                errorDiv.innerHTML = "An error occurred. Please try again.";
+                errorDiv.classList.remove("hidden");
+              }
             } finally {
-              this.loading = false;
+              if (submitBtn) submitBtn.disabled = false;
             }
-          },
-        };
-      };
+          });
+        }
 
-      // Dark mode toggle
-      const theme = localStorage.getItem("theme") || "light";
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-      }
+        // Setup login form
+        const loginForm = document.getElementById("loginForm");
+        if (loginForm) {
+          loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("loginEmail")?.value || "";
+            const password =
+              document.getElementById("loginPassword")?.value || "";
+            const errorDiv = document.getElementById("loginError");
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+            if (errorDiv) {
+              errorDiv.innerHTML = "";
+              errorDiv.classList.add("hidden");
+            }
+            if (submitBtn) submitBtn.disabled = true;
+
+            try {
+              const response = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                if (errorDiv) {
+                  errorDiv.innerHTML = data.error || "Login failed";
+                  errorDiv.classList.remove("hidden");
+                }
+              } else {
+                window.location.href = "/dashboard";
+              }
+            } catch (error) {
+              console.error("Login error:", error);
+              if (errorDiv) {
+                errorDiv.innerHTML = "An error occurred. Please try again.";
+                errorDiv.classList.remove("hidden");
+              }
+            } finally {
+              if (submitBtn) submitBtn.disabled = false;
+            }
+          });
+        }
+      });
     </script>
-
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
   </body>
 </html>
 

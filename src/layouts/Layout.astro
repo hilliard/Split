@@ -1,0 +1,41 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Split - Expense Tracking Made Simple" } =
+  Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title} | Split</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body
+    class="bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-200"
+  >
+    <slot />
+
+    <script>
+      // Dark mode toggle
+      const theme = localStorage.getItem("theme") || "light";
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  * {
+    @apply antialiased;
+  }
+</style>

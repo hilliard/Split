@@ -1,0 +1,81 @@
+Build me a shared expense tracker app called SplitiUp. Multiple people can sign up, create groups, and split expenses.
+
+The app needs user accounts:
+- Registration with email (or username) and password (it can use email as primary id if user chooses)
+- Login and logout
+- Sessions that persist across page loads
+- Protected routes (dashboard requires login, landing page is public)
+
+Core features:
+- Create expense groups with a name
+- Invite other users to a group by email
+- Add expenses: who paid, how much, and split among which group members
+- Calculate balances automatically (who owes whom within each group)
+- A dashboard showing all groups the logged-in user belongs to
+
+Each user should only see groups they belong to. Each group shows its own expenses, members, and balances.
+
+Use a cloud database with built-in auth (like Neon/Drizzle) so registration, login, and session management are handled for you. Store money as integer cents to avoid floating-point rounding issues.
+
+Make it clean and functional. This is a tool people would actually use on a trip with friends.
+
+#####
+
+Build me an Events Dashboard. Other applications send events to it through an API, and I see them in a real-time feed.
+
+Suggested Stack: 
+### FrontEnd: 
+
+Next.js: The core framework for building the frontend, providing SSR, SSG, and API routes.
+
+Express: The underlying library for building user interfaces.
+
+TypeScript: For type safety and better developer experience.
+
+Tailwind CSS: A utility-first CSS framework for styling.
+
+Zod: For form validation.
+
+### Backend:
+
+Next.js API Routes: For creating serverless functions and handling backend logic.
+
+Node.js/Express: For building RESTful APIs.
+
+NestJS: For larger, more complex backend projects.
+
+Neon/Drizzle: A backend-as-a-service solution offering real-time subscriptions, PostgreSQL database hosting, and built-in authentication.
+
+### Deployment and Hosting
+
+V0 Vercel: For deploying Next.js applications.
+
+### The app has two parts:
+1. A REST API that accepts events via POST request (with API key authentication). This needs to run on a remote server so it's always available, even when my computer is off.
+2. A dashboard that displays events in a feed, with search, filtering, and charts. This can run locally.
+
+Each event has: a channel (category like "orders", "signups", "deploys"), a title, an optional description, an optional emoji icon, and optional tags.
+
+Features I need:
+- POST /api/events endpoint that accepts JSON and stores events in the database
+- API key authentication (generate a key when creating a project)
+- A feed page showing events in reverse chronological order
+- Filter events by channel
+- Search events by title, description, or tags
+- At least one chart showing event activity over time
+- The dashboard should update in real-time when new events arrive
+- Use a cloud database that's always available (Neon/Drizzle)
+
+Make it clean and functional. I want to actually use this to monitor my own projects.
+
+#####
+
+### Neon ###
+
+Project Name: Split 
+Project ID:  snowy-lab-71291591
+Connection String: 
+postgresql://neondb_owner:npg_0lxTYBLMgh2r@ep-twilight-flower-anebzpau-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+### NPX Integration Command
+npx neonctl@latest init

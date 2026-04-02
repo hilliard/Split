@@ -1,0 +1,46 @@
+{
+  "name": "split",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Split - A shared expense tracker app",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "e2e": "playwright test",
+    "e2e:debug": "playwright test --debug",
+    "e2e:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "@alpinejs/collapse": "^3.15.11",
+    "@neondatabase/serverless": "^1.0.2",
+    "@tailwindcss/vite": "^4.2.2",
+    "alpinejs": "^3.15.11",
+    "astro": "^6.1.3",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.0",
+    "drizzle-orm": "^0.45.2",
+    "htmx.org": "^2.0.8",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@vitest/ui": "^4.1.2",
+    "autoprefixer": "^10.4.27",
+    "drizzle-kit": "^0.31.10",
+    "playwright": "^1.59.1",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2",
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.2"
+  }
+}

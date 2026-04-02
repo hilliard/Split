@@ -33,6 +33,8 @@ const client = new Client({
   connectionString: process.env.DATABASE_URL,
 });
 
-await client.connect();
+// Don't connect immediately - Drizzle will handle connection automatically
+// This avoids blocking module import on connection failures during dev
+// await client.connect();
 
 export const db = drizzle({ client, schema });

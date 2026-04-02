@@ -5,6 +5,7 @@ This guide explains how to set up local development with PostgreSQL and deploy t
 ## Local Development Setup
 
 ### Prerequisites
+
 - Docker & Docker Compose (or PostgreSQL installed locally)
 - Node.js 22+
 - Git
@@ -23,6 +24,7 @@ npm run docker:down
 ```
 
 This will start PostgreSQL on `localhost:5432` with:
+
 - Username: `split_user`
 - Password: `split_password`
 - Database: `split_db`
@@ -53,12 +55,15 @@ npm run db:studio
 ## Switching Between Local & Neon
 
 ### Using Local Database
+
 Your `.env.local` is already configured for local PostgreSQL:
+
 ```
 DATABASE_URL=postgresql://split_user:split_password@localhost:5432/split_db
 ```
 
 ### Switching to Neon
+
 When deploying to production:
 
 1. Copy `.env.production.example` to `.env.production`
@@ -92,11 +97,13 @@ npm run db:seed          # Seed database with sample data (if available)
 ## Production Deployment (Neon)
 
 ### Step 1: Create Neon Database
+
 1. Go to [console.neon.tech](https://console.neon.tech)
 2. Create new project
 3. Copy connection string (SQL connection)
 
 ### Step 2: Configure Environment
+
 ```bash
 # Copy example to production
 cp .env.production.example .env.production
@@ -108,12 +115,14 @@ NODE_ENV=production
 ```
 
 ### Step 3: Push Schema
+
 ```bash
 # Make sure you have .env.production with Neon credentials
 drizzle-kit push --config drizzle.config.ts
 ```
 
 ### Step 4: Deploy to Railway (or other host)
+
 1. Push code to GitHub
 2. Connect repository to Railway
 3. Set environment variables in Railway dashboard
@@ -128,6 +137,7 @@ drizzle-kit push --config drizzle.config.ts
 ## Troubleshooting
 
 ### Docker Issues
+
 ```bash
 # Container won't start
 docker-compose down -v    # Remove volumes and restart
@@ -138,6 +148,7 @@ npm run docker:up
 ```
 
 ### Database Connection Issues
+
 ```bash
 # Verify local database is running
 npm run docker:logs
@@ -147,6 +158,7 @@ npm run docker:logs
 ```
 
 ### Migration Issues
+
 ```bash
 # Reset local database (careful - deletes all data!)
 docker-compose down -v

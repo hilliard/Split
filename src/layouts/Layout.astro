@@ -27,12 +27,14 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
     <script>
       // Define form functions globally before Alpine.js loads
       window.loginForm = function () {
+        console.log("Initializing loginForm");
         return {
           email: "",
           password: "",
           error: "",
           loading: false,
           async handleLogin() {
+            console.log("handleLogin called");
             this.error = "";
             this.loading = true;
 
@@ -47,6 +49,7 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
               });
 
               const data = await response.json();
+              console.log("Login response:", response.status, data);
 
               if (!response.ok) {
                 this.error = data.error || "Login failed";
@@ -54,6 +57,7 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
                 window.location.href = "/dashboard";
               }
             } catch (error) {
+              console.error("Login error:", error);
               this.error = "An error occurred. Please try again.";
             } finally {
               this.loading = false;
@@ -63,6 +67,7 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
       };
 
       window.registerForm = function () {
+        console.log("Initializing registerForm");
         return {
           username: "",
           email: "",
@@ -71,6 +76,7 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
           error: "",
           loading: false,
           async handleRegister() {
+            console.log("handleRegister called");
             this.error = "";
             this.loading = true;
 
@@ -87,6 +93,7 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
               });
 
               const data = await response.json();
+              console.log("Register response:", response.status, data);
 
               if (!response.ok) {
                 if (Array.isArray(data.error)) {
@@ -98,6 +105,7 @@ const { title, description = "Split - Expense Tracking Made Simple" } =
                 window.location.href = "/dashboard";
               }
             } catch (error) {
+              console.error("Register error:", error);
               this.error = "An error occurred. Please try again.";
             } finally {
               this.loading = false;

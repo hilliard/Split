@@ -1,12 +1,10 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:16-alpine
     container_name: split-db-local
     environment:
-      POSTGRES_USER: split_user
-      POSTGRES_PASSWORD: split_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: split_db
     ports:
       - "5432:5432"
@@ -14,6 +12,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - split-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

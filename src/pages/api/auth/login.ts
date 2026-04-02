@@ -64,7 +64,8 @@ export const POST: APIRoute = async (context) => {
       });
     }
     
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    console.error('Login error:', error);
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

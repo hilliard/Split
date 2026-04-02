@@ -19,7 +19,11 @@ import Layout from "../../layouts/Layout.astro";
           Login to your account
         </p>
 
-        <form id="loginForm" class="space-y-6">
+        <form
+          @submit.prevent="handleLogin"
+          class="space-y-6"
+          x-data="loginForm()"
+        >
           <div>
             <label
               for="email"
@@ -31,6 +35,7 @@ import Layout from "../../layouts/Layout.astro";
               type="email"
               id="email"
               name="email"
+              x-model="email"
               required
               class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
               placeholder="you@example.com"
@@ -48,6 +53,7 @@ import Layout from "../../layouts/Layout.astro";
               type="password"
               id="password"
               name="password"
+              x-model="password"
               required
               class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
               placeholder="••••••••"
@@ -55,16 +61,19 @@ import Layout from "../../layouts/Layout.astro";
           </div>
 
           <div
-            id="error"
-            class="hidden p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-red-800 dark:text-red-200"
+            x-show="error"
+            class="p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-red-800 dark:text-red-200"
           >
+            <p x-text="error"></p>
           </div>
 
           <button
             type="submit"
-            class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+            x-bind:disabled="loading"
+            class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Login
+            <span x-show="!loading">Login</span>
+            <span x-show="loading">Logging in...</span>
           </button>
         </form>
 
@@ -82,36 +91,40 @@ import Layout from "../../layouts/Layout.astro";
   </div>
 
   <script>
-    const form = document.getElementById("loginForm") as HTMLFormElement;
-    const errorDiv = document.getElementById("error") as HTMLDivElement;
+    function loginForm() {
+      return {
+        email: "",
+        password: "",
+        error: "",
+        loading: false,
+        async handleLogin() {
+          this.error = "";
+          this.loading = true;
 
-    form.addEventListener("submit", async (e: Event) => {
-      e.preventDefault();
-      errorDiv.classList.add("hidden");
+          try {
+            const response = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: this.email,
+                password: this.password,
+              }),
+            });
 
-      const formData = new FormData(form);
-      const email = formData.get("email") as string;
-      const password = formData.get("password") as string;
+            const data = await response.json();
 
-      try {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          errorDiv.textContent = data.error || "Login failed";
-          errorDiv.classList.remove("hidden");
-        } else {
-          window.location.href = "/dashboard";
-        }
-      } catch (error) {
-        errorDiv.textContent = "An error occurred. Please try again.";
-        errorDiv.classList.remove("hidden");
-      }
-    });
+            if (!response.ok) {
+              this.error = data.error || "Login failed";
+            } else {
+              window.location.href = "/dashboard";
+            }
+          } catch (error) {
+            this.error = "An error occurred. Please try again.";
+          } finally {
+            this.loading = false;
+          }
+        },
+      };
+    }
   </script>
 </Layout>

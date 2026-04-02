@@ -7,6 +7,7 @@
 ## What Was Built
 
 ### Project Structure
+
 ```
 Split/
 ├── src/
@@ -46,6 +47,7 @@ Split/
 ## Features Implemented
 
 ### Authentication System
+
 - ✅ User registration with validation
 - ✅ User login with password verification
 - ✅ Session management with HTTP-only cookies
@@ -55,6 +57,7 @@ Split/
 - ✅ Current user endpoint (`/api/auth/me`)
 
 ### Database Schema
+
 - ✅ Users table (email, username, password_hash)
 - ✅ Events table (created by user, with optional description)
 - ✅ Activities table (sub-items within events)
@@ -66,6 +69,7 @@ Split/
 - ✅ Proper relations and indexes configured
 
 ### Frontend
+
 - ✅ Responsive design (mobile-first)
 - ✅ Dark/Light mode support (with localStorage persistence)
 - ✅ ARIA-compliant semantic HTML
@@ -75,6 +79,7 @@ Split/
 - ✅ Professional UI/UX design
 
 ### Development Tools
+
 - ✅ TypeScript (strict mode)
 - ✅ Drizzle ORM with PostgreSQL
 - ✅ Zod for runtime validation
@@ -85,13 +90,13 @@ Split/
 
 ## Configuration Files Created
 
-| File | Purpose |
-|------|---------|
-| `.env.local` | Environment variables (DATABASE_URL, SESSION_SECRET) |
-| `drizzle.config.ts` | Drizzle Kit configuration for migrations |
-| `astro.config.mjs` | Astro config with Tailwind plugin |
-| `tsconfig.json` | TypeScript strict mode configuration |
-| `.gitignore` | Git ignore rules (node_modules, .env, etc.) |
+| File                | Purpose                                              |
+| ------------------- | ---------------------------------------------------- |
+| `.env.local`        | Environment variables (DATABASE_URL, SESSION_SECRET) |
+| `drizzle.config.ts` | Drizzle Kit configuration for migrations             |
+| `astro.config.mjs`  | Astro config with Tailwind plugin                    |
+| `tsconfig.json`     | TypeScript strict mode configuration                 |
+| `.gitignore`        | Git ignore rules (node_modules, .env, etc.)          |
 
 ## npm Scripts Added
 
@@ -110,6 +115,7 @@ npm run e2e:ui           # Run E2E tests with UI
 ```
 
 ## Security Features
+
 - ✅ Passwords hashed with bcrypt (10 salt rounds)
 - ✅ HTTP-only cookies (protected from XSS)
 - ✅ Secure cookie flag for HTTPS
@@ -121,6 +127,7 @@ npm run e2e:ui           # Run E2E tests with UI
 ## Next Phase (Phase 2: Core Features)
 
 ### To Build:
+
 1. **Event Management**
    - [ ] Create/read/update/delete events
    - [ ] Add activities to events
@@ -148,21 +155,24 @@ npm run e2e:ui           # Run E2E tests with UI
 Before running the app:
 
 1. **Create PostgreSQL database** (or use Neon):
+
    ```bash
    # Option 1: Local PostgreSQL
    createdb split_db
-   
+
    # Option 2: Neon (via console.prisma.io)
    # Copy connection string to .env.local
    ```
 
 2. **Update .env.local**:
+
    ```
    DATABASE_URL=postgresql://user:password@localhost:5432/split_db
    SESSION_SECRET=your-secret-key-generate-this
    ```
 
 3. **Run migrations**:
+
    ```bash
    npm run db:push
    ```
@@ -196,6 +206,7 @@ Before running the app:
 ## Commit Details
 
 Initial commit includes:
+
 - All source code (38 files)
 - Git initialized
 - Dependencies installed

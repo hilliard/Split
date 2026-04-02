@@ -95,13 +95,13 @@ npm i -D drizzle-kit tsx
 
 ## Implementation Phases
 
-### Phase 1: Foundation & Authentication (Week 1)
+### Phase 1: Foundation & Authentication (Week 1) ✅
 
-- [ ] Project initialization (Astro, dependencies, Git setup)
-- [ ] Database schema design & migrations
-- [ ] User registration & login pages
-- [ ] Session management & protected routes
-- [ ] Basic dashboard layout (responsive, dark/light mode)
+- [x] Project initialization (Astro, dependencies, Git setup)
+- [x] Database schema design & migrations
+- [x] User registration & login pages
+- [x] Session management & protected routes
+- [x] Basic dashboard layout (responsive, dark/light mode)
 
 ### Phase 2: Core Features (Week 2)
 

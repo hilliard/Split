@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { deleteSession } from '../../utils/session';
+import { deleteSession } from '../../../utils/session';
 
 export const POST: APIRoute = async (context) => {
   try {

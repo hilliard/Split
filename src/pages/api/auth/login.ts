@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../db';
-import { users } from '../../db/schema';
+import { db } from '../../../db';
+import { users } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
-import { verifyPassword, createSession } from '../../utils';
-import { loginSchema } from '../../utils/validation';
+import { verifyPassword, createSession } from '../../../utils';
+import { loginSchema } from '../../../utils/validation';
 import { ZodError } from 'zod';
 
 export const POST: APIRoute = async (context) => {

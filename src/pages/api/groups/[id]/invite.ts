@@ -3,6 +3,7 @@ import { db } from '../../../../../db';
 import { expenseGroups, pendingGroupInvitations, sessions, humans } from '../../../../../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
+import { sendGroupInvitationEmail } from '../../../../../utils/email';
 
 const inviteSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -98,8 +99,34 @@ export const POST: APIRoute = async (context) => {
 
     console.log('✓ Invitation created:', invitation.id);
 
-    // TODO: Send email with invitation link
-    // For now, just return the invitation
+    // Get sender info
+    const [sender] = await db
+      .select()
+      .from(humans)
+      .where(eq(humans.id, session.userId))
+      .limit(1);
+
+    const senderName = sender?.firstName || 'A friend';
+
+    // Build accept URL
+    const baseUrl = process.env.PUBLIC_URL || 'http://localhost:3000';
+    const acceptUrl = `${baseUrl}/invitations/${invitation.id}/accept?email=${encodeURIComponent(validatedData.email)}`;
+
+    // Send invitation email
+    console.log('📧 Sending invitation email...');
+    const emailResult = await sendGroupInvitationEmail({
+      recipientEmail: validatedData.email,
+      groupName: group.name,
+      senderName,
+      acceptUrl,
+    });
+
+    if (!emailResult.success) {
+      console.warn('⚠️  Email send failed:', emailResult.error);
+      // Don't fail the request if email fails - invitation still created
+    } else {
+      console.log('✓ Email sent successfully');
+    }
 
     return new Response(
       JSON.stringify({

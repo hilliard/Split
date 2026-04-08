@@ -1,0 +1,232 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { db } from "../../db";
+import { pendingGroupInvitations, sessions, expenseGroups } from "../../db/schema";
+import { eq } from "drizzle-orm";
+
+// Get invitation ID from URL
+const { id: invitationId } = Astro.params;
+const email = Astro.url.searchParams.get("email");
+
+let invitation = null;
+let group = null;
+let isAuthenticated = false;
+let currentUserEmail = null;
+
+if (invitationId) {
+  // Get invitation
+  const [inv] = await db
+    .select()
+    .from(pendingGroupInvitations)
+    .where(eq(pendingGroupInvitations.id, invitationId as string))
+    .limit(1);
+
+  invitation = inv;
+
+  // Get group name
+  if (invitation) {
+    const [grp] = await db
+      .select()
+      .from(expenseGroups)
+      .where(eq(expenseGroups.id, invitation.groupId))
+      .limit(1);
+
+    group = grp;
+  }
+
+  // Check if user is authenticated
+  const sessionId = Astro.cookies.get("sessionId")?.value;
+  if (sessionId) {
+    const [session] = await db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.id, sessionId))
+      .limit(1);
+
+    if (session && new Date(session.expiresAt) > new Date()) {
+      isAuthenticated = true;
+      // Get user email from the invitation
+      currentUserEmail = invitation?.email;
+    }
+  }
+}
+---
+
+<Layout title="Group Invitation" description="Accept a group invitation">
+  <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+      {
+        !invitation ? (
+          // Invalid invitation
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+              Invalid Invitation
+            </h1>
+            <p class="text-slate-600 dark:text-slate-400 mb-6">
+              This invitation doesn't exist or has expired.
+            </p>
+            <a
+              href="/"
+              class="inline-block px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Go Home
+            </a>
+          </div>
+        ) : invitation.status !== "pending" ? (
+          // Already accepted/rejected/expired
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+              Invitation {invitation.status}
+            </h1>
+            <p class="text-slate-600 dark:text-slate-400 mb-6">
+              {invitation.status === "accepted"
+                ? "You've already accepted this invitation!"
+                : `This invitation has been ${invitation.status}.`}
+            </p>
+            <a
+              href="/"
+              class="inline-block px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Go to Dashboard
+            </a>
+          </div>
+        ) : invitation.expiresAt &&
+          new Date(invitation.expiresAt) < new Date() ? (
+          // Expired
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+              Invitation Expired
+            </h1>
+            <p class="text-slate-600 dark:text-slate-400 mb-6">
+              This invitation expired on{" "}
+              {new Date(invitation.expiresAt).toLocaleDateString()}
+            </p>
+            <a
+              href="/"
+              class="inline-block px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Go Home
+            </a>
+          </div>
+        ) : isAuthenticated ? (
+          // Logged in - show accept button
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8">
+            <div class="text-center mb-8">
+              <div class="inline-block w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
+                <span class="text-2xl">👥</span>
+              </div>
+              <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                Group Invitation
+              </h1>
+              <p class="text-slate-600 dark:text-slate-400">
+                You're invited to join{" "}
+                <strong>"{group?.name}"</strong>
+              </p>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-4 mb-6 text-center">
+              <p class="text-sm text-slate-600 dark:text-slate-400">
+                Invitation sent to
+              </p>
+              <p class="font-semibold text-slate-900 dark:text-white">
+                {invitation.email}
+              </p>
+            </div>
+
+            <button
+              id="acceptBtn"
+              class="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Accept Invitation
+            </button>
+
+            <p class="text-center text-sm text-slate-600 dark:text-slate-400 mt-4">
+              This invitation expires in 30 days
+            </p>
+          </div>
+        ) : (
+          // Not logged in - show sign up prompt
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8">
+            <div class="text-center mb-8">
+              <div class="inline-block w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
+                <span class="text-2xl">👥</span>
+              </div>
+              <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                Join {group?.name}
+              </h1>
+              <p class="text-slate-600 dark:text-slate-400">
+                Create an account to accept this invitation
+              </p>
+            </div>
+
+            <div class="bg-indigo-50 dark:bg-indigo-900 border border-indigo-200 dark:border-indigo-700 rounded-lg p-4 mb-6">
+              <p class="text-sm text-indigo-900 dark:text-indigo-100">
+                <strong>Invitation for:</strong>
+              </p>
+              <p class="font-semibold text-indigo-900 dark:text-indigo-100">
+                {invitation.email}
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <a
+                href={`/auth/register?email=${encodeURIComponent(invitation.email)}`}
+                class="block w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-center"
+              >
+                Create Account & Join
+              </a>
+
+              <p class="text-center text-sm text-slate-600 dark:text-slate-400">
+                Already have an account?{" "}
+                <a
+                  href="/auth/login"
+                  class="text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  Login here
+                </a>
+              </p>
+            </div>
+
+            <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-6 border-t border-slate-200 dark:border-slate-700 pt-4">
+              This invitation expires in 30 days
+            </p>
+          </div>
+        )
+      }
+    </div>
+  </div>
+
+  <script define:vars={{ invitationId, isAuthenticated }}>
+    if (isAuthenticated && document.getElementById("acceptBtn")) {
+      document.getElementById("acceptBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("acceptBtn");
+        btn.disabled = true;
+        btn.textContent = "Accepting...";
+
+        try {
+          const response = await fetch("/api/groups/invitations/accept", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ invitationId }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            alert("Error: " + (data.error || "Failed to accept invitation"));
+            btn.disabled = false;
+            btn.textContent = "Accept Invitation";
+            return;
+          }
+
+          alert("✅ You've joined the group!");
+          window.location.href = "/dashboard";
+        } catch (error) {
+          alert("Error: " + error.message);
+          btn.disabled = false;
+          btn.textContent = "Accept Invitation";
+        }
+      });
+    }
+  </script>
+</Layout>

@@ -25,4 +25,4 @@ pnpm-debug.log*
 
 
 # md files
-split-ideas.md/
+*.md

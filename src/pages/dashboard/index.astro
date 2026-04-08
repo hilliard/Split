@@ -151,6 +151,31 @@ if (!sessionId) {
         </a>
       </div>
 
+      <!-- Pending Invitations Section -->
+      <div class="mb-6 sm:mb-8">
+        <h2
+          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
+        >
+          Pending Invitations
+        </h2>
+        <div id="invitationsList" class="grid grid-cols-1 gap-4">
+          <!-- Pending invitations will be loaded here -->
+          <div
+            id="invitationsEmpty"
+            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+          >
+            <h3
+              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
+            >
+              No pending invitations
+            </h3>
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+              You'll see invitations here when someone invites you to a group
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Events Section -->
       <div>
         <h2
@@ -587,6 +612,118 @@ if (!sessionId) {
       }
     }
 
+    // Load and display pending invitations
+    async function loadPendingInvitations() {
+      try {
+        const response = await fetch("/api/dashboard/pending-invitations");
+        if (response.ok) {
+          const data = await response.json();
+          const invitationsList = document.getElementById("invitationsList");
+          const invitationsEmpty = document.getElementById("invitationsEmpty");
+
+          if (!data.invitations || data.invitations.length === 0) {
+            if (invitationsList) invitationsList.innerHTML = invitationsEmpty?.outerHTML || "";
+          } else {
+            if (invitationsList) {
+              invitationsList.innerHTML = data.invitations
+                .map(
+                  (inv) => `
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
+                  <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1">
+                      <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">${escapeHtml(inv.groupName)}</h3>
+                      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                        Invited by <span class="font-medium">${escapeHtml(inv.invitedByName)}</span>
+                      </p>
+                    </div>
+                    <span class="text-xs px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded font-medium flex-shrink-0">
+                      Pending
+                    </span>
+                  </div>
+                  
+                  <div class="mb-3 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                    Expires: <span class="font-medium">${new Date(inv.expiresAt).toLocaleDateString()}</span>
+                  </div>
+                  
+                  <div class="pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+                    <button class="text-sm px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 rounded transition-colors flex-1 accept-invitation-btn font-medium" data-invitation-id="${inv.id}">
+                      Accept
+                    </button>
+                    <button class="text-sm px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors flex-1 decline-invitation-btn font-medium" data-invitation-id="${inv.id}">
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              `,
+                )
+                .join("");
+
+              // Add event listeners to accept/decline buttons
+              document.querySelectorAll(".accept-invitation-btn").forEach((btn) => {
+                btn.addEventListener("click", async (e) => {
+                  const invitationId = e.target.dataset.invitationId;
+                  try {
+                    btn.disabled = true;
+                    btn.textContent = "Accepting...";
+                    const response = await fetch("/api/groups/invitations/accept", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ invitationId }),
+                    });
+                    if (response.ok) {
+                      showToast("Invitation accepted! You've joined the group.");
+                      loadPendingInvitations();
+                    } else {
+                      const error = await response.json();
+                      showToast(error.error || "Failed to accept invitation", 4000);
+                      btn.disabled = false;
+                      btn.textContent = "Accept";
+                    }
+                  } catch (error) {
+                    console.error("Error accepting invitation:", error);
+                    showToast("Error accepting invitation", 4000);
+                    btn.disabled = false;
+                    btn.textContent = "Accept";
+                  }
+                });
+              });
+
+              document.querySelectorAll(".decline-invitation-btn").forEach((btn) => {
+                btn.addEventListener("click", async (e) => {
+                  const invitationId = e.target.dataset.invitationId;
+                  try {
+                    btn.disabled = true;
+                    btn.textContent = "Declining...";
+                    const response = await fetch("/api/groups/invitations/decline", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ invitationId }),
+                    });
+                    if (response.ok) {
+                      showToast("Invitation declined.");
+                      loadPendingInvitations();
+                    } else {
+                      const error = await response.json();
+                      showToast(error.error || "Failed to decline invitation", 4000);
+                      btn.disabled = false;
+                      btn.textContent = "Decline";
+                    }
+                  } catch (error) {
+                    console.error("Error declining invitation:", error);
+                    showToast("Error declining invitation", 4000);
+                    btn.disabled = false;
+                    btn.textContent = "Decline";
+                  }
+                });
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load pending invitations:", error);
+      }
+    }
+
     // Update theme emoji based on dark class
 
     // Global theme toggle function accessible from HTML onclick
@@ -907,6 +1044,8 @@ if (!sessionId) {
         await loadUserInfo();
         // Load events list
         await loadEvents();
+        // Load pending invitations
+        await loadPendingInvitations();
 
         // Setup theme toggle - with explicit logging
         console.log("Before setupThemeToggle");

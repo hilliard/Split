@@ -98,6 +98,7 @@ if (!sessionId) {
           <div class="space-y-3 sm:space-y-4">
             <div>
               <p
+                id="statsGroupCount"
                 class="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400"
               >
                 0
@@ -108,6 +109,7 @@ if (!sessionId) {
             </div>
             <div>
               <p
+                id="statsTotalBalanced"
                 class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400"
               >
                 $0
@@ -171,6 +173,31 @@ if (!sessionId) {
             </h3>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
               You'll see invitations here when someone invites you to a group
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Groups Section -->
+      <div class="mb-6 sm:mb-8">
+        <h2
+          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
+        >
+          Your Groups
+        </h2>
+        <div id="groupsList" class="grid grid-cols-1 gap-4">
+          <!-- Groups will be loaded here -->
+          <div
+            id="groupsEmpty"
+            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+          >
+            <h3
+              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
+            >
+              No groups yet
+            </h3>
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+              Create a group or accept an invitation to get started
             </p>
           </div>
         </div>
@@ -612,6 +639,100 @@ if (!sessionId) {
       }
     }
 
+    // Load and display user groups
+    async function loadGroups() {
+      try {
+        const response = await fetch("/api/groups/list");
+        if (response.ok) {
+          const data = await response.json();
+          const groupsList = document.getElementById("groupsList");
+          const groupsEmpty = document.getElementById("groupsEmpty");
+
+          if (!data.groups || data.groups.length === 0) {
+            if (groupsList) groupsList.innerHTML = groupsEmpty?.outerHTML || "";
+          } else {
+            if (groupsList) {
+              groupsList.innerHTML = data.groups
+                .map(
+                  (group) => `
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
+                  <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">${escapeHtml(group.name)}</h3>
+                      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Created ${new Date(group.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+                    <button class="text-xs px-3 py-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded transition-colors flex-1 view-group-btn" data-group-id="${group.id}">View</button>
+                    <button class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors flex-1 edit-group-btn" data-group-id="${group.id}">Edit</button>
+                  </div>
+                </div>
+              `,
+                )
+                .join("");
+
+              // Add event listeners to View and Edit buttons
+              document.querySelectorAll(".view-group-btn").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                  const groupId = e.target.dataset.groupId;
+                  window.location.href = `/groups/${groupId}/manage`;
+                });
+              });
+              document.querySelectorAll(".edit-group-btn").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                  const groupId = e.target.dataset.groupId;
+                  window.location.href = `/groups/${groupId}/edit`;
+                });
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load groups:", error);
+      }
+    }
+
+    // Update Quick Stats panel
+    async function updateStats() {
+      try {
+        // Get groups count
+        const groupsResponse = await fetch("/api/groups/list");
+        if (groupsResponse.ok) {
+          const groupsData = await groupsResponse.json();
+          const groupCount = groupsData.groups ? groupsData.groups.length : 0;
+          
+          const statsGroupCount = document.getElementById("statsGroupCount");
+          if (statsGroupCount) {
+            statsGroupCount.textContent = groupCount;
+          }
+        }
+
+        // Get events to calculate total
+        const eventsResponse = await fetch("/api/events/list");
+        if (eventsResponse.ok) {
+          const eventsData = await eventsResponse.json();
+          const events = eventsData.events || [];
+          
+          // For now, sum up budgets from events as a simple indicator
+          // In the future, this could be calculated from actual expenses/splits
+          let totalBudget = 0;
+          events.forEach(event => {
+            if (event.budget) {
+              totalBudget += parseFloat(event.budget) || 0;
+            }
+          });
+          
+          const statsTotalBalanced = document.getElementById("statsTotalBalanced");
+          if (statsTotalBalanced) {
+            statsTotalBalanced.textContent = `$${totalBudget.toFixed(2)}`;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to update stats:", error);
+      }
+    }
+
     // Load and display pending invitations
     async function loadPendingInvitations() {
       try {
@@ -1044,8 +1165,12 @@ if (!sessionId) {
         await loadUserInfo();
         // Load events list
         await loadEvents();
+        // Load user groups
+        await loadGroups();
         // Load pending invitations
         await loadPendingInvitations();
+        // Update stats panel
+        await updateStats();
 
         // Setup theme toggle - with explicit logging
         console.log("Before setupThemeToggle");

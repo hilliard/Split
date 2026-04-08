@@ -132,7 +132,7 @@ if (!group) {
 
       <!-- Pending Invitations Section -->
       <div
-        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6"
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6 mb-6 sm:mb-8"
       >
         <h2
           class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
@@ -146,6 +146,27 @@ if (!group) {
             <p>Loading invitations...</p>
           </div>
         </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div
+        class="bg-red-50 dark:bg-red-900 rounded-lg shadow-sm border border-red-200 dark:border-red-700 p-5 sm:p-6"
+      >
+        <h2
+          class="text-lg sm:text-xl font-bold text-red-900 dark:text-red-100 mb-2"
+        >
+          ⚠️ Danger Zone
+        </h2>
+        <p class="text-sm text-red-800 dark:text-red-200 mb-4">
+          Deleting this group is permanent and cannot be undone. All members, events, and expense data will be deleted.
+        </p>
+        <button
+          id="deleteGroupBtn"
+          type="button"
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm"
+        >
+          Delete Group
+        </button>
       </div>
     </main>
 
@@ -307,6 +328,49 @@ if (!group) {
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Send Invite";
+      }
+    });
+
+    // Handle delete group
+    document.getElementById("deleteGroupBtn").addEventListener("click", async () => {
+      if (!confirm("Are you sure you want to delete this group? This action cannot be undone.")) {
+        return;
+      }
+
+      if (!confirm("This will delete ALL members, events, and expenses. Are you absolutely sure?")) {
+        return;
+      }
+
+      try {
+        const deleteBtn = document.getElementById("deleteGroupBtn");
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = "Deleting...";
+
+        const response = await fetch(`/api/groups/${groupId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showToast("Group deleted successfully! Redirecting...");
+          
+          // Redirect to dashboard after a short delay
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 2000);
+        } else {
+          const error = await response.json();
+          alert(error.error || "Failed to delete group");
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Delete Group";
+        }
+      } catch (error) {
+        console.error("Error deleting group:", error);
+        alert("Error deleting group");
+        const deleteBtn = document.getElementById("deleteGroupBtn");
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = "Delete Group";
       }
     });
 

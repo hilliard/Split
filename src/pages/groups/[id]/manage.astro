@@ -1,0 +1,321 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { db } from "@/db";
+import { sessions, expenseGroups } from "@/db/schema";
+import { eq } from "drizzle-orm";
+
+// Check if user is authenticated
+const sessionId = Astro.cookies.get("sessionId")?.value;
+if (!sessionId) {
+  return Astro.redirect("/auth/login");
+}
+
+// Verify session
+const [session] = await db
+  .select()
+  .from(sessions)
+  .where(eq(sessions.id, sessionId))
+  .limit(1);
+
+if (!session || new Date(session.expiresAt) < new Date()) {
+  return Astro.redirect("/auth/login");
+}
+
+// Get group ID from URL
+const { id: groupId } = Astro.params;
+if (!groupId) {
+  return Astro.redirect("/dashboard");
+}
+
+// Verify group exists
+const [group] = await db
+  .select()
+  .from(expenseGroups)
+  .where(eq(expenseGroups.id, groupId))
+  .limit(1);
+
+if (!group) {
+  return Astro.redirect("/dashboard");
+}
+---
+
+<Layout title={`Manage ${group.name}`} description={`Manage ${group.name} group`}>
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+    <!-- Header -->
+    <header
+      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
+    >
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16 gap-4">
+          <a
+            href="/dashboard"
+            class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold text-sm sm:text-base"
+          >
+            ← Back
+          </a>
+          <h1
+            class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate"
+          >
+            {group.name}
+          </h1>
+          <button
+            type="button"
+            id="themeToggle"
+            onclick="window.toggleTheme && window.toggleTheme()"
+            class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg"
+            aria-label="Toggle dark mode"
+          >
+            <span id="themeIcon">☀️</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <!-- Invite Form -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6 mb-6 sm:mb-8"
+      >
+        <h2
+          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
+        >
+          Invite Members
+        </h2>
+        <p
+          class="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4"
+        >
+          Send an invitation link to add members to this group
+        </p>
+
+        <form id="inviteForm" class="space-y-4">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              id="inviteEmail"
+              placeholder="Enter email address"
+              required
+              class="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm sm:text-base"
+            />
+            <button
+              type="submit"
+              class="px-6 py-3 bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 rounded-lg transition-colors font-medium text-sm sm:text-base whitespace-nowrap"
+            >
+              Send Invite
+            </button>
+          </div>
+          <div
+            id="inviteError"
+            class="hidden p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200"
+          >
+          </div>
+        </form>
+      </div>
+
+      <!-- Members Section -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6 mb-6 sm:mb-8"
+      >
+        <h2
+          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
+        >
+          Members
+        </h2>
+        <div id="membersList" class="space-y-3">
+          <div
+            class="flex items-center justify-center p-8 text-slate-600 dark:text-slate-400"
+          >
+            <p>Loading members...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Invitations Section -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6"
+      >
+        <h2
+          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
+        >
+          Pending Invitations
+        </h2>
+        <div id="invitationsList" class="space-y-3">
+          <div
+            class="flex items-center justify-center p-8 text-slate-600 dark:text-slate-400"
+          >
+            <p>Loading invitations...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg hidden z-[100] max-w-xs"
+    >
+      <div class="flex items-center gap-2">
+        <span class="text-lg">✓</span>
+        <span id="toastMessage">Success!</span>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline define:vars={{ groupId }}>
+    // Setup theme toggle
+    function setupThemeToggle() {
+      const icon = document.getElementById("themeIcon");
+      if (!icon) return;
+
+      const isDark = document.documentElement.classList.contains("dark");
+      icon.textContent = isDark ? "☀️" : "🌙";
+    }
+
+    window.toggleTheme = function () {
+      const html = document.documentElement;
+      html.classList.toggle("dark");
+      const isDark = html.classList.contains("dark");
+      const icon = document.getElementById("themeIcon");
+      if (icon) {
+        icon.textContent = isDark ? "☀️" : "🌙";
+      }
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    };
+
+    function showToast(message = "Success!", duration = 3000) {
+      const toast = document.getElementById("toast");
+      const toastMessage = document.getElementById("toastMessage");
+      if (toast && toastMessage) {
+        toastMessage.textContent = message;
+        toast.classList.remove("hidden");
+        setTimeout(() => {
+          toast.classList.add("hidden");
+        }, duration);
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
+      };
+      return text.replace(/[&<>"']/g, (m) => map[m]);
+    }
+
+    // Load members and pending invitations
+    async function loadGroupData() {
+      try {
+        const response = await fetch(`/api/groups/${groupId}/members`);
+        if (!response.ok) {
+          console.error("Failed to load group data:", response.status);
+          return;
+        }
+
+        const data = await response.json();
+        const membersList = document.getElementById("membersList");
+        const invitationsList = document.getElementById("invitationsList");
+
+        // Load members
+        if (data.members && data.members.length > 0) {
+          membersList.innerHTML = data.members
+            .map(
+              (member) => `
+            <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+              <div>
+                <p class="font-medium text-slate-900 dark:text-white">${escapeHtml(member.firstName)} ${escapeHtml(member.lastName)}</p>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">${escapeHtml(member.email)}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Joined ${new Date(member.joinedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          `
+            )
+            .join("");
+        } else {
+          membersList.innerHTML =
+            '<p class="text-center text-slate-600 dark:text-slate-400 py-8">No members yet</p>';
+        }
+
+        // Load pending invitations
+        if (data.pendingInvitations && data.pendingInvitations.length > 0) {
+          invitationsList.innerHTML = data.pendingInvitations
+            .map(
+              (inv) => `
+            <div class="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900 rounded-lg border border-amber-200 dark:border-amber-700">
+              <div>
+                <p class="font-medium text-amber-900 dark:text-amber-100">${escapeHtml(inv.email)}</p>
+                <p class="text-xs sm:text-sm text-amber-800 dark:text-amber-200">Invited by ${escapeHtml(inv.invitedByName)}</p>
+                <p class="text-xs text-amber-700 dark:text-amber-300 mt-1">Expires ${new Date(inv.expiresAt).toLocaleDateString()}</p>
+              </div>
+              <span class="text-xs px-2 py-1 bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 rounded font-medium">Pending</span>
+            </div>
+          `
+            )
+            .join("");
+        } else {
+          invitationsList.innerHTML =
+            '<p class="text-center text-slate-600 dark:text-slate-400 py-8">No pending invitations</p>';
+        }
+      } catch (error) {
+        console.error("Error loading group data:", error);
+      }
+    }
+
+    // Handle invite form submission
+    document.getElementById("inviteForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const emailInput = document.getElementById("inviteEmail");
+      const errorDiv = document.getElementById("inviteError");
+      const submitBtn = e.target.querySelector("button[type=submit]");
+
+      // Validate email
+      if (!emailInput.value || !emailInput.value.includes("@")) {
+        errorDiv.textContent = "Please enter a valid email address";
+        errorDiv.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        errorDiv.classList.add("hidden");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending...";
+
+        const response = await fetch(`/api/groups/${groupId}/invite`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: emailInput.value }),
+        });
+
+        if (response.ok) {
+          showToast("Invitation sent successfully!");
+          emailInput.value = "";
+          // Reload the invitations list
+          await loadGroupData();
+        } else {
+          const error = await response.json();
+          errorDiv.textContent = error.error || "Failed to send invitation";
+          errorDiv.classList.remove("hidden");
+        }
+      } catch (error) {
+        console.error("Error sending invitation:", error);
+        errorDiv.textContent = "Error sending invitation";
+        errorDiv.classList.remove("hidden");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send Invite";
+      }
+    });
+
+    // Initialize
+    function init() {
+      setupThemeToggle();
+      loadGroupData();
+    }
+
+    init();
+  </script>
+</Layout>

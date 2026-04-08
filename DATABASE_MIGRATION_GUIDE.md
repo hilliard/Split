@@ -94,6 +94,8 @@ Database
 
 ---
 
+## The activities table needs to be updated
+
 ## Migration Phases
 
 ### Time Estimate: 2-3 hours setup + gradual code migration
@@ -431,105 +433,410 @@ await db.insert(humanSiteRoles).values({
 
 ---
 
-## Phase 2 Compatibility
+## Event / Activity table updates
 
-All Phase 2 features will benefit from this structure:
+## 1. Tables & Fields
 
-### ✅ Events/Activities/Expenses
+### `events` (The Core Record)
 
-- Reference `humans.id` instead of `users.id`
-- Track who created/paid via `humans` relationships
-- Leverage email_history for notifications
+Stores universal data applicable to all events. Specific, unstructured data (like a movie's runtime or a wedding's dress code) is stored in the `metadata` JSONB column.
 
-### ✅ Permission Checks
+| Field Name    | Data Type   | Description                                      |
+| :------------ | :---------- | :----------------------------------------------- |
+| `id`          | UUID (PK)   | Unique identifier for the event.                 |
+| `title`       | String      | e.g., "Concert at Cervantes'", "Smith Wedding".  |
+| `description` | Text        | Long-form details.                               |
+| `type`        | String/Enum | `concert`, `formal_dinner`, `sports`, `movie`.   |
+| `status`      | String/Enum | `scheduled`, `ongoing`, `canceled`, `completed`. |
+| `start_time`  | TIMESTAMPTZ | Exact start time (UTC).                          |
+| `end_time`    | TIMESTAMPTZ | Exact end time (UTC).                            |
+| `timezone`    | String      | Local timezone (e.g., `America/Denver`).         |
+| `is_virtual`  | Boolean     | `true` for streams, `false` for in-person.       |
+| `venue_id`    | UUID (FK)   | Links to a physical `venues` table (nullable).   |
+| `is_public`   | Boolean     | Public vs. private invite-only.                  |
+| `metadata`    | JSONB       | Key-value pairs specific to the event type.      |
 
-```typescript
-// Before Phase 2 endpoint:
-const canCreateEvent = await hasPermission(humanId, "events.create");
-if (!canCreateEvent) {
-  return new Response("Forbidden", { status: 403 });
+### `activities` (The Itinerary)
+
+Defines the chronological timeline of the event. Bound by time.
+
+| Field Name       | Data Type   | Description                                       |
+| :--------------- | :---------- | :------------------------------------------------ |
+| `id`             | UUID (PK)   | Unique identifier.                                |
+| `event_id`       | UUID (FK)   | Parent event.                                     |
+| `title`          | String      | e.g., "Pre-show Dinner", "Drive & Park".          |
+| `start_time`     | TIMESTAMPTZ | Start of the activity.                            |
+| `end_time`       | TIMESTAMPTZ | End of the activity.                              |
+| `location_name`  | String      | e.g., "Wendy's", "Parking Lot M".                 |
+| `sequence_order` | Integer     | For ordering activities if exact times are fluid. |
+
+### `expenses` (The Ledger)
+
+Tracks the money. Bound by cost. Can optionally link to a specific activity.
+
+| Field Name    | Data Type   | Description                                     |
+| :------------ | :---------- | :---------------------------------------------- |
+| `id`          | UUID (PK)   | Unique identifier.                              |
+| `event_id`    | UUID (FK)   | Parent event (required for total event budget). |
+| `activity_id` | UUID (FK)   | Links cost to a specific activity (nullable).   |
+| `amount`      | Decimal     | The actual cost (e.g., `45.50`).                |
+| `category`    | String/Enum | `food`, `transportation`, `parking`, `tickets`. |
+| `description` | String      | e.g., "Gas", "Valet tip", "Round of drinks".    |
+| `paid_by`     | UUID        | Tracks which user paid the bill.                |
+
+---
+
+## 2. PostgreSQL / Schema Definition
+
+```sql
+-- 1. Create Events Table
+CREATE TABLE events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    type VARCHAR(50) NOT NULL,
+    status VARCHAR(50) DEFAULT 'scheduled',
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ,
+    timezone VARCHAR(50) DEFAULT 'UTC',
+    is_virtual BOOLEAN DEFAULT false,
+    venue_id UUID, -- Assuming a venues table exists
+    is_public BOOLEAN DEFAULT true,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Create Activities Table
+CREATE TABLE activities (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    start_time TIMESTAMPTZ,
+    end_time TIMESTAMPTZ,
+    location_name VARCHAR(255),
+    sequence_order INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Create Expenses Table
+CREATE TABLE expenses (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    activity_id UUID REFERENCES activities(id) ON DELETE SET NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    description TEXT,
+    paid_by UUID, -- Assuming a users table exists
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX idx_events_start_time ON events(start_time);
+CREATE INDEX idx_activities_event_id ON activities(event_id);
+CREATE INDEX idx_expenses_event_id ON expenses(event_id);
+CREATE INDEX idx_expenses_activity_id ON expenses(activity_id);
+```
+
+### TypeScript 6.0 Interface
+
+#### types/database.ts
+
+```
+// types/database.ts
+
+// --- ENUMS & UTILITY TYPES ---
+
+export type EventType = 'concert' | 'formal_dinner' | 'sports' | 'movie' | 'private_party';
+export type EventStatus = 'scheduled' | 'ongoing' | 'canceled' | 'completed';
+export type ExpenseCategory = 'food' | 'transportation' | 'parking' | 'tickets' | 'misc';
+
+// --- CORE TABLES ---
+
+export interface Event<T = Record<string, unknown>> {
+  id: string; // UUID
+  title: string;
+  description?: string | null;
+  type: EventType;
+  status: EventStatus;
+  start_time: string; // ISO 8601 string from Supabase (TIMESTAMPTZ)
+  end_time?: string | null;
+  timezone: string;
+  is_virtual: boolean;
+  venue_id?: string | null; // UUID
+  is_public: boolean;
+  metadata: T; // Generic type for flexible JSONB payloads
+  created_at: string;
+}
+
+export interface Activity {
+  id: string; // UUID
+  event_id: string; // UUID (Foreign Key)
+  title: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  location_name?: string | null;
+  sequence_order: number;
+  created_at: string;
+}
+
+export interface Expense {
+  id: string; // UUID
+  event_id: string; // UUID (Foreign Key)
+  activity_id?: string | null; // UUID (Foreign Key)
+  amount: number; // Decimal mapped to number in TS
+  category: ExpenseCategory;
+  description?: string | null;
+  paid_by?: string | null; // UUID of the user
+  created_at: string;
+}
+
+// --- SPECIFIC METADATA EXAMPLES (Optional but recommended) ---
+
+export interface ConcertMetadata {
+  headliner: string;
+  openers: string[];
+  age_restriction?: string;
+}
+
+export interface DinnerMetadata {
+  dress_code: string;
+  caterer?: string;
+  plus_ones_allowed: boolean;
+}
+
+// Example usage in your frontend code:
+// const myConcert: Event<ConcertMetadata> = fetchEventFromSupabase(...)
+// console.log(myConcert.metadata.headliner) // Fully typed!
+
+```
+
+### Fetch
+
+Because we set up the Foreign Keys (REFERENCES events(id)) in the SQL schema,
+Supabase automatically understands the relationships between these tables.
+You don't need to write complex SQL JOIN statements.
+
+You can fetch the main Event, plus all of its associated Activities and
+Expenses, in a single network request using Supabase's nested select syntax.
+
+Here is the TypeScript function to drop into your project.
+
+```
+// fetchEventDetails.ts
+import { supabase } from './supabaseClient'; // Adjust path to your initialized client
+import type { Event, Activity, Expense } from './types/database';
+
+// 1. Create a composite type for the joined result
+export type EventWithDetails<T = Record<string, unknown>> = Event<T> & {
+  activities: Activity[];
+  expenses: Expense[];
+};
+
+// 2. The Fetch Function
+export async function getEventWithDetails(eventId: string): Promise<EventWithDetails | null> {
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      activities (*),
+      expenses (*)
+    `)
+    .eq('id', eventId)
+    .single(); // Forces it to return an object instead of an array
+
+  if (error) {
+    console.error('Error fetching event details:', error.message);
+    return null;
+  }
+
+  // 3. Supabase returns the data mapped to our exact structure
+  return data as EventWithDetails;
 }
 ```
 
-### ✅ Group Management
+### How the Magic Works:
 
-- Assign group members by human_id
-- Support multiple roles within same group
+The secret is inside the .select() string: _, activities(_), expenses(\*).
 
-### ✅ Expense Splits
+\*: Grabs all columns from the parent events table.
 
-- Payers/payees tracked at human level
-- Flexible role assignments
+activities(\*): Looks for any row in the activities table where the event_id matches, grabs all columns, and nests them into an array called activities.
 
----
+expenses(\*): Does the exact same thing for the expenses table.
 
-## Rollback Plan (If Needed)
+Example Usage in Your UI Component
+When you call this function, you get a beautifully structured JavaScript
+object ready to be mapped over in your frontend:
 
-If issues arise:
+```
+const eventData = await getEventWithDetails('123e4567-e89b-12d3-a456-426614174000');
 
-```sql
--- Keep old users table, keep new tables alongside
--- No data loss
--- Drop new tables if needed:
+if (eventData) {
+ console.log(`Welcome to: ${eventData.title}`);
 
-DROP TABLE IF EXISTS human_site_roles CASCADE;
-DROP TABLE IF EXISTS site_role_permissions CASCADE;
-DROP TABLE IF EXISTS humanSiteRoles CASCADE;
-DROP TABLE IF EXISTS siteRolePermissions CASCADE;
-DROP TABLE IF EXISTS site_roles CASCADE;
-DROP TABLE IF EXISTS permissions CASCADE;
-DROP TABLE IF EXISTS customers CASCADE;
-DROP TABLE IF EXISTS payers CASCADE;
-DROP TABLE IF EXISTS payees CASCADE;
-DROP TABLE IF EXISTS email_history CASCADE;
-DROP TABLE IF EXISTS humans CASCADE;
+ // Easily map through the itinerary
+ eventData.activities.forEach(activity => {
+   console.log(`- ${activity.title} at ${activity.location_name}`);
+ });
 
--- App reverts to old users table immediately
+ // Calculate total cost on the fly
+ const totalCost = eventData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+ console.log(`Total Event Cost: $${totalCost}`);
+}
 ```
 
----
+Here is the TypeScript function for inserting a new Event along with its
+Activities and Expenses.
 
-## Timeline
+```
+// insertEventData.ts
+import { supabase } from './supabaseClient'; // Adjust path
+import type { Event, Activity, Expense, EventType, EventStatus } from './types/database';
 
-| When               | What                         | Action                        |
-| ------------------ | ---------------------------- | ----------------------------- |
-| **Today**          | Deploy new schema            | Run migration SQL             |
-| **This week**      | Update auth endpoints        | Migrate register/login        |
-| **Next week**      | Update dashboard             | Migrate dashboard queries     |
-| **Phase 2 Sprint** | Build features on new schema | Use humans/roles from day 1   |
-| **Later**          | Deprecate old table          | Drop `users` table (optional) |
+// 1. Define Omit types for creation (since the DB generates the IDs and created_at)
+export type NewEvent = Omit<Event, 'id' | 'created_at'>;
+export type NewActivity = Omit<Activity, 'id' | 'event_id' | 'created_at'>;
+export type NewExpense = Omit<Expense, 'id' | 'event_id' | 'activity_id' | 'created_at'>;
 
----
+// 2. The Insert Function
+export async function createFullEvent(
+ eventData: NewEvent,
+ activities: NewActivity[] = [],
+ expenses: NewExpense[] = []
+): Promise<string | null> {
 
-## Questions?
+ // STEP 1: Insert the parent Event
+ const { data: newEvent, error: eventError } = await supabase
+   .from('events')
+   .insert(eventData)
+   .select('id') // We only need the new ID back
+   .single();
 
-**Q: Will this break my app?**  
-A: No. Old `users` table stays untouched. New tables exist in parallel. Gradual migration = zero downtime.
+ if (eventError || !newEvent) {
+   console.error('Failed to create event:', eventError?.message);
+   return null;
+ }
 
-**Q: Do I need to update code immediately?**  
-A: No. Phase 1-2 can coexist. Update one endpoint at a time as needed.
+ const eventId = newEvent.id;
 
-**Q: What about existing data?**  
-A: ✅ Automatically migrated during Phase 2 (migration SQL handles it).
+ // STEP 2: Insert Activities (if any)
+ if (activities.length > 0) {
+   // Map over the activities to attach the new eventId
+   const activitiesWithEventId = activities.map(act => ({
+     ...act,
+     event_id: eventId
+   }));
 
-**Q: Can I keep using the old schema?**  
-A: Yes, for now. But Phase 2 features will use the new schema, so plan the transition.
+   const { error: actError } = await supabase
+     .from('activities')
+     .insert(activitiesWithEventId);
 
-**Q: How do I add a new role?**  
-A: Simple INSERT into `site_roles`:
+   if (actError) console.error('Error inserting activities:', actError.message);
+ }
 
-```sql
-INSERT INTO site_roles (role_name, description) VALUES ('vendor', 'Vendor partners');
+ // STEP 3: Insert Event-Level Expenses (if any)
+ if (expenses.length > 0) {
+    // Map over expenses to attach the new eventId
+   const expensesWithEventId = expenses.map(exp => ({
+     ...exp,
+     event_id: eventId
+   }));
+
+   const { error: expError } = await supabase
+     .from('expenses')
+     .insert(expensesWithEventId);
+
+   if (expError) console.error('Error inserting expenses:', expError.message);
+ }
+
+ // Return the new Event ID so your frontend can redirect the user to the new event page
+ return eventId;
+}
 ```
 
----
+How to use this in your frontend:
+Here is how you would call this function when a user submits your
+"Create Event" form. Note how we use the strongly-typed metadata
+for a concert!
 
-## Summary
+```
+async function handleFormSubmit() {
+  const newConcert: NewEvent = {
+    title: "Symphony Under the Stars",
+    type: "concert",
+    status: "scheduled",
+    start_time: "2026-07-15T19:00:00Z",
+    timezone: "America/Denver",
+    is_virtual: false,
+    is_public: true,
+    metadata: {
+      headliner: "Colorado Symphony",
+      openers: []
+    }
+  };
 
-✅ **Current Status**: Ready to deploy  
-✅ **Data Migration**: Automatic  
-✅ **Zero Downtime**: Yes  
-✅ **Rollback Available**: Yes  
-✅ **Phase 2 Compatible**: Yes
+  const initialActivities: NewActivity[] = [
+    {
+      title: "Gates Open",
+      start_time: "2026-07-15T17:30:00Z",
+      location_name: "Red Rocks Amphitheatre",
+      sequence_order: 1
+    }
+  ];
 
-**Next Step**: Run the migration SQL file and test!
+  const initialExpenses: NewExpense[] = [
+    {
+      amount: 150.00,
+      category: "tickets",
+      description: "2 VIP Tickets"
+    }
+  ];
+
+  const newEventId = await createFullEvent(newConcert, initialActivities, initialExpenses);
+
+  if (newEventId) {
+    console.log("Success! Redirecting to /events/" + newEventId);
+  }
+}
+```
+
+⚠️ A Note on Expense-to-Activity Linking
+In this example, the expenses are linked to the overarching Event. If your UI allows a user to link an expense to a specific activity at the exact time of creation, you would need to adjust Step 2. You would need to .select('id') on the activities insert, get those new activity IDs, and attach them to the specific expenses before running Step 3.
+
+When creating relational data in Supabase, the safest and most standard approach is a multi-step insert. You must first create the parent Event so the database can generate its unique id (UUID). Once you have that id, you attach it to the Activities and Expenses and insert them in bulk.
+
+You can add this directly to your documentation.
+
+### How They Work Together
+
+Let's say you are building an itinerary for a live music show. The data relationships would look like this:
+
+- **Event**: Concert at Cervantes'
+- **Activity 1**: "Dinner before the show" (Location: Wendy's, Time: 6:00 PM)
+- **Expense A**: $25.00 (Category: Food, Linked to Activity 1)
+- **Activity 2**: "Drive to Denver & Park" (Time: 7:00 PM)
+- **Expense B**: $15.00 (Category: Transportation, Gas)
+- **Expense C**: $20.00 (Category: Parking, Valet)
+- **Activity 3**: "The Concert" (Time: 8:00 PM)
+- **Expense D**: $80.00 (Category: Tickets)
+- **Expense E**: $30.00 (Category: Drinks)
+
+By separating them, you can easily query the itinerary chronologically
+(ORDER BY start_time) or
+calculate the total cost of the night
+(SUM(amount) WHERE event_id = ?) without the data clashing.
+
+### Schema at Glance
+
+## TypeScript 6.0 Interface
+
+## Benefits
+
+✅ **Multiple roles** - Person + Worker in one person  
+✅ **History tracking** - Email/address changes over time  
+✅ **Granular permissions** - RBAC with fine control  
+✅ **Scalable** - Easy to add suppliers, contractors  
+✅ **Portable** - Same pattern across projects  
+✅ **Audit trail** - Who changed what when
+
+##

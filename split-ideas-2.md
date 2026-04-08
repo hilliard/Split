@@ -104,14 +104,15 @@ If starting a new chat session with the AI agent, simply mention:
 ### Target (Human-Centric Design)
 
 - **humans**: Base entity for all people (id, first_name, last_name, dob, gender, phone)
-- **event**: Base entity for all events (id, title, description, type, status)
-- **activity**: Base entity for all people (id, first_name, last_name, dob, gender, phone)
+- **events**: Base entity for all events (id, title, description, type, status)
+- **activities**: Base entity for all activities (id, event_id, title, start_time, end_time, location_name, sequence_order, created_at)
+- **activity**: Base entity for all activities (id, title, description, type, status)
 - **customers**: Role table (human_id, username, password_hash, loyalty_points)
 - **groupname**: Group table (id, name, description)
 - **employees/work home/family**: Role table (human_id, job_title, department, salary)
 - **users**: Role table (human_id, stage_name, bio, website)
 - **payee**: payee table (human_id, username) [Recieves Money]
-- **payor**: payor table (human_id, username) [Recieves Money]
+- **payor**: payor table (human_id, username) [Pays Money]
 - **email_history**: Temporal tracking (human_id, email, effective_from, effective_to)
 - **time_and_location**: Temporal tracking (start_time, end_time, time_zone, is_virtual, venue_id, virtual_url)
 - **access_and_ticketing**: (is_public, capacity, is_free, rsvp_deadline)
@@ -124,7 +125,7 @@ If starting a new chat session with the AI agent, simply mention:
 
 ```
 humans                   (base entity: id, first_name, last_name, dob, gender, phone, created_at)
-  ├
+
 
 email_history            (human_id, email, effective_from, effective_to)
 addresses                (street, city, state, postal_code, country)

@@ -9,36 +9,40 @@ if (!sessionId) {
 ---
 
 <Layout title="Dashboard" description="Your Split dashboard">
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
     <!-- Header -->
     <header
       class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16 gap-4">
+          <h1
+            class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate"
+          >
             Split
           </h1>
-          <div class="flex items-center gap-4">
-            <!-- User Info -->
-            <div class="text-right hidden sm:block">
+          <div class="flex items-center gap-2 sm:gap-4 ml-auto">
+            <!-- User Info - Hidden on mobile, shown on sm+ -->
+            <div class="text-right hidden sm:block min-w-0">
               <p
                 id="userName"
-                class="text-sm font-semibold text-slate-900 dark:text-white"
+                class="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate"
               >
                 Loading...
               </p>
               <p
                 id="userEmail"
-                class="text-xs text-slate-600 dark:text-slate-400"
+                class="text-xs text-slate-600 dark:text-slate-400 truncate"
               >
               </p>
             </div>
 
             <!-- Theme toggle -->
             <button
+              type="button"
               id="themeToggle"
-              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg font-bold"
+              onclick="window.toggleTheme && window.toggleTheme()"
+              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg font-bold flex-shrink-0"
               aria-label="Toggle dark mode"
             >
               <span id="themeIcon">☀️</span>
@@ -47,7 +51,7 @@ if (!sessionId) {
             <!-- Logout button -->
             <button
               id="logoutBtn"
-              class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-semibold"
+              class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-semibold flex-shrink-0 whitespace-nowrap"
             >
               Logout
             </button>
@@ -57,23 +61,26 @@ if (!sessionId) {
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <main
+      class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
+    >
+      <!-- Top Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <!-- Welcome Card -->
         <div
-          class="md:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8"
+          class="md:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8"
         >
           <h2
             id="welcomeMessage"
-            class="text-3xl font-bold text-slate-900 dark:text-white mb-1"
+            class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
           >
           </h2>
           <p
             id="welcomeEmail"
-            class="text-lg text-slate-600 dark:text-slate-400 mb-4"
+            class="text-base sm:text-lg text-slate-600 dark:text-slate-400 mb-3 sm:mb-4"
           >
           </p>
-          <p class="text-slate-600 dark:text-slate-400">
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
             Click the buttons below to create a new event or group and start
             tracking expenses.
           </p>
@@ -81,27 +88,31 @@ if (!sessionId) {
 
         <!-- Quick Stats -->
         <div
-          class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8"
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8"
         >
           <h3
-            class="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase mb-2"
+            class="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase mb-3 sm:mb-4"
           >
             Quick Stats
           </h3>
-          <div class="space-y-4">
+          <div class="space-y-3 sm:space-y-4">
             <div>
               <p
-                class="text-3xl font-bold text-indigo-600 dark:text-indigo-400"
+                class="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400"
               >
                 0
               </p>
-              <p class="text-sm text-slate-600 dark:text-slate-400">Groups</p>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Groups
+              </p>
             </div>
             <div>
-              <p class="text-3xl font-bold text-green-600 dark:text-green-400">
+              <p
+                class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400"
+              >
                 $0
               </p>
-              <p class="text-sm text-slate-600 dark:text-slate-400">
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                 Total balanced
               </p>
             </div>
@@ -110,48 +121,417 @@ if (!sessionId) {
       </div>
 
       <!-- Action Buttons -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-8">
         <a
-          href="#"
-          class="block p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors"
+          href="/events/create"
+          class="block p-5 sm:p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors active:bg-slate-50 dark:active:bg-slate-700 text-left w-full"
         >
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          <h3
+            class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2"
+          >
             Create Event
           </h3>
-          <p class="text-slate-600 dark:text-slate-400 text-sm">
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
             Create a new event to organize expenses
           </p>
         </a>
 
         <a
-          href="#"
-          class="block p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors"
+          href="/groups/create"
+          class="block p-5 sm:p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors active:bg-slate-50 dark:active:bg-slate-700"
         >
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          <h3
+            class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2"
+          >
             Create Group
           </h3>
-          <p class="text-slate-600 dark:text-slate-400 text-sm">
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
             Create a new group to split expenses with friends
           </p>
         </a>
       </div>
 
-      <!-- Empty State -->
-      <div
-        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center"
-      >
-        <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-          No events or groups yet
-        </h3>
-        <p class="text-slate-600 dark:text-slate-400">
-          Get started by creating your first event or group
-        </p>
+      <!-- Events Section -->
+      <div>
+        <h2
+          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
+        >
+          Your Events
+        </h2>
+        <div id="eventsList" class="grid grid-cols-1 gap-4">
+          <!-- Events will be loaded here -->
+          <div
+            id="eventsEmpty"
+            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+          >
+            <h3
+              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
+            >
+              No events yet
+            </h3>
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+              Create your first event to get started
+            </p>
+          </div>
+        </div>
       </div>
     </main>
+
+    <!-- Create Event Modal -->
+    <div
+      id="createEventModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-2xl border border-slate-200 dark:border-slate-700 my-8"
+      >
+        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+          <h2
+            class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
+          >
+            Create New Event
+          </h2>
+        </div>
+
+        <form id="createEventForm" class="p-5 sm:p-6 space-y-4">
+          <!-- Event Name -->
+          <div>
+            <label
+              for="eventName"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Event Name
+            </label>
+            <input
+              type="text"
+              id="eventName"
+              name="name"
+              required
+              placeholder="e.g., Vegas Trip, Houston Trip"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+            />
+          </div>
+
+          <!-- Type & Timezone Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                for="eventType"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Event Type
+              </label>
+              <select
+                id="eventType"
+                name="type"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              >
+                <option value="general">General</option>
+                <option value="trip">Trip</option>
+                <option value="party">Party</option>
+                <option value="dinner">Dinner</option>
+                <option value="vacation">Vacation</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label
+                for="eventTimezone"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Timezone
+              </label>
+              <select
+                id="eventTimezone"
+                name="timezone"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              >
+                <option value="UTC">UTC</option>
+                <option value="America/New_York">America/New_York</option>
+                <option value="America/Chicago">America/Chicago</option>
+                <option value="America/Denver">America/Denver</option>
+                <option value="America/Los_Angeles">America/Los_Angeles</option>
+                <option value="Europe/London">Europe/London</option>
+                <option value="Europe/Paris">Europe/Paris</option>
+                <option value="Europe/Berlin">Europe/Berlin</option>
+                <option value="Asia/Tokyo">Asia/Tokyo</option>
+                <option value="Asia/Shanghai">Asia/Shanghai</option>
+                <option value="Asia/Hong_Kong">Asia/Hong_Kong</option>
+                <option value="Asia/Singapore">Asia/Singapore</option>
+                <option value="Australia/Sydney">Australia/Sydney</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Location & Currency Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                for="eventLocation"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Location (Optional)
+              </label>
+              <input
+                type="text"
+                id="eventLocation"
+                name="location"
+                placeholder="e.g., Houston, TX"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+            <div>
+              <label
+                for="eventCurrency"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Currency
+              </label>
+              <select
+                id="eventCurrency"
+                name="currency"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              >
+                <option value="USD">USD - US Dollar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="GBP">GBP - British Pound</option>
+                <option value="CAD">CAD - Canadian Dollar</option>
+                <option value="AUD">AUD - Australian Dollar</option>
+                <option value="JPY">JPY - Japanese Yen</option>
+                <option value="MXN">MXN - Mexican Peso</option>
+                <option value="INR">INR - Indian Rupee</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Start & End Date Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                for="eventStartDate"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Start Date (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                id="eventStartDateTime"
+                name="startDate"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+            <div>
+              <label
+                for="eventEndDateTime"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                End Date (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                id="eventEndDateTime"
+                name="endDate"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+          </div>
+
+          <!-- Budget -->
+          <div>
+            <label
+              for="eventBudget"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Budget (Optional)
+            </label>
+            <div class="relative">
+              <span
+                class="absolute left-4 top-3 text-slate-600 dark:text-slate-400 font-medium"
+                id="budgetSymbol"
+              >
+                $
+              </span>
+              <input
+                type="number"
+                id="eventBudget"
+                name="budget"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                class="w-full pl-8 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label
+              for="eventDescription"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Description (Optional)
+            </label>
+            <textarea
+              id="eventDescription"
+              name="description"
+              placeholder="Add details about this event..."
+              rows="2"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Error Message -->
+          <div
+            id="eventError"
+            class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
+          >
+          </div>
+
+          <!-- Action Buttons -->
+          <div
+            class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
+          >
+            <button
+              type="button"
+              id="cancelEventBtn"
+              class="px-4 py-2 text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium text-sm min-h-touch flex items-center justify-center"
+            >
+              Create Event
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg hidden z-[100] max-w-xs"
+    >
+      <div class="flex items-center gap-2">
+        <span class="text-lg">✓</span>
+        <span id="toastMessage">Event created successfully!</span>
+      </div>
+    </div>
   </div>
 
   <script is:inline>
     console.log("Dashboard script loaded");
+
+    // Show toast notification
+    function showToast(
+      message = "Event created successfully!",
+      duration = 3000,
+    ) {
+      const toast = document.getElementById("toast");
+      const toastMessage = document.getElementById("toastMessage");
+      if (toast && toastMessage) {
+        toastMessage.textContent = message;
+        toast.classList.remove("hidden");
+        setTimeout(() => {
+          toast.classList.add("hidden");
+        }, duration);
+      }
+    }
+
+    // Load and display events
+    async function loadEvents() {
+      try {
+        const response = await fetch("/api/events/list");
+        if (response.ok) {
+          const data = await response.json();
+          const eventsList = document.getElementById("eventsList");
+          const eventsEmpty = document.getElementById("eventsEmpty");
+
+          if (data.events.length === 0) {
+            if (eventsList) eventsList.innerHTML = eventsEmpty?.outerHTML || "";
+          } else {
+            if (eventsList) {
+              eventsList.innerHTML = data.events
+                .map(
+                  (event) => `
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
+                  <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">${escapeHtml(event.name)}</h3>
+                      ${event.location ? `<p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">📍 ${escapeHtml(event.location)}</p>` : ""}
+                    </div>
+                    <span class="text-xs sm:text-sm font-semibold text-indigo-600 dark:text-indigo-400">${event.currency}</span>
+                  </div>
+                  
+                  ${event.description ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-3">${escapeHtml(event.description)}</p>` : ""}
+                  
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3 text-xs sm:text-sm">
+                    ${
+                      event.startDate
+                        ? `<div>
+                      <span class="text-slate-600 dark:text-slate-400">Start</span>
+                      <p class="font-medium text-slate-900 dark:text-white">${new Date(event.startDate).toLocaleDateString()}</p>
+                    </div>`
+                        : ""
+                    }
+                    ${
+                      event.endDate
+                        ? `<div>
+                      <span class="text-slate-600 dark:text-slate-400">End</span>
+                      <p class="font-medium text-slate-900 dark:text-white">${new Date(event.endDate).toLocaleDateString()}</p>
+                    </div>`
+                        : ""
+                    }
+                    <div>
+                      <span class="text-slate-600 dark:text-slate-400">Budget</span>
+                      <p class="font-medium text-slate-900 dark:text-white">${event.currency} ${parseFloat(event.budget).toFixed(2)}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+                    <button class="text-xs px-3 py-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded transition-colors flex-1 view-event-btn" data-event-id="${event.id}">View</button>
+                    <button class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors flex-1 edit-event-btn" data-event-id="${event.id}">Edit</button>
+                  </div>
+                </div>
+              `,
+                )
+                .join("");
+
+              // Add event listeners to View and Edit buttons
+              document.querySelectorAll(".view-event-btn").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                  const eventId = e.target.dataset.eventId;
+                  window.location.href = `/events/${eventId}`;
+                });
+              });
+              document.querySelectorAll(".edit-event-btn").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                  const eventId = e.target.dataset.eventId;
+                  window.location.href = `/events/${eventId}/edit`;
+                });
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load events:", error);
+      }
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      if (!text) return "";
+      const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
+      };
+      return text.replace(/[&<>"']/g, (m) => map[m]);
+    }
 
     // Load user info
     async function loadUserInfo() {
@@ -208,109 +588,532 @@ if (!sessionId) {
     }
 
     // Update theme emoji based on dark class
-    function updateThemeIcon() {
-      const html = document.documentElement;
-      const themeIcon = document.getElementById("themeIcon");
 
-      if (html.classList.contains("dark")) {
-        if (themeIcon) themeIcon.textContent = "🌙";
+    // Global theme toggle function accessible from HTML onclick
+    window.toggleTheme = function () {
+      console.log("🖱️ Theme toggle clicked");
+
+      const html = document.documentElement;
+      const isDark = html.classList.contains("dark");
+      const icon = document.getElementById("themeIcon");
+      const mainDiv = document.querySelector("div.min-h-screen");
+
+      if (isDark) {
+        // Switch to LIGHT mode
+        console.log("→ Switching to light mode");
+        html.classList.remove("dark");
+        document.body.style.setProperty(
+          "background-color",
+          "rgb(255, 255, 255)",
+          "important",
+        );
+        document.body.style.setProperty(
+          "color",
+          "rgb(15, 23, 42)",
+          "important",
+        );
+
+        // Clear inline styles from main div
+        if (mainDiv) {
+          mainDiv.style.backgroundColor = "";
+          mainDiv.style.color = "";
+        }
+
+        // Remove dark mode styles and apply light mode styles
+        let darkStyles = document.getElementById("dynamicDarkStyles");
+        if (darkStyles) darkStyles.remove();
+
+        // Inject light mode styles
+        if (!document.getElementById("dynamicLightStyles")) {
+          const style = document.createElement("style");
+          style.id = "dynamicLightStyles";
+          style.textContent = `
+            html:not(.dark) header {
+              background-color: rgb(255, 255, 255) !important;
+              border-color: rgb(226, 232, 240) !important;
+            }
+            html:not(.dark) main {
+              background-color: rgb(245, 246, 248) !important;
+            }
+            html:not(.dark) [class*="bg-white"],
+            html:not(.dark) [class*="bg-slate-50"] {
+              background-color: rgb(255, 255, 255) !important;
+            }
+            html:not(.dark) [class*="text-slate-900"] {
+              color: rgb(15, 23, 42) !important;
+            }
+            html:not(.dark) [class*="text-slate-600"] {
+              color: rgb(71, 85, 105) !important;
+            }
+            html:not(.dark) [class*="text-slate-400"] {
+              color: rgb(148, 163, 184) !important;
+            }
+            html:not(.dark) [class*="border-slate-200"] {
+              border-color: rgb(226, 232, 240) !important;
+            }
+            html:not(.dark) [class*="bg-slate-800"],
+            html:not(.dark) [class*="bg-slate-900"] {
+              background-color: rgb(255, 255, 255) !important;
+            }
+            html:not(.dark) [class*="text-white"] {
+              color: rgb(15, 23, 42) !important;
+            }
+            html:not(.dark) [class*="hover:bg-slate"] {
+              backgroundColor: inherit !important;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+
+        localStorage.setItem("theme", "light");
+        console.log("✅ Switched to light mode");
+        if (icon) icon.textContent = "☀️";
       } else {
-        if (themeIcon) themeIcon.textContent = "☀️";
+        // Switch to DARK mode
+        console.log("→ Switching to dark mode");
+        html.classList.add("dark");
+        document.body.style.setProperty(
+          "background-color",
+          "rgb(6, 6, 10)",
+          "important",
+        );
+        document.body.style.setProperty(
+          "color",
+          "rgb(248, 250, 252)",
+          "important",
+        );
+
+        // Set inline styles on main div for dark mode
+        if (mainDiv) {
+          mainDiv.style.setProperty(
+            "background-color",
+            "rgb(6, 6, 10)",
+            "important",
+          );
+          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
+        }
+
+        // Remove light mode styles and apply dark mode styles
+        let lightStyles = document.getElementById("dynamicLightStyles");
+        if (lightStyles) lightStyles.remove();
+
+        // Inject dark mode styles
+        if (!document.getElementById("dynamicDarkStyles")) {
+          const style = document.createElement("style");
+          style.id = "dynamicDarkStyles";
+          style.textContent = `
+            html.dark header {
+              background-color: rgb(15, 23, 42) !important;
+              border-color: rgb(51, 65, 85) !important;
+            }
+            html.dark main {
+              background-color: rgb(6, 6, 10) !important;
+            }
+            html.dark [class*="bg-white"],
+            html.dark [class*="bg-slate-50"] {
+              background-color: rgb(15, 23, 42) !important;
+            }
+            html.dark [class*="bg-slate-800"] {
+              background-color: rgb(30, 41, 59) !important;
+            }
+            html.dark [class*="bg-slate-900"] {
+              background-color: rgb(15, 23, 42) !important;
+            }
+            html.dark [class*="text-slate-900"] {
+              color: rgb(248, 250, 252) !important;
+            }
+            html.dark [class*="text-slate-600"] {
+              color: rgb(203, 213, 225) !important;
+            }
+            html.dark [class*="text-slate-400"] {
+              color: rgb(203, 213, 225) !important;
+            }
+            html.dark [class*="text-white"] {
+              color: rgb(248, 250, 252) !important;
+            }
+            html.dark [class*="text-indigo-300"] {
+              color: rgb(165, 180, 252) !important;
+            }
+            html.dark [class*="text-indigo-400"] {
+              color: rgb(129, 140, 248) !important;
+            }
+            html.dark [class*="text-indigo-600"] {
+              color: rgb(129, 140, 248) !important;
+            }
+            html.dark [class*="text-indigo-700"] {
+              color: rgb(129, 140, 248) !important;
+            }
+            html.dark [class*="border-slate-200"] {
+              border-color: rgb(51, 65, 85) !important;
+            }
+            html.dark [class*="border-slate-700"] {
+              border-color: rgb(51, 65, 85) !important;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+
+        localStorage.setItem("theme", "dark");
+        console.log("✅ Switched to dark mode");
+        if (icon) icon.textContent = "🌙";
       }
+    };
+
+    // Setup theme toggle - set initial icon and styles
+    function setupThemeToggle() {
+      const btn = document.getElementById("themeToggle");
+      const icon = document.getElementById("themeIcon");
+      const html = document.documentElement;
+      const body = document.body;
+      const mainDiv = document.querySelector("div.min-h-screen");
+
+      if (!btn) {
+        console.error("❌ Theme toggle button not found");
+        return;
+      }
+
+      console.log("✅ Theme toggle setup started");
+
+      // Update icon to match current theme on initialization
+      const isDark = html.classList.contains("dark");
+      if (icon) icon.textContent = isDark ? "🌙" : "☀️";
+
+      // Inject CSS styles for current theme (both light and dark)
+      if (isDark && !document.getElementById("dynamicDarkStyles")) {
+        // Inject dark mode CSS
+        const darkStyle = document.createElement("style");
+        darkStyle.id = "dynamicDarkStyles";
+        darkStyle.textContent = `
+          html.dark header {
+            background-color: rgb(15, 23, 42) !important;
+            border-color: rgb(51, 65, 85) !important;
+          }
+          html.dark main {
+            background-color: rgb(6, 6, 10) !important;
+          }
+          html.dark [class*="bg-white"],
+          html.dark [class*="bg-slate-50"] {
+            background-color: rgb(15, 23, 42) !important;
+          }
+          html.dark [class*="bg-slate-800"] {
+            background-color: rgb(30, 41, 59) !important;
+          }
+          html.dark [class*="bg-slate-900"] {
+            background-color: rgb(15, 23, 42) !important;
+          }
+          html.dark [class*="text-slate-900"] {
+            color: rgb(248, 250, 252) !important;
+          }
+          html.dark [class*="text-slate-600"] {
+            color: rgb(203, 213, 225) !important;
+          }
+          html.dark [class*="text-slate-400"] {
+            color: rgb(203, 213, 225) !important;
+          }
+          html.dark [class*="text-white"] {
+            color: rgb(248, 250, 252) !important;
+          }
+          html.dark [class*="border-slate-200"] {
+            border-color: rgb(51, 65, 85) !important;
+          }
+          html.dark [class*="border-slate-700"] {
+            border-color: rgb(51, 65, 85) !important;
+          }
+        `;
+        document.head.appendChild(darkStyle);
+      } else if (!isDark && !document.getElementById("dynamicLightStyles")) {
+        // Inject light mode CSS
+        const lightStyle = document.createElement("style");
+        lightStyle.id = "dynamicLightStyles";
+        lightStyle.textContent = `
+          html:not(.dark) header {
+            background-color: rgb(255, 255, 255) !important;
+            border-color: rgb(226, 232, 240) !important;
+          }
+          html:not(.dark) main {
+            background-color: rgb(245, 246, 248) !important;
+          }
+          html:not(.dark) [class*="bg-white"],
+          html:not(.dark) [class*="bg-slate-50"] {
+            background-color: rgb(255, 255, 255) !important;
+          }
+          html:not(.dark) [class*="text-slate-900"] {
+            color: rgb(15, 23, 42) !important;
+          }
+          html:not(.dark) [class*="text-slate-600"] {
+            color: rgb(71, 85, 105) !important;
+          }
+          html:not(.dark) [class*="text-slate-400"] {
+            color: rgb(148, 163, 184) !important;
+          }
+          html:not(.dark) [class*="border-slate-200"] {
+            border-color: rgb(226, 232, 240) !important;
+          }
+          html:not(.dark) [class*="bg-slate-800"],
+          html:not(.dark) [class*="bg-slate-900"] {
+            background-color: rgb(255, 255, 255) !important;
+          }
+          html:not(.dark) [class*="text-white"] {
+            color: rgb(15, 23, 42) !important;
+          }
+        `;
+        document.head.appendChild(lightStyle);
+      }
+
+      // Apply inline styles with setProperty to match current theme
+      if (isDark) {
+        html.style.setProperty("color-scheme", "dark", "important");
+        body.style.setProperty(
+          "background-color",
+          "rgb(6, 6, 10)",
+          "important",
+        );
+        body.style.setProperty("color", "rgb(248, 250, 252)", "important");
+        if (mainDiv) {
+          mainDiv.style.setProperty(
+            "background-color",
+            "rgb(6, 6, 10)",
+            "important",
+          );
+          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
+        }
+      } else {
+        html.style.setProperty("color-scheme", "light", "important");
+        body.style.setProperty(
+          "background-color",
+          "rgb(255, 255, 255)",
+          "important",
+        );
+        body.style.setProperty("color", "rgb(15, 23, 42)", "important");
+        if (mainDiv) {
+          mainDiv.style.setProperty(
+            "background-color",
+            "rgb(255, 255, 255)",
+            "important",
+          );
+          mainDiv.style.setProperty("color", "rgb(15, 23, 42)", "important");
+        }
+      }
+
+      console.log("✅ Theme toggle ready");
     }
 
     // Initialize dashboard with event listeners
     async function initializeDashboard() {
       console.log("Initializing dashboard...");
 
-      // Load user info first (before other initialization)
-      await loadUserInfo();
-      updateThemeIcon();
+      try {
+        // Load user info first (before other initialization)
+        await loadUserInfo();
+        // Load events list
+        await loadEvents();
 
-      // Theme toggle
-      const themeToggle = document.getElementById("themeToggle");
-      console.log("Theme toggle button:", themeToggle);
+        // Setup theme toggle - with explicit logging
+        console.log("Before setupThemeToggle");
+        setupThemeToggle();
+        console.log("After setupThemeToggle");
 
-      if (themeToggle) {
-        console.log("Button found, adding click listener");
-        themeToggle.addEventListener("click", () => {
-          console.log("Theme button clicked!");
-          const html = document.documentElement;
-          const body = document.body;
-          const mainWrapper = document.querySelector(".min-h-screen");
-          console.log("Current classes:", html.className);
+        // Logout button
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", async () => {
+            try {
+              await fetch("/api/auth/logout", { method: "POST" });
+              window.location.href = "/";
+            } catch (error) {
+              console.error("Logout error:", error);
+            }
+          });
+        }
 
-          if (html.classList.contains("dark")) {
-            console.log("Removing dark class");
-            html.classList.remove("dark");
-            if (body) {
-              body.style.setProperty(
-                "background-color",
-                "rgb(255, 255, 255)",
-                "important",
-              );
-              body.style.setProperty("color", "rgb(15, 23, 42)", "important");
-            }
-            if (mainWrapper) {
-              mainWrapper.style.setProperty(
-                "background-color",
-                "rgb(245, 246, 248)",
-                "important",
-              );
-            }
-            localStorage.setItem("theme", "light");
-          } else {
-            console.log("Adding dark class");
-            html.classList.add("dark");
-            if (body) {
-              body.style.setProperty(
-                "background-color",
-                "rgb(6, 6, 10)",
-                "important",
-              );
-              body.style.setProperty(
-                "color",
-                "rgb(248, 250, 252)",
-                "important",
-              );
-            }
-            if (mainWrapper) {
-              mainWrapper.style.setProperty(
-                "background-color",
-                "rgb(6, 6, 10)",
-                "important",
-              );
-            }
-            localStorage.setItem("theme", "dark");
-          }
-          console.log("New classes:", html.className);
-          updateThemeIcon();
+        // Create Event Form Handler
+        const createEventForm = document.getElementById("createEventForm");
+        const createEventModal = document.getElementById("createEventModal");
+        const eventError = document.getElementById("eventError");
+
+        console.log("🔍 Form elements found:", {
+          form: !!createEventForm,
+          modal: !!createEventModal,
+          error: !!eventError,
         });
-      } else {
-        console.error("Theme toggle button not found!");
-      }
 
-      // Logout button
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", async () => {
-          try {
-            await fetch("/api/auth/logout", { method: "POST" });
-            window.location.href = "/";
-          } catch (error) {
-            console.error("Logout error:", error);
-          }
-        });
+        if (createEventForm) {
+          console.log("📝 Attaching form submit listener");
+          createEventForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            console.log("📝 Form submitted!");
+
+            // Get form fields - handle both old and new field names
+            const titleInput =
+              document.getElementById("eventTitle") ||
+              document.getElementById("eventName");
+            const descriptionInput =
+              document.getElementById("eventDescription");
+            const startDateTimeInput =
+              document.getElementById("eventStartDateTime") ||
+              document.getElementById("eventStartDate");
+            const endDateTimeInput =
+              document.getElementById("eventEndDateTime") ||
+              document.getElementById("eventEndDate");
+            const typeSelect = document.getElementById("eventType");
+            const timezoneSelect = document.getElementById("eventTimezone");
+            const currencySelect = document.getElementById("eventCurrency");
+            const budgetInput = document.getElementById("eventBudget");
+            const locationInput = document.getElementById("eventLocation");
+            const isVirtualCheckbox = document.getElementById("eventIsVirtual");
+            const isPublicCheckbox = document.getElementById("eventIsPublic");
+
+            console.log("🔍 Input elements found:", {
+              title: !!titleInput,
+              description: !!descriptionInput,
+              startDateTime: !!startDateTimeInput,
+              endDateTime: !!endDateTimeInput,
+              type: !!typeSelect,
+              timezone: !!timezoneSelect,
+              currency: !!currencySelect,
+              budget: !!budgetInput,
+              location: !!locationInput,
+              isVirtual: !!isVirtualCheckbox,
+              isPublic: !!isPublicCheckbox,
+            });
+
+            // Get values with proper handling for datetime-local vs date inputs
+            const title = titleInput?.value?.trim() || "";
+            const description = descriptionInput?.value?.trim() || "";
+            const startDateTime = startDateTimeInput?.value?.trim() || "";
+            const endDateTime = endDateTimeInput?.value?.trim() || "";
+            const type = typeSelect?.value || "general";
+            const timezone = timezoneSelect?.value || "UTC";
+            const currency = currencySelect?.value || "USD";
+            const budget = budgetInput?.value?.trim() || "";
+            const location = locationInput?.value?.trim() || "";
+            const isVirtual = isVirtualCheckbox?.checked || false;
+            const isPublic = isPublicCheckbox?.checked !== false;
+
+            console.log("📝 Form values collected:", {
+              title,
+              description,
+              startDateTime,
+              endDateTime,
+              type,
+              timezone,
+              currency,
+              budget,
+              location,
+              isVirtual,
+              isPublic,
+            });
+
+            if (eventError) {
+              eventError.textContent = "";
+              eventError.classList.add("hidden");
+            }
+
+            try {
+              // Convert datetime-local (2026-04-07T14:30) to ISO string
+              let startTime = startDateTime;
+              let endTime = endDateTime;
+
+              if (startDateTime && startDateTime.includes("T")) {
+                // datetime-local format, convert to ISO
+                startTime = new Date(startDateTime).toISOString();
+              } else if (startDateTime) {
+                // date format, convert to ISO at start of day
+                startTime = new Date(startDateTime + "T00:00:00").toISOString();
+              }
+
+              if (endDateTime && endDateTime.includes("T")) {
+                endTime = new Date(endDateTime).toISOString();
+              } else if (endDateTime) {
+                endTime = new Date(endDateTime + "T23:59:59").toISOString();
+              }
+
+              console.log("📦 Converted times:", { startTime, endTime });
+
+              const response = await fetch("/api/events/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  name: title,
+                  title,
+                  description,
+                  location,
+                  startDate: startDateTime,
+                  startTime,
+                  endDate: endDateTime,
+                  endTime,
+                  currency,
+                  budget: budget ? budget : undefined,
+                  type,
+                  timezone,
+                  isVirtual,
+                  isPublic,
+                }),
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                const errorMsg = data.error || "Failed to create event";
+                console.error("Event creation error:", errorMsg);
+                if (eventError) {
+                  eventError.textContent = errorMsg;
+                  eventError.classList.remove("hidden");
+                }
+              } else {
+                console.log("✓ Event created:", data.event.id);
+                createEventForm.reset();
+                if (createEventModal) {
+                  createEventModal.classList.add("hidden");
+                }
+                showToast("Event created successfully!");
+                await loadEvents();
+                // Redirect to event detail page
+                window.location.href = `/events/${data.event.id}`;
+              }
+            } catch (error) {
+              console.error("Network error:", error);
+              if (eventError) {
+                eventError.textContent = "An error occurred. Please try again.";
+                eventError.classList.remove("hidden");
+              }
+            }
+          });
+        }
+
+        // Create Event Modal Button - Show/Hide
+        const createEventBtn = document.getElementById("createEventBtn");
+        const cancelEventBtn = document.getElementById("cancelEventBtn");
+
+        if (createEventBtn && createEventModal) {
+          createEventBtn.addEventListener("click", () => {
+            createEventModal.classList.remove("hidden");
+          });
+        }
+
+        if (cancelEventBtn && createEventModal) {
+          cancelEventBtn.addEventListener("click", () => {
+            createEventModal.classList.add("hidden");
+          });
+        }
+      } catch (error) {
+        console.error("Dashboard initialization error:", error);
       }
     }
 
-    // Wait for DOM to be ready
+    // Always wait for DOM to be fully ready
     if (document.readyState === "loading") {
-      console.log("DOM still loading, waiting for DOMContentLoaded");
       document.addEventListener("DOMContentLoaded", initializeDashboard);
-    } else {
-      console.log("DOM already ready, initializing now");
+    } else if (document.readyState === "interactive") {
+      // Interactive means DOM is ready but styles/images still loading
+      // Safe to initialize
       initializeDashboard();
+    } else {
+      // Complete means everything is loaded
+      // Use requestAnimationFrame to ensure DOM is painted
+      requestAnimationFrame(() => {
+        initializeDashboard();
+      });
     }
   </script>
 </Layout>

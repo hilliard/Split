@@ -1,10 +1,7 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../../db';
-import { users } from '../../../db/schema';
-import { humans, emailHistory, customers, humanSiteRoles, siteRoles } from '../../../db/human-centric-schema';
-import { eq } from 'drizzle-orm';
 import { hashPassword, createSession } from '../../../utils';
 import { registerSchema } from '../../../utils/validation';
+import { getCustomerByUsername, getHumanByEmail, createHumanWithCustomer } from '../../../db/queries';
 import { ZodError } from 'zod';
 
 export const POST: APIRoute = async (context) => {
@@ -17,32 +14,20 @@ export const POST: APIRoute = async (context) => {
     const validatedData = registerSchema.parse(data);
     console.log('✓ Validation passed');
     
-    // Check if customer already exists (by username)
-    console.log('🔍 Checking for existing customer...');
-    const existingCustomer = await db
-      .select()
-      .from(customers)
-      .where(eq(customers.username, validatedData.username))
-      .limit(1);
-    console.log('✓ Existing customer check completed:', existingCustomer.length);
-    
-    if (existingCustomer.length > 0) {
+    // Check if username already exists
+    console.log('🔍 Checking for existing username...');
+    const existingUsername = await getCustomerByUsername(validatedData.username);
+    if (existingUsername) {
       return new Response(JSON.stringify({ error: 'Username already registered' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
     
-    // Check if email is already used in email_history
+    // Check if email is already used
     console.log('🔍 Checking for existing email...');
-    const existingEmail = await db
-      .select()
-      .from(emailHistory)
-      .where(eq(emailHistory.email, validatedData.email))
-      .limit(1);
-    console.log('✓ Existing email check completed:', existingEmail.length);
-    
-    if (existingEmail.length > 0) {
+    const existingEmail = await getHumanByEmail(validatedData.email);
+    if (existingEmail) {
       return new Response(JSON.stringify({ error: 'Email already registered' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
@@ -54,81 +39,28 @@ export const POST: APIRoute = async (context) => {
     const passwordHash = await hashPassword(validatedData.password);
     console.log('✓ Password hashed');
     
-    // PHASE 2: Create human in new schema
-    console.log('👤 Creating human in new schema...');
-    const [newHuman] = await db
-      .insert(humans)
-      .values({
-        firstName: validatedData.username.split('.')[0] || validatedData.username,
-        lastName: validatedData.username.split('.')[1] || '',
-      })
-      .returning({ id: humans.id });
-    console.log('✓ Human created:', newHuman.id);
+    // Create human + customer + email_history + role assignment (atomic)
+    console.log('👤 Creating human with customer role...');
+    const result = await createHumanWithCustomer(
+      validatedData.email,
+      validatedData.username,
+      passwordHash,
+      validatedData.username.split('.')[0] || validatedData.username,
+      validatedData.username.split('.')[1] || ''
+    );
     
-    // Create email history entry
-    console.log('📧 Creating email history entry...');
-    const [newEmailEntry] = await db
-      .insert(emailHistory)
-      .values({
-        humanId: newHuman.id,
-        email: validatedData.email,
-      })
-      .returning({ id: emailHistory.id });
-    console.log('✓ Email history created:', newEmailEntry.id);
-    
-    // Create customer (authentication role)
-    console.log('👤 Creating customer...');
-    const [newCustomer] = await db
-      .insert(customers)
-      .values({
-        humanId: newHuman.id,
-        username: validatedData.username,
-        passwordHash,
-      })
-      .returning({ id: customers.id });
-    console.log('✓ Customer created:', newCustomer.id);
-    
-    // Get the "customer" role
-    console.log('🔑 Finding customer role...');
-    try {
-      const [customerRole] = await db
-        .select()
-        .from(siteRoles)
-        .where(eq(siteRoles.roleName, 'customer'))
-        .limit(1);
-      
-      if (customerRole) {
-        console.log('📌 Assigning customer role...');
-        await db
-          .insert(humanSiteRoles)
-          .values({
-            humanId: newHuman.id,
-            siteRoleId: customerRole.id,
-          });
-        console.log('✓ Customer role assigned');
-      } else {
-        console.warn('⚠ Customer role not found in database');
-      }
-    } catch (roleError) {
-      console.warn('⚠ Could not assign customer role:', roleError instanceof Error ? roleError.message : 'Unknown error');
-      // Continue - role assignment is non-critical for registration
+    if (!result) {
+      throw new Error('Failed to create human with customer');
     }
     
-    // BACKWARD COMPATIBILITY: Also create in old schema
-    console.log('🔄 Creating user in legacy schema for backward compatibility...');
-    const [newUserLegacy] = await db
-      .insert(users)
-      .values({
-        email: validatedData.email,
-        username: validatedData.username,
-        passwordHash,
-      })
-      .returning({ id: users.id });
-    console.log('✓ Legacy user created:', newUserLegacy.id);
+    console.log('✓ Human created:', result.humanId);
+    console.log('✓ Customer created:', result.customerId);
+    console.log('✓ Email history created');
+    console.log('✓ Customer role assigned');
     
-    // Create session using legacy user ID (sessions table references users table)
+    // Create session using human ID
     console.log('🔑 Creating session...');
-    const sessionId = await createSession(newUserLegacy.id);
+    const sessionId = await createSession(result.humanId);
     console.log('✓ Session created');
     
     // Set session cookie
@@ -142,17 +74,17 @@ export const POST: APIRoute = async (context) => {
     
     return new Response(JSON.stringify({
       success: true,
-      userId: newHuman.id,
-      legacyUserId: newUserLegacy.id,
-      message: 'Registered with new human-centric schema (legacy support active)',
+      humanId: result.humanId,
+      customerId: result.customerId,
+      message: 'Registered successfully',
     }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     if (error instanceof ZodError) {
-      console.error('❌ Validation error:', error.errors);
-      return new Response(JSON.stringify({ error: error.errors }), {
+      console.error('❌ Validation error:', error.flatten());
+      return new Response(JSON.stringify({ error: error.flatten() }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

@@ -1,0 +1,332 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { db } from "../../db";
+import { events, sessions, activities } from "../../db/schema";
+import { eq } from "drizzle-orm";
+
+// Check if user is authenticated
+const sessionId = Astro.cookies.get("sessionId")?.value;
+if (!sessionId) {
+  return Astro.redirect("/auth/login");
+}
+
+// Get session and verify user
+const [session] = await db
+  .select()
+  .from(sessions)
+  .where(eq(sessions.id, sessionId))
+  .limit(1);
+
+if (!session || new Date(session.expiresAt) < new Date()) {
+  return Astro.redirect("/auth/login");
+}
+
+// Get event ID from query parameters
+const eventId = Astro.url.searchParams.get("eventId");
+
+if (!eventId) {
+  return Astro.redirect("/dashboard");
+}
+
+// Get event and verify ownership
+const [event] = await db
+  .select()
+  .from(events)
+  .where(eq(events.id, eventId))
+  .limit(1);
+
+if (!event || event.creatorId !== session.userId) {
+  return Astro.redirect("/dashboard");
+}
+
+// Get all activities for this event
+const eventActivities = await db
+  .select()
+  .from(activities)
+  .where(eq(activities.eventId, eventId));
+---
+
+<Layout
+  title={`Activities - ${event.title}`}
+  description="Manage event activities"
+>
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+    <!-- Header -->
+    <header
+      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
+    >
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+              Activities
+            </h1>
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+              {event.title}
+            </p>
+          </div>
+          <a
+            href={`/events/${event.id}`}
+            class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+          >
+            Back to Event
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main
+      class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
+    >
+      <!-- Add Activity Card -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 mb-6"
+      >
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">
+          Add New Activity
+        </h2>
+
+        <form id="addActivityForm" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                for="activityTitle"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Activity Title
+              </label>
+              <input
+                type="text"
+                id="activityTitle"
+                name="title"
+                placeholder="e.g., Breakfast, Hotel Check-in"
+                required
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+            <div>
+              <label
+                for="locationName"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Location (Optional)
+              </label>
+              <input
+                type="text"
+                id="locationName"
+                name="locationName"
+                placeholder="e.g., Downtown Café"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+          </div>
+
+          <!-- Time Range -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                for="startTime"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Start Time (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                id="startTime"
+                name="startTime"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+            <div>
+              <label
+                for="endTime"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                End Time (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                id="endTime"
+                name="endTime"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <button
+              type="submit"
+              class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+            >
+              Add Activity
+            </button>
+            <button
+              type="reset"
+              class="px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
+            >
+              Clear
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Activities List -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden"
+      >
+        <div class="p-6 sm:p-8">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">
+            Activities ({eventActivities.length})
+          </h2>
+
+          {
+            eventActivities.length === 0 ? (
+              <p class="text-slate-600 dark:text-slate-400 text-center py-8">
+                No activities yet. Add one to get started!
+              </p>
+            ) : (
+              <div class="space-y-3">
+                {eventActivities.map(
+                  (activity: typeof activities.$inferSelect) => (
+                    <div
+                      class="activity-item border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex justify-between items-start"
+                      data-activity-id={activity.id}
+                    >
+                      <div class="flex-1">
+                        <h3 class="font-medium text-slate-900 dark:text-white">
+                          {activity.title}
+                        </h3>
+                        {activity.locationName && (
+                          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                            📍 {activity.locationName}
+                          </p>
+                        )}
+                        {activity.startTime && (
+                          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                            🕐{" "}
+                            {new Date(activity.startTime).toLocaleString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                            {activity.endTime &&
+                              ` - ${new Date(activity.endTime).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`}
+                          </p>
+                        )}
+                      </div>
+                      <div class="flex gap-2 ml-4">
+                        <button
+                          class="edit-btn px-3 py-2 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                          data-activity-id={activity.id}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          class="delete-btn px-3 py-2 text-sm bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
+                          data-activity-id={activity.id}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script define:vars={{ eventId }}>
+    // Add activity
+    const addActivityForm = document.getElementById("addActivityForm");
+    addActivityForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(addActivityForm);
+      const data = {
+        eventId,
+        title: formData.get("title"),
+        locationName: formData.get("locationName") || null,
+        startTime: formData.get("startTime") || null,
+        endTime: formData.get("endTime") || null,
+        sequenceOrder: 0,
+      };
+
+      try {
+        const response = await fetch("/api/activities/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(
+            "Error: " +
+              (error.error?.message || error.error || "Failed to add activity"),
+          );
+          return;
+        }
+
+        // Reload page to show new activity
+        window.location.reload();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    });
+
+    // Delete activity
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const activityId = btn.dataset.activityId;
+
+        if (!confirm("Are you sure you want to delete this activity?")) {
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/activities/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              activityId,
+              eventId,
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            alert(
+              "Error: " +
+                (error.error?.message ||
+                  error.error ||
+                  "Failed to delete activity"),
+            );
+            return;
+          }
+
+          // Reload page
+          window.location.reload();
+        } catch (error) {
+          alert("Error: " + error.message);
+        }
+      });
+    });
+
+    // Edit activity (show modal or inline edit)
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const activityId = btn.dataset.activityId;
+        window.location.href = `/activities/${activityId}`;
+      });
+    });
+  </script>
+</Layout>

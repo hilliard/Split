@@ -308,22 +308,29 @@ postgresql://neondb_owner:npg_0lxTYBLMgh2r@ep-twilight-flower-anebzpau-pooler.c-
 
 npx neonctl@latest init
 
+#### test users
+
 username: alice
 email= alice.test@test
 password: AlicePass123
 
 username='charlie';
 email='charlie@test.com';
-password='CharliePass123'; 
+password='CharliePass123';
 confirmPassword='CharliePass123'
 
 username='frank';
- email='frank@test.com';
- password='FrankPass123'; 
- confirmPassword='FrankPass123'}
- 
+email='frank@test.com';
+password='FrankPass123';
+confirmPassword='FrankPass123'
+
 username='grace';
- email='grace@test.com'; 
- password='GracePass123'; confirmPassword='GracePass123'}
+email='grace@test.com';
+password='GracePass123'; confirmPassword='GracePass123'
 
+email: john@example.com
+password: password123
 
+username: testuser
+email: test@example.com
+password: password123

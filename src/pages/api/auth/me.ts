@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getSession } from '../../../utils/session';
 import { db } from '../../../db';
-import { users } from '../../../db/schema';
+import { humans, customers } from '../../../db/human-centric-schema';
 import { eq } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {
@@ -25,24 +25,44 @@ export const GET: APIRoute = async (context) => {
       });
     }
     
-    const [user] = await db
-      .select({ id: users.id, email: users.email, username: users.username })
-      .from(users)
-      .where(eq(users.id, session.userId))
+    // Get human data
+    const [human] = await db
+      .select({ 
+        id: humans.id, 
+        firstName: humans.firstName, 
+        lastName: humans.lastName,
+        phone: humans.phone,
+      })
+      .from(humans)
+      .where(eq(humans.id, session.userId))
       .limit(1);
     
-    if (!user) {
+    if (!human) {
       return new Response(JSON.stringify({ error: 'User not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
     }
     
-    return new Response(JSON.stringify(user), {
+    // Get customer username
+    const [customer] = await db
+      .select({ username: customers.username })
+      .from(customers)
+      .where(eq(customers.humanId, human.id))
+      .limit(1);
+    
+    return new Response(JSON.stringify({
+      id: human.id,
+      firstName: human.firstName,
+      lastName: human.lastName,
+      phone: human.phone,
+      username: customer?.username,
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    console.error('Me endpoint error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

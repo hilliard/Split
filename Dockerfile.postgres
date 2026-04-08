@@ -1,0 +1,5 @@
+FROM postgres:9.6
+
+# Copy custom pg_hba.conf with trust authentication
+COPY pg_hba_trust.conf /etc/postgresql/pg_hba.conf
+RUN chmod 644 /etc/postgresql/pg_hba.conf && chown postgres:postgres /etc/postgresql/pg_hba.conf

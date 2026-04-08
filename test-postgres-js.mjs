@@ -1,12 +1,9 @@
 import postgres from 'postgres';
+import dotenv from 'dotenv';
 
-const sql = postgres({
-  host: '127.0.0.1',
-  port: 5432,
-  username: 'postgres',
-  password: 'postgres',
-  database: 'split_db',
-});
+dotenv.config({ path: '.env.local' });
+
+const sql = postgres(process.env.DATABASE_URL);
 
 try {
   const result = await sql`SELECT version()`;

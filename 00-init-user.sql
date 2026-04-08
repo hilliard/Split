@@ -1,0 +1,2 @@
+-- PostgreSQL initialization
+-- Development uses trust authentication, so no password needed

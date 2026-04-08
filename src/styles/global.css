@@ -1,1 +1,61 @@
 @import "tailwindcss";
+
+/* Mobile-first enhancements */
+@media (max-width: 640px) {
+  /* Ensure proper safe areas for notched devices */
+  body {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+  }
+
+  /* Better touch targets */
+  button,
+  a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Improved scrolling performance */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Better tap feedback on mobile */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+  transition: all 200ms ease-in-out;
+}
+
+/* Form inputs for mobile */
+input,
+textarea,
+select {
+  font-size: 16px; /* Prevent zoom on iOS when focusing */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Ensure viewport fills screen on mobile */
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+/* Better card shadows on mobile */
+@media (max-width: 640px) {
+  .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Responsive text improvements */
+@media (max-width: 640px) {
+  h1 {
+    text-size-adjust: none;
+  }
+}

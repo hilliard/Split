@@ -1,0 +1,532 @@
+{
+  "info": {
+    "_postman_id": "invitation-system-api",
+    "name": "Split - Invitation System API",
+    "description": "Complete API collection for testing the group invitation system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "1. Login as User A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var cookies = pm.response.headers.get('set-cookie');",
+                  "  if (cookies) {",
+                  "    console.log('Session cookie set');",
+                  "    pm.collectionVariables.set('sessionId', pm.cookies.one('sessionId').value);",
+                  "  }",
+                  "  pm.test('Login successful', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"user_a\", \"password\": \"password123\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "2. Create Test Group (or use existing)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Invitation Group\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/groups/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "create"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invitations - Send",
+      "item": [
+        {
+          "name": "POST - Send Invitation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invitation sent successfully', function () {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.success).to.equal(true);",
+                  "  pm.expect(jsonData.invitation).to.have.property('id');",
+                  "  pm.expect(jsonData.invitation).to.have.property('email');",
+                  "  ",
+                  "  // Store invitation ID for later use",
+                  "  pm.collectionVariables.set('invitationId', jsonData.invitation.id);",
+                  "  pm.collectionVariables.set('invitedEmail', jsonData.invitation.email);",
+                  "});",
+                  "",
+                  "pm.test('Response contains required fields', function () {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.invitation).to.have.property('expiresAt');",
+                  "  pm.expect(jsonData.invitation).to.have.property('status');",
+                  "  pm.expect(jsonData.invitation.status).to.equal('pending');",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Use a unique email for each test run",
+                  "var timestamp = new Date().getTime();",
+                  "pm.collectionVariables.set('testEmail', 'test_' + timestamp + '@example.com');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/groups/{{groupId}}/invite",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "{{groupId}}", "invite"]
+            },
+            "description": "Send an invitation to join a group. User must be the group owner."
+          }
+        },
+        {
+          "name": "POST - Send Invitation (Invalid Email)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invalid email rejected', function () {",
+                  "  pm.expect(pm.response.code).to.equal(400);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.error).to.include('email');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"not-an-email\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/groups/{{groupId}}/invite",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "{{groupId}}", "invite"]
+            }
+          }
+        },
+        {
+          "name": "POST - Send Invitation (No Session)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Unauthenticated request rejected', function () {",
+                  "  pm.expect(pm.response.code).to.equal(401);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.error).to.equal('Unauthorized');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"someone@example.com\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/groups/550e8400-e29b-41d4-a716-446655440001/invite",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "550e8400-e29b-41d4-a716-446655440001", "invite"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invitations - Accept/Decline",
+      "item": [
+        {
+          "name": "POST - Accept Invitation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invitation accepted', function () {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.success).to.equal(true);",
+                  "  pm.expect(jsonData.message).to.include('joined');",
+                  "});",
+                  "",
+                  "pm.test('Response contains membership', function () {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.membership).to.have.property('groupId');",
+                  "  pm.expect(jsonData.membership).to.have.property('userId');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"invitationId\": \"{{invitationId}}\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/groups/invitations/accept",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "invitations", "accept"]
+            },
+            "description": "Accept a pending invitation. User must be logged in and the invitation email must match."
+          }
+        },
+        {
+          "name": "POST - Decline Invitation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invitation declined', function () {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.success).to.equal(true);",
+                  "  pm.expect(jsonData.message).to.include('declined');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"invitationId\": \"{{invitationId}}\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/groups/invitations/decline",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "invitations", "decline"]
+            },
+            "description": "Decline a pending invitation. User must be logged in and the invitation email must match."
+          }
+        },
+        {
+          "name": "POST - Accept with Invalid UUID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invalid UUID rejected', function () {",
+                  "  pm.expect(pm.response.code).to.equal(400);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.error).to.include('Invalid');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"invitationId\": \"not-a-uuid\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/groups/invitations/accept",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "invitations", "accept"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard - Pending Invitations",
+      "item": [
+        {
+          "name": "GET - List Pending Invitations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully fetched pending invitations', function () {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.success).to.equal(true);",
+                  "  pm.expect(jsonData.invitations).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Invitation data structure is correct', function () {",
+                  "  var jsonData = pm.response.json();",
+                  "  if (jsonData.invitations.length > 0) {",
+                  "    var inv = jsonData.invitations[0];",
+                  "    pm.expect(inv).to.have.property('id');",
+                  "    pm.expect(inv).to.have.property('groupId');",
+                  "    pm.expect(inv).to.have.property('groupName');",
+                  "    pm.expect(inv).to.have.property('email');",
+                  "    pm.expect(inv).to.have.property('invitedByName');",
+                  "    pm.expect(inv).to.have.property('expiresAt');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/dashboard/pending-invitations",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "dashboard", "pending-invitations"]
+            },
+            "description": "Retrieve all pending invitations for the logged-in user. Requires authentication."
+          }
+        },
+        {
+          "name": "GET - Pending Invitations (No Session)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Unauthenticated request rejected', function () {",
+                  "  pm.expect(pm.response.code).to.equal(401);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.error).to.equal('Unauthorized');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/dashboard/pending-invitations",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "dashboard", "pending-invitations"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Groups - Members & Invitations",
+      "item": [
+        {
+          "name": "GET - Group Members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully fetched group members', function () {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.success).to.equal(true);",
+                  "});",
+                  "",
+                  "pm.test('Response structure is correct', function () {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.group).to.have.property('id');",
+                  "  pm.expect(jsonData.group).to.have.property('name');",
+                  "  pm.expect(jsonData.group).to.have.property('isOwner');",
+                  "  pm.expect(jsonData.members).to.be.an('array');",
+                  "  pm.expect(jsonData.pendingInvitations).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Member data structure is correct', function () {",
+                  "  var jsonData = pm.response.json();",
+                  "  if (jsonData.members.length > 0) {",
+                  "    var member = jsonData.members[0];",
+                  "    pm.expect(member).to.have.property('id');",
+                  "    pm.expect(member).to.have.property('firstName');",
+                  "    pm.expect(member).to.have.property('lastName');",
+                  "    pm.expect(member).to.have.property('email');",
+                  "    pm.expect(member).to.have.property('joinedAt');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/groups/{{groupId}}/members",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "{{groupId}}", "members"]
+            },
+            "description": "Retrieve members and pending invitations for a group. User must be a member or owner."
+          }
+        },
+        {
+          "name": "GET - Group Members (Not A Member)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Access denied for non-members', function () {",
+                  "  pm.expect(pm.response.code).to.equal(403);",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.error).to.include('not a member');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/groups/550e8400-e29b-41d4-a716-446655440099/members",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "groups", "550e8400-e29b-41d4-a716-446655440099", "members"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "groupId",
+      "value": "550e8400-e29b-41d4-a716-446655440001",
+      "type": "string"
+    },
+    {
+      "key": "invitationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invitedEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

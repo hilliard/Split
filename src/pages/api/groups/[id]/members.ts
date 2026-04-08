@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { db } from '@/db';
-import { groupMembers, pendingGroupInvitations, humans, sessions, expenseGroups } from '@/db/schema';
+import { groupMembers, pendingGroupInvitations, humans, sessions, expenseGroups, users } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {
@@ -50,7 +50,8 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const isOwner = group.createdBy === session.humanId;
+    // session.userId is the human ID
+    const isOwner = group.createdBy === session.userId;
 
     // Check if user is a member
     const [membership] = await db
@@ -59,7 +60,7 @@ export const GET: APIRoute = async (context) => {
       .where(
         and(
           eq(groupMembers.groupId, groupId),
-          eq(groupMembers.userId, session.humanId!)
+          eq(groupMembers.userId, session.userId)
         )
       )
       .limit(1);
@@ -71,17 +72,18 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    // Get members with join dates
+    // Get members with join dates - email comes from users table
     const members = await db
       .select({
         id: humans.id,
         firstName: humans.firstName,
         lastName: humans.lastName,
-        email: humans.email,
+        email: users.email,
         joinedAt: groupMembers.joinedAt,
       })
       .from(groupMembers)
       .innerJoin(humans, eq(groupMembers.userId, humans.id))
+      .leftJoin(users, eq(humans.id, users.id))
       .where(eq(groupMembers.groupId, groupId))
       .orderBy(groupMembers.joinedAt);
 

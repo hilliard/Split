@@ -334,3 +334,8 @@ password: password123
 username: testuser
 email: test@example.com
 password: password123
+
+
+1. Add tests to cover the app's core behavior and catch regressions, verify the app's main functionality works correctly.
+2. Which library/framework should do you suggest  
+3. Add some basic tests, explain how things work to me

@@ -21,6 +21,7 @@
     "docker:logs": "docker-compose logs -f postgres",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
     "e2e": "playwright test",
     "e2e:debug": "playwright test --debug",
     "e2e:ui": "playwright test --ui"

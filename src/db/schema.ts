@@ -170,6 +170,28 @@ export const groupMembers = pgTable(
   })
 );
 
+// Pending group invitations - for inviting users by email before they join
+export const pendingGroupInvitations = pgTable(
+  'pending_group_invitations',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    groupId: uuid('group_id')
+      .notNull()
+      .references(() => expenseGroups.id, { onDelete: 'cascade' }),
+    email: varchar('email', { length: 255 }).notNull(),
+    invitedBy: uuid('invited_by')
+      .notNull()
+      .references(() => humans.id, { onDelete: 'cascade' }),
+    status: varchar('status', { length: 50 }).default('pending').notNull(), // pending, accepted, rejected, expired
+    invitedAt: timestamp('invited_at').defaultNow().notNull(),
+    expiresAt: timestamp('expires_at'), // Optional: 30 days from now
+    acceptedAt: timestamp('accepted_at'),
+  },
+  (table) => ({
+    groupEmailIdx: index('pending_invitations_group_email_idx').on(table.groupId, table.email),
+    statusIdx: index('pending_invitations_status_idx').on(table.status),
+  })
+);
 
 
 // Expense splits - how an expense is divided among group members

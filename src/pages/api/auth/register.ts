@@ -2,6 +2,9 @@ import type { APIRoute } from 'astro';
 import { hashPassword, createSession } from '../../../utils';
 import { registerSchema } from '../../../utils/validation';
 import { getCustomerByUsername, getHumanByEmail, createHumanWithCustomer } from '../../../db/queries';
+import { db } from '../../../db';
+import { pendingGroupInvitations, groupMembers } from '../../../db/schema';
+import { eq, and } from 'drizzle-orm';
 import { ZodError } from 'zod';
 
 export const POST: APIRoute = async (context) => {
@@ -57,6 +60,41 @@ export const POST: APIRoute = async (context) => {
     console.log('✓ Customer created:', result.customerId);
     console.log('✓ Email history created');
     console.log('✓ Customer role assigned');
+    
+    // Check for pending group invitations and auto-add user
+    console.log('👥 Checking for pending group invitations...');
+    const pendingInvites = await db
+      .select()
+      .from(pendingGroupInvitations)
+      .where(
+        and(
+          eq(pendingGroupInvitations.email, validatedData.email),
+          eq(pendingGroupInvitations.status, 'pending')
+        )
+      );
+    
+    if (pendingInvites.length > 0) {
+      console.log(`✓ Found ${pendingInvites.length} pending invitation(s)`);
+      
+      // Add user to each group and mark invitation as accepted
+      for (const invite of pendingInvites) {
+        await db.insert(groupMembers).values({
+          groupId: invite.groupId,
+          userId: result.humanId,
+          joinedAt: new Date(),
+        });
+        
+        await db
+          .update(pendingGroupInvitations)
+          .set({
+            status: 'accepted',
+            acceptedAt: new Date(),
+          })
+          .where(eq(pendingGroupInvitations.id, invite.id));
+        
+        console.log(`✓ Added to group: ${invite.groupId}`);
+      }
+    }
     
     // Create session using human ID
     console.log('🔑 Creating session...');

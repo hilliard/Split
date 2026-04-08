@@ -100,7 +100,7 @@ export const PUT: APIRoute = async (context) => {
     console.error('Error updating group:', error);
 
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.errors[0].message }), {
+      return new Response(JSON.stringify({ error: error.issues[0]?.message ?? 'Validation error' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

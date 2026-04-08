@@ -21,7 +21,8 @@ const UpdateRoleSchema = z.object({
  */
 export const PUT: APIRoute = async (context) => {
   try {
-    const session = await getSession(context);
+    const sessionId = context.cookies.get('sessionId')?.value;
+    const session = sessionId ? await getSession(sessionId) : null;
 
     if (!session || !session.userId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
@@ -44,7 +45,7 @@ export const PUT: APIRoute = async (context) => {
 
     if (!parseResult.success) {
       return new Response(
-        JSON.stringify({ error: 'Invalid request body', details: parseResult.error.errors }),
+        JSON.stringify({ error: 'Invalid request body', details: parseResult.error.issues }),
         { status: 400 }
       );
     }
@@ -103,7 +104,8 @@ export const PUT: APIRoute = async (context) => {
  */
 export const DELETE: APIRoute = async (context) => {
   try {
-    const session = await getSession(context);
+    const sessionId = context.cookies.get('sessionId')?.value;
+    const session = sessionId ? await getSession(sessionId) : null;
 
     if (!session || !session.userId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });

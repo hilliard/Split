@@ -32,11 +32,11 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    // Get the customer info
+    // Get the customer info via session.userId (sessions store humanId, not customerId)
     const [customer] = await db
       .select()
       .from(customers)
-      .where(eq(customers.id, session.customerId))
+      .where(eq(customers.humanId, session.userId))
       .limit(1);
 
     if (!customer) {
@@ -63,7 +63,7 @@ export const POST: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: 'Invalid input',
-          details: validation.error.errors,
+          details: validation.error.issues,
         }),
         {
           status: 400,

@@ -37,6 +37,7 @@ export const POST: APIRoute = async (context) => {
     const validatedData = createGroupSchema.parse(data);
 
     // Create group
+    console.log('Creating group with:', { name: validatedData.name, createdBy: session.userId });
     const [newGroup] = await db
       .insert(expenseGroups)
       .values({
@@ -44,6 +45,8 @@ export const POST: APIRoute = async (context) => {
         createdBy: session.userId,
       })
       .returning();
+    
+    console.log('✓ Group created:', newGroup.id);
 
     // Add creator as member
     await db.insert(groupMembers).values({
@@ -69,10 +72,20 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Detailed error:', errorMessage);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+    const errorCode = error instanceof Error && 'code' in error ? (error as any).code : null;
+    
+    console.error('Full error object:', { 
+      message: errorMessage, 
+      code: errorCode,
+      name: error instanceof Error ? error.name : 'Unknown'
+    });
 
-    return new Response(JSON.stringify({ error: 'Failed to create group', details: errorMessage }), {
+    return new Response(JSON.stringify({ 
+      error: 'Failed to create group', 
+      details: errorMessage,
+      code: errorCode
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

@@ -162,11 +162,13 @@ export const groupMembers = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => humans.id, { onDelete: 'cascade' }),
+    groupRoleId: uuid('group_role_id').references(() => groupRoles.id),
     invitedAt: timestamp('invited_at').defaultNow().notNull(),
     joinedAt: timestamp('joined_at'),
   },
   (table) => ({
     groupUserIdx: index('group_members_group_user_idx').on(table.groupId, table.userId),
+    roleIdx: index('group_members_role_idx').on(table.groupRoleId),
   })
 );
 
@@ -292,6 +294,10 @@ export const groupMembersRelations = relations(groupMembers, ({ one }) => ({
     fields: [groupMembers.userId],
     references: [humans.id],
   }),
+  role: one(groupRoles, {
+    fields: [groupMembers.groupRoleId],
+    references: [groupRoles.id],
+  }),
 }));
 
 
@@ -311,5 +317,127 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(humans, {
     fields: [sessions.userId],
     references: [humans.id],
+  }),
+}));
+
+// ============================================================
+// ROLE-BASED AUTHORIZATION TABLES
+// ============================================================
+
+// System roles - app-level (admin, user)
+export const systemRoles = pgTable(
+  'system_roles',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 50 }).notNull().unique(),
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  }
+);
+
+// Group roles - group-level (owner, admin, member, viewer)
+export const groupRoles = pgTable(
+  'group_roles',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 50 }).notNull().unique(),
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  }
+);
+
+// Permissions - what actions are allowed
+export const permissions = pgTable(
+  'permissions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    resource: varchar('resource', { length: 50 }).notNull(),
+    action: varchar('action', { length: 50 }).notNull(),
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    resourceActionIdx: index('idx_permissions_resource_action').on(table.resource, table.action),
+  })
+);
+
+// User system roles - maps humans to system roles
+export const humanSystemRoles = pgTable(
+  'human_system_roles',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    humanId: uuid('human_id')
+      .notNull()
+      .references(() => humans.id, { onDelete: 'cascade' }),
+    systemRoleId: uuid('system_role_id')
+      .notNull()
+      .references(() => systemRoles.id),
+    assignedBy: uuid('assigned_by').references(() => humans.id, { onDelete: 'set null' }),
+    assignedAt: timestamp('assigned_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    humanIdx: index('idx_human_system_roles_human_id').on(table.humanId),
+    roleIdx: index('idx_human_system_roles_role_id').on(table.systemRoleId),
+  })
+);
+
+// Group role permissions - maps group roles to permissions
+export const groupRolePermissions = pgTable(
+  'group_role_permissions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    groupRoleId: uuid('group_role_id')
+      .notNull()
+      .references(() => groupRoles.id, { onDelete: 'cascade' }),
+    permissionId: uuid('permission_id')
+      .notNull()
+      .references(() => permissions.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    roleIdx: index('idx_group_role_perms_role_id').on(table.groupRoleId),
+    permIdx: index('idx_group_role_perms_perm_id').on(table.permissionId),
+  })
+);
+
+// ============================================================
+// AUTHORIZATION RELATIONS
+// ============================================================
+
+export const systemRolesRelations = relations(systemRoles, ({ many }) => ({
+  humanRoles: many(humanSystemRoles),
+}));
+
+export const groupRolesRelations = relations(groupRoles, ({ many }) => ({
+  permissions: many(groupRolePermissions),
+}));
+
+export const permissionsRelations = relations(permissions, ({ many }) => ({
+  groupRoles: many(groupRolePermissions),
+}));
+
+export const humanSystemRolesRelations = relations(humanSystemRoles, ({ one }) => ({
+  human: one(humans, {
+    fields: [humanSystemRoles.humanId],
+    references: [humans.id],
+  }),
+  role: one(systemRoles, {
+    fields: [humanSystemRoles.systemRoleId],
+    references: [systemRoles.id],
+  }),
+  assignedByUser: one(humans, {
+    fields: [humanSystemRoles.assignedBy],
+    references: [humans.id],
+  }),
+}));
+
+export const groupRolePermissionsRelations = relations(groupRolePermissions, ({ one }) => ({
+  groupRole: one(groupRoles, {
+    fields: [groupRolePermissions.groupRoleId],
+    references: [groupRoles.id],
+  }),
+  permission: one(permissions, {
+    fields: [groupRolePermissions.permissionId],
+    references: [permissions.id],
   }),
 }));

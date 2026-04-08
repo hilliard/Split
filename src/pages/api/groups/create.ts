@@ -69,7 +69,10 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    return new Response(JSON.stringify({ error: 'Failed to create group' }), {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Detailed error:', errorMessage);
+
+    return new Response(JSON.stringify({ error: 'Failed to create group', details: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

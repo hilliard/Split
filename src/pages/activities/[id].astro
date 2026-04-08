@@ -79,7 +79,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
             Edit Activity
           </h1>
           <a
-            href={`/activities/index?eventId=${event.id}`}
+            href={`/activities/?eventId=${event.id}`}
             class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
           >
             Back to Activities
@@ -200,7 +200,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
               Delete Activity
             </button>
             <a
-              href={`/activities/index?eventId=${event.id}`}
+              href={`/activities/?eventId=${event.id}`}
               class="px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
             >
               Cancel
@@ -248,7 +248,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
         }
 
         alert("Activity updated successfully!");
-        window.location.href = `/activities/index?eventId=${eventId}`;
+        window.location.href = `/activities/?eventId=${eventId}`;
       } catch (error) {
         alert("Error: " + error.message);
       }

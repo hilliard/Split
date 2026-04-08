@@ -54,8 +54,7 @@ describe.skip('Invitation System API', () => {
     const sessionIdA = uuid();
     const sessionA = {
       id: sessionIdA,
-      customerId: customerIdA,
-      humanId: humanIdA,
+      userId: humanIdA,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     };
 
@@ -88,8 +87,7 @@ describe.skip('Invitation System API', () => {
     const sessionIdB = uuid();
     const sessionB = {
       id: sessionIdB,
-      customerId: customerIdB,
-      humanId: humanIdB,
+      userId: humanIdB,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     };
 

@@ -12,7 +12,8 @@ import { eq } from 'drizzle-orm';
  */
 export const GET: APIRoute = async (context) => {
   try {
-    const session = await getSession(context);
+    const sessionId = context.cookies.get('sessionId')?.value;
+    const session = sessionId ? await getSession(sessionId) : null;
 
     if (!session || !session.userId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });

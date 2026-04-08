@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../../db';
-import { pendingGroupInvitations, expenseGroups, humans, sessions, customers } from '../../../db/schema';
+import { db } from '@/db';
+import { pendingGroupInvitations, expenseGroups, humans, sessions, customers } from '@/db/schema';
 import { eq, and, gt } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {

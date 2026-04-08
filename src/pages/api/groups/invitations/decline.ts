@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../../db';
-import { pendingGroupInvitations, sessions, customers } from '../../../db/schema';
+import { db } from '@/db';
+import { pendingGroupInvitations, sessions, customers } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 

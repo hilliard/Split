@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../../../../db';
-import { expenseGroups, pendingGroupInvitations, sessions, humans } from '../../../../../db/schema';
+import { db } from '@/db';
+import { expenseGroups, pendingGroupInvitations, sessions, humans } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
-import { sendGroupInvitationEmail } from '../../../../../utils/email';
+import { sendGroupInvitationEmail } from '@/utils/email';
 
 const inviteSchema = z.object({
   email: z.string().email('Invalid email address'),

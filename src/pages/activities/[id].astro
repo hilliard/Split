@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
 import { db } from "../../db";
 import { events, sessions, activities } from "../../db/schema";
 import { eq } from "drizzle-orm";
@@ -69,35 +70,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
   description="Edit activity details"
 >
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <!-- Header -->
-    <header
-      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
-    >
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16 gap-4">
-          <a
-            href="/dashboard"
-            class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold text-sm sm:text-base"
-          >
-            ← Back to Dashboard
-          </a>
-          <h1
-            class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate"
-          >
-            Split
-          </h1>
-          <div class="flex gap-2">
-            <button
-              id="themeToggle"
-              onclick="window.toggleTheme && window.toggleTheme()"
-              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg"
-            >
-              <span id="themeIcon">☀️</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
+    <Header title={activity.title} currentPage="activities" />
 
     <!-- Sub-header with breadcrumb and navigation -->
     <nav

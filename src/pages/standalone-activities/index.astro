@@ -326,12 +326,6 @@ const userId = session.userId;
                           ✏️ Edit
                         </button>
                         <button
-                          class="expense-btn px-3 py-2 text-sm bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
-                          data-activity-id={activity.id}
-                        >
-                          💰 Expense
-                        </button>
-                        <button
                           class="delete-btn px-3 py-2 text-sm bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
                           data-activity-id={activity.id}
                         >
@@ -883,15 +877,6 @@ const userId = session.userId;
         } catch (error) {
           alert(error instanceof Error ? error.message : "An error occurred");
         }
-      });
-    });
-
-    // Add expense
-    document.querySelectorAll(".expense-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const activityId = btn.dataset.activityId;
-        document.getElementById("expenseActivityId").value = activityId;
-        addExpenseModal.classList.remove("hidden");
       });
     });
 

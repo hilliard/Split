@@ -298,6 +298,106 @@ const budget = event.budgetCents
               />
             </div>
 
+            <!-- Add Expense Toggle -->
+            <div
+              class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 border-2 border-green-400 dark:border-emerald-600 rounded-lg"
+            >
+              <label class="flex items-center gap-4 cursor-pointer">
+                <!-- Toggle Switch -->
+                <div
+                  class="relative inline-block w-14 h-8 bg-gray-300 dark:bg-gray-600 rounded-full transition-colors"
+                  id="toggleExpenseSwitch"
+                >
+                  <div
+                    class="absolute top-1 left-1 w-6 h-6 bg-white dark:bg-slate-200 rounded-full shadow-md transition-transform translate-x-0"
+                    id="toggleExpenseThumb"
+                  >
+                  </div>
+                </div>
+
+                <input
+                  type="checkbox"
+                  id="addExpenseWithActivity"
+                  name="addExpenseWithActivity"
+                  class="hidden"
+                />
+
+                <div>
+                  <p
+                    class="text-sm font-bold text-green-900 dark:text-green-100"
+                    id="toggleExpenseLabel"
+                  >
+                    ○ Add Expense
+                  </p>
+                  <p class="text-xs text-green-700 dark:text-green-300">
+                    Create an expense for this activity
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <!-- Expense Fields (Hidden by default) -->
+            <div
+              id="expenseFieldsContainer"
+              class="hidden space-y-4 p-4 bg-green-50 dark:bg-slate-700 rounded-lg border border-green-200 dark:border-slate-600"
+            >
+              <div>
+                <label
+                  for="activityExpenseDescription"
+                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+                >
+                  Expense Description (Optional)
+                </label>
+                <input
+                  type="text"
+                  id="activityExpenseDescription"
+                  name="expenseDescription"
+                  placeholder="Will auto-fill with activity title"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="activityExpenseCategory"
+                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+                >
+                  Category
+                </label>
+                <select
+                  id="activityExpenseCategory"
+                  name="expenseCategory"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+                >
+                  <option value="meal">Meal / Food</option>
+                  <option value="transport">Transport</option>
+                  <option value="accommodation">Accommodation</option>
+                  <option value="parking">Parking</option>
+                  <option value="entertainment">Entertainment</option>
+                  <option value="tickets">Tickets</option>
+                  <option value="misc" selected>Miscellaneous</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  for="activityExpenseAmount"
+                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+                >
+                  Amount ($)
+                </label>
+                <input
+                  type="number"
+                  id="activityExpenseAmount"
+                  name="expenseAmount"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+                />
+              </div>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
@@ -744,6 +844,9 @@ const budget = event.budgetCents
     const cancelActivityBtn = document.getElementById("cancelActivityBtn");
     const addActivityForm = document.getElementById("addActivityForm");
 
+    let currentGroupId = null;
+    let currentUserId = null;
+
     async function loadGroupInfo() {
       try {
         const response = await fetch(
@@ -751,6 +854,9 @@ const budget = event.budgetCents
         );
         if (response.ok) {
           const data = await response.json();
+          currentGroupId = data.event?.groupId;
+          currentUserId = data.event?.creatorId;
+
           if (data.group) {
             groupInfo.innerHTML = `
               <div class="flex justify-between items-center">
@@ -830,6 +936,39 @@ const budget = event.budgetCents
     loadGroupInfo();
     loadActivities();
 
+    // Expense toggle for Add Activity
+    const expenseCheckbox = document.getElementById("addExpenseWithActivity");
+    const toggleSwitch = document.getElementById("toggleExpenseSwitch");
+    const toggleThumb = document.getElementById("toggleExpenseThumb");
+    const toggleLabel = document.getElementById("toggleExpenseLabel");
+    const expenseFieldsContainer = document.getElementById(
+      "expenseFieldsContainer",
+    );
+
+    function updateExpenseToggleState() {
+      if (expenseCheckbox.checked) {
+        toggleSwitch.classList.replace("bg-gray-300", "bg-green-500");
+        toggleThumb.classList.add("translate-x-6");
+        toggleLabel.textContent = "✓ Add Expense";
+        expenseFieldsContainer.classList.remove("hidden");
+      } else {
+        toggleSwitch.classList.replace("bg-green-500", "bg-gray-300");
+        toggleThumb.classList.remove("translate-x-6");
+        toggleLabel.textContent = "○ Add Expense";
+        expenseFieldsContainer.classList.add("hidden");
+      }
+    }
+
+    if (expenseCheckbox) {
+      expenseCheckbox.addEventListener("change", updateExpenseToggleState);
+    }
+    if (toggleSwitch) {
+      toggleSwitch.addEventListener("click", () => {
+        expenseCheckbox.checked = !expenseCheckbox.checked;
+        updateExpenseToggleState();
+      });
+    }
+
     // Activity modal handlers
     if (addActivityBtn) {
       addActivityBtn.addEventListener("click", () => {
@@ -898,6 +1037,42 @@ const budget = event.budgetCents
               activityError.classList.remove("hidden");
             }
           } else {
+            const newActivityId = data.activity.id;
+            const activityTitle = formData.get("title");
+
+            // Handle expense if checkbox is checked
+            const addExpenseCheckbox = document.getElementById(
+              "addExpenseWithActivity",
+            );
+            if (addExpenseCheckbox && addExpenseCheckbox.checked) {
+              const expenseAmount =
+                parseFloat(formData.get("expenseAmount")) || 0;
+
+              if (expenseAmount > 0) {
+                try {
+                  const expenseResponse = await fetch("/api/expenses/create", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      groupId: groupData?.id,
+                      activityId: newActivityId,
+                      amount: Math.round(expenseAmount * 100),
+                      description:
+                        formData.get("expenseDescription") || activityTitle,
+                      category: formData.get("expenseCategory") || "misc",
+                      paidBy: sessionData?.userId,
+                    }),
+                  });
+
+                  if (!expenseResponse.ok) {
+                    console.error("Failed to create expense");
+                  }
+                } catch (error) {
+                  console.error("Error creating expense:", error);
+                }
+              }
+            }
+
             addActivityModal.classList.add("hidden");
             addActivityForm.reset();
             loadActivities(); // Refresh activities list

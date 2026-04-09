@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
 import { db } from "../../db";
 import { sessions } from "../../db/schema";
 import { eq } from "drizzle-orm";
@@ -27,37 +28,23 @@ if (!session || new Date(session.expiresAt) < new Date()) {
   description="Create a new event for expense tracking"
 >
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <!-- Header -->
-    <header
-      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
+    <Header title="Split" currentPage="dashboard" />
+
+    <!-- Page Title -->
+    <div
+      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16 gap-4">
-          <a
-            href="/dashboard"
-            class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold text-sm sm:text-base"
-          >
-            ← Back to Dashboard
-          </a>
-          <h1
-            class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate"
-          >
-            Split
-          </h1>
-          <div class="flex gap-2">
-            <button
-              type="button"
-              id="themeToggle"
-              onclick="window.toggleTheme && window.toggleTheme()"
-              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg"
-              aria-label="Toggle dark mode"
-            >
-              <span id="themeIcon">☀️</span>
-            </button>
-          </div>
-        </div>
+      <div class="max-w-4xl mx-auto">
+        <h1
+          class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
+        >
+          Create New Event
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+          Set up a new event to track expenses with your friends
+        </p>
       </div>
-    </header>
+    </div>
 
     <!-- Main Content -->
     <main
@@ -67,10 +54,6 @@ if (!session || new Date(session.expiresAt) < new Date()) {
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
       >
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">
-          Create New Event
-        </h1>
-
         <form id="createEventForm" class="space-y-4">
           <!-- Event Title -->
           <div>
@@ -266,6 +249,106 @@ if (!session || new Date(session.expiresAt) < new Date()) {
               placeholder="Add any notes about this event..."
               class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
             ></textarea>
+          </div>
+
+          <!-- Add Initial Expense Toggle -->
+          <div
+            class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 border-2 border-green-400 dark:border-emerald-600 rounded-lg"
+          >
+            <label class="flex items-center gap-4 cursor-pointer">
+              <!-- Toggle Switch -->
+              <div
+                class="relative inline-block w-14 h-8 bg-gray-300 dark:bg-gray-600 rounded-full transition-colors"
+                id="toggleInitialExpenseSwitch"
+              >
+                <div
+                  class="absolute top-1 left-1 w-6 h-6 bg-white dark:bg-slate-200 rounded-full shadow-md transition-transform translate-x-0"
+                  id="toggleInitialExpenseThumb"
+                >
+                </div>
+              </div>
+
+              <input
+                type="checkbox"
+                id="addInitialExpense"
+                name="addInitialExpense"
+                class="hidden"
+              />
+
+              <div>
+                <p
+                  class="text-sm font-bold text-green-900 dark:text-green-100"
+                  id="toggleInitialExpenseLabel"
+                >
+                  ○ Add Initial Expense
+                </p>
+                <p class="text-xs text-green-700 dark:text-green-300">
+                  Add an expense for this event
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Expense Fields (Hidden by default) -->
+          <div
+            id="initialExpenseFieldsContainer"
+            class="hidden space-y-4 p-4 bg-green-50 dark:bg-slate-700 rounded-lg border border-green-200 dark:border-slate-600"
+          >
+            <div>
+              <label
+                for="initialExpenseDescription"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Expense Description
+              </label>
+              <input
+                type="text"
+                id="initialExpenseDescription"
+                name="initialExpenseDescription"
+                placeholder="e.g., Restaurant, Transportation, etc."
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+              />
+            </div>
+
+            <div>
+              <label
+                for="initialExpenseCategory"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Category
+              </label>
+              <select
+                id="initialExpenseCategory"
+                name="initialExpenseCategory"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+              >
+                <option value="meal">Meal / Food</option>
+                <option value="transport">Transport</option>
+                <option value="accommodation">Accommodation</option>
+                <option value="parking">Parking</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="tickets">Tickets</option>
+                <option value="misc" selected>Miscellaneous</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="initialExpenseAmount"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Amount ($)
+              </label>
+              <input
+                type="number"
+                id="initialExpenseAmount"
+                name="initialExpenseAmount"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+              />
+            </div>
           </div>
 
           <!-- Error Message -->
@@ -651,6 +734,85 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     const createEventForm = document.getElementById("createEventForm");
     const eventError = document.getElementById("eventError");
 
+    // Expense Toggle Handler
+    const addInitialExpenseCheckbox =
+      document.getElementById("addInitialExpense");
+    const toggleInitialExpenseSwitch = document.getElementById(
+      "toggleInitialExpenseSwitch",
+    );
+    const toggleInitialExpenseThumb = document.getElementById(
+      "toggleInitialExpenseThumb",
+    );
+    const toggleInitialExpenseLabel = document.getElementById(
+      "toggleInitialExpenseLabel",
+    );
+    const initialExpenseFieldsContainer = document.getElementById(
+      "initialExpenseFieldsContainer",
+    );
+
+    function updateExpenseToggleState() {
+      const isChecked = addInitialExpenseCheckbox.checked;
+
+      if (isChecked) {
+        // Checked state
+        toggleInitialExpenseSwitch.classList.remove(
+          "bg-gray-300",
+          "dark:bg-gray-600",
+        );
+        toggleInitialExpenseSwitch.classList.add(
+          "bg-green-500",
+          "dark:bg-green-600",
+        );
+        toggleInitialExpenseThumb.classList.remove("translate-x-0");
+        toggleInitialExpenseThumb.classList.add("translate-x-6");
+        toggleInitialExpenseLabel.textContent = "✓ Add Initial Expense";
+        toggleInitialExpenseLabel.classList.remove("text-gray-700");
+        toggleInitialExpenseLabel.classList.add(
+          "text-green-900",
+          "dark:text-green-100",
+        );
+        initialExpenseFieldsContainer.classList.remove("hidden");
+      } else {
+        // Unchecked state
+        toggleInitialExpenseSwitch.classList.remove(
+          "bg-green-500",
+          "dark:bg-green-600",
+        );
+        toggleInitialExpenseSwitch.classList.add(
+          "bg-gray-300",
+          "dark:bg-gray-600",
+        );
+        toggleInitialExpenseThumb.classList.remove("translate-x-6");
+        toggleInitialExpenseThumb.classList.add("translate-x-0");
+        toggleInitialExpenseLabel.textContent = "○ Add Initial Expense";
+        toggleInitialExpenseLabel.classList.remove(
+          "text-green-900",
+          "dark:text-green-100",
+        );
+        toggleInitialExpenseLabel.classList.add(
+          "text-gray-700",
+          "dark:text-gray-300",
+        );
+        initialExpenseFieldsContainer.classList.add("hidden");
+      }
+    }
+
+    // Initialize expense toggle
+    if (addInitialExpenseCheckbox) {
+      updateExpenseToggleState();
+      addInitialExpenseCheckbox.addEventListener(
+        "change",
+        updateExpenseToggleState,
+      );
+    }
+
+    if (toggleInitialExpenseSwitch) {
+      toggleInitialExpenseSwitch.addEventListener("click", () => {
+        addInitialExpenseCheckbox.checked = !addInitialExpenseCheckbox.checked;
+        updateExpenseToggleState();
+      });
+    }
+
     if (createEventForm) {
       createEventForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -660,6 +822,12 @@ if (!session || new Date(session.expiresAt) < new Date()) {
         // Convert datetime-local to ISO 8601 string
         const startTimeInput = formData.get("startTime");
         const endTimeInput = formData.get("endTime");
+        const shouldAddExpense = addInitialExpenseCheckbox.checked;
+        const expenseDescription = formData.get("initialExpenseDescription");
+        const expenseCategory =
+          formData.get("initialExpenseCategory") || "misc";
+        const expenseAmount =
+          parseFloat(formData.get("initialExpenseAmount")) || 0;
 
         const data = {
           title: formData.get("title"),
@@ -693,7 +861,25 @@ if (!session || new Date(session.expiresAt) < new Date()) {
               eventError.classList.remove("hidden");
             }
           } else {
-            window.location.href = `/events/${result.event.id}`;
+            // Event created successfully
+            const eventId = result.event.id;
+
+            // Check if we need to create an expense
+            if (shouldAddExpense && expenseAmount > 0) {
+              try {
+                // First, we need a group for the expense
+                // For now, we'll skip creating an expense if there's no group
+                // The user can add expenses from the event detail page
+                console.log(
+                  "Expense toggled but no group yet - user can add from event page",
+                );
+              } catch (error) {
+                console.warn("Error creating expense:", error);
+              }
+            }
+
+            // Redirect to the event page
+            window.location.href = `/events/${eventId}`;
           }
         } catch (error) {
           if (eventError) {

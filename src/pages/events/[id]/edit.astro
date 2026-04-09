@@ -1,5 +1,6 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
+import Header from "../../../components/Header.astro";
 import { db } from "../../../db";
 import { events, sessions } from "../../../db/schema";
 import { eq } from "drizzle-orm";
@@ -28,6 +29,9 @@ const [session] = await db
 if (!session || new Date(session.expiresAt) < new Date()) {
   return Astro.redirect("/auth/login");
 }
+
+// Get userId from session
+const userId = session.userId;
 
 // Get event by ID
 const [event] = await db
@@ -58,48 +62,32 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
 
 <Layout title={`Edit ${event.title}`} description="Edit event details">
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <!-- Header -->
-    <header
-      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
+    <Header title={event.title} currentPage="dashboard" />
+
+    <!-- Page Title -->
+    <div
+      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16 gap-4">
-          <a
-            href={`/events/${event.id}`}
-            class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold text-sm sm:text-base"
-          >
-            ← Back
-          </a>
-          <h1
-            class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate"
-          >
-            Split
-          </h1>
-          <div class="flex gap-2">
-            <button
-              id="themeToggle"
-              onclick="window.toggleTheme && window.toggleTheme()"
-              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg"
-            >
-              <span id="themeIcon">☀️</span>
-            </button>
-          </div>
-        </div>
+      <div class="max-w-7xl mx-auto">
+        <h1
+          class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
+        >
+          Edit Event
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+          {event.title}
+        </p>
       </div>
-    </header>
+    </div>
 
     <!-- Main Content -->
     <main
-      class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
+      class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
     >
       <!-- Edit Form Card -->
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
       >
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">
-          Edit Event
-        </h1>
-
         <form id="editEventForm" class="space-y-4">
           <!-- Event Name -->
           <!-- Event Title -->
@@ -304,6 +292,17 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             >
           </div>
 
+          <!-- Add Expense Button -->
+          <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
+            <button
+              type="button"
+              id="addExpenseBtn"
+              class="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+            >
+              💰 Add Expense
+            </button>
+          </div>
+
           <!-- Error Message -->
           <div
             id="eventError"
@@ -331,48 +330,254 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
         </form>
       </div>
     </main>
-  </div>
 
-  <script define:vars={{ eventId: id }}>
-    // Global theme toggle function accessible from HTML onclick
-    window.toggleTheme = function () {
-      console.log("🖱️ Theme toggle clicked");
+    <!-- Add Event Expense Modal -->
+    <div
+      id="addEventExpenseModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 my-8"
+      >
+        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+          <h2
+            class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
+          >
+            Add Event Expense
+          </h2>
+        </div>
 
-      const html = document.documentElement;
-      const isDark = html.classList.contains("dark");
-      const icon = document.getElementById("themeIcon");
-      const mainDiv = document.querySelector("div.min-h-screen");
+        <form id="addEventExpenseForm" class="p-5 sm:p-6 space-y-4">
+          <div>
+            <label
+              for="expenseDescription"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Description
+            </label>
+            <input
+              type="text"
+              id="expenseDescription"
+              name="description"
+              placeholder="e.g., Venue rental, Catering, Decorations"
+              required
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 text-base"
+            />
+          </div>
 
-      if (isDark) {
-        // Switch to LIGHT mode
-        console.log("→ Switching to light mode");
-        html.classList.remove("dark");
-        document.body.style.setProperty(
-          "background-color",
-          "rgb(255, 255, 255)",
-          "important",
-        );
-        document.body.style.setProperty(
-          "color",
-          "rgb(15, 23, 42)",
-          "important",
-        );
+          <div>
+            <label
+              for="expenseCategory"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Category
+            </label>
+            <select
+              id="expenseCategory"
+              name="category"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 text-base"
+            >
+              <option value="meal">Meal / Food</option>
+              <option value="transport">Transport</option>
+              <option value="accommodation">Accommodation</option>
+              <option value="parking">Parking</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="tickets">Tickets</option>
+              <option value="misc" selected>Miscellaneous</option>
+            </select>
+          </div>
 
-        // Clear inline styles from main div
-        if (mainDiv) {
-          mainDiv.style.backgroundColor = "";
-          mainDiv.style.color = "";
-        }
+          <div>
+            <label
+              for="expenseAmount"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Amount ($)
+            </label>
+            <input
+              type="number"
+              id="expenseAmount"
+              name="amount"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              required
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 text-base"
+            />
+          </div>
 
-        // Remove dark mode styles and apply light mode styles
-        let darkStyles = document.getElementById("dynamicDarkStyles");
-        if (darkStyles) darkStyles.remove();
+          <div
+            id="expenseError"
+            class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
+          >
+          </div>
 
-        // Inject light mode styles
-        if (!document.getElementById("dynamicLightStyles")) {
-          const style = document.createElement("style");
-          style.id = "dynamicLightStyles";
-          style.textContent = `
+          <div
+            class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
+          >
+            <button
+              type="button"
+              id="cancelExpenseBtn"
+              class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors font-medium text-sm"
+            >
+              Add Expense
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script define:vars={{ eventId: id, userId }}>
+      // Add Expense Modal
+      const addExpenseBtn = document.getElementById("addExpenseBtn");
+      const addEventExpenseModal = document.getElementById(
+        "addEventExpenseModal",
+      );
+      const cancelExpenseBtn = document.getElementById("cancelExpenseBtn");
+      const addEventExpenseForm = document.getElementById(
+        "addEventExpenseForm",
+      );
+      const expenseError = document.getElementById("expenseError");
+
+      if (addExpenseBtn) {
+        addExpenseBtn.addEventListener("click", () => {
+          addEventExpenseModal.classList.remove("hidden");
+        });
+      }
+
+      if (cancelExpenseBtn) {
+        cancelExpenseBtn.addEventListener("click", () => {
+          addEventExpenseModal.classList.add("hidden");
+          addEventExpenseForm.reset();
+          expenseError.classList.add("hidden");
+        });
+      }
+
+      // Close modal when clicking outside
+      if (addEventExpenseModal) {
+        addEventExpenseModal.addEventListener("click", (e) => {
+          if (e.target === addEventExpenseModal) {
+            addEventExpenseModal.classList.add("hidden");
+            addEventExpenseForm.reset();
+            expenseError.classList.add("hidden");
+          }
+        });
+      }
+
+      // Add Expense Form Submission
+      if (addEventExpenseForm) {
+        addEventExpenseForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          // First, get the event to get groupId
+          try {
+            const eventResponse = await fetch(`/api/events/${eventId}`);
+            if (!eventResponse.ok) {
+              expenseError.textContent =
+                "Could not fetch event details. Please try again.";
+              expenseError.classList.remove("hidden");
+              return;
+            }
+
+            const eventData = await eventResponse.json();
+            const groupId = eventData.event.groupId;
+
+            if (!groupId) {
+              expenseError.textContent =
+                "This event doesn't have a group assigned yet. Please assign a group first.";
+              expenseError.classList.remove("hidden");
+              return;
+            }
+
+            // Get form data
+            const formData = new FormData(addEventExpenseForm);
+            const amount = parseFloat(formData.get("amount")) || 0;
+
+            if (amount <= 0) {
+              expenseError.textContent = "Amount must be greater than 0";
+              expenseError.classList.remove("hidden");
+              return;
+            }
+
+            // Create expense
+            const expenseResponse = await fetch("/api/expenses/create", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                groupId: groupId,
+                description: formData.get("description"),
+                category: formData.get("category") || "misc",
+                amount: Math.round(amount * 100),
+                paidBy: userId,
+              }),
+            });
+
+            if (!expenseResponse.ok) {
+              const error = await expenseResponse.json();
+              expenseError.textContent =
+                error.error || "Failed to create expense";
+              expenseError.classList.remove("hidden");
+              return;
+            }
+
+            // Success
+            alert(`Expense of $${amount.toFixed(2)} added successfully!`);
+            addEventExpenseModal.classList.add("hidden");
+            addEventExpenseForm.reset();
+            expenseError.classList.add("hidden");
+          } catch (error) {
+            console.error("Error:", error);
+            expenseError.textContent = "An error occurred. Please try again.";
+            expenseError.classList.remove("hidden");
+          }
+        });
+      }
+
+      // Global theme toggle function accessible from HTML onclick
+      window.toggleTheme = function () {
+        console.log("🖱️ Theme toggle clicked");
+
+        const html = document.documentElement;
+        const isDark = html.classList.contains("dark");
+        const icon = document.getElementById("themeIcon");
+        const mainDiv = document.querySelector("div.min-h-screen");
+
+        if (isDark) {
+          // Switch to LIGHT mode
+          console.log("→ Switching to light mode");
+          html.classList.remove("dark");
+          document.body.style.setProperty(
+            "background-color",
+            "rgb(255, 255, 255)",
+            "important",
+          );
+          document.body.style.setProperty(
+            "color",
+            "rgb(15, 23, 42)",
+            "important",
+          );
+
+          // Clear inline styles from main div
+          if (mainDiv) {
+            mainDiv.style.backgroundColor = "";
+            mainDiv.style.color = "";
+          }
+
+          // Remove dark mode styles and apply light mode styles
+          let darkStyles = document.getElementById("dynamicDarkStyles");
+          if (darkStyles) darkStyles.remove();
+
+          // Inject light mode styles
+          if (!document.getElementById("dynamicLightStyles")) {
+            const style = document.createElement("style");
+            style.id = "dynamicLightStyles";
+            style.textContent = `
             html:not(.dark) header {
               background-color: rgb(255, 255, 255) !important;
               border-color: rgb(226, 232, 240) !important;
@@ -416,46 +621,50 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
               color: rgb(67, 56, 202) !important;
             }
           `;
-          document.head.appendChild(style);
-        }
+            document.head.appendChild(style);
+          }
 
-        localStorage.setItem("theme", "light");
-        console.log("✅ Switched to light mode");
-        if (icon) icon.textContent = "☀️";
-      } else {
-        // Switch to DARK mode
-        console.log("→ Switching to dark mode");
-        html.classList.add("dark");
-        document.body.style.setProperty(
-          "background-color",
-          "rgb(6, 6, 10)",
-          "important",
-        );
-        document.body.style.setProperty(
-          "color",
-          "rgb(248, 250, 252)",
-          "important",
-        );
-
-        // Set inline styles on main div for dark mode
-        if (mainDiv) {
-          mainDiv.style.setProperty(
+          localStorage.setItem("theme", "light");
+          console.log("✅ Switched to light mode");
+          if (icon) icon.textContent = "☀️";
+        } else {
+          // Switch to DARK mode
+          console.log("→ Switching to dark mode");
+          html.classList.add("dark");
+          document.body.style.setProperty(
             "background-color",
             "rgb(6, 6, 10)",
             "important",
           );
-          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
-        }
+          document.body.style.setProperty(
+            "color",
+            "rgb(248, 250, 252)",
+            "important",
+          );
 
-        // Remove light mode styles and apply dark mode styles
-        let lightStyles = document.getElementById("dynamicLightStyles");
-        if (lightStyles) lightStyles.remove();
+          // Set inline styles on main div for dark mode
+          if (mainDiv) {
+            mainDiv.style.setProperty(
+              "background-color",
+              "rgb(6, 6, 10)",
+              "important",
+            );
+            mainDiv.style.setProperty(
+              "color",
+              "rgb(248, 250, 252)",
+              "important",
+            );
+          }
 
-        // Inject dark mode styles
-        if (!document.getElementById("dynamicDarkStyles")) {
-          const style = document.createElement("style");
-          style.id = "dynamicDarkStyles";
-          style.textContent = `
+          // Remove light mode styles and apply dark mode styles
+          let lightStyles = document.getElementById("dynamicLightStyles");
+          if (lightStyles) lightStyles.remove();
+
+          // Inject dark mode styles
+          if (!document.getElementById("dynamicDarkStyles")) {
+            const style = document.createElement("style");
+            style.id = "dynamicDarkStyles";
+            style.textContent = `
             html.dark header {
               background-color: rgb(15, 23, 42) !important;
               border-color: rgb(51, 65, 85) !important;
@@ -504,40 +713,40 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
               border-color: rgb(51, 65, 85) !important;
             }
           `;
-          document.head.appendChild(style);
+            document.head.appendChild(style);
+          }
+
+          localStorage.setItem("theme", "dark");
+          console.log("✅ Switched to dark mode");
+          if (icon) icon.textContent = "🌙";
+        }
+      };
+
+      // Setup theme toggle on page load
+      function setupThemeToggle() {
+        const btn = document.getElementById("themeToggle");
+        const icon = document.getElementById("themeIcon");
+        const html = document.documentElement;
+        const body = document.body;
+        const mainDiv = document.querySelector("div.min-h-screen");
+
+        if (!btn) {
+          console.error("❌ Theme toggle button not found");
+          return;
         }
 
-        localStorage.setItem("theme", "dark");
-        console.log("✅ Switched to dark mode");
-        if (icon) icon.textContent = "🌙";
-      }
-    };
+        console.log("✅ Theme toggle setup started");
 
-    // Setup theme toggle on page load
-    function setupThemeToggle() {
-      const btn = document.getElementById("themeToggle");
-      const icon = document.getElementById("themeIcon");
-      const html = document.documentElement;
-      const body = document.body;
-      const mainDiv = document.querySelector("div.min-h-screen");
+        // Update icon to match current theme on initialization
+        const isDark = html.classList.contains("dark");
+        if (icon) icon.textContent = isDark ? "🌙" : "☀️";
 
-      if (!btn) {
-        console.error("❌ Theme toggle button not found");
-        return;
-      }
-
-      console.log("✅ Theme toggle setup started");
-
-      // Update icon to match current theme on initialization
-      const isDark = html.classList.contains("dark");
-      if (icon) icon.textContent = isDark ? "🌙" : "☀️";
-
-      // Inject CSS styles for current theme (both light and dark)
-      if (isDark && !document.getElementById("dynamicDarkStyles")) {
-        // Inject dark mode CSS
-        const darkStyle = document.createElement("style");
-        darkStyle.id = "dynamicDarkStyles";
-        darkStyle.textContent = `
+        // Inject CSS styles for current theme (both light and dark)
+        if (isDark && !document.getElementById("dynamicDarkStyles")) {
+          // Inject dark mode CSS
+          const darkStyle = document.createElement("style");
+          darkStyle.id = "dynamicDarkStyles";
+          darkStyle.textContent = `
           html.dark header {
             background-color: rgb(15, 23, 42) !important;
             border-color: rgb(51, 65, 85) !important;
@@ -586,12 +795,12 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             border-color: rgb(51, 65, 85) !important;
           }
         `;
-        document.head.appendChild(darkStyle);
-      } else if (!isDark && !document.getElementById("dynamicLightStyles")) {
-        // Inject light mode CSS
-        const lightStyle = document.createElement("style");
-        lightStyle.id = "dynamicLightStyles";
-        lightStyle.textContent = `
+          document.head.appendChild(darkStyle);
+        } else if (!isDark && !document.getElementById("dynamicLightStyles")) {
+          // Inject light mode CSS
+          const lightStyle = document.createElement("style");
+          lightStyle.id = "dynamicLightStyles";
+          lightStyle.textContent = `
           html:not(.dark) header {
             background-color: rgb(255, 255, 255) !important;
             border-color: rgb(226, 232, 240) !important;
@@ -635,124 +844,130 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             color: rgb(67, 56, 202) !important;
           }
         `;
-        document.head.appendChild(lightStyle);
-      }
+          document.head.appendChild(lightStyle);
+        }
 
-      // Apply inline styles with setProperty to match current theme
-      if (isDark) {
-        html.style.setProperty("color-scheme", "dark", "important");
-        body.style.setProperty(
-          "background-color",
-          "rgb(6, 6, 10)",
-          "important",
-        );
-        body.style.setProperty("color", "rgb(248, 250, 252)", "important");
-        if (mainDiv) {
-          mainDiv.style.setProperty(
+        // Apply inline styles with setProperty to match current theme
+        if (isDark) {
+          html.style.setProperty("color-scheme", "dark", "important");
+          body.style.setProperty(
             "background-color",
             "rgb(6, 6, 10)",
             "important",
           );
-          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
-        }
-      } else {
-        html.style.setProperty("color-scheme", "light", "important");
-        body.style.setProperty(
-          "background-color",
-          "rgb(255, 255, 255)",
-          "important",
-        );
-        body.style.setProperty("color", "rgb(15, 23, 42)", "important");
-        if (mainDiv) {
-          mainDiv.style.setProperty(
+          body.style.setProperty("color", "rgb(248, 250, 252)", "important");
+          if (mainDiv) {
+            mainDiv.style.setProperty(
+              "background-color",
+              "rgb(6, 6, 10)",
+              "important",
+            );
+            mainDiv.style.setProperty(
+              "color",
+              "rgb(248, 250, 252)",
+              "important",
+            );
+          }
+        } else {
+          html.style.setProperty("color-scheme", "light", "important");
+          body.style.setProperty(
             "background-color",
             "rgb(255, 255, 255)",
             "important",
           );
-          mainDiv.style.setProperty("color", "rgb(15, 23, 42)", "important");
+          body.style.setProperty("color", "rgb(15, 23, 42)", "important");
+          if (mainDiv) {
+            mainDiv.style.setProperty(
+              "background-color",
+              "rgb(255, 255, 255)",
+              "important",
+            );
+            mainDiv.style.setProperty("color", "rgb(15, 23, 42)", "important");
+          }
         }
+
+        console.log("✅ Theme toggle ready");
       }
 
-      console.log("✅ Theme toggle ready");
-    }
+      // Initialize theme on page load (wait for DOM to be fully ready)
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setupThemeToggle);
+      } else {
+        setTimeout(setupThemeToggle, 0);
+      }
 
-    // Initialize theme on page load (wait for DOM to be fully ready)
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", setupThemeToggle);
-    } else {
-      setTimeout(setupThemeToggle, 0);
-    }
+      // Update currency symbol
+      const eventCurrencySelect = document.getElementById("eventCurrency");
+      const budgetSymbol = document.getElementById("budgetSymbol");
+      const currencySymbols = {
+        USD: "$",
+        EUR: "€",
+        GBP: "£",
+        CAD: "$",
+        AUD: "$",
+        JPY: "¥",
+        MXN: "$",
+        INR: "₹",
+      };
 
-    // Update currency symbol
-    const eventCurrencySelect = document.getElementById("eventCurrency");
-    const budgetSymbol = document.getElementById("budgetSymbol");
-    const currencySymbols = {
-      USD: "$",
-      EUR: "€",
-      GBP: "£",
-      CAD: "$",
-      AUD: "$",
-      JPY: "¥",
-      MXN: "$",
-      INR: "₹",
-    };
+      if (eventCurrencySelect) {
+        eventCurrencySelect.addEventListener("change", () => {
+          const selectedCurrency = eventCurrencySelect.value;
+          const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
+          if (budgetSymbol) {
+            budgetSymbol.textContent = symbol;
+          }
+        });
+      }
 
-    if (eventCurrencySelect) {
-      eventCurrencySelect.addEventListener("change", () => {
-        const selectedCurrency = eventCurrencySelect.value;
-        const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
-        if (budgetSymbol) {
-          budgetSymbol.textContent = symbol;
-        }
-      });
-    }
+      // Form submission
+      const editEventForm = document.getElementById("editEventForm");
+      const eventError = document.getElementById("eventError");
 
-    // Form submission
-    const editEventForm = document.getElementById("editEventForm");
-    const eventError = document.getElementById("eventError");
+      if (editEventForm) {
+        editEventForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-    if (editEventForm) {
-      editEventForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+          const formData = new FormData(editEventForm);
+          const data = {
+            eventId: eventId,
+            name: formData.get("name"),
+            location: formData.get("location") || undefined,
+            startDate: formData.get("startDate") || undefined,
+            endDate: formData.get("endDate") || undefined,
+            startTime: formData.get("startTime") || undefined,
+            endTime: formData.get("endTime") || undefined,
+            currency: formData.get("currency"),
+            budget: formData.get("budget") || undefined,
+            description: formData.get("description") || undefined,
+          };
 
-        const formData = new FormData(editEventForm);
-        const data = {
-          eventId: eventId,
-          name: formData.get("name"),
-          location: formData.get("location") || undefined,
-          startDate: formData.get("startDate") || undefined,
-          endDate: formData.get("endDate") || undefined,
-          startTime: formData.get("startTime") || undefined,
-          endTime: formData.get("endTime") || undefined,
-          currency: formData.get("currency"),
-          budget: formData.get("budget") || undefined,
-          description: formData.get("description") || undefined,
-        };
+          try {
+            const response = await fetch("/api/events/update", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
 
-        try {
-          const response = await fetch("/api/events/update", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          });
+            const result = await response.json();
 
-          const result = await response.json();
-
-          if (!response.ok) {
+            if (!response.ok) {
+              if (eventError) {
+                eventError.textContent =
+                  result.error || "Failed to update event";
+                eventError.classList.remove("hidden");
+              }
+            } else {
+              window.location.href = `/events/${eventId}`;
+            }
+          } catch (error) {
             if (eventError) {
-              eventError.textContent = result.error || "Failed to update event";
+              eventError.textContent = "An error occurred. Please try again.";
               eventError.classList.remove("hidden");
             }
-          } else {
-            window.location.href = `/events/${eventId}`;
           }
-        } catch (error) {
-          if (eventError) {
-            eventError.textContent = "An error occurred. Please try again.";
-            eventError.classList.remove("hidden");
-          }
-        }
-      });
-    }
-  </script>
-</Layout>
+        });
+      }
+    </script>
+  </div></Layout
+>

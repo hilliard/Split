@@ -1054,13 +1054,13 @@ const budget = event.budgetCents
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                      groupId: groupData?.id,
+                      groupId: currentGroupId,
                       activityId: newActivityId,
                       amount: Math.round(expenseAmount * 100),
                       description:
                         formData.get("expenseDescription") || activityTitle,
                       category: formData.get("expenseCategory") || "misc",
-                      paidBy: sessionData?.userId,
+                      paidBy: currentUserId,
                     }),
                   });
 

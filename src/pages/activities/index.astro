@@ -44,6 +44,9 @@ const eventActivities = await db
   .select()
   .from(activities)
   .where(eq(activities.eventId, eventId));
+
+// Get userId from session
+const userId = session.userId;
 ---
 
 <Layout
@@ -221,6 +224,12 @@ const eventActivities = await db
                       </div>
                       <div class="flex gap-2 ml-4">
                         <button
+                          class="expense-btn px-3 py-2 text-sm bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
+                          data-activity-id={activity.id}
+                        >
+                          💰 Expense
+                        </button>
+                        <button
                           class="edit-btn px-3 py-2 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
                           data-activity-id={activity.id}
                         >
@@ -242,9 +251,113 @@ const eventActivities = await db
         </div>
       </div>
     </main>
+
+    <!-- Add Expense Modal -->
+    <div
+      id="addExpenseModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 my-8"
+      >
+        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+          <h2
+            class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
+          >
+            Add Expense
+          </h2>
+        </div>
+
+        <form id="addExpenseForm" class="p-5 sm:p-6 space-y-4">
+          <input type="hidden" id="expenseActivityId" name="activityId" />
+
+          <div>
+            <label
+              for="expenseDescription"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Description
+            </label>
+            <input
+              type="text"
+              id="expenseDescription"
+              name="description"
+              placeholder="Expense details"
+              required
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 text-base"
+            />
+          </div>
+
+          <div>
+            <label
+              for="expenseCategory"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Category
+            </label>
+            <select
+              id="expenseCategory"
+              name="category"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 text-base"
+            >
+              <option value="meal">Meal / Food</option>
+              <option value="transport">Transport</option>
+              <option value="accommodation">Accommodation</option>
+              <option value="parking">Parking</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="tickets">Tickets</option>
+              <option value="misc" selected>Miscellaneous</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              for="expenseAmount"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Amount ($)
+            </label>
+            <input
+              type="number"
+              id="expenseAmount"
+              name="amount"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              required
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 text-base"
+            />
+          </div>
+
+          <div
+            id="expenseError"
+            class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
+          >
+          </div>
+
+          <div
+            class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
+          >
+            <button
+              type="button"
+              id="cancelExpenseBtn"
+              class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors font-medium text-sm"
+            >
+              Add Expense
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
-  <script define:vars={{ eventId }}>
+  <script define:vars={{ eventId, userId }}>
     // Add activity
     const addActivityForm = document.getElementById("addActivityForm");
     addActivityForm.addEventListener("submit", async (e) => {
@@ -327,6 +440,104 @@ const eventActivities = await db
         const activityId = btn.dataset.activityId;
         window.location.href = `/activities/${activityId}`;
       });
+    });
+
+    // Add Expense Modal
+    const addExpenseModal = document.getElementById("addExpenseModal");
+    const addExpenseForm = document.getElementById("addExpenseForm");
+    const cancelExpenseBtn = document.getElementById("cancelExpenseBtn");
+    const expenseError = document.getElementById("expenseError");
+
+    // Open expense modal
+    document.querySelectorAll(".expense-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const activityId = btn.dataset.activityId;
+        document.getElementById("expenseActivityId").value = activityId;
+        addExpenseModal.classList.remove("hidden");
+      });
+    });
+
+    // Close expense modal
+    cancelExpenseBtn.addEventListener("click", () => {
+      addExpenseModal.classList.add("hidden");
+      addExpenseForm.reset();
+      expenseError.classList.add("hidden");
+    });
+
+    // Close modal on outside click
+    addExpenseModal.addEventListener("click", (e) => {
+      if (e.target === addExpenseModal) {
+        addExpenseModal.classList.add("hidden");
+        addExpenseForm.reset();
+        expenseError.classList.add("hidden");
+      }
+    });
+
+    // Add Expense Form Submission
+    addExpenseForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // First, get the event to get groupId
+      try {
+        const eventResponse = await fetch(`/api/events/${eventId}`);
+        if (!eventResponse.ok) {
+          expenseError.textContent =
+            "Could not fetch event details. Please try again.";
+          expenseError.classList.remove("hidden");
+          return;
+        }
+
+        const eventData = await eventResponse.json();
+        const groupId = eventData.event.groupId;
+
+        if (!groupId) {
+          expenseError.textContent =
+            "This event doesn't have a group assigned yet. Please assign a group first.";
+          expenseError.classList.remove("hidden");
+          return;
+        }
+
+        // Get form data
+        const formData = new FormData(addExpenseForm);
+        const amount = parseFloat(formData.get("amount")) || 0;
+
+        if (amount <= 0) {
+          expenseError.textContent = "Amount must be greater than 0";
+          expenseError.classList.remove("hidden");
+          return;
+        }
+
+        // Create expense
+        const expenseResponse = await fetch("/api/expenses/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            groupId: groupId,
+            activityId: formData.get("activityId"),
+            description: formData.get("description"),
+            category: formData.get("category") || "misc",
+            amount: Math.round(amount * 100),
+            paidBy: userId,
+          }),
+        });
+
+        if (!expenseResponse.ok) {
+          const error = await expenseResponse.json();
+          expenseError.textContent = error.error || "Failed to create expense";
+          expenseError.classList.remove("hidden");
+          return;
+        }
+
+        // Success
+        alert(`Expense of $${amount.toFixed(2)} added successfully!`);
+        addExpenseModal.classList.add("hidden");
+        addExpenseForm.reset();
+        expenseError.classList.add("hidden");
+      } catch (error) {
+        console.error("Error:", error);
+        expenseError.textContent = "An error occurred. Please try again.";
+        expenseError.classList.remove("hidden");
+      }
     });
   </script>
 </Layout>

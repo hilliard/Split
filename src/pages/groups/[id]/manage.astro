@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
 import { db } from "@/db";
 import { sessions, expenseGroups } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -39,40 +40,33 @@ if (!group) {
 }
 ---
 
-<Layout title={`Manage ${group.name}`} description={`Manage ${group.name} group`}>
+<Layout
+  title={`Manage ${group.name}`}
+  description={`Manage ${group.name} group`}
+>
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <!-- Header -->
-    <header
-      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
+    <Header title={group.name} currentPage="dashboard" />
+
+    <!-- Page Title -->
+    <div
+      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16 gap-4">
-          <a
-            href="/dashboard"
-            class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold text-sm sm:text-base"
-          >
-            ← Back
-          </a>
-          <h1
-            class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate"
-          >
-            {group.name}
-          </h1>
-          <button
-            type="button"
-            id="themeToggle"
-            onclick="window.toggleTheme && window.toggleTheme()"
-            class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg"
-            aria-label="Toggle dark mode"
-          >
-            <span id="themeIcon">☀️</span>
-          </button>
-        </div>
+      <div class="max-w-7xl mx-auto">
+        <h1
+          class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
+        >
+          {group.name}
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+          Manage group members and settings
+        </p>
       </div>
-    </header>
+    </div>
 
     <!-- Main Content -->
-    <main class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <main
+      class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
+    >
       <!-- Invite Form -->
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6 mb-6 sm:mb-8"
@@ -82,9 +76,7 @@ if (!group) {
         >
           Invite Members
         </h2>
-        <p
-          class="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4"
-        >
+        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4">
           Send an invitation link to add members to this group
         </p>
 
@@ -146,27 +138,6 @@ if (!group) {
             <p>Loading invitations...</p>
           </div>
         </div>
-      </div>
-
-      <!-- Danger Zone -->
-      <div
-        class="bg-red-50 dark:bg-red-900 rounded-lg shadow-sm border border-red-200 dark:border-red-700 p-5 sm:p-6"
-      >
-        <h2
-          class="text-lg sm:text-xl font-bold text-red-900 dark:text-red-100 mb-2"
-        >
-          ⚠️ Danger Zone
-        </h2>
-        <p class="text-sm text-red-800 dark:text-red-200 mb-4">
-          Deleting this group is permanent and cannot be undone. All members, events, and expense data will be deleted.
-        </p>
-        <button
-          id="deleteGroupBtn"
-          type="button"
-          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm"
-        >
-          Delete Group
-        </button>
       </div>
     </main>
 
@@ -252,7 +223,7 @@ if (!group) {
                 <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Joined ${new Date(member.joinedAt).toLocaleDateString()}</p>
               </div>
             </div>
-          `
+          `,
             )
             .join("");
         } else {
@@ -273,7 +244,7 @@ if (!group) {
               </div>
               <span class="text-xs px-2 py-1 bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 rounded font-medium">Pending</span>
             </div>
-          `
+          `,
             )
             .join("");
         } else {
@@ -286,93 +257,52 @@ if (!group) {
     }
 
     // Handle invite form submission
-    document.getElementById("inviteForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+    document
+      .getElementById("inviteForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-      const emailInput = document.getElementById("inviteEmail");
-      const errorDiv = document.getElementById("inviteError");
-      const submitBtn = e.target.querySelector("button[type=submit]");
+        const emailInput = document.getElementById("inviteEmail");
+        const errorDiv = document.getElementById("inviteError");
+        const submitBtn = e.target.querySelector("button[type=submit]");
 
-      // Validate email
-      if (!emailInput.value || !emailInput.value.includes("@")) {
-        errorDiv.textContent = "Please enter a valid email address";
-        errorDiv.classList.remove("hidden");
-        return;
-      }
-
-      try {
-        errorDiv.classList.add("hidden");
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Sending...";
-
-        const response = await fetch(`/api/groups/${groupId}/invite`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: emailInput.value }),
-        });
-
-        if (response.ok) {
-          showToast("Invitation sent successfully!");
-          emailInput.value = "";
-          // Reload the invitations list
-          await loadGroupData();
-        } else {
-          const error = await response.json();
-          errorDiv.textContent = error.error || "Failed to send invitation";
+        // Validate email
+        if (!emailInput.value || !emailInput.value.includes("@")) {
+          errorDiv.textContent = "Please enter a valid email address";
           errorDiv.classList.remove("hidden");
+          return;
         }
-      } catch (error) {
-        console.error("Error sending invitation:", error);
-        errorDiv.textContent = "Error sending invitation";
-        errorDiv.classList.remove("hidden");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Send Invite";
-      }
-    });
 
-    // Handle delete group
-    document.getElementById("deleteGroupBtn").addEventListener("click", async () => {
-      if (!confirm("Are you sure you want to delete this group? This action cannot be undone.")) {
-        return;
-      }
+        try {
+          errorDiv.classList.add("hidden");
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Sending...";
 
-      if (!confirm("This will delete ALL members, events, and expenses. Are you absolutely sure?")) {
-        return;
-      }
+          const response = await fetch(`/api/groups/${groupId}/invite`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: emailInput.value }),
+          });
 
-      try {
-        const deleteBtn = document.getElementById("deleteGroupBtn");
-        deleteBtn.disabled = true;
-        deleteBtn.textContent = "Deleting...";
-
-        const response = await fetch(`/api/groups/${groupId}`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          showToast("Group deleted successfully! Redirecting...");
-          
-          // Redirect to dashboard after a short delay
-          setTimeout(() => {
-            window.location.href = "/dashboard";
-          }, 2000);
-        } else {
-          const error = await response.json();
-          alert(error.error || "Failed to delete group");
-          deleteBtn.disabled = false;
-          deleteBtn.textContent = "Delete Group";
+          if (response.ok) {
+            showToast("Invitation sent successfully!");
+            emailInput.value = "";
+            // Reload the invitations list
+            await loadGroupData();
+          } else {
+            const error = await response.json();
+            errorDiv.textContent = error.error || "Failed to send invitation";
+            errorDiv.classList.remove("hidden");
+          }
+        } catch (error) {
+          console.error("Error sending invitation:", error);
+          errorDiv.textContent = "Error sending invitation";
+          errorDiv.classList.remove("hidden");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Send Invite";
         }
-      } catch (error) {
-        console.error("Error deleting group:", error);
-        alert("Error deleting group");
-        const deleteBtn = document.getElementById("deleteGroupBtn");
-        deleteBtn.disabled = false;
-        deleteBtn.textContent = "Delete Group";
-      }
-    });
+      });
 
     // Initialize
     function init() {

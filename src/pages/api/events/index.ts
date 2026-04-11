@@ -39,14 +39,19 @@ export const POST: APIRoute = async (context) => {
     const data = await context.request.json();
     console.log('📦 Raw request data:', JSON.stringify(data, null, 2));
     
-    // Manual validation with lenient parsing
-    const name = String(data.name || '').trim();
+    // Manual validation with lenient parsing (handle both 'name' and 'title' fields)
+    const name = String(data.name || data.title || '').trim();
     const description = String(data.description || '').trim();
     const location = String(data.location || '').trim();
-    const startDate = String(data.startDate || '').trim();
-    const endDate = String(data.endDate || '').trim();
+    // Handle both old format (startDate/endDate) and new format (startTime/endTime)
+    const startDate = String(data.startDate || data.startTime || '').trim();
+    const endDate = String(data.endDate || data.endTime || '').trim();
     const currency = String(data.currency || 'USD').trim();
     const budget = String(data.budget || '').trim();
+    const timezone = String(data.timezone || 'UTC').trim();
+    const isVirtual = data.isVirtual === true || data.isVirtual === 'on' || data.isVirtual === 'true';
+    const isPublic = data.isPublic !== false && data.isPublic !== 'off' && data.isPublic !== 'false';
+    const type = String(data.type || 'general').trim();
     
     if (!name) {
       return new Response(JSON.stringify({ error: 'Event name is required' }), {
@@ -55,13 +60,20 @@ export const POST: APIRoute = async (context) => {
       });
     }
     
-    console.log('✓ Data parsed:', { name, currency, hasStartDate: !!startDate, hasBudget: !!budget });
+    if (!startDate) {
+      return new Response(JSON.stringify({ error: 'Start date/time is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    
+    console.log('✓ Data parsed:', { name, currency, timezone, hasStartDate: !!startDate, hasBudget: !!budget });
 
     // Validate date range if both dates provided
-    if (validatedData.startDate && validatedData.endDate) {
-      const start = new Date(validatedData.startDate);
-      const end = new Date(validatedData.endDate);
-      if (start > end) {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      if (start >= end) {
         return new Response(JSON.stringify({ error: 'Start date must be before end date' }), {
           status: 400,
           headers: { 'Content-Type': 'application/json' },
@@ -72,6 +84,9 @@ export const POST: APIRoute = async (context) => {
     console.log('📝 Creating event:', {
       title: name,
       creatorId: session.userId,
+      timezone,
+      isVirtual,
+      isPublic,
     });
 
     // Generate event ID and timestamps
@@ -89,15 +104,18 @@ export const POST: APIRoute = async (context) => {
       location: location || null,
       startTime: startTime.toISOString(),
       endTime: endTime?.toISOString() || null,
+      timezone: timezone,
       currency: currency,
       budgetCents,
-      type: 'general' as const,
+      type: type,
       status: 'scheduled' as const,
+      isVirtual: isVirtual,
+      isPublic: isPublic,
       createdAt: createdAt.toISOString(),
     };
 
     // Insert the event
-    console.log('📝 Inserting event:', { eventId, title: validatedData.name });
+    console.log('📝 Inserting event:', { eventId, title: name });
     try {
       await db.insert(events).values(eventData);
       console.log('✓ Event inserted successfully');
@@ -116,9 +134,14 @@ export const POST: APIRoute = async (context) => {
         location: eventData.location,
         startTime: eventData.startTime,
         endTime: eventData.endTime,
+        timezone: eventData.timezone,
         currency: eventData.currency,
         budgetCents: eventData.budgetCents,
         budget: eventData.budgetCents ? (eventData.budgetCents / 100).toFixed(2) : null,
+        type: eventData.type,
+        status: eventData.status,
+        isVirtual: eventData.isVirtual,
+        isPublic: eventData.isPublic,
         createdAt: eventData.createdAt,
       },
     }), {

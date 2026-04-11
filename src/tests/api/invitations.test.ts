@@ -41,7 +41,6 @@ describe.skip('Invitation System API', () => {
       id: humanIdA,
       firstName: 'Test',
       lastName: 'UserA',
-      email: 'testa@example.com',
     });
 
     await db.insert(customers).values({
@@ -74,7 +73,6 @@ describe.skip('Invitation System API', () => {
       id: humanIdB,
       firstName: 'Test',
       lastName: 'UserB',
-      email: 'testb@example.com',
     });
 
     await db.insert(customers).values({
@@ -282,7 +280,7 @@ describe.skip('Invitation System API', () => {
         .where(eq(pendingGroupInvitations.id, invitationId))
         .limit(1);
 
-      expect(invitation.expiresAt.getTime()).toBeLessThan(Date.now());
+      expect(invitation.expiresAt!.getTime()).toBeLessThan(Date.now());
 
       // Clean up
       await db

@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
 import { db } from "../../db";
 import { sessions } from "../../db/schema";
 import { eq } from "drizzle-orm";
@@ -24,48 +25,33 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
 <Layout title="Create Group" description="Create a group to split expenses">
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <!-- Header -->
-    <header
-      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
+    <Header title="Split" currentPage="dashboard" />
+
+    <!-- Page Title -->
+    <div
+      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16 gap-4">
-          <a
-            href="/dashboard"
-            class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold text-sm sm:text-base"
-          >
-            ← Back
-          </a>
-          <h1
-            class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate"
-          >
-            Split
-          </h1>
-          <button
-            type="button"
-            id="themeToggle"
-            onclick="window.toggleTheme && window.toggleTheme()"
-            class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg"
-            aria-label="Toggle dark mode"
-          >
-            <span id="themeIcon">☀️</span>
-          </button>
-        </div>
+      <div class="max-w-4xl mx-auto">
+        <h1
+          class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
+        >
+          Create New Group
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+          Create a group to organize expenses with friends
+        </p>
       </div>
-    </header>
+    </div>
 
     <!-- Main Content -->
     <main
       class="flex-1 max-w-2xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
     >
+      >
       <!-- Create Group Card -->
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 mb-6"
       >
-        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">
-          Create a New Group
-        </h1>
-
         <form id="createGroupForm" class="space-y-4">
           <!-- Group Name -->
           <div>

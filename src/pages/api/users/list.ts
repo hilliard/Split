@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
 import { db } from '@/db';
 import { humans, humanSystemRoles, systemRoles, customers } from '@/db/schema';
+import { emailHistory } from '@/db/human-centric-schema';
 import { getSession } from '@/utils/session';
 import { isSystemAdmin } from '@/db/authorization';
-import { eq } from 'drizzle-orm';
+import { eq, isNull } from 'drizzle-orm';
 
 /**
  * GET /api/users/list
@@ -31,7 +32,7 @@ export const GET: APIRoute = async (context) => {
         id: humans.id,
         firstName: humans.firstName,
         lastName: humans.lastName,
-        email: customers.email,
+        email: emailHistory.email,
         username: customers.username,
         systemRole: systemRoles.name,
         createdAt: humans.createdAt,
@@ -39,10 +40,15 @@ export const GET: APIRoute = async (context) => {
       .from(humans)
       .leftJoin(customers, eq(humans.id, customers.humanId))
       .leftJoin(
+        emailHistory,
+        eq(humans.id, emailHistory.humanId) // current email only
+      )
+      .leftJoin(
         humanSystemRoles,
         eq(humans.id, humanSystemRoles.humanId)
       )
-      .leftJoin(systemRoles, eq(humanSystemRoles.systemRoleId, systemRoles.id));
+      .leftJoin(systemRoles, eq(humanSystemRoles.systemRoleId, systemRoles.id))
+      .where(isNull(emailHistory.effectiveTo));
 
     return new Response(JSON.stringify(users), { status: 200 });
   } catch (error) {

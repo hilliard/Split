@@ -6,7 +6,11 @@ import { z } from 'zod';
 
 const updateActivitySchema = z.object({
   activityId: z.string().uuid('Invalid activity ID'),
-  eventId: z.string().uuid('Invalid event ID'),
+  eventId: z.union([
+    z.string().uuid('Invalid event ID'),
+    z.null(),
+    z.undefined()
+  ]).optional(),
   title: z.string().min(1, 'Activity title is required').max(255).optional(),
   startTime: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).optional(),
   endTime: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).optional(),
@@ -44,39 +48,66 @@ export const POST: APIRoute = async (context) => {
     const data = await context.request.json();
     const validatedData = updateActivitySchema.parse(data);
 
-    // Verify event exists and user is creator
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, validatedData.eventId))
-      .limit(1);
+    // Check if standalone or event-linked
+    const isStandalone = !validatedData.eventId;
 
-    if (!event) {
-      return new Response(JSON.stringify({ error: 'Event not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    if (isStandalone) {
+      // For standalone activities, just verify the activity exists
+      const [activity] = await db
+        .select()
+        .from(activities)
+        .where(eq(activities.id, validatedData.activityId))
+        .limit(1);
 
-    if (event.creatorId !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to edit activities for this event' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+      if (!activity) {
+        return new Response(JSON.stringify({ error: 'Activity not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
 
-    // Verify activity exists and belongs to event
-    const [activity] = await db
-      .select()
-      .from(activities)
-      .where(eq(activities.id, validatedData.activityId))
-      .limit(1);
+      // Verify it's actually standalone
+      if (activity.eventId !== null) {
+        return new Response(JSON.stringify({ error: 'This activity is linked to an event' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    } else {
+      // For event-linked activities, verify event ownership
+      const [event] = await db
+        .select()
+        .from(events)
+        .where(eq(events.id, validatedData.eventId))
+        .limit(1);
 
-    if (!activity || activity.eventId !== validatedData.eventId) {
-      return new Response(JSON.stringify({ error: 'Activity not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      if (!event) {
+        return new Response(JSON.stringify({ error: 'Event not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (event.creatorId !== session.userId) {
+        return new Response(JSON.stringify({ error: 'You do not have permission to edit activities for this event' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Verify activity exists and belongs to event
+      const [activity] = await db
+        .select()
+        .from(activities)
+        .where(eq(activities.id, validatedData.activityId))
+        .limit(1);
+
+      if (!activity || activity.eventId !== validatedData.eventId) {
+        return new Response(JSON.stringify({ error: 'Activity not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // Validate datetime range if both provided

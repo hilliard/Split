@@ -102,8 +102,8 @@ export const POST: APIRoute = async (context) => {
       title: name,
       description: description || null,
       location: location || null,
-      startTime: startTime.toISOString(),
-      endTime: endTime?.toISOString() || null,
+      startTime: startTime, // Drizzle expects Date objects, not ISO strings
+      endTime: endTime, // Drizzle expects Date objects, not ISO strings
       timezone: timezone,
       currency: currency,
       budgetCents,
@@ -111,7 +111,7 @@ export const POST: APIRoute = async (context) => {
       status: 'scheduled' as const,
       isVirtual: isVirtual,
       isPublic: isPublic,
-      createdAt: createdAt.toISOString(),
+      createdAt: createdAt,
     };
 
     // Insert the event
@@ -132,8 +132,8 @@ export const POST: APIRoute = async (context) => {
         title: eventData.title,
         description: eventData.description,
         location: eventData.location,
-        startTime: eventData.startTime,
-        endTime: eventData.endTime,
+        startTime: eventData.startTime.toISOString(),
+        endTime: eventData.endTime?.toISOString() || null,
         timezone: eventData.timezone,
         currency: eventData.currency,
         budgetCents: eventData.budgetCents,
@@ -142,7 +142,7 @@ export const POST: APIRoute = async (context) => {
         status: eventData.status,
         isVirtual: eventData.isVirtual,
         isPublic: eventData.isPublic,
-        createdAt: eventData.createdAt,
+        createdAt: eventData.createdAt.toISOString(),
       },
     }), {
       status: 201,

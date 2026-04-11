@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { db } from "../../../db";
-import { events, sessions } from "../../../db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { events, sessions, groupMembers, expenseGroups } from "../../../db/schema";
+import { eq, and, desc, or, inArray } from "drizzle-orm";
 
 export const GET: APIRoute = async ({ cookies }) => {
   try {
@@ -42,15 +42,28 @@ export const GET: APIRoute = async ({ cookies }) => {
 
     const userId = session.userId;
 
-    // Get all events for this user, ordered by most recent first
-    const userEvents = await db
+    // Get all groups the user is a member of
+    const userGroupMemberships = await db
+      .select({ groupId: groupMembers.groupId })
+      .from(groupMembers)
+      .where(eq(groupMembers.userId, userId));
+
+    const groupIds = userGroupMemberships.map(m => m.groupId);
+
+    // Get all events for this user OR events linked to groups they're in
+    let allEvents = await db
       .select()
       .from(events)
-      .where(eq(events.creatorId, userId))
+      .where(
+        or(
+          eq(events.creatorId, userId),
+          groupIds.length > 0 ? inArray(events.groupId, groupIds) : undefined
+        )
+      )
       .orderBy(desc(events.createdAt));
 
     // Convert budgetCents to display format
-    const eventsWithBudget = userEvents.map((event) => ({
+    const eventsWithBudget = allEvents.map((event) => ({
       ...event,
       budget: event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "0.00",
     }));

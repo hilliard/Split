@@ -511,7 +511,7 @@ if (!sessionId) {
                 <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
                   <div class="flex justify-between items-start mb-3">
                     <div>
-                      <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">${escapeHtml(event.name)}</h3>
+                      <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">${escapeHtml(event.title || event.name)}</h3>
                       ${event.location ? `<p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">📍 ${escapeHtml(event.location)}</p>` : ""}
                     </div>
                     <span class="text-xs sm:text-sm font-semibold text-indigo-600 dark:text-indigo-400">${event.currency}</span>
@@ -521,24 +521,24 @@ if (!sessionId) {
                   
                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3 text-xs sm:text-sm">
                     ${
-                      event.startDate
+                      event.startTime || event.startDate
                         ? `<div>
                       <span class="text-slate-600 dark:text-slate-400">Start</span>
-                      <p class="font-medium text-slate-900 dark:text-white">${new Date(event.startDate).toLocaleDateString()}</p>
+                      <p class="font-medium text-slate-900 dark:text-white">${new Date(event.startTime || event.startDate).toLocaleDateString()}</p>
                     </div>`
                         : ""
                     }
                     ${
-                      event.endDate
+                      event.endTime || event.endDate
                         ? `<div>
                       <span class="text-slate-600 dark:text-slate-400">End</span>
-                      <p class="font-medium text-slate-900 dark:text-white">${new Date(event.endDate).toLocaleDateString()}</p>
+                      <p class="font-medium text-slate-900 dark:text-white">${new Date(event.endTime || event.endDate).toLocaleDateString()}</p>
                     </div>`
                         : ""
                     }
                     <div>
                       <span class="text-slate-600 dark:text-slate-400">Budget</span>
-                      <p class="font-medium text-slate-900 dark:text-white">${event.currency} ${parseFloat(event.budget).toFixed(2)}</p>
+                      <p class="font-medium text-slate-900 dark:text-white">${event.currency} ${parseFloat(event.budget || 0).toFixed(2)}</p>
                     </div>
                   </div>
                   
@@ -701,7 +701,7 @@ if (!sessionId) {
         if (groupsResponse.ok) {
           const groupsData = await groupsResponse.json();
           const groupCount = groupsData.groups ? groupsData.groups.length : 0;
-          
+
           const statsGroupCount = document.getElementById("statsGroupCount");
           if (statsGroupCount) {
             statsGroupCount.textContent = groupCount;
@@ -713,17 +713,18 @@ if (!sessionId) {
         if (eventsResponse.ok) {
           const eventsData = await eventsResponse.json();
           const events = eventsData.events || [];
-          
+
           // For now, sum up budgets from events as a simple indicator
           // In the future, this could be calculated from actual expenses/splits
           let totalBudget = 0;
-          events.forEach(event => {
+          events.forEach((event) => {
             if (event.budget) {
               totalBudget += parseFloat(event.budget) || 0;
             }
           });
-          
-          const statsTotalBalanced = document.getElementById("statsTotalBalanced");
+
+          const statsTotalBalanced =
+            document.getElementById("statsTotalBalanced");
           if (statsTotalBalanced) {
             statsTotalBalanced.textContent = `$${totalBudget.toFixed(2)}`;
           }
@@ -743,7 +744,8 @@ if (!sessionId) {
           const invitationsEmpty = document.getElementById("invitationsEmpty");
 
           if (!data.invitations || data.invitations.length === 0) {
-            if (invitationsList) invitationsList.innerHTML = invitationsEmpty?.outerHTML || "";
+            if (invitationsList)
+              invitationsList.innerHTML = invitationsEmpty?.outerHTML || "";
           } else {
             if (invitationsList) {
               invitationsList.innerHTML = data.invitations
@@ -780,63 +782,81 @@ if (!sessionId) {
                 .join("");
 
               // Add event listeners to accept/decline buttons
-              document.querySelectorAll(".accept-invitation-btn").forEach((btn) => {
-                btn.addEventListener("click", async (e) => {
-                  const invitationId = e.target.dataset.invitationId;
-                  try {
-                    btn.disabled = true;
-                    btn.textContent = "Accepting...";
-                    const response = await fetch("/api/groups/invitations/accept", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ invitationId }),
-                    });
-                    if (response.ok) {
-                      showToast("Invitation accepted! You've joined the group.");
-                      loadPendingInvitations();
-                    } else {
-                      const error = await response.json();
-                      showToast(error.error || "Failed to accept invitation", 4000);
+              document
+                .querySelectorAll(".accept-invitation-btn")
+                .forEach((btn) => {
+                  btn.addEventListener("click", async (e) => {
+                    const invitationId = e.target.dataset.invitationId;
+                    try {
+                      btn.disabled = true;
+                      btn.textContent = "Accepting...";
+                      const response = await fetch(
+                        "/api/groups/invitations/accept",
+                        {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ invitationId }),
+                        },
+                      );
+                      if (response.ok) {
+                        showToast(
+                          "Invitation accepted! You've joined the group.",
+                        );
+                        loadPendingInvitations();
+                      } else {
+                        const error = await response.json();
+                        showToast(
+                          error.error || "Failed to accept invitation",
+                          4000,
+                        );
+                        btn.disabled = false;
+                        btn.textContent = "Accept";
+                      }
+                    } catch (error) {
+                      console.error("Error accepting invitation:", error);
+                      showToast("Error accepting invitation", 4000);
                       btn.disabled = false;
                       btn.textContent = "Accept";
                     }
-                  } catch (error) {
-                    console.error("Error accepting invitation:", error);
-                    showToast("Error accepting invitation", 4000);
-                    btn.disabled = false;
-                    btn.textContent = "Accept";
-                  }
+                  });
                 });
-              });
 
-              document.querySelectorAll(".decline-invitation-btn").forEach((btn) => {
-                btn.addEventListener("click", async (e) => {
-                  const invitationId = e.target.dataset.invitationId;
-                  try {
-                    btn.disabled = true;
-                    btn.textContent = "Declining...";
-                    const response = await fetch("/api/groups/invitations/decline", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ invitationId }),
-                    });
-                    if (response.ok) {
-                      showToast("Invitation declined.");
-                      loadPendingInvitations();
-                    } else {
-                      const error = await response.json();
-                      showToast(error.error || "Failed to decline invitation", 4000);
+              document
+                .querySelectorAll(".decline-invitation-btn")
+                .forEach((btn) => {
+                  btn.addEventListener("click", async (e) => {
+                    const invitationId = e.target.dataset.invitationId;
+                    try {
+                      btn.disabled = true;
+                      btn.textContent = "Declining...";
+                      const response = await fetch(
+                        "/api/groups/invitations/decline",
+                        {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ invitationId }),
+                        },
+                      );
+                      if (response.ok) {
+                        showToast("Invitation declined.");
+                        loadPendingInvitations();
+                      } else {
+                        const error = await response.json();
+                        showToast(
+                          error.error || "Failed to decline invitation",
+                          4000,
+                        );
+                        btn.disabled = false;
+                        btn.textContent = "Decline";
+                      }
+                    } catch (error) {
+                      console.error("Error declining invitation:", error);
+                      showToast("Error declining invitation", 4000);
                       btn.disabled = false;
                       btn.textContent = "Decline";
                     }
-                  } catch (error) {
-                    console.error("Error declining invitation:", error);
-                    showToast("Error declining invitation", 4000);
-                    btn.disabled = false;
-                    btn.textContent = "Decline";
-                  }
+                  });
                 });
-              });
             }
           }
         }

@@ -1,6 +1,9 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend client to ensure env vars are loaded
+function getResendClient() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export interface InvitationEmailData {
   recipientEmail: string;
@@ -16,6 +19,8 @@ export async function sendGroupInvitationEmail(data: InvitationEmailData): Promi
       console.warn('⚠️  RESEND_API_KEY not set - skipping email (dev mode)');
       return { success: true }; // Don't fail in dev if no API key
     }
+
+    const resend = getResendClient();
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -45,7 +50,7 @@ export async function sendGroupInvitationEmail(data: InvitationEmailData): Promi
     `;
 
     const result = await resend.emails.send({
-      from: 'Split <invitations@splitapp.dev>',
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev', // Default to Resend test email
       to: data.recipientEmail,
       subject: `${data.senderName} invited you to ${data.groupName} on Split`,
       html: htmlContent,

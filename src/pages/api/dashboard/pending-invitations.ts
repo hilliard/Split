@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { db } from '@/db';
-import { pendingGroupInvitations, expenseGroups, humans, sessions, customers } from '@/db/schema';
+import { pendingGroupInvitations, expenseGroups, humans, sessions, users } from '@/db/schema';
 import { eq, and, gt } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {
@@ -27,15 +27,15 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    // Get the customer info
-    const [customer] = await db
-      .select()
-      .from(customers)
-      .where(eq(customers.id, session.customerId))
+    // Get the user's email
+    const [userEmail] = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, session.userId))
       .limit(1);
 
-    if (!customer) {
-      return new Response(JSON.stringify({ error: 'Customer not found' }), {
+    if (!userEmail) {
+      return new Response(JSON.stringify({ error: 'User not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -65,7 +65,7 @@ export const GET: APIRoute = async (context) => {
       )
       .where(
         and(
-          eq(pendingGroupInvitations.email, customer.username),
+          eq(pendingGroupInvitations.email, userEmail.email),
           eq(pendingGroupInvitations.status, 'pending'),
           gt(
             pendingGroupInvitations.expiresAt,

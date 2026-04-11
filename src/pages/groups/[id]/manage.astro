@@ -242,11 +242,53 @@ if (!group) {
                 <p class="text-xs sm:text-sm text-amber-800 dark:text-amber-200">Invited by ${escapeHtml(inv.invitedByName)}</p>
                 <p class="text-xs text-amber-700 dark:text-amber-300 mt-1">Expires ${new Date(inv.expiresAt).toLocaleDateString()}</p>
               </div>
-              <span class="text-xs px-2 py-1 bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 rounded font-medium">Pending</span>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-1 bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 rounded font-medium">Pending</span>
+                <button class="text-xs px-2 py-1 bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 hover:bg-red-300 dark:hover:bg-red-700 rounded font-medium transition-colors delete-invitation-btn" data-invitation-id="${inv.id}" data-email="${escapeHtml(inv.email)}">
+                  Delete
+                </button>
+              </div>
             </div>
           `,
             )
             .join("");
+
+          // Add event listeners to delete buttons
+          document.querySelectorAll(".delete-invitation-btn").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+              const email = btn.dataset.email;
+              if (!confirm(`Delete invitation for ${email}?`)) {
+                return;
+              }
+
+              try {
+                btn.disabled = true;
+                btn.textContent = "Deleting...";
+                const invitationId = btn.dataset.invitationId;
+
+                const response = await fetch("/api/groups/invitations/delete", {
+                  method: "DELETE",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ invitationId }),
+                });
+
+                if (response.ok) {
+                  showToast(`Invitation to ${email} deleted`);
+                  await loadGroupData();
+                } else {
+                  const error = await response.json();
+                  alert(error.error || "Failed to delete invitation");
+                  btn.disabled = false;
+                  btn.textContent = "Delete";
+                }
+              } catch (error) {
+                console.error("Error deleting invitation:", error);
+                alert("Error deleting invitation");
+                btn.disabled = false;
+                btn.textContent = "Delete";
+              }
+            });
+          });
         } else {
           invitationsList.innerHTML =
             '<p class="text-center text-slate-600 dark:text-slate-400 py-8">No pending invitations</p>';

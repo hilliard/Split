@@ -444,6 +444,52 @@ const budget = event.budgetCents
           </form>
         </div>
       </div>
+
+      <!-- Select Group Modal -->
+      <div
+        id="selectGroupModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+      >
+        <div
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 my-8"
+        >
+          <div
+            class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700"
+          >
+            <h2
+              class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
+            >
+              Select a Group
+            </h2>
+          </div>
+
+          <div class="p-5 sm:p-6 space-y-3">
+            <div id="groupsList" class="space-y-2">
+              <p class="text-slate-600 dark:text-slate-400">
+                Loading groups...
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 flex gap-3 justify-end"
+          >
+            <button
+              type="button"
+              id="cancelSelectGroupBtn"
+              class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+            >
+              Cancel
+            </button>
+            <a
+              href="/groups/create"
+              class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium text-sm text-center"
+            >
+              Create New Group
+            </a>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -871,7 +917,17 @@ const budget = event.budgetCents
             }
           } else {
             groupInfo.innerHTML = `
-              <p class="text-slate-600 dark:text-slate-400">No group assigned. <a href="/groups/create" class="text-indigo-600 dark:text-indigo-400 hover:underline">Create one</a></p>
+              <div class="space-y-3">
+                <p class="text-slate-600 dark:text-slate-400">No group assigned to this event.</p>
+                <div class="flex gap-2">
+                  <button id="selectExistingGroupBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm">
+                    Link Existing Group
+                  </button>
+                  <a href="/groups/create" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium text-sm">
+                    Create New Group
+                  </a>
+                </div>
+              </div>
             `;
           }
         }
@@ -1076,5 +1132,84 @@ const budget = event.budgetCents
         }
       });
     }
+
+    // Group linking handlers
+    const selectGroupModal = document.getElementById("selectGroupModal");
+    const selectExistingGroupBtn = document.getElementById("selectExistingGroupBtn");
+    const cancelSelectGroupBtn = document.getElementById("cancelSelectGroupBtn");
+    const groupsList = document.getElementById("groupsList");
+
+    if (selectExistingGroupBtn) {
+      selectExistingGroupBtn.addEventListener("click", async () => {
+        selectGroupModal.classList.remove("hidden");
+        await loadUserGroups();
+      });
+    }
+
+    if (cancelSelectGroupBtn) {
+      cancelSelectGroupBtn.addEventListener("click", () => {
+        selectGroupModal.classList.add("hidden");
+      });
+    }
+
+    // Close modal on backdrop click
+    if (selectGroupModal) {
+      selectGroupModal.addEventListener("click", (e) => {
+        if (e.target === selectGroupModal) {
+          selectGroupModal.classList.add("hidden");
+        }
+      });
+    }
+
+    async function loadUserGroups() {
+      try {
+        const response = await fetch("/api/groups/my-groups");
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.groups && data.groups.length > 0) {
+            groupsList.innerHTML = data.groups
+              .map(
+                (group) => `
+              <button
+                type="button"
+                class="w-full p-4 text-left bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
+                onclick="linkGroupToEvent('${group.id}', '${group.name.replace(/'/g, "\\'")}')">
+                <h3 class="font-semibold text-slate-900 dark:text-white">${group.name}</h3>
+              </button>
+            `
+              )
+              .join("");
+          } else {
+            groupsList.innerHTML =
+              '<p class="text-slate-600 dark:text-slate-400">No groups found. Create one first!</p>';
+          }
+        }
+      } catch (error) {
+        groupsList.innerHTML =
+          '<p class="text-red-600 dark:text-red-400">Error loading groups</p>';
+      }
+    }
+
+    window.linkGroupToEvent = async function (groupId, groupName) {
+      try {
+        const response = await fetch(`/api/events/${eventId}/link-group`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ groupId }),
+        });
+
+        if (response.ok) {
+          alert(`✅ Event linked to group "${groupName}"`);
+          selectGroupModal.classList.add("hidden");
+          loadGroupInfo(); // Refresh group info
+        } else {
+          const error = await response.json();
+          alert("Error: " + (error.error || "Failed to link group"));
+        }
+      } catch (error) {
+        alert("Error linking group: " + error.message);
+      }
+    };
   </script>
 </Layout>

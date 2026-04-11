@@ -51,15 +51,20 @@ export const GET: APIRoute = async ({ cookies }) => {
     const groupIds = userGroupMemberships.map(m => m.groupId);
 
     // Get all events for this user OR events linked to groups they're in
-    let allEvents = await db
+    let whereCondition;
+    if (groupIds.length > 0) {
+      whereCondition = or(
+        eq(events.creatorId, userId),
+        inArray(events.groupId, groupIds)
+      );
+    } else {
+      whereCondition = eq(events.creatorId, userId);
+    }
+
+    const allEvents = await db
       .select()
       .from(events)
-      .where(
-        or(
-          eq(events.creatorId, userId),
-          groupIds.length > 0 ? inArray(events.groupId, groupIds) : undefined
-        )
-      )
+      .where(whereCondition)
       .orderBy(desc(events.createdAt));
 
     // Convert budgetCents to display format

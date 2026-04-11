@@ -1,7 +1,12 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { db } from "@/db";
-import { pendingGroupInvitations, sessions, expenseGroups } from "@/db/schema";
+import {
+  pendingGroupInvitations,
+  sessions,
+  expenseGroups,
+  users,
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 // Get invitation ID from URL
@@ -11,7 +16,9 @@ const email = Astro.url.searchParams.get("email");
 let invitation = null;
 let group = null;
 let isAuthenticated = false;
+let emailMatches = false;
 let currentUserEmail = null;
+let errorMessage = null;
 
 if (invitationId) {
   // Get invitation
@@ -45,15 +52,33 @@ if (invitationId) {
 
     if (session && new Date(session.expiresAt) > new Date()) {
       isAuthenticated = true;
-      // Get user email from the invitation
-      currentUserEmail = invitation?.email;
+
+      // Get user's email
+      const [userRecord] = await db
+        .select({ email: users.email })
+        .from(users)
+        .where(eq(users.id, session.userId))
+        .limit(1);
+
+      currentUserEmail = userRecord?.email;
+
+      // Check if the logged-in user's email matches the invitation email
+      if (currentUserEmail && invitation) {
+        emailMatches =
+          currentUserEmail.toLowerCase() === invitation.email.toLowerCase();
+        if (!emailMatches) {
+          errorMessage = `This invitation was sent to ${invitation.email}, but you're logged in as ${currentUserEmail}. Please log in with the correct email address.`;
+        }
+      }
     }
   }
 }
 ---
 
 <Layout title="Group Invitation" description="Accept a group invitation">
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center px-4">
+  <div
+    class="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center px-4"
+  >
     <div class="w-full max-w-md">
       {
         !invitation ? (
@@ -108,8 +133,8 @@ if (invitationId) {
               Go Home
             </a>
           </div>
-        ) : isAuthenticated ? (
-          // Logged in - show accept button
+        ) : isAuthenticated && emailMatches ? (
+          // Logged in with correct email - show accept button
           <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8">
             <div class="text-center mb-8">
               <div class="inline-block w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
@@ -119,8 +144,7 @@ if (invitationId) {
                 Group Invitation
               </h1>
               <p class="text-slate-600 dark:text-slate-400">
-                You're invited to join{" "}
-                <strong>"{group?.name}"</strong>
+                You're invited to join <strong>"{group?.name}"</strong>
               </p>
             </div>
 
@@ -143,6 +167,33 @@ if (invitationId) {
             <p class="text-center text-sm text-slate-600 dark:text-slate-400 mt-4">
               This invitation expires in 30 days
             </p>
+          </div>
+        ) : isAuthenticated && !emailMatches ? (
+          // Logged in but wrong email
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 text-center">
+            <div class="inline-block w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mb-4">
+              <span class="text-2xl">❌</span>
+            </div>
+            <h1 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+              Wrong Account
+            </h1>
+            <p class="text-slate-600 dark:text-slate-400 mb-6">
+              {errorMessage}
+            </p>
+            <div class="space-y-3">
+              <a
+                href="/auth/logout"
+                class="block px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Logout
+              </a>
+              <a
+                href="/auth/login"
+                class="block px-6 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+              >
+                Login with Different Email
+              </a>
+            </div>
           </div>
         ) : (
           // Not logged in - show sign up prompt
@@ -196,37 +247,43 @@ if (invitationId) {
     </div>
   </div>
 
-  <script define:vars={{ invitationId, isAuthenticated }}>
-    if (isAuthenticated && document.getElementById("acceptBtn")) {
-      document.getElementById("acceptBtn").addEventListener("click", async () => {
-        const btn = document.getElementById("acceptBtn");
-        btn.disabled = true;
-        btn.textContent = "Accepting...";
+  <script define:vars={{ invitationId, isAuthenticated, emailMatches }}>
+    if (
+      isAuthenticated &&
+      emailMatches &&
+      document.getElementById("acceptBtn")
+    ) {
+      document
+        .getElementById("acceptBtn")
+        .addEventListener("click", async () => {
+          const btn = document.getElementById("acceptBtn");
+          btn.disabled = true;
+          btn.textContent = "Accepting...";
 
-        try {
-          const response = await fetch("/api/groups/invitations/accept", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ invitationId }),
-          });
+          try {
+            const response = await fetch("/api/groups/invitations/accept", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ invitationId }),
+            });
 
-          const data = await response.json();
+            const data = await response.json();
 
-          if (!response.ok) {
-            alert("Error: " + (data.error || "Failed to accept invitation"));
+            if (!response.ok) {
+              alert("Error: " + (data.error || "Failed to accept invitation"));
+              btn.disabled = false;
+              btn.textContent = "Accept Invitation";
+              return;
+            }
+
+            alert("✅ You've joined the group!");
+            window.location.href = "/dashboard";
+          } catch (error) {
+            alert("Error: " + error.message);
             btn.disabled = false;
             btn.textContent = "Accept Invitation";
-            return;
           }
-
-          alert("✅ You've joined the group!");
-          window.location.href = "/dashboard";
-        } catch (error) {
-          alert("Error: " + error.message);
-          btn.disabled = false;
-          btn.textContent = "Accept Invitation";
-        }
-      });
+        });
     }
   </script>
 </Layout>

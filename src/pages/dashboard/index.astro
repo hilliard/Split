@@ -498,6 +498,7 @@ if (!sessionId) {
         const response = await fetch("/api/events/list");
         if (response.ok) {
           const data = await response.json();
+          console.log("📋 Events from API:", data.events);
           const eventsList = document.getElementById("eventsList");
           const eventsEmpty = document.getElementById("eventsEmpty");
 
@@ -506,8 +507,18 @@ if (!sessionId) {
           } else {
             if (eventsList) {
               eventsList.innerHTML = data.events
-                .map(
-                  (event) => `
+                .map((event) => {
+                  try {
+                    const startDate = event.startTime || event.startDate;
+                    const endDate = event.endTime || event.endDate;
+                    const startStr = startDate
+                      ? new Date(startDate).toLocaleDateString()
+                      : "";
+                    const endStr = endDate
+                      ? new Date(endDate).toLocaleDateString()
+                      : "";
+
+                    return `
                 <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
                   <div class="flex justify-between items-start mb-3">
                     <div>
@@ -521,18 +532,18 @@ if (!sessionId) {
                   
                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3 text-xs sm:text-sm">
                     ${
-                      event.startTime || event.startDate
+                      startStr
                         ? `<div>
                       <span class="text-slate-600 dark:text-slate-400">Start</span>
-                      <p class="font-medium text-slate-900 dark:text-white">${new Date(event.startTime || event.startDate).toLocaleDateString()}</p>
+                      <p class="font-medium text-slate-900 dark:text-white">${startStr}</p>
                     </div>`
                         : ""
                     }
                     ${
-                      event.endTime || event.endDate
+                      endStr
                         ? `<div>
                       <span class="text-slate-600 dark:text-slate-400">End</span>
-                      <p class="font-medium text-slate-900 dark:text-white">${new Date(event.endTime || event.endDate).toLocaleDateString()}</p>
+                      <p class="font-medium text-slate-900 dark:text-white">${endStr}</p>
                     </div>`
                         : ""
                     }
@@ -547,8 +558,12 @@ if (!sessionId) {
                     <button class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors flex-1 edit-event-btn" data-event-id="${event.id}">Edit</button>
                   </div>
                 </div>
-              `,
-                )
+              `;
+                  } catch (e) {
+                    console.error("❌ Error rendering event:", event, e);
+                    return "";
+                  }
+                })
                 .join("");
 
               // Add event listeners to View and Edit buttons

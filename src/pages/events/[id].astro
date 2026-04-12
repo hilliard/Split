@@ -1135,8 +1135,12 @@ const budget = event.budgetCents
 
     // Group linking handlers
     const selectGroupModal = document.getElementById("selectGroupModal");
-    const selectExistingGroupBtn = document.getElementById("selectExistingGroupBtn");
-    const cancelSelectGroupBtn = document.getElementById("cancelSelectGroupBtn");
+    const selectExistingGroupBtn = document.getElementById(
+      "selectExistingGroupBtn",
+    );
+    const cancelSelectGroupBtn = document.getElementById(
+      "cancelSelectGroupBtn",
+    );
     const groupsList = document.getElementById("groupsList");
 
     if (selectExistingGroupBtn) {
@@ -1166,7 +1170,7 @@ const budget = event.budgetCents
         const response = await fetch("/api/groups/my-groups");
         if (response.ok) {
           const data = await response.json();
-          
+
           if (data.groups && data.groups.length > 0) {
             groupsList.innerHTML = data.groups
               .map(
@@ -1177,7 +1181,7 @@ const budget = event.budgetCents
                 onclick="linkGroupToEvent('${group.id}', '${group.name.replace(/'/g, "\\'")}')">
                 <h3 class="font-semibold text-slate-900 dark:text-white">${group.name}</h3>
               </button>
-            `
+            `,
               )
               .join("");
           } else {

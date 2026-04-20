@@ -110,9 +110,11 @@ const budget = event.budgetCents
             }
           </div>
           <span
+            id="tripTotalCost"
+            data-currency={event.currency}
             class="text-xl font-semibold text-indigo-600 dark:text-indigo-400"
           >
-            {event.currency}
+            {event.currency} $0.00
           </span>
         </div>
 
@@ -216,22 +218,42 @@ const budget = event.budgetCents
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
       >
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-4 gap-3">
           <h2 class="text-xl font-bold text-slate-900 dark:text-white">
             Activities & Expenses
           </h2>
-          <button
-            id="addActivityBtn"
-            class="text-sm px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-          >
-            + Add Activity
-          </button>
+          <div class="flex gap-2">
+            <button
+              id="addExpenseBtn"
+              class="text-sm px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+            >
+              💰 Add Expense
+            </button>
+            <button
+              id="addActivityBtn"
+              class="text-sm px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+            >
+              + Add Activity
+            </button>
+          </div>
         </div>
 
         <div id="activitiesList" class="space-y-3">
           <p class="text-slate-600 dark:text-slate-400">
             Loading activities...
           </p>
+        </div>
+      </div>
+
+      <!-- Trip Breakdown Section -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
+      >
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">
+          💰 Trip Breakdown
+        </h2>
+        <div id="breakdownContent" class="space-y-4">
+          <p class="text-slate-600 dark:text-slate-400">Loading breakdown...</p>
         </div>
       </div>
 
@@ -445,6 +467,167 @@ const budget = event.budgetCents
         </div>
       </div>
 
+      <!-- Add Expense Modal (Direct, not tied to activity) -->
+      <div
+        id="addExpenseModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+      >
+        <div
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 my-8"
+        >
+          <div
+            class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700"
+          >
+            <h2
+              class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
+            >
+              Add Expense to Event
+            </h2>
+          </div>
+
+          <form id="addDirectExpenseForm" class="p-5 sm:p-6 space-y-4">
+            <div>
+              <label
+                for="directExpenseDescription"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Description
+              </label>
+              <input
+                type="text"
+                id="directExpenseDescription"
+                name="description"
+                required
+                placeholder="e.g., Flight, Hotel, Dinner"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  for="directExpenseAmount"
+                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+                >
+                  Amount ($)
+                </label>
+                <input
+                  type="number"
+                  id="directExpenseAmount"
+                  name="amount"
+                  required
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+                />
+              </div>
+              <div>
+                <label
+                  for="directExpenseTip"
+                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+                >
+                  Tip ($)
+                </label>
+                <div class="flex gap-2">
+                  <input
+                    type="number"
+                    id="directExpenseTip"
+                    name="tip"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    class="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+                  />
+                  <button
+                    type="button"
+                    id="directExpenseTipBtn"
+                    class="px-3 py-3 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition-colors font-medium text-sm whitespace-nowrap"
+                    title="Suggest 20% tip based on amount"
+                  >
+                    💡 20%
+                  </button>
+                </div>
+                <p
+                  id="directExpenseTipSuggest"
+                  class="text-xs text-slate-500 dark:text-slate-400 mt-1"
+                >
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label
+                for="directExpenseCategory"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Category
+              </label>
+              <select
+                id="directExpenseCategory"
+                name="category"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+              >
+                <option value="meal">Meal / Food</option>
+                <option value="transport">Transport</option>
+                <option value="accommodation">Accommodation</option>
+                <option value="parking">Parking</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="tickets">Tickets</option>
+                <option value="misc" selected>Miscellaneous</option>
+              </select>
+            </div>
+
+            <!-- Split Among Members -->
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-3"
+              >
+                Split Among
+              </label>
+              <div
+                id="splitAmongContainer"
+                class="space-y-2 max-h-40 overflow-y-auto p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700"
+              >
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  Loading group members...
+                </p>
+              </div>
+              <div
+                id="splitSummary"
+                class="text-xs text-slate-600 dark:text-slate-400 mt-2"
+              >
+                <p>Split per person: <span id="splitPerPerson">$0.00</span></p>
+              </div>
+            </div>
+
+            <div
+              id="directExpenseError"
+              class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
+            >
+            </div>
+
+            <div
+              class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
+            >
+              <button
+                type="button"
+                id="cancelDirectExpenseBtn"
+                class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors font-medium text-sm"
+              >
+                Add Expense
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Select Group Modal -->
       <div
         id="selectGroupModal"
@@ -488,6 +671,131 @@ const budget = event.budgetCents
               Create New Group
             </a>
           </div>
+        </div>
+      </div>
+
+      <!-- Edit Expense Modal -->
+      <div
+        id="editExpenseModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+      >
+        <div
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 my-8"
+        >
+          <div
+            class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700"
+          >
+            <h2
+              class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
+            >
+              Edit Expense
+            </h2>
+          </div>
+
+          <form id="editExpenseForm" class="p-5 sm:p-6 space-y-4">
+            <input type="hidden" id="editExpenseId" />
+
+            <div>
+              <label
+                for="editExpenseDescription"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Description
+              </label>
+              <input
+                type="text"
+                id="editExpenseDescription"
+                placeholder="e.g., Flight, Hotel"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  for="editExpenseAmount"
+                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+                >
+                  Amount ($)
+                </label>
+                <input
+                  type="number"
+                  id="editExpenseAmount"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                />
+              </div>
+              <div>
+                <label
+                  for="editExpenseTip"
+                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+                >
+                  Tip ($)
+                </label>
+                <input
+                  type="number"
+                  id="editExpenseTip"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                for="editExpenseCategory"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Category
+              </label>
+              <select
+                id="editExpenseCategory"
+                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              >
+                <option value="food">Food</option>
+                <option value="transport">Transport</option>
+                <option value="accommodation">Accommodation</option>
+                <option value="activities">Activities</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="misc">Miscellaneous</option>
+              </select>
+            </div>
+
+            <div
+              id="editExpenseError"
+              class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
+            >
+            </div>
+
+            <div
+              class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
+            >
+              <button
+                type="button"
+                id="cancelEditExpenseBtn"
+                class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                id="deleteEditExpenseBtn"
+                class="px-4 py-2 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 rounded-lg transition-colors font-medium text-sm"
+              >
+                Delete
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium text-sm"
+              >
+                Update
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </main>
@@ -937,13 +1245,74 @@ const budget = event.budgetCents
       }
     }
 
-    async function loadActivities() {
+    async function loadContent() {
+      // Load both activities and expenses, then render them together
       try {
-        const response = await fetch(`/api/activities/list?eventId=${eventId}`);
-        const data = await response.json();
+        const [activitiesResponse, expensesResponse] = await Promise.all([
+          fetch(`/api/activities/list?eventId=${eventId}`),
+          fetch(`/api/expenses/list?eventId=${eventId}`),
+        ]);
 
-        if (data.activities && data.activities.length > 0) {
-          activitiesList.innerHTML = data.activities
+        const activitiesData = await activitiesResponse.json();
+        const expensesData = await expensesResponse.json();
+
+        let html = "";
+
+        // Add expenses first (at the top)
+        if (
+          expensesData.success &&
+          expensesData.expenses &&
+          expensesData.expenses.length > 0
+        ) {
+          console.log("✅ Found", expensesData.expenses.length, "expenses");
+          html += expensesData.expenses
+            .map((expense) => {
+              const amount = expense.amount.toFixed(2);
+              const tip = expense.tipAmount
+                ? parseFloat(expense.tipAmount).toFixed(2)
+                : "0.00";
+              const total = (
+                expense.amount + parseFloat(expense.tipAmount || 0)
+              ).toFixed(2);
+              const createdDate = new Date(
+                expense.createdAt,
+              ).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+
+              return `<div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-semibold text-slate-900 dark:text-white">${expense.description || "Untitled Expense"}</h3>
+                <div class="flex gap-2 items-center">
+                  <span class="text-xs px-2 py-1 bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 rounded font-medium">
+                    $${total}
+                  </span>
+                  <button 
+                    data-expense-id="${expense.id}" 
+                    data-amount="${amount}"
+                    data-tip="${tip}"
+                    data-description="${expense.description || ""}"
+                    data-category="${expense.category || "misc"}"
+                    class="editExpenseBtn text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
+                    ✏️ Edit
+                  </button>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">💰 Paid by: ${expense.payerName || "Unknown"}</p>
+              ${expense.category ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">📂 Category: ${expense.category}</p>` : ""}
+              ${tip !== "0.00" ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">💡 Tip: $${tip}</p>` : ""}
+              <p class="text-xs text-slate-500 dark:text-slate-400">🕐 ${createdDate}</p>
+            </div>`;
+            })
+            .join("");
+        }
+
+        // Add activities (below expenses)
+        if (activitiesData.activities && activitiesData.activities.length > 0) {
+          html += activitiesData.activities
             .map((activity) => {
               const startTime = activity.startTime
                 ? new Date(activity.startTime).toLocaleString("en-US", {
@@ -964,22 +1333,177 @@ const budget = event.budgetCents
             </div>`;
             })
             .join("");
-        } else {
-          activitiesList.innerHTML = `
+        }
+
+        // If nothing, show empty message
+        if (!html) {
+          html = `
             <div class="text-center py-8">
-              <p class="text-slate-600 dark:text-slate-400">No activities yet. Click "+ Add Activity" to create one!</p>
+              <p class="text-slate-600 dark:text-slate-400">No activities or expenses yet. Click "+ Add Activity" or "💰 Add Expense" to create one!</p>
             </div>
           `;
         }
+
+        // Set the combined HTML once
+        activitiesList.innerHTML = html;
+
+        // Attach edit handlers to expense buttons
+        document.querySelectorAll(".editExpenseBtn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const expense = {
+              id: e.target.dataset.expenseId,
+              amount: parseFloat(e.target.dataset.amount),
+              tip: parseFloat(e.target.dataset.tip),
+              description: e.target.dataset.description,
+              category: e.target.dataset.category,
+            };
+            openEditExpenseModal(expense);
+          });
+        });
       } catch (error) {
+        console.error("Error loading content:", error);
         activitiesList.innerHTML =
-          '<p class="text-red-600 dark:text-red-400">Error loading activities</p>';
+          '<p class="text-red-600 dark:text-red-400">Error loading activities and expenses</p>';
       }
+    }
+
+    function openEditExpenseModal(expense) {
+      const modal = document.getElementById("editExpenseModal");
+      document.getElementById("editExpenseId").value = expense.id;
+      document.getElementById("editExpenseAmount").value = expense.amount;
+      document.getElementById("editExpenseTip").value = expense.tip;
+      document.getElementById("editExpenseDescription").value =
+        expense.description;
+      document.getElementById("editExpenseCategory").value = expense.category;
+      modal.classList.remove("hidden");
+    }
+
+    // Edit Expense Modal Handlers
+    const editExpenseModal = document.getElementById("editExpenseModal");
+    const editExpenseForm = document.getElementById("editExpenseForm");
+    const cancelEditExpenseBtn = document.getElementById(
+      "cancelEditExpenseBtn",
+    );
+    const deleteEditExpenseBtn = document.getElementById(
+      "deleteEditExpenseBtn",
+    );
+
+    if (cancelEditExpenseBtn) {
+      cancelEditExpenseBtn.addEventListener("click", () => {
+        editExpenseModal.classList.add("hidden");
+        editExpenseForm.reset();
+      });
+    }
+
+    // Close modal on backdrop click
+    if (editExpenseModal) {
+      editExpenseModal.addEventListener("click", (e) => {
+        if (e.target === editExpenseModal) {
+          editExpenseModal.classList.add("hidden");
+          editExpenseForm.reset();
+        }
+      });
+    }
+
+    // Delete expense
+    if (deleteEditExpenseBtn) {
+      deleteEditExpenseBtn.addEventListener("click", async () => {
+        const expenseId = document.getElementById("editExpenseId").value;
+        if (
+          confirm(
+            "Are you sure you want to delete this expense? This action cannot be undone.",
+          )
+        ) {
+          try {
+            const response = await fetch(
+              `/api/expenses/delete?expenseId=${expenseId}`,
+              {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+              },
+            );
+
+            if (response.ok) {
+              editExpenseModal.classList.add("hidden");
+              loadContent();
+              updateTripTotal(); // Update trip total
+              loadBreakdown(); // Update breakdown
+              alert("Expense deleted successfully");
+            } else {
+              const error = await response.json();
+              alert(
+                "Failed to delete expense: " + (error.error || "Unknown error"),
+              );
+            }
+          } catch (error) {
+            alert("Error deleting expense: " + error.message);
+          }
+        }
+      });
+    }
+
+    // Update expense
+    if (editExpenseForm) {
+      editExpenseForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const expenseId = document.getElementById("editExpenseId").value;
+        const amount = parseFloat(
+          document.getElementById("editExpenseAmount").value,
+        );
+        const tipAmount = parseFloat(
+          document.getElementById("editExpenseTip").value,
+        );
+        const description = document.getElementById(
+          "editExpenseDescription",
+        ).value;
+        const category = document.getElementById("editExpenseCategory").value;
+        const editExpenseError = document.getElementById("editExpenseError");
+
+        if (!expenseId || !amount || isNaN(amount)) {
+          editExpenseError.textContent =
+            "Please fill in all required fields correctly.";
+          editExpenseError.classList.remove("hidden");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/expenses/update", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              expenseId,
+              amount,
+              tipAmount,
+              description,
+              category,
+            }),
+          });
+
+          if (response.ok) {
+            editExpenseModal.classList.add("hidden");
+            editExpenseForm.reset();
+            loadContent();
+            updateTripTotal(); // Update trip total
+            loadBreakdown(); // Update breakdown
+            alert("Expense updated successfully");
+          } else {
+            const error = await response.json();
+            editExpenseError.textContent =
+              "Failed to update expense: " + (error.error || "Unknown error");
+            editExpenseError.classList.remove("hidden");
+          }
+        } catch (error) {
+          editExpenseError.textContent =
+            "Error updating expense: " + error.message;
+          editExpenseError.classList.remove("hidden");
+        }
+      });
     }
 
     // Load initial data
     loadGroupInfo();
-    loadActivities();
+    loadContent();
 
     // Expense toggle for Add Activity
     const expenseCheckbox = document.getElementById("addExpenseWithActivity");
@@ -1100,8 +1624,9 @@ const budget = event.budgetCents
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                       groupId: currentGroupId,
+                      eventId: eventId,
                       activityId: newActivityId,
-                      amount: Math.round(expenseAmount * 100),
+                      amount: expenseAmount, // Already in dollars, API will convert to cents
                       description:
                         formData.get("expenseDescription") || activityTitle,
                       category: formData.get("expenseCategory") || "misc",
@@ -1120,12 +1645,255 @@ const budget = event.budgetCents
 
             addActivityModal.classList.add("hidden");
             addActivityForm.reset();
-            loadActivities(); // Refresh activities list
+            loadContent(); // Refresh activities and expenses list
+            updateTripTotal(); // Update trip total
+            loadBreakdown(); // Update breakdown
           }
         } catch (error) {
           if (activityError) {
             activityError.textContent = "An error occurred. Please try again.";
             activityError.classList.remove("hidden");
+          }
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+        }
+      });
+    }
+
+    // Helper function to get selected split members
+    function getSelectedSplitMembers() {
+      const checkboxes = document.querySelectorAll(
+        '#splitAmongContainer input[type="checkbox"]:checked',
+      );
+      const selectedIds = Array.from(checkboxes).map((cb) => cb.dataset.userId);
+      return selectedIds.length > 0 ? selectedIds : [currentUserId]; // Default to current user if none selected
+    }
+
+    // Function to update split calculation display
+    function updateSplitCalculation() {
+      const amountInput = document.getElementById("directExpenseAmount");
+      const tipInput = document.getElementById("directExpenseTip");
+      const amount = parseFloat(amountInput?.value || "0");
+      const tip = parseFloat(tipInput?.value || "0");
+      const total = amount + tip;
+
+      const selectedMembers = document.querySelectorAll(
+        '#splitAmongContainer input[type="checkbox"]:checked',
+      );
+      const splitCount = selectedMembers.length || 1;
+      const splitPerPerson = (total / splitCount).toFixed(2);
+
+      const splitPerPersonEl = document.getElementById("splitPerPerson");
+      if (splitPerPersonEl) {
+        splitPerPersonEl.textContent = `$${splitPerPerson}`;
+      }
+    }
+
+    // Function to load and render group members
+    async function loadGroupMembers() {
+      try {
+        const response = await fetch(`/api/groups/list?id=${currentGroupId}`);
+        if (!response.ok) {
+          console.error("Failed to fetch group:", response.status);
+          return;
+        }
+
+        const data = await response.json();
+        const members = data.members || [];
+        const container = document.getElementById("splitAmongContainer");
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        if (members.length === 0) {
+          container.innerHTML =
+            '<p class="text-xs text-slate-500 dark:text-slate-400">No members found</p>';
+          return;
+        }
+
+        // Create checkboxes for each member
+        members.forEach((member) => {
+          const div = document.createElement("div");
+          div.className = "flex items-center";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = `split_${member.userId}`;
+          checkbox.dataset.userId = member.userId;
+          checkbox.className = "w-4 h-4 text-blue-600 rounded cursor-pointer";
+          checkbox.checked = true; // Default all checked
+          checkbox.addEventListener("change", updateSplitCalculation);
+
+          const label = document.createElement("label");
+          label.htmlFor = `split_${member.userId}`;
+          label.className =
+            "ml-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer";
+          label.textContent = `${member.firstName} ${member.lastName}`;
+
+          div.appendChild(checkbox);
+          div.appendChild(label);
+          container.appendChild(div);
+        });
+
+        // Update calculation after loading members
+        updateSplitCalculation();
+      } catch (error) {
+        console.error("Failed to load group members:", error);
+      }
+    }
+
+    // Direct Expense Modal Handlers
+    const addExpenseBtn = document.getElementById("addExpenseBtn");
+    const addExpenseModal = document.getElementById("addExpenseModal");
+    const cancelDirectExpenseBtn = document.getElementById(
+      "cancelDirectExpenseBtn",
+    );
+    const addDirectExpenseForm = document.getElementById(
+      "addDirectExpenseForm",
+    );
+    const directExpenseAmountInput = document.getElementById(
+      "directExpenseAmount",
+    );
+    const directExpenseTipInput = document.getElementById("directExpenseTip");
+    const directExpenseTipBtn = document.getElementById("directExpenseTipBtn");
+    const directExpenseTipSuggest = document.getElementById(
+      "directExpenseTipSuggest",
+    );
+
+    // Update tip suggestion when amount changes
+    function updateDirectExpenseTipSuggestion() {
+      if (!directExpenseAmountInput) return;
+      const amount = parseFloat(directExpenseAmountInput.value) || 0;
+      if (amount > 0) {
+        const tip20 = parseFloat((amount * 0.2).toFixed(2));
+        directExpenseTipSuggest.textContent = `Suggested 20% tip: $${tip20.toFixed(2)}`;
+      } else {
+        directExpenseTipSuggest.textContent = "";
+      }
+      // Update split calculation when amount changes
+      updateSplitCalculation();
+    }
+
+    if (directExpenseAmountInput) {
+      directExpenseAmountInput.addEventListener(
+        "input",
+        updateDirectExpenseTipSuggestion,
+      );
+    }
+
+    // Update split calculation when tip changes
+    if (directExpenseTipInput) {
+      directExpenseTipInput.addEventListener("input", updateSplitCalculation);
+    }
+
+    // 20% tip button handler
+    if (directExpenseTipBtn) {
+      directExpenseTipBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const amount = parseFloat(directExpenseAmountInput.value) || 0;
+        const tip20 = parseFloat((amount * 0.2).toFixed(2));
+        directExpenseTipInput.value = tip20;
+      });
+    }
+
+    if (addExpenseBtn) {
+      addExpenseBtn.addEventListener("click", () => {
+        addExpenseModal.classList.remove("hidden");
+        document.getElementById("directExpenseDescription").focus();
+        // Reset tip suggestion
+        directExpenseTipSuggest.textContent = "";
+        // Load group members for split selection
+        loadGroupMembers();
+      });
+    }
+
+    if (cancelDirectExpenseBtn) {
+      cancelDirectExpenseBtn.addEventListener("click", () => {
+        addExpenseModal.classList.add("hidden");
+        addDirectExpenseForm.reset();
+      });
+    }
+
+    // Close modal on backdrop click
+    if (addExpenseModal) {
+      addExpenseModal.addEventListener("click", (e) => {
+        if (e.target === addExpenseModal) {
+          addExpenseModal.classList.add("hidden");
+          addDirectExpenseForm.reset();
+        }
+      });
+    }
+
+    // Submit direct expense form
+    if (addDirectExpenseForm) {
+      addDirectExpenseForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(addDirectExpenseForm);
+        const directExpenseError =
+          document.getElementById("directExpenseError");
+        const submitBtn = addDirectExpenseForm.querySelector(
+          'button[type="submit"]',
+        );
+
+        if (directExpenseError) {
+          directExpenseError.textContent = "";
+          directExpenseError.classList.add("hidden");
+        }
+
+        if (submitBtn) submitBtn.disabled = true;
+
+        try {
+          const description = formData.get("description") || "Expense";
+          const amount = parseFloat(formData.get("amount")) || 0;
+          const tip = parseFloat(formData.get("tip")) || 0;
+          const category = formData.get("category") || "misc";
+
+          if (!amount || isNaN(amount) || amount <= 0) {
+            if (directExpenseError) {
+              directExpenseError.textContent = "Please enter a valid amount.";
+              directExpenseError.classList.remove("hidden");
+            }
+            return;
+          }
+
+          const response = await fetch("/api/expenses/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              groupId: currentGroupId,
+              eventId: eventId,
+              amount: amount, // Already in dollars, API will convert to cents
+              tipAmount: tip, // Already in dollars, API will convert to cents
+              description,
+              category,
+              paidBy: currentUserId,
+              splitAmong: getSelectedSplitMembers(), // Include who to split among
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            if (directExpenseError) {
+              directExpenseError.textContent =
+                data.error?.message || data.error || "Failed to create expense";
+              directExpenseError.classList.remove("hidden");
+            }
+          } else {
+            addExpenseModal.classList.add("hidden");
+            addDirectExpenseForm.reset();
+            loadContent(); // Refresh activities and expenses list
+            updateTripTotal(); // Update trip total
+            loadBreakdown(); // Update breakdown
+            alert("✅ Expense added successfully!");
+          }
+        } catch (error) {
+          if (directExpenseError) {
+            directExpenseError.textContent =
+              "An error occurred. Please try again.";
+            directExpenseError.classList.remove("hidden");
           }
         } finally {
           if (submitBtn) submitBtn.disabled = false;
@@ -1215,5 +1983,102 @@ const budget = event.budgetCents
         alert("Error linking group: " + error.message);
       }
     };
+
+    // Load trip total cost
+    async function updateTripTotal() {
+      try {
+        const response = await fetch(`/api/expenses/list?eventId=${eventId}`);
+        if (response.ok) {
+          const data = await response.json();
+          const expenses = data.expenses || [];
+          let totalCost = 0;
+
+          console.log(`✅ Found ${expenses.length} expenses`);
+          console.log("Expenses:", expenses);
+
+          expenses.forEach((expense) => {
+            const amount = parseFloat(expense.amount) || 0;
+            const tip = parseFloat(expense.tipAmount) || 0;
+            const expenseTotal = amount + tip;
+            console.log(
+              `  Expense: $${amount.toFixed(2)} + $${tip.toFixed(2)} tip = $${expenseTotal.toFixed(2)}`,
+            );
+            totalCost += expenseTotal;
+          });
+
+          console.log(`Total cost: $${totalCost.toFixed(2)}`);
+
+          const tripTotalCostEl = document.getElementById("tripTotalCost");
+          if (tripTotalCostEl) {
+            // Get currency from the page or default to USD
+            const currencySpan = document.querySelector("[data-currency]");
+            const currency =
+              currencySpan?.getAttribute("data-currency") || "USD";
+            tripTotalCostEl.textContent = `${currency} $${totalCost.toFixed(2)}`;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to update trip total:", error);
+      }
+    }
+
+    // Load and display trip breakdown
+    async function loadBreakdown() {
+      try {
+        const breakdownEl = document.getElementById("breakdownContent");
+        if (!breakdownEl) return;
+
+        const response = await fetch(
+          `/api/expenses/balances?eventId=${eventId}`,
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const settlements = data.settlements || [];
+
+          if (settlements.length === 0) {
+            breakdownEl.innerHTML = `
+              <div class="text-center py-8">
+                <p class="text-slate-600 dark:text-slate-400">✅ All settled up! No one owes anyone money.</p>
+              </div>
+            `;
+          } else {
+            breakdownEl.innerHTML = `
+              <div class="space-y-3">
+                ${settlements
+                  .map(
+                    (settlement) => `
+                  <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <p class="font-semibold text-slate-900 dark:text-white">
+                      <span class="text-amber-700 dark:text-amber-300">${settlement.fromName}</span>
+                      owes
+                      <span class="text-amber-700 dark:text-amber-300">${settlement.toName}</span>
+                    </p>
+                    <p class="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">
+                      $${settlement.amount.toFixed(2)}
+                    </p>
+                  </div>
+                `,
+                  )
+                  .join("")}
+              </div>
+            `;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load breakdown:", error);
+        const breakdownEl = document.getElementById("breakdownContent");
+        if (breakdownEl) {
+          breakdownEl.innerHTML =
+            '<p class="text-red-600 dark:text-red-400">Failed to load breakdown</p>';
+        }
+      }
+    }
+
+    // Initialize: Load group info, content, total, and breakdown
+    loadGroupInfo();
+    loadContent();
+    updateTripTotal();
+    loadBreakdown();
   </script>
 </Layout>

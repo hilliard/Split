@@ -1,13 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { db } from "../db";
-import { events, sessions, customers } from "../db/schema";
+import { events, sessions, customers, expenses, groupMembers } from "../db/schema";
 import { eq, desc } from "drizzle-orm";
+import { sumCents, centsToDollars } from "../utils/currency";
 
 // Check if user is authenticated
 const sessionId = Astro.cookies.get("sessionId")?.value;
 let isAuthenticated = false;
-let userEvents = [];
+let userEvents: any[] = [];
 let userName = "";
 
 if (sessionId) {
@@ -30,7 +31,49 @@ if (sessionId) {
         .orderBy(desc(events.createdAt))
         .limit(3);
       
-      userEvents = recentEvents;
+      // For each event, fetch expenses and participant count
+      const eventsWithData = await Promise.all(
+        recentEvents.map(async (event) => {
+          // Get total expenses for this event - all calculations in cents
+          const eventExpenses = await db
+            .select()
+            .from(expenses)
+            .where(eq(expenses.eventId, event.id));
+          
+          console.log(`\n=== ${event.title} (${event.id}) ===`);
+          console.log(`Found ${eventExpenses.length} expenses from DB`);
+          
+          // Calculate total in cents: amount (already in cents) + tip (stored as decimal dollars, convert to cents)
+          const expenseAmounts = eventExpenses.map((exp) => {
+            const amountCents = exp.amount || 0; // Already in cents from DB
+            // tipAmount is stored as decimal dollars (schema: decimal(10,2)), convert once to cents
+            const tipDollars = parseFloat(exp.tipAmount as any) || 0;
+            const tipCents = Math.round(tipDollars * 100); // Convert dollars to cents
+            const totalExpCents = amountCents + tipCents;
+            return totalExpCents;
+          });
+          
+          const totalExpensesCents = sumCents(...expenseAmounts);
+          
+          // Get participant count from group if event has a group
+          let participantCount = 1; // At least the creator
+          if (event.groupId) {
+            const members = await db
+              .select()
+              .from(groupMembers)
+              .where(eq(groupMembers.groupId, event.groupId));
+            participantCount = Math.max(1, members.length);
+          }
+          
+          return {
+            ...event,
+            totalExpensesCents,
+            participantCount,
+          };
+        })
+      );
+      
+      userEvents = eventsWithData;
       
       // Get username from customers table
       const [customer] = await db
@@ -133,7 +176,7 @@ if (sessionId) {
                       </p>
                     )}
 
-                    <div class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                    <div class="text-sm text-slate-600 dark:text-slate-400 space-y-2 mb-4">
                       {event.startTime && (
                         <p>
                           📅 {new Date(event.startTime).toLocaleDateString("en-US", {
@@ -143,9 +186,26 @@ if (sessionId) {
                           })}
                         </p>
                       )}
-                      <p class="font-semibold text-slate-900 dark:text-white">
-                        {event.currency} {(event.budgetCents ? event.budgetCents / 100 : 0).toFixed(2)}
-                      </p>
+                    </div>
+
+                    {/* Trip Stats */}
+                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                      <div class="flex flex-col">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                          Total Expenses
+                        </p>
+                        <p class="text-lg font-bold text-slate-900 dark:text-white">
+                          {event.currency} {(event.totalExpensesCents / 100).toFixed(2)}
+                        </p>
+                      </div>
+                      <div class="flex flex-col">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                          Participants
+                        </p>
+                        <p class="text-lg font-bold text-slate-900 dark:text-white">
+                          {event.participantCount} {event.participantCount === 1 ? "person" : "people"}
+                        </p>
+                      </div>
                     </div>
                   </a>
                 ))}

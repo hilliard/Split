@@ -16,13 +16,14 @@
 
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { sessions, expenses, expenseGroups, groupMembers, expenseSplits } from '../../../db/schema';
+import { sessions, expenses, events, expenseGroups, groupMembers, expenseSplits } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { dollarsToCents, calculateSplitPerPerson, centsToDollars } from '../../../utils/currency';
 
 const createExpenseSchema = z.object({
-  groupId: z.string().uuid('Invalid group ID'),
+  eventId: z.string().uuid('Invalid event ID'),  // Changed from groupId to eventId
   amount: z.number().positive('Amount must be greater than 0'),
   tipAmount: z.number().nonnegative('Tip must be 0 or greater').default(0),
   description: z.string().max(500).default(''),
@@ -71,23 +72,31 @@ export const POST: APIRoute = async (context) => {
     const validatedData = createExpenseSchema.parse(data);
 
     console.log('📝 Validated expense data:', {
-      groupId: validatedData.groupId,
+      eventId: validatedData.eventId,
       amount: validatedData.amount,
-      tipAmount: validatedData.tipAmount,
       description: validatedData.description,
       paidBy: validatedData.paidBy,
     });
 
-    // Verify group exists
-    const [group] = await db
+    // Verify event exists
+    const [event] = await db
       .select()
-      .from(expenseGroups)
-      .where(eq(expenseGroups.id, validatedData.groupId))
+      .from(events)
+      .where(eq(events.id, validatedData.eventId))
       .limit(1);
 
-    if (!group) {
-      return new Response(JSON.stringify({ error: 'Group not found' }), {
+    if (!event) {
+      return new Response(JSON.stringify({ error: 'Event not found' }), {
         status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Get the group from the event
+    const groupId = event.groupId;
+    if (!groupId) {
+      return new Response(JSON.stringify({ error: 'Event is not linked to a group' }), {
+        status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -99,7 +108,7 @@ export const POST: APIRoute = async (context) => {
         const members = await db
           .select()
           .from(groupMembers)
-          .where(eq(groupMembers.groupId, validatedData.groupId));
+          .where(eq(groupMembers.groupId, groupId));  // Use groupId from event
         
         if (members && members.length > 0) {
           splitAmong = members.map(m => m.userId);
@@ -121,34 +130,57 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Convert dollars to cents for storage and calculation
-    const amountInCents = Math.round(validatedData.amount * 100);
-    const tipInCents = Math.round(validatedData.tipAmount * 100);
+    const amountInCents = dollarsToCents(validatedData.amount);
+    const tipInCents = dollarsToCents(validatedData.tipAmount);
     const totalInCents = amountInCents + tipInCents;
 
     // Create expense
     let expense;
     try {
       console.log('💾 Inserting expense with values:', {
-        groupId: validatedData.groupId,
-        amount: amountInCents,
-        tipAmount: validatedData.tipAmount,
+        eventId: validatedData.eventId,
+        amountInCents: amountInCents,
         description: validatedData.description || '(empty)',
         paidBy: validatedData.paidBy,
       });
 
+      const insertValues = {
+        id: uuidv4(),
+        eventId: validatedData.eventId,
+        groupId: groupId,  // Add groupId from the event
+        activityId: validatedData.activityId,
+        amount: amountInCents,  // Store as integer cents
+        tipAmount: validatedData.tipAmount,  // Store as decimal dollars (matches schema)
+        description: validatedData.description || '',
+        category: validatedData.category || 'misc',
+        paidBy: validatedData.paidBy,
+      };
+
+      console.log('📋 Full insert object:', JSON.stringify(insertValues, null, 2));
+      console.log('💡 Insert value types:', {
+        id: typeof insertValues.id,
+        eventId: typeof insertValues.eventId,
+        groupId: typeof insertValues.groupId,
+        activityId: typeof insertValues.activityId,
+        amount: typeof insertValues.amount + ' = ' + insertValues.amount,
+        tipAmount: typeof insertValues.tipAmount + ' = ' + insertValues.tipAmount,
+        description: typeof insertValues.description,
+        category: typeof insertValues.category,
+        paidBy: typeof insertValues.paidBy,
+      });
+
+      // Verify all required fields are present
+      if (!insertValues.id || !insertValues.eventId || typeof insertValues.amount === 'undefined') {
+        throw new Error(`Missing required fields: id=${insertValues.id}, eventId=${insertValues.eventId}, amount=${insertValues.amount}`);
+      }
+
+      console.log('🔍 About to call db.insert()...');
       const inserted = await db
         .insert(expenses)
-        .values({
-          id: uuidv4(),
-          groupId: validatedData.groupId,
-          activityId: validatedData.activityId,
-          amount: amountInCents, // Store as cents (integer)
-          tipAmount: validatedData.tipAmount, // Store tip as number, not string
-          description: validatedData.description || '', // Ensure not undefined
-          category: validatedData.category || 'misc',
-          paidBy: validatedData.paidBy,
-        })
+        .values(insertValues)
         .returning();
+      
+      console.log('✅ Insert succeeded, returned:', inserted);
       
       if (!inserted || inserted.length === 0) {
         return new Response(JSON.stringify({ error: 'Failed to create expense - no record returned' }), {
@@ -161,21 +193,33 @@ export const POST: APIRoute = async (context) => {
       console.log('✅ Expense created:', expense.id);
     } catch (dbError) {
       console.error('❌ Error inserting expense:', dbError);
+      console.error('❌ Error type:', dbError?.constructor?.name);
+      console.error('Full error object:', JSON.stringify(dbError, null, 2));
+      
+      // Log specific database error details
+      if (dbError instanceof Error) {
+        console.error('Error stack:', dbError.stack);
+      }
       
       // Extract meaningful error message
       let errorMsg = 'Failed to create expense in database';
       if (dbError instanceof Error) {
         console.error('Error details:', {
+          name: dbError.name,
           message: dbError.message,
           code: (dbError as any).code,
           detail: (dbError as any).detail,
+          table: (dbError as any).table,
+          column: (dbError as any).column,
         });
         if ('code' in dbError) {
-          errorMsg = `Database error (${(dbError as any).code}): ${dbError.message}`;
+          errorMsg = `Database error (${(dbError as any).code}): ${dbError.message}. Detail: ${(dbError as any).detail || 'N/A'}`;
         } else {
           errorMsg = dbError.message;
         }
       }
+      
+      console.error('Final error response:', { errorMsg });
       
       return new Response(JSON.stringify({ error: errorMsg }), {
         status: 500,
@@ -193,7 +237,7 @@ export const POST: APIRoute = async (context) => {
     // Create expense splits using TOTAL (amount + tip)
     try {
       if (splitAmong && splitAmong.length > 0) {
-        const splitPerPersonCents = Math.round(totalInCents / splitAmong.length);
+        const splitPerPersonCents = calculateSplitPerPerson(totalInCents, splitAmong.length);
 
         await db.insert(expenseSplits).values(
           splitAmong.map((userId) => ({
@@ -209,7 +253,7 @@ export const POST: APIRoute = async (context) => {
       // Don't fail the whole request if splits fail, but log it
     }
 
-    const splitPerPersonCents = splitAmong && splitAmong.length > 0 ? Math.round(totalInCents / splitAmong.length) : 0;
+    const splitPerPersonCents = calculateSplitPerPerson(totalInCents, splitAmong.length);
 
     return new Response(JSON.stringify({
       success: true,
@@ -221,8 +265,8 @@ export const POST: APIRoute = async (context) => {
         description: validatedData.description,
         paidBy: validatedData.paidBy,
         splitAmong,
-        splitPerPerson: (splitPerPersonCents / 100).toFixed(2), // Display as dollars
-        tipPerPerson: splitAmong.length > 0 ? (tipInCents / splitAmong.length / 100).toFixed(2) : '0.00',
+        splitPerPerson: centsToDollars(splitPerPersonCents), // Display as dollars
+        tipPerPerson: centsToDollars(Math.floor(tipInCents / splitAmong.length)), // Display as dollars
       },
     }), {
       status: 201,

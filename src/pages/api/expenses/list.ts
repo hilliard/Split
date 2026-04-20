@@ -9,6 +9,7 @@ import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { sessions, expenses, events, expenseSplits, humans } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
+import { centsToDollars } from '../../../utils/currency';
 
 export const GET: APIRoute = async (context) => {
   try {
@@ -79,9 +80,10 @@ export const GET: APIRoute = async (context) => {
 
         return {
           id: expense.id,
-          amount: parseFloat(expense.amount as any),
-          tip: parseFloat(expense.tipAmount as any),
-          total: parseFloat(expense.amount as any) + parseFloat(expense.tipAmount as any),
+          amount: parseFloat(centsToDollars(expense.amount as any)),
+          tip: parseFloat(centsToDollars(Math.round((expense.tipAmount as any) * 100))),
+          total: parseFloat(centsToDollars((expense.amount as any) + Math.round((expense.tipAmount as any) * 100))),
+          tipAmount: parseFloat(centsToDollars(Math.round((expense.tipAmount as any) * 100))), // Also add this for form binding
           category: expense.category,
           description: expense.description,
           paidBy: expense.paidBy,

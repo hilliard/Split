@@ -95,7 +95,40 @@ if (!sessionId) {
           >
             Quick Stats
           </h3>
-          <div class="space-y-3 sm:space-y-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+            <div>
+              <p
+                id="statsEventCount"
+                class="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400"
+              >
+                0
+              </p>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Trips
+              </p>
+            </div>
+            <div>
+              <p
+                id="statsExpenseCount"
+                class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400"
+              >
+                0
+              </p>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Expenses
+              </p>
+            </div>
+            <div>
+              <p
+                id="statsActivityCount"
+                class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400"
+              >
+                0
+              </p>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Activities
+              </p>
+            </div>
             <div>
               <p
                 id="statsGroupCount"
@@ -109,13 +142,13 @@ if (!sessionId) {
             </div>
             <div>
               <p
-                id="statsTotalBalanced"
-                class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400"
+                id="statsTotalExpenses"
+                class="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400"
               >
                 $0
               </p>
               <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                Total balanced
+                Total Spent
               </p>
             </div>
           </div>
@@ -670,11 +703,27 @@ if (!sessionId) {
               groupsList.innerHTML = data.groups
                 .map(
                   (group) => `
-                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6" data-group-id="${group.id}">
                   <div class="flex justify-between items-start mb-3">
                     <div>
                       <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">${escapeHtml(group.name)}</h3>
                       <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Created ${new Date(group.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Group Stats -->
+                  <div class="grid grid-cols-3 gap-2 mb-4 py-3 px-2 bg-slate-50 dark:bg-slate-700 rounded">
+                    <div class="text-center">
+                      <p class="text-sm font-bold text-slate-900 dark:text-white group-member-count">${group.memberCount || 0}</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-400">Members</p>
+                    </div>
+                    <div class="text-center">
+                      <p class="text-sm font-bold text-slate-900 dark:text-white group-expense-count">—</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-400">Expenses</p>
+                    </div>
+                    <div class="text-center">
+                      <p class="text-sm font-bold text-slate-900 dark:text-white group-total-spent">—</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-400">Total</p>
                     </div>
                   </div>
                   
@@ -686,6 +735,11 @@ if (!sessionId) {
               `,
                 )
                 .join("");
+
+              // Load stats for each group
+              for (const group of data.groups) {
+                await loadGroupStats(group.id);
+              }
 
               // Add event listeners to View and Edit buttons
               document.querySelectorAll(".view-group-btn").forEach((btn) => {
@@ -708,14 +762,59 @@ if (!sessionId) {
       }
     }
 
+    // Load stats for a specific group
+    async function loadGroupStats(groupId) {
+      try {
+        const groupCard = document.querySelector(
+          `[data-group-id="${groupId}"]`,
+        );
+        if (!groupCard) return;
+
+        // Get group details (members)
+        const response = await fetch(`/api/groups/list?id=${groupId}`);
+        if (response.ok) {
+          const data = await response.json();
+          const memberCount = data.members ? data.members.length : 0;
+
+          // Update member count
+          const memberCountEl = groupCard.querySelector(".group-member-count");
+          if (memberCountEl) memberCountEl.textContent = memberCount;
+
+          // For now, set expenses and total to 0 since expenses are tied to events
+          const expenseCountEl = groupCard.querySelector(
+            ".group-expense-count",
+          );
+          const totalSpentEl = groupCard.querySelector(".group-total-spent");
+
+          if (expenseCountEl) expenseCountEl.textContent = "0";
+          if (totalSpentEl) totalSpentEl.textContent = "$0.00";
+        }
+      } catch (error) {
+        console.error(`Failed to load stats for group ${groupId}:`, error);
+        // Fallback - set to 0
+        const groupCard = document.querySelector(
+          `[data-group-id="${groupId}"]`,
+        );
+        if (groupCard) {
+          const expenseCountEl = groupCard.querySelector(
+            ".group-expense-count",
+          );
+          const totalSpentEl = groupCard.querySelector(".group-total-spent");
+          if (expenseCountEl) expenseCountEl.textContent = "0";
+          if (totalSpentEl) totalSpentEl.textContent = "$0.00";
+        }
+      }
+    }
+
     // Update Quick Stats panel
     async function updateStats() {
       try {
         // Get groups count
         const groupsResponse = await fetch("/api/groups/list");
+        let groupCount = 0;
         if (groupsResponse.ok) {
           const groupsData = await groupsResponse.json();
-          const groupCount = groupsData.groups ? groupsData.groups.length : 0;
+          groupCount = groupsData.groups ? groupsData.groups.length : 0;
 
           const statsGroupCount = document.getElementById("statsGroupCount");
           if (statsGroupCount) {
@@ -723,26 +822,82 @@ if (!sessionId) {
           }
         }
 
-        // Get events to calculate total
+        // Get events count
         const eventsResponse = await fetch("/api/events/list");
+        let eventCount = 0;
+        let totalExpenseCount = 0;
+        let totalActivityCount = 0;
+        let totalExpensesAmount = 0;
+
         if (eventsResponse.ok) {
           const eventsData = await eventsResponse.json();
           const events = eventsData.events || [];
+          eventCount = events.length;
 
-          // For now, sum up budgets from events as a simple indicator
-          // In the future, this could be calculated from actual expenses/splits
-          let totalBudget = 0;
-          events.forEach((event) => {
-            if (event.budget) {
-              totalBudget += parseFloat(event.budget) || 0;
-            }
-          });
-
-          const statsTotalBalanced =
-            document.getElementById("statsTotalBalanced");
-          if (statsTotalBalanced) {
-            statsTotalBalanced.textContent = `$${totalBudget.toFixed(2)}`;
+          const statsEventCount = document.getElementById("statsEventCount");
+          if (statsEventCount) {
+            statsEventCount.textContent = eventCount;
           }
+
+          // Fetch expenses and activities for all events
+          for (const event of events) {
+            try {
+              const expensesResp = await fetch(
+                `/api/expenses/list?eventId=${event.id}`,
+              );
+              if (expensesResp.ok) {
+                const expensesData = await expensesResp.json();
+                const expenses = expensesData.expenses || [];
+                totalExpenseCount += expenses.length;
+
+                // Sum up total spent (including tips)
+                expenses.forEach((expense) => {
+                  totalExpensesAmount += parseFloat(expense.total) || 0;
+                });
+              }
+            } catch (e) {
+              console.error(
+                `Failed to fetch expenses for event ${event.id}:`,
+                e,
+              );
+            }
+
+            // Fetch activities for each event
+            try {
+              const activitiesResp = await fetch(
+                `/api/activities/list?eventId=${event.id}`,
+              );
+              if (activitiesResp.ok) {
+                const activitiesData = await activitiesResp.json();
+                const activities = activitiesData.activities || [];
+                totalActivityCount += activities.length;
+              }
+            } catch (e) {
+              console.error(
+                `Failed to fetch activities for event ${event.id}:`,
+                e,
+              );
+            }
+          }
+
+          const statsActivityCount =
+            document.getElementById("statsActivityCount");
+          if (statsActivityCount) {
+            statsActivityCount.textContent = totalActivityCount;
+          }
+        }
+
+        // Update expense count
+        const statsExpenseCount = document.getElementById("statsExpenseCount");
+        if (statsExpenseCount) {
+          statsExpenseCount.textContent = totalExpenseCount;
+        }
+
+        // Update total expenses amount
+        const statsTotalExpenses =
+          document.getElementById("statsTotalExpenses");
+        if (statsTotalExpenses) {
+          statsTotalExpenses.textContent = `$${totalExpensesAmount.toFixed(2)}`;
         }
       } catch (error) {
         console.error("Failed to update stats:", error);
@@ -753,6 +908,15 @@ if (!sessionId) {
     async function loadPendingInvitations() {
       try {
         const response = await fetch("/api/dashboard/pending-invitations");
+
+        // Handle 404 (endpoint not yet available)
+        if (response.status === 404) {
+          console.warn(
+            "⚠️ Pending invitations endpoint not available. Please restart the dev server.",
+          );
+          return;
+        }
+
         if (response.ok) {
           const data = await response.json();
           const invitationsList = document.getElementById("invitationsList");

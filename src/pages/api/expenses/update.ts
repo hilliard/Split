@@ -11,6 +11,7 @@ import { sessions, expenses, events, expenseSplits } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { dollarsToCents, calculateSplitPerPerson } from '../../../utils/currency';
 
 const updateExpenseSchema = z.object({
   expenseId: z.string().uuid('Invalid expense ID'),
@@ -88,8 +89,8 @@ export const PUT: APIRoute = async (context) => {
 
     // Update expense fields
     const updateData: any = {};
-    if (validatedData.amount) updateData.amount = validatedData.amount.toString();
-    if (validatedData.tipAmount !== undefined) updateData.tipAmount = validatedData.tipAmount.toString();
+    if (validatedData.amount) updateData.amount = dollarsToCents(validatedData.amount); // Convert dollars to cents
+    if (validatedData.tipAmount !== undefined) updateData.tipAmount = validatedData.tipAmount; // Store as decimal dollars (matches schema)
     if (validatedData.category) updateData.category = validatedData.category;
     if (validatedData.description !== undefined) updateData.description = validatedData.description;
 
@@ -102,21 +103,29 @@ export const PUT: APIRoute = async (context) => {
       // Delete existing splits
       await db.delete(expenseSplits).where(eq(expenseSplits.expenseId, validatedData.expenseId));
 
-      // Calculate total using provided or existing values
-      const amount = validatedData.amount || parseFloat(expense.amount as any);
-      const tip = validatedData.tipAmount !== undefined ? validatedData.tipAmount : parseFloat(expense.tipAmount as any);
-      const total = amount + tip;
+      // Calculate total using provided or existing values (always in cents in DB)
+      const amountInCents = validatedData.amount ? dollarsToCents(validatedData.amount) : expense.amount;
+      
+      // Handle tipAmount - now stored as decimal dollars in DB
+      let tipInCents = 0;
+      if (validatedData.tipAmount !== undefined) {
+        tipInCents = Math.round(validatedData.tipAmount * 100); // Convert tip dollars to cents
+      } else if (expense.tipAmount) {
+        // If tipAmount already exists, convert from decimal dollars to cents
+        tipInCents = Math.round(parseFloat(expense.tipAmount as any) * 100);
+      }
+      
+      const totalInCents = amountInCents + tipInCents;
 
       // Create new splits using total
-      const amountInCents = Math.round(total * 100);
-      const splitPerPerson = amountInCents / validatedData.splitAmong.length;
+      const splitPerPerson = calculateSplitPerPerson(totalInCents, validatedData.splitAmong.length);
 
       await db.insert(expenseSplits).values(
         validatedData.splitAmong.map((userId) => ({
           id: uuidv4(),
           expenseId: validatedData.expenseId,
           userId,
-          amount: Math.round(splitPerPerson),
+          amount: splitPerPerson,
         }))
       );
     }

@@ -78,11 +78,25 @@ export const GET: APIRoute = async (context) => {
     // Initialize all users
     for (const expense of eventExpenses) {
       if (!userPaid[expense.paidBy]) userPaid[expense.paidBy] = 0;
+      userPaid[expense.paidBy] += expense.amount; // Add amount to who paid (already in cents)
     }
 
-    // Get all splits
-    const allSplits = await db.select().from(expenseSplits);
-    for (const split of allSplits) {
+    // Get splits only for THIS event's expenses using proper join
+    const eventExpenseIds = eventExpenses.map(e => e.id);
+    let eventSplits: any[] = [];
+    if (eventExpenseIds.length > 0) {
+      eventSplits = await db
+        .select({
+          split: expenseSplits,
+          expense: expenses,
+        })
+        .from(expenseSplits)
+        .innerJoin(expenses, eq(expenseSplits.expenseId, expenses.id))
+        .where(eq(expenses.eventId, eventId));
+    }
+    
+    for (const record of eventSplits) {
+      const split = record.split;
       if (!userOwes[split.userId]) userOwes[split.userId] = 0;
       userOwes[split.userId] += split.amount; // in cents
     }

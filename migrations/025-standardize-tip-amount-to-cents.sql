@@ -46,9 +46,7 @@ BEGIN
     ) THEN
         RAISE NOTICE 'Verification passed: tip_amount is now INTEGER type';
     ELSE
-        RAISE ERROR 'Verification failed: tip_amount is not INTEGER after migration';
+        RAISE EXCEPTION 'Verification failed: tip_amount is not INTEGER after migration';
     END IF;
 
-EXCEPTION WHEN OTHERS THEN
-    RAISE WARNING 'Migration error: %', SQLERRM;
 END $$;

@@ -82,29 +82,9 @@ export const GET: APIRoute = async ({ cookies }) => {
         const expenseData = expenseResult[0];
         
         // Convert to numbers and ensure they're not null
-        let totalAmountCents = expenseData?.totalExpenseCents ? Number(expenseData.totalExpenseCents) : 0;
-        let totalTipCents = expenseData?.totalTipCents ? Number(expenseData.totalTipCents) : 0;
-        
-        // DEBUG: Check if values are suspiciously large (stored as dollars instead of cents)
-        // If total is > 1,000,000 cents (~$10,000) for a typical small expense, likely stored in dollars
-        // Work backwards: if showing $7.9M for ~$792, that's 10,000x too large
-        // This means individual expense values are ~100x too large (stored as dollars, not cents)
-        if (totalAmountCents > 10000000) {
-          // Suspiciously large - likely expenses stored in dollars, not cents
-          // Divide by 100 to convert dollars to cents
-          totalAmountCents = Math.round(totalAmountCents / 100);
-          totalTipCents = Math.round(totalTipCents / 100);
-          console.log(`⚠️  CORRECTED ${event.title}: divided by 100 (expenses likely stored in dollars)`);
-        }
-        
+        const totalAmountCents = expenseData?.totalExpenseCents ? Number(expenseData.totalExpenseCents) : 0;
+        const totalTipCents = expenseData?.totalTipCents ? Number(expenseData.totalTipCents) : 0;
         const expensesCents = totalAmountCents + totalTipCents;
-        
-        // Debug logging
-        console.log(`📊 Event: ${event.title}`);
-        console.log(`   Raw totalExpenseCents: ${expenseData?.totalExpenseCents}`);
-        console.log(`   Raw totalTipCents: ${expenseData?.totalTipCents}`);
-        console.log(`   Corrected expensesCents: ${expensesCents}`);
-        console.log(`   Formatted: $${(expensesCents / 100).toFixed(2)}`);
         
         return {
           ...event,

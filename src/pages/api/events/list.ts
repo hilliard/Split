@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { db } from "../../../db";
-import { events, sessions, groupMembers, expenseGroups } from "../../../db/schema";
-import { eq, and, desc, or, inArray } from "drizzle-orm";
+import { events, sessions, groupMembers, expenseGroups, expenses } from "../../../db/schema";
+import { eq, and, desc, or, inArray, sum } from "drizzle-orm";
 
 export const GET: APIRoute = async ({ cookies }) => {
   try {
@@ -67,13 +67,30 @@ export const GET: APIRoute = async ({ cookies }) => {
       .where(whereCondition)
       .orderBy(desc(events.createdAt));
 
-    // Convert budgetCents to display format
-    const eventsWithBudget = allEvents.map((event) => ({
-      ...event,
-      budget: event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "0.00",
-    }));
+    // Calculate current expenses for each event
+    const eventsWithExpenses = await Promise.all(
+      allEvents.map(async (event) => {
+        // Get total expenses for this event (amount + tip, both in cents)
+        const [expenseData] = await db
+          .select({
+            totalExpenseCents: sum(expenses.amount),
+            totalTipCents: sum(expenses.tipAmount),
+          })
+          .from(expenses)
+          .where(eq(expenses.eventId, event.id));
 
-    return new Response(JSON.stringify({ events: eventsWithBudget }), {
+        const expensesCents = (expenseData?.totalExpenseCents || 0) + (expenseData?.totalTipCents || 0);
+        
+        return {
+          ...event,
+          budget: event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "0.00",
+          currentExpensesCents: expensesCents,
+          currentExpenses: (expensesCents / 100).toFixed(2),
+        };
+      })
+    );
+
+    return new Response(JSON.stringify({ events: eventsWithExpenses }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

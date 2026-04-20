@@ -36,13 +36,19 @@ if not DATABASE_URL:
 
 VIEWS = {
     'expenses': 'expense_summary_for_analysis',
-    'settlements': 'user_settlement_summary_for_analysis',
+    'settlements': 'expense_splits_for_analysis',
+    'payers': 'user_payer_summary_for_analysis',
+    'participants': 'user_participant_summary_for_analysis',
     'categories': 'category_spending_for_analysis',
-    'events': 'event_summary_for_analysis',
-    'users': 'user_spending_profile_for_analysis',
-    'groups': 'group_summary_for_analysis',
+    'events': 'events_summary_for_analysis',
+    'groups': 'group_spending_for_analysis',
     'trends': 'daily_spending_trend_for_analysis',
 }
+
+# ⚠️  IMPORTANT: All views include UNIQUE usernames for unambiguous identification
+# Username fields (username) are unique in the database and safe for data merges
+# Display name fields (first_name, last_name) are kept for UI readability but NOT unique
+# Always use username as the primary key for integration with external tools
 
 
 def get_connection():

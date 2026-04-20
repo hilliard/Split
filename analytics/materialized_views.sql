@@ -18,6 +18,8 @@ SELECT
   e.category,
   e.description,
   e.paid_by AS payer_id,
+  c_payer.username AS payer_username,
+  h_payer.first_name || ' ' || h_payer.last_name AS payer_display_name,
   e.created_at::DATE AS expense_date,
   DATE_PART('year', e.created_at) AS expense_year,
   DATE_PART('month', e.created_at) AS expense_month,
@@ -25,6 +27,8 @@ SELECT
   TO_CHAR(e.created_at, 'YYYY-MM') AS month_year,
   e.created_at
 FROM expenses e
+LEFT JOIN humans h_payer ON e.paid_by = h_payer.id
+LEFT JOIN customers c_payer ON h_payer.id = c_payer.human_id
 ORDER BY e.created_at DESC;
 
 -- ============================================================================
@@ -36,11 +40,19 @@ SELECT
   es.id AS split_id,
   es.expense_id,
   es.user_id,
+  c_user.username AS user_username,
+  h_user.first_name || ' ' || h_user.last_name AS user_display_name,
   ROUND(es.amount / 100.0::NUMERIC, 2) AS split_dollars,
   e.paid_by AS paid_by_user_id,
+  c_payer.username AS payer_username,
+  h_payer.first_name || ' ' || h_payer.last_name AS payer_display_name,
   ROUND((es.amount) / 100.0::NUMERIC, 2) AS amount_owed_dollars
 FROM expense_splits es
 JOIN expenses e ON es.expense_id = e.id
+LEFT JOIN humans h_user ON es.user_id = h_user.id
+LEFT JOIN customers c_user ON h_user.id = c_user.human_id
+LEFT JOIN humans h_payer ON e.paid_by = h_payer.id
+LEFT JOIN customers c_payer ON h_payer.id = c_payer.human_id
 ORDER BY es.id DESC;
 
 -- ============================================================================
@@ -111,6 +123,7 @@ DROP VIEW IF EXISTS user_payer_summary_for_analysis CASCADE;
 CREATE VIEW user_payer_summary_for_analysis AS
 SELECT 
   h.id AS user_id,
+  c.username,
   h.first_name,
   h.last_name,
   COUNT(DISTINCT e.id) AS expenses_created,
@@ -120,9 +133,10 @@ SELECT
   MIN(e.created_at)::DATE AS first_expense_date,
   MAX(e.created_at)::DATE AS last_expense_date
 FROM humans h
+LEFT JOIN customers c ON h.id = c.human_id
 LEFT JOIN expenses e ON h.id = e.paid_by
 WHERE e.id IS NOT NULL
-GROUP BY h.id, h.first_name, h.last_name
+GROUP BY h.id, c.username, h.first_name, h.last_name
 ORDER BY total_paid_dollars DESC;
 
 -- ============================================================================
@@ -132,15 +146,17 @@ DROP VIEW IF EXISTS user_participant_summary_for_analysis CASCADE;
 CREATE VIEW user_participant_summary_for_analysis AS
 SELECT 
   h.id AS user_id,
+  c.username,
   h.first_name,
   h.last_name,
   COUNT(DISTINCT es.expense_id) AS expenses_involved_in,
   ROUND(SUM(es.amount) / 100.0::NUMERIC, 2) AS total_owed_dollars,
   ROUND(AVG(es.amount) / 100.0::NUMERIC, 2) AS avg_split_dollars
 FROM humans h
+LEFT JOIN customers c ON h.id = c.human_id
 LEFT JOIN expense_splits es ON h.id = es.user_id
 WHERE es.id IS NOT NULL
-GROUP BY h.id, h.first_name, h.last_name
+GROUP BY h.id, c.username, h.first_name, h.last_name
 ORDER BY total_owed_dollars DESC;
 
 -- ============================================================================

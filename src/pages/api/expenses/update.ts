@@ -77,7 +77,7 @@ export const PUT: APIRoute = async (context) => {
     const [event] = await db
       .select()
       .from(events)
-      .where(eq(events.id, expense.eventId))
+      .where(eq(events.id, expense.eventId ?? ""))
       .limit(1);
 
     if (!event || event.creatorId !== session.userId) {
@@ -140,7 +140,7 @@ export const PUT: APIRoute = async (context) => {
   } catch (error) {
     console.error('Error updating expense:', error);
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.errors[0].message }), {
+      return new Response(JSON.stringify({ error: error.issues[0].message }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

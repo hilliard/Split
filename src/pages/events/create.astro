@@ -283,7 +283,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
                   ○ Add Initial Expense
                 </p>
                 <p class="text-xs text-green-700 dark:text-green-300">
-                  Add an expense for this event
+                  Add an expense for this event (requires a group)
                 </p>
               </div>
             </label>
@@ -294,6 +294,74 @@ if (!session || new Date(session.expiresAt) < new Date()) {
             id="initialExpenseFieldsContainer"
             class="hidden space-y-4 p-4 bg-green-50 dark:bg-slate-700 rounded-lg border border-green-200 dark:border-slate-600"
           >
+            <!-- Group Selection / Creation -->
+            <div>
+              <label
+                for="expenseGroupSelect"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Select or Create Group <span class="text-red-500">*</span>
+              </label>
+              <div class="flex gap-2 flex-col sm:flex-row">
+                <select
+                  id="expenseGroupSelect"
+                  name="expenseGroupId"
+                  class="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+                >
+                  <option value="">-- Select Existing Group --</option>
+                </select>
+                <button
+                  type="button"
+                  id="createNewGroupBtn"
+                  class="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors font-medium whitespace-nowrap"
+                >
+                  + New Group
+                </button>
+              </div>
+            </div>
+
+            <!-- Create New Group Form (Hidden) -->
+            <div
+              id="createNewGroupForm"
+              class="hidden p-3 bg-white dark:bg-slate-600 rounded-lg border border-green-300 dark:border-slate-500 space-y-3"
+            >
+              <label
+                for="newGroupName"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                New Group Name
+              </label>
+              <input
+                type="text"
+                id="newGroupName"
+                name="newGroupName"
+                placeholder="e.g., Houston Trip Friends"
+                class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
+              />
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  id="createGroupConfirmBtn"
+                  class="flex-1 px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded transition-colors font-medium text-sm"
+                >
+                  Create Group
+                </button>
+                <button
+                  type="button"
+                  id="createGroupCancelBtn"
+                  class="flex-1 px-3 py-2 bg-slate-300 dark:bg-slate-500 text-slate-900 dark:text-white hover:bg-slate-400 dark:hover:bg-slate-600 rounded transition-colors font-medium text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+              <div
+                id="groupCreationError"
+                class="text-sm text-red-600 dark:text-red-400 hidden"
+              >
+              </div>
+            </div>
+
+            <!-- Expense Fields -->
             <div>
               <label
                 for="initialExpenseDescription"
@@ -305,31 +373,9 @@ if (!session || new Date(session.expiresAt) < new Date()) {
                 type="text"
                 id="initialExpenseDescription"
                 name="initialExpenseDescription"
-                placeholder="e.g., Restaurant, Transportation, etc."
+                placeholder="e.g., Flight, Restaurant, Transportation, etc."
                 class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
               />
-            </div>
-
-            <div>
-              <label
-                for="initialExpenseCategory"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                Category
-              </label>
-              <select
-                id="initialExpenseCategory"
-                name="initialExpenseCategory"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
-              >
-                <option value="meal">Meal / Food</option>
-                <option value="transport">Transport</option>
-                <option value="accommodation">Accommodation</option>
-                <option value="parking">Parking</option>
-                <option value="entertainment">Entertainment</option>
-                <option value="tickets">Tickets</option>
-                <option value="misc" selected>Miscellaneous</option>
-              </select>
             </div>
 
             <div>
@@ -337,7 +383,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
                 for="initialExpenseAmount"
                 class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
               >
-                Amount ($)
+                Amount <span class="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -381,6 +427,13 @@ if (!session || new Date(session.expiresAt) < new Date()) {
   </div>
 
   <script>
+    // Declare window extension for TypeScript
+    declare global {
+      interface Window {
+        toggleTheme?: () => void;
+      }
+    }
+
     // Global theme toggle function accessible from HTML onclick
     window.toggleTheme = function () {
       console.log("🖱️ Theme toggle clicked");
@@ -388,7 +441,9 @@ if (!session || new Date(session.expiresAt) < new Date()) {
       const html = document.documentElement;
       const isDark = html.classList.contains("dark");
       const icon = document.getElementById("themeIcon");
-      const mainDiv = document.querySelector("div.min-h-screen");
+      const mainDiv = document.querySelector(
+        "div.min-h-screen",
+      ) as HTMLElement | null;
 
       if (isDark) {
         // Switch to LIGHT mode
@@ -566,7 +621,9 @@ if (!session || new Date(session.expiresAt) < new Date()) {
       const icon = document.getElementById("themeIcon");
       const html = document.documentElement;
       const body = document.body;
-      const mainDiv = document.querySelector("div.min-h-screen");
+      const mainDiv = document.querySelector(
+        "div.min-h-screen",
+      ) as HTMLElement | null;
 
       if (!btn) {
         console.error("❌ Theme toggle button not found");
@@ -707,9 +764,13 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     }
 
     // Update currency symbol
-    const eventCurrencySelect = document.getElementById("eventCurrency");
-    const budgetSymbol = document.getElementById("budgetSymbol");
-    const currencySymbols = {
+    const eventCurrencySelect = document.getElementById(
+      "eventCurrency",
+    ) as HTMLSelectElement | null;
+    const budgetSymbol = document.getElementById(
+      "budgetSymbol",
+    ) as HTMLElement | null;
+    const currencySymbols: { [key: string]: string } = {
       USD: "$",
       EUR: "€",
       GBP: "£",
@@ -722,7 +783,8 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
     if (eventCurrencySelect) {
       eventCurrencySelect.addEventListener("change", () => {
-        const selectedCurrency = eventCurrencySelect.value;
+        const selectedCurrency = (eventCurrencySelect as HTMLSelectElement)
+          .value;
         const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
         if (budgetSymbol) {
           budgetSymbol.textContent = symbol;
@@ -731,103 +793,281 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     }
 
     // Form submission
-    const createEventForm = document.getElementById("createEventForm");
-    const eventError = document.getElementById("eventError");
+    const createEventForm = document.getElementById(
+      "createEventForm",
+    ) as HTMLFormElement | null;
+    const eventError = document.getElementById(
+      "eventError",
+    ) as HTMLElement | null;
 
     // Expense Toggle Handler
-    const addInitialExpenseCheckbox =
-      document.getElementById("addInitialExpense");
+    const addInitialExpenseCheckbox = document.getElementById(
+      "addInitialExpense",
+    ) as HTMLInputElement | null;
     const toggleInitialExpenseSwitch = document.getElementById(
       "toggleInitialExpenseSwitch",
-    );
+    ) as HTMLElement | null;
     const toggleInitialExpenseThumb = document.getElementById(
       "toggleInitialExpenseThumb",
-    );
+    ) as HTMLElement | null;
     const toggleInitialExpenseLabel = document.getElementById(
       "toggleInitialExpenseLabel",
-    );
+    ) as HTMLElement | null;
     const initialExpenseFieldsContainer = document.getElementById(
       "initialExpenseFieldsContainer",
-    );
+    ) as HTMLElement | null;
 
     function updateExpenseToggleState() {
-      const isChecked = addInitialExpenseCheckbox.checked;
+      const isChecked =
+        (addInitialExpenseCheckbox as HTMLInputElement)?.checked ?? false;
 
       if (isChecked) {
         // Checked state
-        toggleInitialExpenseSwitch.classList.remove(
+        toggleInitialExpenseSwitch?.classList.remove(
           "bg-gray-300",
           "dark:bg-gray-600",
         );
-        toggleInitialExpenseSwitch.classList.add(
+        toggleInitialExpenseSwitch?.classList.add(
           "bg-green-500",
           "dark:bg-green-600",
         );
-        toggleInitialExpenseThumb.classList.remove("translate-x-0");
-        toggleInitialExpenseThumb.classList.add("translate-x-6");
-        toggleInitialExpenseLabel.textContent = "✓ Add Initial Expense";
-        toggleInitialExpenseLabel.classList.remove("text-gray-700");
-        toggleInitialExpenseLabel.classList.add(
+        toggleInitialExpenseThumb?.classList.remove("translate-x-0");
+        toggleInitialExpenseThumb?.classList.add("translate-x-6");
+        if (toggleInitialExpenseLabel)
+          toggleInitialExpenseLabel.textContent = "✓ Add Initial Expense";
+        toggleInitialExpenseLabel?.classList.remove("text-gray-700");
+        toggleInitialExpenseLabel?.classList.add(
           "text-green-900",
           "dark:text-green-100",
         );
-        initialExpenseFieldsContainer.classList.remove("hidden");
+        initialExpenseFieldsContainer?.classList.remove("hidden");
       } else {
         // Unchecked state
-        toggleInitialExpenseSwitch.classList.remove(
+        toggleInitialExpenseSwitch?.classList.remove(
           "bg-green-500",
           "dark:bg-green-600",
         );
-        toggleInitialExpenseSwitch.classList.add(
+        toggleInitialExpenseSwitch?.classList.add(
           "bg-gray-300",
           "dark:bg-gray-600",
         );
-        toggleInitialExpenseThumb.classList.remove("translate-x-6");
-        toggleInitialExpenseThumb.classList.add("translate-x-0");
-        toggleInitialExpenseLabel.textContent = "○ Add Initial Expense";
-        toggleInitialExpenseLabel.classList.remove(
+        toggleInitialExpenseThumb?.classList.remove("translate-x-6");
+        toggleInitialExpenseThumb?.classList.add("translate-x-0");
+        if (toggleInitialExpenseLabel)
+          toggleInitialExpenseLabel.textContent = "○ Add Initial Expense";
+        toggleInitialExpenseLabel?.classList.remove(
           "text-green-900",
           "dark:text-green-100",
         );
-        toggleInitialExpenseLabel.classList.add(
+        toggleInitialExpenseLabel?.classList.add(
           "text-gray-700",
           "dark:text-gray-300",
         );
-        initialExpenseFieldsContainer.classList.add("hidden");
+        initialExpenseFieldsContainer?.classList.add("hidden");
       }
     }
 
     // Initialize expense toggle
     if (addInitialExpenseCheckbox) {
       updateExpenseToggleState();
-      addInitialExpenseCheckbox.addEventListener(
-        "change",
-        updateExpenseToggleState,
-      );
+      addInitialExpenseCheckbox.addEventListener("change", async () => {
+        updateExpenseToggleState();
+
+        // If checked, fetch groups
+        if (addInitialExpenseCheckbox.checked) {
+          await loadUserGroups();
+        }
+      });
+    }
+
+    // Load user's groups
+    async function loadUserGroups() {
+      try {
+        const response = await fetch("/api/groups/my-groups");
+        const data = await response.json();
+
+        const groupSelect = document.getElementById(
+          "expenseGroupSelect",
+        ) as HTMLSelectElement | null;
+        if (groupSelect && data.groups && data.groups.length > 0) {
+          // Clear existing options except the default
+          groupSelect.innerHTML =
+            '<option value="">-- Select Existing Group --</option>';
+
+          data.groups.forEach((group: any) => {
+            const option = document.createElement("option");
+            option.value = group.id;
+            option.textContent = group.name;
+            groupSelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error("Error loading groups:", error);
+      }
+    }
+
+    // Group creation handlers
+    const createNewGroupBtn = document.getElementById(
+      "createNewGroupBtn",
+    ) as HTMLElement | null;
+    const createNewGroupForm = document.getElementById(
+      "createNewGroupForm",
+    ) as HTMLElement | null;
+    const createGroupConfirmBtn = document.getElementById(
+      "createGroupConfirmBtn",
+    ) as HTMLElement | null;
+    const createGroupCancelBtn = document.getElementById(
+      "createGroupCancelBtn",
+    ) as HTMLElement | null;
+    const newGroupNameInput = document.getElementById(
+      "newGroupName",
+    ) as HTMLInputElement | null;
+    const groupCreationError = document.getElementById(
+      "groupCreationError",
+    ) as HTMLElement | null;
+
+    if (createNewGroupBtn) {
+      createNewGroupBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        createNewGroupForm?.classList.remove("hidden");
+        newGroupNameInput?.focus();
+      });
+    }
+
+    if (createGroupCancelBtn) {
+      createGroupCancelBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        createNewGroupForm?.classList.add("hidden");
+        if (newGroupNameInput) newGroupNameInput.value = "";
+        if (groupCreationError) {
+          groupCreationError.textContent = "";
+          groupCreationError.classList.add("hidden");
+        }
+      });
+    }
+
+    if (createGroupConfirmBtn) {
+      createGroupConfirmBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const groupName = (newGroupNameInput?.value ?? "").trim();
+        if (!groupName) {
+          if (groupCreationError) {
+            groupCreationError.textContent = "Group name is required";
+            groupCreationError.classList.remove("hidden");
+          }
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/groups/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: groupName }),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            if (groupCreationError) {
+              groupCreationError.textContent =
+                result.error || "Failed to create group";
+              groupCreationError.classList.remove("hidden");
+            }
+            return;
+          }
+
+          // Add the new group to the dropdown
+          const groupSelect = document.getElementById("expenseGroupSelect");
+          if (groupSelect) {
+            const option = document.createElement("option");
+            option.value = result.group.id;
+            option.textContent = result.group.name;
+            option.selected = true;
+            groupSelect.appendChild(option);
+          }
+
+          // Hide form and reset
+          if (createNewGroupForm) {
+            createNewGroupForm.classList.add("hidden");
+          }
+          if (newGroupNameInput) {
+            newGroupNameInput.value = "";
+          }
+          if (groupCreationError) {
+            groupCreationError.textContent = "";
+            groupCreationError.classList.add("hidden");
+          }
+        } catch (error) {
+          console.error("Error creating group:", error);
+          if (groupCreationError) {
+            groupCreationError.textContent = "An error occurred";
+            groupCreationError.classList.remove("hidden");
+          }
+        }
+      });
     }
 
     if (toggleInitialExpenseSwitch) {
       toggleInitialExpenseSwitch.addEventListener("click", () => {
-        addInitialExpenseCheckbox.checked = !addInitialExpenseCheckbox.checked;
-        updateExpenseToggleState();
+        if (addInitialExpenseCheckbox) {
+          addInitialExpenseCheckbox.checked =
+            !addInitialExpenseCheckbox.checked;
+          updateExpenseToggleState();
+
+          // If checked, fetch groups
+          if (addInitialExpenseCheckbox.checked) {
+            loadUserGroups();
+          }
+        }
       });
     }
 
     if (createEventForm) {
+      console.log("✅ Form handler attached to:", createEventForm.id);
       createEventForm.addEventListener("submit", async (e) => {
+        console.log("🎯 FORM SUBMIT FIRED");
+
+        // Add visible indicator
+        const indicator = document.createElement("div");
+        indicator.style.position = "fixed";
+        indicator.style.top = "20px";
+        indicator.style.right = "20px";
+        indicator.style.padding = "20px";
+        indicator.style.backgroundColor = "#22c55e";
+        indicator.style.color = "white";
+        indicator.style.borderRadius = "8px";
+        indicator.style.zIndex = "9999";
+        indicator.textContent = "✅ Form submitted! Check console...";
+        document.body.appendChild(indicator);
+
         e.preventDefault();
 
-        const formData = new FormData(createEventForm);
+        const formData = new FormData(createEventForm as HTMLFormElement);
 
         // Convert datetime-local to ISO 8601 string
-        const startTimeInput = formData.get("startTime");
-        const endTimeInput = formData.get("endTime");
-        const shouldAddExpense = addInitialExpenseCheckbox.checked;
-        const expenseDescription = formData.get("initialExpenseDescription");
-        const expenseCategory =
-          formData.get("initialExpenseCategory") || "misc";
+        const startTimeInput = (formData.get("startTime") as string) ?? "";
+        const endTimeInput = (formData.get("endTime") as string) ?? "";
+        const shouldAddExpense =
+          (addInitialExpenseCheckbox as HTMLInputElement)?.checked ?? false;
+        const expenseDescription = (
+          (formData.get("initialExpenseDescription") as string) ?? ""
+        ).trim();
         const expenseAmount =
-          parseFloat(formData.get("initialExpenseAmount")) || 0;
+          parseFloat((formData.get("initialExpenseAmount") as string) ?? "0") ||
+          0;
+        const expenseGroupId = (formData.get("expenseGroupId") as string) ?? "";
+
+        // DEBUG: Log form submission state
+        console.log("🚀 Form Submission Started:", {
+          shouldAddExpense,
+          expenseDescription,
+          expenseAmountRaw: formData.get("initialExpenseAmount"),
+          expenseAmount,
+          expenseGroupId,
+          checkboxElement: addInitialExpenseCheckbox,
+          checkboxChecked: addInitialExpenseCheckbox?.checked,
+        });
 
         const data = {
           title: formData.get("title"),
@@ -844,9 +1084,47 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           isPublic: formData.get("isPublic") === "on",
           currency: formData.get("currency"),
           budget: formData.get("budget") || undefined,
+          // Include groupId if expense is being added
+          ...(shouldAddExpense && expenseGroupId
+            ? { groupId: expenseGroupId }
+            : {}),
         };
 
         try {
+          // Validate expense fields if expense is enabled
+          if (shouldAddExpense) {
+            console.log("🔍 Expense validation triggered");
+            if (!expenseGroupId) {
+              if (eventError) {
+                eventError.textContent =
+                  "Please select or create a group for the expense";
+                eventError.classList.remove("hidden");
+              }
+              return;
+            }
+
+            if (!expenseDescription || !expenseDescription.trim()) {
+              if (eventError) {
+                eventError.textContent =
+                  "Please provide an expense description";
+                eventError.classList.remove("hidden");
+              }
+              return;
+            }
+
+            if (expenseAmount <= 0) {
+              if (eventError) {
+                eventError.textContent =
+                  "Expense amount must be greater than 0";
+                eventError.classList.remove("hidden");
+              }
+              return;
+            }
+            console.log("✅ Expense validation passed");
+          } else {
+            console.warn("⚠️ shouldAddExpense is false - skipping expense");
+          }
+
           const response = await fetch("/api/events", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -863,23 +1141,111 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           } else {
             // Event created successfully
             const eventId = result.event.id;
+            console.log("✅ Event created:", eventId);
+            console.log(
+              "🔄 Checking expense creation conditions: shouldAddExpense=" +
+                shouldAddExpense +
+                ", expenseAmount=" +
+                expenseAmount,
+            );
 
-            // Check if we need to create an expense
+            // Create expense if enabled
             if (shouldAddExpense && expenseAmount > 0) {
+              console.log("🟢 INSIDE expense creation block");
               try {
-                // First, we need a group for the expense
-                // For now, we'll skip creating an expense if there's no group
-                // The user can add expenses from the event detail page
+                console.log("📝 Creating expense:", {
+                  groupId: expenseGroupId,
+                  amount: expenseAmount,
+                  description: expenseDescription,
+                });
+
+                // Get current user ID
+                console.log("🔄 Fetching user from /api/auth/me...");
+                const meResponse = await fetch("/api/auth/me");
+                console.log("📡 Fetch response status:", meResponse.status);
+                const meData = await meResponse.json();
+                console.log("📦 /api/auth/me returned:", meData);
+                const userId = meData.id; // Fixed: use meData.id directly, not meData.human?.id
+                console.log("🆔 Extracted userId:", userId);
+
+                if (!userId) {
+                  console.warn(
+                    "❌ Could not create expense - user ID not available",
+                    meData,
+                  );
+                  // Still redirect even if expense creation fails
+                  // window.location.href = `/events/${eventId}`;
+                  console.warn("❌ USER ID NOT AVAILABLE - NOT REDIRECTING");
+                  return;
+                }
+
+                console.log("✅ Got user ID:", userId);
+
+                const expenseData = {
+                  eventId: eventId, // Changed from groupId to eventId - expenses are linked to events, not groups
+                  amount: expenseAmount,
+                  description: expenseDescription,
+                  paidBy: userId,
+                };
+
+                console.log("📤 Expense details:", {
+                  description: expenseDescription,
+                  amount: expenseAmount,
+                  groupId: expenseGroupId,
+                  paidBy: userId,
+                  descriptionTrimmed: (expenseDescription ?? "").trim(),
+                  amountIsNumber: typeof expenseAmount === "number",
+                  amountIsPositive: expenseAmount > 0,
+                });
                 console.log(
-                  "Expense toggled but no group yet - user can add from event page",
+                  "📤 Sending expense data:",
+                  JSON.stringify(expenseData),
                 );
+
+                const expenseResponse = await fetch("/api/expenses/create", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(expenseData),
+                });
+
+                const expenseResult = await expenseResponse.json();
+                console.log(
+                  "📥 Expense response:",
+                  expenseResponse.status,
+                  expenseResult,
+                );
+
+                if (!expenseResponse.ok) {
+                  console.warn(
+                    "❌ Expense creation failed:",
+                    expenseResult.error || expenseResult,
+                  );
+                } else {
+                  console.log(
+                    "✅ Expense created successfully:",
+                    expenseResult.expense?.id,
+                  );
+                }
               } catch (error) {
-                console.warn("Error creating expense:", error);
+                console.error("❌ Error creating expense:", error);
+                // Still redirect even if expense creation fails
               }
+            } else {
+              console.warn(
+                "🔴 SKIPPED expense creation: shouldAddExpense=" +
+                  shouldAddExpense +
+                  ", expenseAmount=" +
+                  expenseAmount,
+              );
             }
 
-            // Redirect to the event page
-            window.location.href = `/events/${eventId}`;
+            // Redirect to the newly created event
+            console.log(
+              "✅✅✅ SUBMISSION COMPLETE - Redirecting to event ✅✅✅",
+            );
+            setTimeout(() => {
+              window.location.href = `/events/${eventId}`;
+            }, 1000);
           }
         } catch (error) {
           if (eventError) {

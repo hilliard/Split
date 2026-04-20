@@ -1,0 +1,348 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import { db } from "@/db";
+import { sessions, groupMembers, expenseGroups, humans } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
+
+// Check if user is authenticated
+const sessionId = Astro.cookies.get("sessionId")?.value;
+if (!sessionId) {
+  return Astro.redirect("/auth/login");
+}
+
+// Get session and verify user
+const [session] = await db
+  .select()
+  .from(sessions)
+  .where(eq(sessions.id, sessionId))
+  .limit(1);
+
+if (!session || new Date(session.expiresAt) < new Date()) {
+  return Astro.redirect("/auth/login");
+}
+
+// Get group ID from URL
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/dashboard");
+}
+
+// Verify user is member of group
+const [member] = await db
+  .select()
+  .from(groupMembers)
+  .where(
+    and(
+      eq(groupMembers.groupId, id as string),
+      eq(groupMembers.userId, session.userId),
+    ),
+  )
+  .limit(1);
+
+if (!member) {
+  return Astro.redirect("/dashboard");
+}
+
+// Get group details
+const [group] = await db
+  .select()
+  .from(expenseGroups)
+  .where(eq(expenseGroups.id, id as string))
+  .limit(1);
+
+if (!group) {
+  return Astro.redirect("/dashboard");
+}
+
+// Get all group members
+const members = await db
+  .select({
+    userId: groupMembers.userId,
+    firstName: humans.firstName,
+    lastName: humans.lastName,
+    joinedAt: groupMembers.joinedAt,
+  })
+  .from(groupMembers)
+  .innerJoin(humans, eq(groupMembers.userId, humans.id))
+  .where(eq(groupMembers.groupId, id as string));
+---
+
+<Layout
+  title={`${group.name} - Balances`}
+  description="Group settlement balances"
+>
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+    <Header title={group.name} currentPage="dashboard" />
+
+    <!-- Sub-header -->
+    <nav
+      class="bg-slate-100 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 sticky top-16 z-40"
+    >
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="flex gap-2 h-12 items-center overflow-x-auto">
+          <a
+            href="/dashboard"
+            class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm"
+          >
+            Dashboard
+          </a>
+          <span class="text-slate-400">/</span>
+          <a
+            href={`/groups/${id}/manage`}
+            class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm"
+          >
+            {group.name}
+          </a>
+          <span class="text-slate-400">/</span>
+          <span class="text-slate-700 dark:text-slate-300 text-sm font-medium"
+            >Balances</span
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main
+      class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
+    >
+      <!-- Group Info Card -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 mb-6"
+      >
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          {group.name}
+        </h1>
+        <p class="text-slate-600 dark:text-slate-400 mb-4">
+          {members.length} member{members.length !== 1 ? "s" : ""}
+        </p>
+
+        <!-- Members List -->
+        <div class="space-y-2">
+          {
+            members.map((m) => (
+              <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                <span class="text-slate-900 dark:text-white">
+                  {m.firstName} {m.lastName}
+                </span>
+                {m.userId === session.userId && (
+                  <span class="text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">
+                    You
+                  </span>
+                )}
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Balances Summary Section -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 mb-6"
+      >
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6">
+          Settlement Summary
+        </h2>
+
+        <!-- Loading state -->
+        <div id="balancesLoading" class="text-center py-8">
+          <p class="text-slate-600 dark:text-slate-400">
+            Loading settlement information...
+          </p>
+        </div>
+
+        <!-- Balances content -->
+        <div id="balancesContent" class="hidden space-y-4">
+          <!-- User Summary Card -->
+          <div
+            class="p-4 bg-indigo-50 dark:bg-indigo-900 rounded-lg border border-indigo-200 dark:border-indigo-700"
+          >
+            <h3 class="font-semibold text-indigo-900 dark:text-indigo-100 mb-3">
+              Your Balance
+            </h3>
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <p class="text-sm text-indigo-700 dark:text-indigo-300">
+                  Total Paid
+                </p>
+                <p
+                  class="text-lg font-bold text-indigo-900 dark:text-indigo-100"
+                  id="totalPaid"
+                >
+                  $0.00
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-indigo-700 dark:text-indigo-300">
+                  Total Owed
+                </p>
+                <p
+                  class="text-lg font-bold text-indigo-900 dark:text-indigo-100"
+                  id="totalOwed"
+                >
+                  $0.00
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-indigo-700 dark:text-indigo-300">
+                  Net Balance
+                </p>
+                <p
+                  class="text-lg font-bold text-indigo-900 dark:text-indigo-100"
+                  id="netBalance"
+                >
+                  $0.00
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Settlements Needed -->
+          <div>
+            <h3 class="font-semibold text-slate-900 dark:text-white mb-3">
+              Settlements Needed
+            </h3>
+            <div id="settlementsList" class="space-y-2">
+              <p class="text-slate-600 dark:text-slate-400 text-center py-4">
+                No settlements needed
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div
+          id="balancesError"
+          class="hidden p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-red-700 dark:text-red-200"
+        >
+          Failed to load balance information
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mb-6">
+        <a
+          href={`/groups/${id}/manage`}
+          class="inline-flex items-center px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
+        >
+          ← Back to Group
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <script define:vars={{ groupId: id, userId: session.userId }}>
+    async function loadBalances() {
+      try {
+        console.log("🔄 Loading balances for group:", groupId);
+        const response = await fetch(`/api/groups/${groupId}/balances`);
+        const data = await response.json();
+
+        console.log("📊 API Response:", {
+          status: response.status,
+          ok: response.ok,
+          success: data.success,
+          balancesCount: data.balances?.length,
+          userBalance: data.userBalance,
+        });
+
+        if (!response.ok || !data.success) {
+          console.error("❌ API returned error:", data);
+          showError();
+          return;
+        }
+
+        displayBalances(data);
+      } catch (error) {
+        console.error("❌ Error loading balances:", error);
+        showError();
+      }
+    }
+
+    function displayBalances(data) {
+      const balances = data.balances || [];
+      const userBalance = data.userBalance;
+
+      console.log("💰 Displaying balances:", {
+        settlementCount: balances.length,
+        userBalance,
+      });
+
+      // Update user summary
+      if (userBalance) {
+        const totalPaidDollars = (userBalance.totalPaid / 100).toFixed(2);
+        const totalOwedDollars = (userBalance.totalOwed / 100).toFixed(2);
+        const netBalanceDollars = (userBalance.netBalance / 100).toFixed(2);
+
+        console.log("📈 User balance breakdown:", {
+          totalPaid: totalPaidDollars,
+          totalOwed: totalOwedDollars,
+          netBalance: netBalanceDollars,
+        });
+
+        document.getElementById("totalPaid").textContent =
+          `$${totalPaidDollars}`;
+        document.getElementById("totalOwed").textContent =
+          `$${totalOwedDollars}`;
+
+        const netEl = document.getElementById("netBalance");
+        netEl.textContent = `$${netBalanceDollars}`;
+
+        // Color code: positive = they owe you (green), negative = you owe them (red)
+        if (userBalance.netBalance > 0) {
+          netEl.parentElement.className =
+            "text-sm text-green-700 dark:text-green-300";
+          netEl.className =
+            "text-lg font-bold text-green-900 dark:text-green-100";
+        } else if (userBalance.netBalance < 0) {
+          netEl.parentElement.className =
+            "text-sm text-red-700 dark:text-red-300";
+          netEl.className = "text-lg font-bold text-red-900 dark:text-red-100";
+        }
+      }
+
+      // Display settlements
+      const settlementsList = document.getElementById("settlementsList");
+      if (balances.length === 0) {
+        console.log("✨ No settlements needed");
+        settlementsList.innerHTML =
+          '<p class="text-slate-600 dark:text-slate-400 text-center py-4">✨ All settled! No outstanding balances.</p>';
+      } else {
+        console.log("📋 Displaying", balances.length, "settlements");
+        settlementsList.innerHTML = balances
+          .map((balance) => {
+            console.log(
+              "  → Settlement:",
+              balance.fromUserName,
+              "owes",
+              balance.toUserName,
+              "$" + (balance.amountCents / 100).toFixed(2),
+            );
+            return `<div class="p-4 bg-amber-50 dark:bg-amber-900 rounded-lg border border-amber-200 dark:border-amber-700">
+                <p class="text-amber-900 dark:text-amber-100">
+                  <strong>${balance.fromUserName}</strong> owes <strong>${balance.toUserName}</strong>
+                </p>
+                <p class="text-lg font-bold text-amber-900 dark:text-amber-100 mt-1">
+                  $${(balance.amountCents / 100).toFixed(2)}
+                </p>
+              </div>`;
+          })
+          .join("");
+      }
+
+      // Show content, hide loading
+      document.getElementById("balancesLoading").classList.add("hidden");
+      document.getElementById("balancesContent").classList.remove("hidden");
+    }
+
+    function showError() {
+      document.getElementById("balancesLoading").classList.add("hidden");
+      document.getElementById("balancesError").classList.remove("hidden");
+    }
+
+    // Load on page load
+    console.log("🌐 Balance page loaded for group:", groupId, "user:", userId);
+    loadBalances();
+  </script>
+</Layout>

@@ -97,8 +97,7 @@ export const activities = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     eventId: uuid('event_id')
-      .notNull()
-      .references(() => events.id, { onDelete: 'cascade' }),
+      .references(() => events.id, { onDelete: 'cascade' }),  // Made nullable to allow activities without events
     title: varchar('title', { length: 255 }).notNull(),
     startTime: timestamp('start_time', { withTimezone: true }),
     endTime: timestamp('end_time', { withTimezone: true }),
@@ -118,17 +117,19 @@ export const expenses = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     eventId: uuid('event_id')
-      .notNull()
       .references(() => events.id, { onDelete: 'cascade' }),
+    groupId: uuid('group_id').references(() => expenseGroups.id, { onDelete: 'set null' }),
     activityId: uuid('activity_id').references(() => activities.id, { onDelete: 'set null' }),
-    amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
-    category: varchar('category', { length: 50 }).notNull(),
-    description: text('description'),
-    paidBy: uuid('paid_by').references(() => humans.id, { onDelete: 'restrict' }),
+    amount: integer('amount').notNull(), // Stored in cents
+    tipAmount: decimal('tip_amount', { precision: 10, scale: 2 }).notNull().default('0'),
+    category: varchar('category', { length: 50 }).default('misc'),
+    description: varchar('description', { length: 500 }).notNull().default(''),
+    paidBy: uuid('paid_by').notNull().references(() => humans.id, { onDelete: 'restrict' }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     eventIdx: index('idx_expenses_event_id').on(table.eventId),
+    groupIdx: index('idx_expenses_group_id').on(table.groupId),
     activityIdx: index('idx_expenses_activity_id').on(table.activityId),
     paidByIdx: index('idx_expenses_paid_by').on(table.paidBy),
     categoryIdx: index('idx_expenses_category').on(table.category),

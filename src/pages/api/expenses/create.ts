@@ -150,7 +150,7 @@ export const POST: APIRoute = async (context) => {
         groupId: groupId,  // Add groupId from the event
         activityId: validatedData.activityId,
         amount: amountInCents,  // Store as integer cents
-        tipAmount: validatedData.tipAmount,  // Store as decimal dollars (matches schema)
+        tipAmount: validatedData.tipAmount.toString(),  // Convert to string for decimal storage
         description: validatedData.description || '',
         category: validatedData.category || 'misc',
         paidBy: validatedData.paidBy,
@@ -275,7 +275,7 @@ export const POST: APIRoute = async (context) => {
   } catch (error) {
     console.error('Error creating expense:', error);
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.errors[0].message }), {
+      return new Response(JSON.stringify({ error: error.issues[0].message }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

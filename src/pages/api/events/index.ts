@@ -52,6 +52,7 @@ export const POST: APIRoute = async (context) => {
     const isVirtual = data.isVirtual === true || data.isVirtual === 'on' || data.isVirtual === 'true';
     const isPublic = data.isPublic !== false && data.isPublic !== 'off' && data.isPublic !== 'false';
     const type = String(data.type || 'general').trim();
+    const groupId = data.groupId ? String(data.groupId).trim() : null;
     
     if (!name) {
       return new Response(JSON.stringify({ error: 'Event name is required' }), {
@@ -99,6 +100,7 @@ export const POST: APIRoute = async (context) => {
     const eventData = {
       id: eventId,
       creatorId: session.userId,
+      groupId: groupId || null,
       title: name,
       description: description || null,
       location: location || null,

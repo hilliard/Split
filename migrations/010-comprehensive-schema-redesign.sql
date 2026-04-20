@@ -8,7 +8,7 @@ ALTER TABLE events RENAME TO events_old;
 
 -- Create new events table with proper structure
 CREATE TABLE events (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     creator_id UUID NOT NULL REFERENCES humans(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -94,7 +94,7 @@ ALTER TABLE activities RENAME TO activities_old;
 
 -- Create new activities table
 CREATE TABLE activities (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     start_time TIMESTAMPTZ,
@@ -130,7 +130,7 @@ CREATE INDEX idx_activities_start_time ON activities(start_time);
 
 -- Step 5: Create expenses table
 CREATE TABLE expenses (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     activity_id UUID REFERENCES activities(id) ON DELETE SET NULL,
     amount DECIMAL(10, 2) NOT NULL,

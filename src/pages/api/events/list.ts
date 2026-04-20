@@ -71,7 +71,7 @@ export const GET: APIRoute = async ({ cookies }) => {
     const eventsWithExpenses = await Promise.all(
       allEvents.map(async (event) => {
         // Get total expenses for this event (amount + tip, both in cents)
-        const [expenseData] = await db
+        const expenseResult = await db
           .select({
             totalExpenseCents: sum(expenses.amount),
             totalTipCents: sum(expenses.tipAmount),
@@ -79,7 +79,19 @@ export const GET: APIRoute = async ({ cookies }) => {
           .from(expenses)
           .where(eq(expenses.eventId, event.id));
 
-        const expensesCents = (expenseData?.totalExpenseCents || 0) + (expenseData?.totalTipCents || 0);
+        const expenseData = expenseResult[0];
+        
+        // Convert to numbers and ensure they're not null
+        const totalAmountCents = expenseData?.totalExpenseCents ? Number(expenseData.totalExpenseCents) : 0;
+        const totalTipCents = expenseData?.totalTipCents ? Number(expenseData.totalTipCents) : 0;
+        const expensesCents = totalAmountCents + totalTipCents;
+        
+        // Debug logging
+        console.log(`📊 Event: ${event.title}`);
+        console.log(`   totalExpenseCents (raw): ${expenseData?.totalExpenseCents}`);
+        console.log(`   totalTipCents (raw): ${expenseData?.totalTipCents}`);
+        console.log(`   calculated expensesCents: ${expensesCents}`);
+        console.log(`   calculated dollars: $${(expensesCents / 100).toFixed(2)}`);
         
         return {
           ...event,

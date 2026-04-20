@@ -112,6 +112,10 @@ export const activities = pgTable(
 );
 
 // Expenses table - tracks money spent on activities/events
+// 💰 IMPORTANT: All monetary amounts stored as INTEGER CENTS to avoid floating-point errors
+//    Example: USD $50.25 = 5025 cents
+//    Convert: centsToDollars(5025) = "50.25" | dollarsToCents(50.25) = 5025
+//    See: MONETARY_STORAGE_GUIDE.md for full details
 export const expenses = pgTable(
   'expenses',
   {
@@ -120,8 +124,8 @@ export const expenses = pgTable(
       .references(() => events.id, { onDelete: 'cascade' }),
     groupId: uuid('group_id').references(() => expenseGroups.id, { onDelete: 'set null' }),
     activityId: uuid('activity_id').references(() => activities.id, { onDelete: 'set null' }),
-    amount: integer('amount').notNull(), // Stored in cents
-    tipAmount: integer('tip_amount').notNull().default(0), // Stored in cents (e.g., 345 = $3.45)
+    amount: integer('amount').notNull(),  // CENTS: $50.25 = 5025 | Use centsToDollars() to display
+    tipAmount: integer('tip_amount').notNull().default(0),  // CENTS: $3.45 = 345 | Use centsToDollars() to display
     category: varchar('category', { length: 50 }).default('misc'),
     description: varchar('description', { length: 500 }).notNull().default(''),
     paidBy: uuid('paid_by').notNull().references(() => humans.id, { onDelete: 'restrict' }),

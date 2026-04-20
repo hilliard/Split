@@ -584,6 +584,14 @@ if (!sessionId) {
                       <span class="text-slate-600 dark:text-slate-400">Current Expenses</span>
                       <p class="font-medium text-slate-900 dark:text-white">${event.currency} ${parseFloat(event.currentExpenses || 0).toFixed(2)}</p>
                     </div>
+                    ${
+                      event.budget && parseFloat(event.budget) !== 0
+                        ? `<div>
+                      <span class="text-slate-600 dark:text-slate-400">Budget</span>
+                      <p class="font-medium text-slate-900 dark:text-white">${event.currency} ${parseFloat(event.budget).toFixed(2)}</p>
+                    </div>`
+                        : ""
+                    }
                   </div>
                   
                   <div class="pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">

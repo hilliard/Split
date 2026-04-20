@@ -150,7 +150,7 @@ export const POST: APIRoute = async (context) => {
         groupId: groupId,  // Add groupId from the event
         activityId: validatedData.activityId,
         amount: amountInCents,  // Store as integer cents
-        tipAmount: validatedData.tipAmount.toString(),  // Convert to string for decimal storage
+        tipAmount: tipInCents,  // Store as integer cents (e.g., 345 = $3.45)
         description: validatedData.description || '',
         category: validatedData.category || 'misc',
         paidBy: validatedData.paidBy,

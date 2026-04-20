@@ -43,12 +43,10 @@ if (sessionId) {
           console.log(`\n=== ${event.title} (${event.id}) ===`);
           console.log(`Found ${eventExpenses.length} expenses from DB`);
           
-          // Calculate total in cents: amount (already in cents) + tip (stored as decimal dollars, convert to cents)
+          // Calculate total in cents: amount (already in cents) + tip (now also in cents)
           const expenseAmounts = eventExpenses.map((exp) => {
             const amountCents = exp.amount || 0; // Already in cents from DB
-            // tipAmount is stored as decimal dollars (schema: decimal(10,2)), convert once to cents
-            const tipDollars = parseFloat(exp.tipAmount as any) || 0;
-            const tipCents = Math.round(tipDollars * 100); // Convert dollars to cents
+            const tipCents = exp.tipAmount || 0; // Now also in cents from DB (was stored as dollars before)
             const totalExpCents = amountCents + tipCents;
             return totalExpCents;
           });

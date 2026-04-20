@@ -81,9 +81,9 @@ export const GET: APIRoute = async (context) => {
         return {
           id: expense.id,
           amount: parseFloat(centsToDollars(expense.amount as any)),
-          tip: parseFloat(centsToDollars(Math.round((expense.tipAmount as any) * 100))),
-          total: parseFloat(centsToDollars((expense.amount as any) + Math.round((expense.tipAmount as any) * 100))),
-          tipAmount: parseFloat(centsToDollars(Math.round((expense.tipAmount as any) * 100))), // Also add this for form binding
+          tip: parseFloat(centsToDollars(expense.tipAmount as any)), // tipAmount now stored as cents in DB
+          total: parseFloat(centsToDollars((expense.amount as any) + (expense.tipAmount as any))), // Both now in cents
+          tipAmount: parseFloat(centsToDollars(expense.tipAmount as any)), // For form binding
           category: expense.category,
           description: expense.description,
           paidBy: expense.paidBy,

@@ -90,7 +90,7 @@ export const PUT: APIRoute = async (context) => {
     // Update expense fields
     const updateData: any = {};
     if (validatedData.amount) updateData.amount = dollarsToCents(validatedData.amount); // Convert dollars to cents
-    if (validatedData.tipAmount !== undefined) updateData.tipAmount = validatedData.tipAmount; // Store as decimal dollars (matches schema)
+    if (validatedData.tipAmount !== undefined) updateData.tipAmount = dollarsToCents(validatedData.tipAmount); // Convert dollars to cents
     if (validatedData.category) updateData.category = validatedData.category;
     if (validatedData.description !== undefined) updateData.description = validatedData.description;
 
@@ -103,16 +103,16 @@ export const PUT: APIRoute = async (context) => {
       // Delete existing splits
       await db.delete(expenseSplits).where(eq(expenseSplits.expenseId, validatedData.expenseId));
 
-      // Calculate total using provided or existing values (always in cents in DB)
+      // Calculate total using provided or existing values (all in cents in DB)
       const amountInCents = validatedData.amount ? dollarsToCents(validatedData.amount) : expense.amount;
       
-      // Handle tipAmount - now stored as decimal dollars in DB
+      // Handle tipAmount - now stored as cents in DB
       let tipInCents = 0;
       if (validatedData.tipAmount !== undefined) {
-        tipInCents = Math.round(validatedData.tipAmount * 100); // Convert tip dollars to cents
+        tipInCents = dollarsToCents(validatedData.tipAmount); // Convert user input (dollars) to cents
       } else if (expense.tipAmount) {
-        // If tipAmount already exists, convert from decimal dollars to cents
-        tipInCents = Math.round(parseFloat(expense.tipAmount as any) * 100);
+        // tipAmount is already in cents from DB
+        tipInCents = expense.tipAmount;
       }
       
       const totalInCents = amountInCents + tipInCents;

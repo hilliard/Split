@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, varchar, integer, index, boolean, decimal, json, date } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, varchar, integer, index, boolean, json, date } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // ============================================================
@@ -121,7 +121,7 @@ export const expenses = pgTable(
     groupId: uuid('group_id').references(() => expenseGroups.id, { onDelete: 'set null' }),
     activityId: uuid('activity_id').references(() => activities.id, { onDelete: 'set null' }),
     amount: integer('amount').notNull(), // Stored in cents
-    tipAmount: decimal('tip_amount', { precision: 10, scale: 2 }).notNull().default('0'),
+    tipAmount: integer('tip_amount').notNull().default(0), // Stored in cents (e.g., 345 = $3.45)
     category: varchar('category', { length: 50 }).default('misc'),
     description: varchar('description', { length: 500 }).notNull().default(''),
     paidBy: uuid('paid_by').notNull().references(() => humans.id, { onDelete: 'restrict' }),

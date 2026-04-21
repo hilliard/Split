@@ -1768,19 +1768,13 @@ const budget = event.budgetCents
     async function loadContent() {
       // Load both activities and expenses, then render them together
       try {
-        console.log("🔄 loadContent: Fetching activities and expenses...");
         const [activitiesResponse, expensesResponse] = await Promise.all([
           fetch(`/api/activities/list?eventId=${eventId}`),
           fetch(`/api/expenses/list?eventId=${eventId}`),
         ]);
 
-        console.log("🔄 loadContent: Got responses, parsing JSON...");
         const activitiesData = await activitiesResponse.json();
         const expensesData = await expensesResponse.json();
-        console.log("✅ loadContent: Parsed data", {
-          activitiesData,
-          expensesData,
-        });
 
         let html = "";
 
@@ -2667,32 +2661,27 @@ const budget = event.budgetCents
     // Load and display detailed trip summary
     async function loadDetailedSummary() {
       try {
-        console.log("🔄 loadDetailedSummary: Starting...");
         // Get all expenses
         const expensesResponse = await fetch(
           `/api/expenses/list?eventId=${eventId}`,
         );
         if (!expensesResponse.ok) {
-          console.error("❌ loadDetailedSummary: Failed to fetch expenses");
           return;
         }
 
         const expensesData = await expensesResponse.json();
         const expenses = expensesData.expenses || [];
-        console.log("✅ loadDetailedSummary: Got expenses", expenses);
 
         // Get balances/settlements
         const balancesResponse = await fetch(
           `/api/expenses/balances?eventId=${eventId}`,
         );
         if (!balancesResponse.ok) {
-          console.error("❌ loadDetailedSummary: Failed to fetch balances");
           return;
         }
 
         const balancesData = await balancesResponse.json();
         const settlements = balancesData.settlements || [];
-        console.log("✅ loadDetailedSummary: Got settlements", settlements);
 
         // Calculate individual balances
         const personBalances = {};
@@ -2844,22 +2833,13 @@ const budget = event.budgetCents
       try {
         console.log("🔄 loadBreakdown: Starting...");
         const breakdownEl = document.getElementById("breakdownContent");
-        if (!breakdownEl) {
-          console.error(
-            "❌ loadBreakdown: breakdownContent element not found!",
-          );
-          return;
-        }
+        if (!breakdownEl) return;
 
-        console.log("🔄 loadBreakdown: Fetching balances...");
         const response = await fetch(
           `/api/expenses/balances?eventId=${eventId}`,
         );
-
-        console.log("🔄 loadBreakdown: Got response, status:", response.status);
         if (response.ok) {
           const data = await response.json();
-          console.log("✅ loadBreakdown: Got data", data);
           const settlements = data.settlements || [];
 
           if (settlements.length === 0) {
@@ -2916,15 +2896,10 @@ const budget = event.budgetCents
     }
 
     loadGroupInfo();
-    console.log("✅ Started loadGroupInfo");
     loadContent();
-    console.log("✅ Started loadContent");
     updateTripTotal();
-    console.log("✅ Started updateTripTotal");
     loadBreakdown();
-    console.log("✅ Started loadBreakdown");
     loadDetailedSummary();
-    console.log("✅ Started loadDetailedSummary");
   </script>
 
   <!-- Toast Notification -->

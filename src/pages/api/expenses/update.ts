@@ -20,6 +20,7 @@ const updateExpenseSchema = z.object({
   category: z.string().min(1).max(50).optional(),
   description: z.string().max(500).optional(),
   splitAmong: z.array(z.string().uuid()).min(1).optional(),
+  metadata: z.any().optional(),
 });
 
 export const PUT: APIRoute = async (context) => {
@@ -93,6 +94,7 @@ export const PUT: APIRoute = async (context) => {
     if (validatedData.tipAmount !== undefined) updateData.tipAmount = dollarsToCents(validatedData.tipAmount); // Convert dollars to cents
     if (validatedData.category) updateData.category = validatedData.category;
     if (validatedData.description !== undefined) updateData.description = validatedData.description;
+    if (validatedData.metadata) updateData.metadata = validatedData.metadata;
 
     if (Object.keys(updateData).length > 0) {
       await db.update(expenses).set(updateData).where(eq(expenses.id, validatedData.expenseId));

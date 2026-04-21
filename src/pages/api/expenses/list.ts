@@ -88,6 +88,7 @@ export const GET: APIRoute = async (context) => {
           description: expense.description,
           paidBy: expense.paidBy,
           payerName: payer ? `${payer.firstName} ${payer.lastName}`.trim() : 'Unknown',
+          metadata: expense.metadata || {},
           splits: splits.map((s) => ({
             userId: s.userId,
             amountCents: s.amount,

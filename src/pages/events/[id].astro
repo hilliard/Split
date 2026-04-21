@@ -939,6 +939,31 @@ const budget = event.budgetCents
               </select>
             </div>
 
+            <!-- Details/Metadata Section -->
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Details (Confirmation #, Reference, Notes, etc.) - Optional
+              </label>
+
+              <!-- Metadata Fields Container -->
+              <div
+                id="editExpenseMetadataContainer"
+                class="space-y-2 mb-3 border border-slate-300 dark:border-slate-600 rounded-lg p-3 bg-slate-50 dark:bg-slate-700 min-h-12"
+              >
+              </div>
+
+              <!-- Add Field Button -->
+              <button
+                type="button"
+                id="editExpenseAddMetadataFieldBtn"
+                class="text-sm text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-100 font-medium"
+              >
+                + Add Detail
+              </button>
+            </div>
+
             <div
               id="editExpenseError"
               class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
@@ -1627,6 +1652,50 @@ const budget = event.budgetCents
       });
     }
 
+    // Add Edit Expense Metadata functions
+    function addEditExpenseMetadataField(key = "", value = "") {
+      const container = document.getElementById("editExpenseMetadataContainer");
+      if (!container) return;
+      const fieldId = "edit-expense-metadata-" + Date.now() + Math.random();
+      const fieldHTML = `
+        <div class="flex gap-2" id="${fieldId}">
+          <input
+            type="text"
+            name="editExpenseMetadataKey"
+            placeholder="Key (e.g., Confirmation #)"
+            value="${key}"
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+          />
+          <input
+            type="text"
+            name="editExpenseMetadataValue"
+            placeholder="Value (e.g., CONF123)"
+            value="${value}"
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+          />
+          <button
+            type="button"
+            onclick="document.getElementById('${fieldId}').remove()"
+            class="px-3 py-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors text-sm font-medium"
+          >
+            ✕
+          </button>
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", fieldHTML);
+    }
+
+    // Add field button for edit expense metadata
+    const editExpenseAddMetadataFieldBtn = document.getElementById(
+      "editExpenseAddMetadataFieldBtn",
+    );
+    if (editExpenseAddMetadataFieldBtn) {
+      editExpenseAddMetadataFieldBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        addEditExpenseMetadataField();
+      });
+    }
+
     let currentGroupId = null;
     let currentUserId = null;
 
@@ -1746,6 +1815,7 @@ const budget = event.budgetCents
                     data-tip="${tip}"
                     data-description="${expense.description || ""}"
                     data-category="${expense.category || "misc"}"
+                    data-metadata='${JSON.stringify(expense.metadata || {})}'
                     class="editExpenseBtn text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
                     ✏️ Edit
                   </button>
@@ -1806,6 +1876,9 @@ const budget = event.budgetCents
               tip: parseFloat(e.target.dataset.tip),
               description: e.target.dataset.description,
               category: e.target.dataset.category,
+              metadata: e.target.dataset.metadata
+                ? JSON.parse(e.target.dataset.metadata)
+                : {},
             };
             openEditExpenseModal(expense);
           });
@@ -1825,6 +1898,18 @@ const budget = event.budgetCents
       document.getElementById("editExpenseDescription").value =
         expense.description;
       document.getElementById("editExpenseCategory").value = expense.category;
+
+      // Load and display metadata
+      const metadataContainer = document.getElementById(
+        "editExpenseMetadataContainer",
+      );
+      if (metadataContainer && expense.metadata) {
+        metadataContainer.innerHTML = "";
+        Object.entries(expense.metadata).forEach(([key, value]) => {
+          addEditExpenseMetadataField(key, value as string);
+        });
+      }
+
       modal.classList.remove("hidden");
       // Update tip suggestion when modal opens
       updateEditExpenseTipSuggestion();
@@ -1956,6 +2041,23 @@ const budget = event.budgetCents
           return;
         }
 
+        // Collect metadata
+        const metadata = {};
+        const metadataKeys = document.querySelectorAll(
+          'input[name="editExpenseMetadataKey"]',
+        );
+        const metadataValues = document.querySelectorAll(
+          'input[name="editExpenseMetadataValue"]',
+        );
+
+        for (let i = 0; i < metadataKeys.length; i++) {
+          const key = metadataKeys[i].value.trim();
+          const value = metadataValues[i].value.trim();
+          if (key && value) {
+            metadata[key] = value;
+          }
+        }
+
         try {
           const response = await fetch("/api/expenses/update", {
             method: "PUT",
@@ -1966,6 +2068,7 @@ const budget = event.budgetCents
               tipAmount,
               description,
               category,
+              metadata: Object.keys(metadata).length > 0 ? metadata : {},
             }),
           });
 

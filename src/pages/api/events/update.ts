@@ -7,7 +7,7 @@ import { z } from 'zod';
 // Validation schema for event update
 const updateEventSchema = z.object({
   eventId: z.string().uuid('Invalid event ID'),
-  title: z.string().min(1, 'Event title is required').max(255),
+  title: z.string().min(1, 'Event title is required').max(255).optional(),
   description: z.string().max(2000).optional(),
   type: z.string().max(50).optional(),
   startTime: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).optional(),
@@ -15,7 +15,7 @@ const updateEventSchema = z.object({
   timezone: z.string().max(50).optional(),
   isVirtual: z.boolean().optional(),
   isPublic: z.boolean().optional(),
-  currency: z.string().length(3).default('USD'),
+  currency: z.string().length(3).optional(),
   budget: z.string().regex(/^\d+(\.\d{1,2})?$/).optional().nullable(),
   metadata: z.record(z.unknown()).optional(),
 });
@@ -84,21 +84,31 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Update event - only set fields that have values
-    const updateData: any = {
-      title: validatedData.title,
-      currency: validatedData.currency,
-    };
+    const updateData: any = {};
 
     // Add optional fields only if provided
+    if (validatedData.title !== undefined) updateData.title = validatedData.title;
+    if (validatedData.currency !== undefined) updateData.currency = validatedData.currency;
     if (validatedData.description !== undefined) updateData.description = validatedData.description || null;
     if (validatedData.type !== undefined) updateData.type = validatedData.type;
-    if (validatedData.startTime !== undefined) updateData.startTime = validatedData.startTime;
-    if (validatedData.endTime !== undefined) updateData.endTime = validatedData.endTime;
+    // Convert ISO timestamp strings to Date objects for Drizzle ORM
+    if (validatedData.startTime !== undefined) updateData.startTime = new Date(validatedData.startTime);
+    if (validatedData.endTime !== undefined) updateData.endTime = new Date(validatedData.endTime);
     if (validatedData.timezone !== undefined) updateData.timezone = validatedData.timezone;
     if (validatedData.isVirtual !== undefined) updateData.isVirtual = validatedData.isVirtual;
     if (validatedData.isPublic !== undefined) updateData.isPublic = validatedData.isPublic;
     if (validatedData.metadata !== undefined) updateData.metadata = validatedData.metadata;
     if (validatedData.budget !== undefined) updateData.budgetCents = validatedData.budget ? Math.round(parseFloat(validatedData.budget) * 100) : null;
+
+    // Ensure we're actually updating something
+    if (Object.keys(updateData).length === 0) {
+      return new Response(JSON.stringify({ error: 'No fields to update' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('Updating event with data:', updateData);
 
     const [updatedEvent] = await db
       .update(events)
@@ -123,7 +133,12 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    return new Response(JSON.stringify({ error: 'Failed to update event' }), {
+    // Log the full error stack for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('Full error details:', errorMessage, errorStack);
+
+    return new Response(JSON.stringify({ error: 'Failed to update event', details: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

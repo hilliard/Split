@@ -204,18 +204,48 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
               <select
                 id="eventTimezone"
                 name="timezone"
-                value={event.timezone}
                 class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
               >
-                <option value="UTC">UTC</option>
-                <option value="America/New_York">Eastern Time</option>
-                <option value="America/Chicago">Central Time</option>
-                <option value="America/Denver">Mountain Time</option>
-                <option value="America/Los_Angeles">Pacific Time</option>
-                <option value="Europe/London">London</option>
-                <option value="Europe/Paris">Paris</option>
-                <option value="Asia/Tokyo">Tokyo</option>
-                <option value="Australia/Sydney">Sydney</option>
+                <option value="UTC" selected={event.timezone === "UTC"}
+                  >UTC</option
+                >
+                <option
+                  value="America/New_York"
+                  selected={event.timezone === "America/New_York"}
+                  >Eastern Time</option
+                >
+                <option
+                  value="America/Chicago"
+                  selected={event.timezone === "America/Chicago"}
+                  >Central Time</option
+                >
+                <option
+                  value="America/Denver"
+                  selected={event.timezone === "America/Denver"}
+                  >Mountain Time</option
+                >
+                <option
+                  value="America/Los_Angeles"
+                  selected={event.timezone === "America/Los_Angeles"}
+                  >Pacific Time</option
+                >
+                <option
+                  value="Europe/London"
+                  selected={event.timezone === "Europe/London"}>London</option
+                >
+                <option
+                  value="Europe/Paris"
+                  selected={event.timezone === "Europe/Paris"}>Paris</option
+                >
+                <option
+                  value="Asia/Tokyo"
+                  selected={event.timezone === "Asia/Tokyo"}>Tokyo</option
+                >
+                <option
+                  value="Australia/Sydney"
+                  selected={event.timezone === "Australia/Sydney"}
+                  >Sydney</option
+                >
               </select>
             </div>
             <div class="flex items-center gap-4">

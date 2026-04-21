@@ -1120,7 +1120,7 @@ if (!sessionId) {
           .map(
             (act) => `
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(act.name)}</h3>
+            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(act.title || act.name || "Untitled Activity")}</h3>
             <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(act.tripName)}</p>
           </div>
         `,

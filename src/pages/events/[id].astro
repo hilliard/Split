@@ -1824,18 +1824,18 @@ const budget = event.budgetCents
               <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">💰 Paid by: ${expense.payerName || "Unknown"}</p>
               ${expense.category ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">📂 Category: ${expense.category}</p>` : ""}
               ${tip !== "0.00" ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">💡 Tip: $${tip}</p>` : ""}
-              ${
-                expense.metadata && Object.keys(expense.metadata).length > 0
-                  ? "<div class='mt-2 pt-2 border-t border-green-200 dark:border-green-700 space-y-1'>" +
-                    Object.entries(expense.metadata)
-                      .map(
-                        ([key, value]) =>
-                          `<p class='text-xs text-slate-700 dark:text-slate-300'>📋 <strong>${key}:</strong> ${value}</p>`,
-                      )
-                      .join("") +
-                    "</div>"
-                  : ""
-              }
+              ${(() => {
+                if (
+                  !expense.metadata ||
+                  Object.keys(expense.metadata).length === 0
+                )
+                  return "";
+                let metadataHtml = "";
+                for (const [k, v] of Object.entries(expense.metadata)) {
+                  metadataHtml += `<p class='text-xs text-slate-700 dark:text-slate-300'>📋 <strong>${k}:</strong> ${v}</p>`;
+                }
+                return `<div class='mt-2 pt-2 border-t border-green-200 dark:border-green-700 space-y-1'>${metadataHtml}</div>`;
+              })()}
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">🕐 ${createdDate}</p>
             </div>`;
             })
@@ -1918,7 +1918,7 @@ const budget = event.budgetCents
       if (metadataContainer && expense.metadata) {
         metadataContainer.innerHTML = "";
         Object.entries(expense.metadata).forEach(([key, value]) => {
-          addEditExpenseMetadataField(key, value as string);
+          addEditExpenseMetadataField(key, value);
         });
       }
 

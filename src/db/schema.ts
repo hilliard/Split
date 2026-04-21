@@ -130,6 +130,7 @@ export const expenses = pgTable(
     category: varchar('category', { length: 50 }).default('misc'),
     description: varchar('description', { length: 500 }).notNull().default(''),
     paidBy: uuid('paid_by').notNull().references(() => humans.id, { onDelete: 'restrict' }),
+    metadata: json('metadata').$type<Record<string, unknown>>().default({} as any),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({

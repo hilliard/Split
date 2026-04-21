@@ -15,6 +15,13 @@
       "when": 1776768079099,
       "tag": "0001_broken_mesmero",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776774550007,
+      "tag": "0002_add_metadata_to_expenses",
+      "breakpoints": true
     }
   ]
 }

@@ -683,6 +683,60 @@ const budget = event.budgetCents
               </select>
             </div>
 
+            <!-- Details/Metadata Section -->
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Details (Confirmation #, Reference, Notes, etc.) - Optional
+              </label>
+
+              <!-- Template Selector -->
+              <div class="mb-4 flex gap-2 items-end">
+                <div class="flex-1">
+                  <label
+                    for="addExpenseTemplateSelect"
+                    class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                  >
+                    Template:
+                  </label>
+                  <select
+                    id="addExpenseTemplateSelect"
+                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  >
+                    <option value="">— None —</option>
+                    <option value="flight">✈️ Flight</option>
+                    <option value="hotel">🏨 Hotel</option>
+                    <option value="restaurant">🍽️ Restaurant</option>
+                    <option value="tourist">🎭 Tourist</option>
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  id="addExpenseApplyTemplateBtn"
+                  class="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition-colors font-medium text-sm"
+                >
+                  Apply
+                </button>
+              </div>
+
+              <!-- Metadata Fields Container -->
+              <div
+                id="addExpenseMetadataContainer"
+                class="space-y-2 mb-3 border border-slate-300 dark:border-slate-600 rounded-lg p-3 bg-slate-50 dark:bg-slate-700 min-h-12"
+              >
+              </div>
+
+              <!-- Add Field Button -->
+              <button
+                type="button"
+                id="addExpenseAddMetadataFieldBtn"
+                class="text-sm text-green-700 dark:text-green-300 hover:text-green-900 dark:hover:text-green-100 font-medium"
+              >
+                + Add Detail
+              </button>
+            </div>
+
             <!-- Split Among Members -->
             <div>
               <label
@@ -1466,6 +1520,113 @@ const budget = event.budgetCents
       });
     }
 
+    // Add Expense Metadata functions
+    function addExpenseAddMetadataField(key = "", value = "") {
+      const container = document.getElementById("addExpenseMetadataContainer");
+      const fieldId = "add-expense-metadata-" + Date.now() + Math.random();
+      const fieldHTML = `
+        <div class="flex gap-2" id="${fieldId}">
+          <input
+            type="text"
+            name="expenseMetadataKey"
+            placeholder="Key (e.g., Confirmation #)"
+            value="${key}"
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
+          />
+          <input
+            type="text"
+            name="expenseMetadataValue"
+            placeholder="Value (e.g., CONF123)"
+            value="${value}"
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
+          />
+          <button
+            type="button"
+            onclick="document.getElementById('${fieldId}').remove()"
+            class="px-3 py-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors text-sm font-medium"
+          >
+            ✕
+          </button>
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", fieldHTML);
+    }
+
+    // Expense Template definitions
+    const addExpenseTemplates = {
+      flight: [
+        ["Confirmation Number", ""],
+        ["Booking Reference", ""],
+        ["Flight Number", ""],
+        ["Airline", ""],
+        ["Seat", ""],
+        ["Frequent Flyer Program", ""],
+      ],
+      hotel: [
+        ["Confirmation Number", ""],
+        ["Reservation Name", ""],
+        ["Hotel Name", ""],
+        ["Room Type", ""],
+        ["Check-in Date", ""],
+        ["Check-out Date", ""],
+      ],
+      restaurant: [
+        ["Reservation Name", ""],
+        ["Confirmation Code", ""],
+        ["Restaurant Name", ""],
+        ["Party Size", ""],
+        ["Reservation Time", ""],
+      ],
+      tourist: [
+        ["Attraction Name", ""],
+        ["Ticket Number", ""],
+        ["Group Size", ""],
+        ["Activity Time", ""],
+      ],
+    };
+
+    // Apply expense template
+    function applyAddExpenseTemplate(templateType) {
+      if (!templateType || !addExpenseTemplates[templateType]) return;
+
+      const container = document.getElementById("addExpenseMetadataContainer");
+      container.innerHTML = "";
+
+      addExpenseTemplates[templateType].forEach(([key, value]) => {
+        addExpenseAddMetadataField(key, value);
+      });
+
+      const templateName =
+        templateType.charAt(0).toUpperCase() + templateType.slice(1);
+      console.log(`✅ ${templateName} expense template applied!`);
+    }
+
+    // Template selector event listener for expenses
+    const addExpenseTemplateSelect = document.getElementById(
+      "addExpenseTemplateSelect",
+    );
+    const addExpenseApplyTemplateBtn = document.getElementById(
+      "addExpenseApplyTemplateBtn",
+    );
+    const addExpenseAddMetadataFieldBtn = document.getElementById(
+      "addExpenseAddMetadataFieldBtn",
+    );
+
+    if (addExpenseApplyTemplateBtn) {
+      addExpenseApplyTemplateBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const selectedTemplate = addExpenseTemplateSelect.value;
+        applyAddExpenseTemplate(selectedTemplate);
+      });
+    }
+
+    if (addExpenseAddMetadataFieldBtn) {
+      addExpenseAddMetadataFieldBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        addExpenseAddMetadataField();
+      });
+    }
+
     let currentGroupId = null;
     let currentUserId = null;
 
@@ -2212,6 +2373,19 @@ const budget = event.budgetCents
             return;
           }
 
+          // Collect expense metadata
+          const metadata = {};
+          const metadataKeys = formData.getAll("expenseMetadataKey");
+          const metadataValues = formData.getAll("expenseMetadataValue");
+
+          for (let i = 0; i < metadataKeys.length; i++) {
+            const key = metadataKeys[i]?.trim();
+            const value = metadataValues[i]?.trim();
+            if (key && value) {
+              metadata[key] = value;
+            }
+          }
+
           const response = await fetch("/api/expenses/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -2224,6 +2398,7 @@ const budget = event.budgetCents
               category,
               paidBy: currentUserId,
               splitAmong: getSelectedSplitMembers(), // Include who to split among
+              metadata: Object.keys(metadata).length > 0 ? metadata : {},
             }),
           });
 

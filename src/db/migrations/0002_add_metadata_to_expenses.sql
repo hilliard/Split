@@ -1,0 +1,1 @@
+ALTER TABLE "expenses" ADD COLUMN "metadata" json DEFAULT '{}'::json;

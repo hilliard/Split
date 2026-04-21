@@ -31,6 +31,7 @@ const createExpenseSchema = z.object({
   paidBy: z.string().uuid('Invalid payer ID'),
   activityId: z.string().uuid('Invalid activity ID').optional(),
   splitAmong: z.array(z.string().uuid()).optional(),
+  metadata: z.any().optional(),
 });
 
 export const POST: APIRoute = async (context) => {
@@ -154,6 +155,7 @@ export const POST: APIRoute = async (context) => {
         description: validatedData.description || '',
         category: validatedData.category || 'misc',
         paidBy: validatedData.paidBy,
+        metadata: validatedData.metadata || {},
       };
 
       console.log('📋 Full insert object:', JSON.stringify(insertValues, null, 2));

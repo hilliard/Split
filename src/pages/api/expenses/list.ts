@@ -7,8 +7,8 @@
 
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { sessions, expenses, events, expenseSplits, humans } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { sessions, expenses, events, expenseSplits, humans, groupMembers } from '../../../db/schema';
+import { eq, and } from 'drizzle-orm';
 import { centsToDollars } from '../../../utils/currency';
 
 export const GET: APIRoute = async (context) => {
@@ -54,6 +54,31 @@ export const GET: APIRoute = async (context) => {
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
         status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Check authorization: user is creator OR member of the group
+    const isCreator = event.creatorId === session.userId;
+    let isGroupMember = false;
+
+    if (event.groupId) {
+      const [membership] = await db
+        .select()
+        .from(groupMembers)
+        .where(
+          and(
+            eq(groupMembers.userId, session.userId),
+            eq(groupMembers.groupId, event.groupId)
+          )
+        )
+        .limit(1);
+      isGroupMember = !!membership;
+    }
+
+    if (!isCreator && !isGroupMember) {
+      return new Response(JSON.stringify({ error: 'You do not have permission to view expenses for this event' }), {
+        status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }

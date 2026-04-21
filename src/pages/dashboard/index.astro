@@ -995,6 +995,11 @@ if (!sessionId) {
                   });
                   totalExpensesAmount += parseFloat(expense.total) || 0;
                 });
+              } else {
+                const errorData = await expensesResp.json().catch(() => ({}));
+                console.warn(
+                  `Failed to fetch expenses for event ${event.id}: ${expensesResp.status} ${errorData.error || expensesResp.statusText}`,
+                );
               }
             } catch (e) {
               console.error(
@@ -1020,6 +1025,11 @@ if (!sessionId) {
                     tripName: event.name,
                   });
                 });
+              } else {
+                const errorData = await activitiesResp.json().catch(() => ({}));
+                console.warn(
+                  `Failed to fetch activities for event ${event.id}: ${activitiesResp.status} ${errorData.error || activitiesResp.statusText}`,
+                );
               }
             } catch (e) {
               console.error(

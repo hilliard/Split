@@ -1784,7 +1784,6 @@ const budget = event.budgetCents
           expensesData.expenses &&
           expensesData.expenses.length > 0
         ) {
-          console.log("✅ Found", expensesData.expenses.length, "expenses");
           html += expensesData.expenses
             .map((expense) => {
               const amount = expense.amount.toFixed(2);

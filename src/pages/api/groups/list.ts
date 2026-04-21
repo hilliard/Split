@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { groupMembers, sessions, expenseGroups, humans } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, count } from 'drizzle-orm';
 
 export const GET: APIRoute = async ({ cookies, url }) => {
   try {
@@ -79,7 +79,22 @@ export const GET: APIRoute = async ({ cookies, url }) => {
         .innerJoin(groupMembers, eq(expenseGroups.id, groupMembers.groupId))
         .where(eq(groupMembers.userId, session.userId));
 
-      return new Response(JSON.stringify({ groups: userGroups }), {
+      // Get member counts for each group
+      const groupsWithCounts = await Promise.all(
+        userGroups.map(async (group) => {
+          const memberCountResult = await db
+            .select({ count: count() })
+            .from(groupMembers)
+            .where(eq(groupMembers.groupId, group.id));
+
+          return {
+            ...group,
+            memberCount: memberCountResult[0]?.count || 0,
+          };
+        })
+      );
+
+      return new Response(JSON.stringify({ groups: groupsWithCounts }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       });

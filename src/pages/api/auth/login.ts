@@ -11,6 +11,10 @@ export const POST: APIRoute = async (context) => {
   try {
     const data = await context.request.json();
     
+    console.log('📨 Raw data received:', data);
+    console.log('📨 Data keys:', Object.keys(data));
+    console.log('📨 Data types:', Object.entries(data).map(([k, v]) => `${k}: ${typeof v}`));
+    
     // Validate input
     const validatedData = loginSchema.parse(data);
     
@@ -20,18 +24,22 @@ export const POST: APIRoute = async (context) => {
     const result = await getHumanByUsername(validatedData.username);
     
     if (!result) {
+      console.log('❌ FAILED: User not found in database:', validatedData.username);
       return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
     
-    console.log('✓ Found human with username:', validatedData.username);
+    console.log('✓ Found user in database');
+    console.log('  Human:', { id: result.human?.id, name: result.human?.firstName });
+    console.log('  Customer username:', result.customer?.username);
     
     const human = result.human;
     
     // Verify customer exists
     if (!result.customer) {
+      console.log('❌ FAILED: Customer object is null/undefined');
       return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -39,16 +47,21 @@ export const POST: APIRoute = async (context) => {
     }
     
     const customer = result.customer;
+    console.log('🔐 Customer password hash exists:', !!customer.passwordHash);
     
     // Verify password
     const passwordValid = await verifyPassword(validatedData.password, customer.passwordHash);
+    console.log('🔐 Password verification result:', passwordValid);
     
     if (!passwordValid) {
+      console.log('❌ FAILED: Password mismatch for user:', validatedData.username);
       return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
+    
+    console.log('✅ Authentication successful for:', validatedData.username);
     
     // Create session with human ID
     const sessionId = await createSession(human.id);

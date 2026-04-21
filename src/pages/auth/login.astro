@@ -46,14 +46,42 @@ import Layout from "../../layouts/Layout.astro";
             >
               Password
             </label>
-            <input
-              type="password"
-              id="loginPassword"
-              name="password"
-              required
-              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              placeholder="••••••••"
-            />
+            <div class="relative">
+              <input
+                type="password"
+                id="loginPassword"
+                name="password"
+                required
+                class="w-full px-4 py-3 pr-12 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                id="togglePassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors p-1"
+                aria-label="Toggle password visibility"
+              >
+                <svg
+                  id="eyeIcon"
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div
@@ -87,49 +115,102 @@ import Layout from "../../layouts/Layout.astro";
 </Layout>
 
 <script>
-  const loginForm = document.getElementById("loginForm");
-  const loginError = document.getElementById("loginError");
-  const loginButton = loginForm?.querySelector('button[type="submit"]');
+  let isSubmitting = false;
 
-  loginForm?.addEventListener("submit", async (e) => {
+  const loginForm = document.getElementById("loginForm") as HTMLFormElement;
+  const loginError = document.getElementById("loginError");
+  const loginButton = loginForm?.querySelector(
+    'button[type="submit"]',
+  ) as HTMLButtonElement;
+  const usernameInput = document.getElementById(
+    "loginUsername",
+  ) as HTMLInputElement;
+  const passwordInput = document.getElementById(
+    "loginPassword",
+  ) as HTMLInputElement;
+  const toggleButton = document.getElementById("togglePassword");
+  const eyeIcon = document.getElementById("eyeIcon");
+
+  // Toggle password visibility
+  toggleButton?.addEventListener("click", (e) => {
     e.preventDefault();
 
-    const username = (
-      document.getElementById("loginUsername") as HTMLInputElement
-    )?.value;
-    const password = (
-      document.getElementById("loginPassword") as HTMLInputElement
-    )?.value;
-
-    if (!username || !password) {
-      loginError!.textContent = "Username and password are required";
-      loginError!.classList.remove("hidden");
-      return;
-    }
-
-    loginButton!.disabled = true;
-
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Redirect to dashboard on successful login
-        window.location.href = "/dashboard";
-      } else {
-        const error = await response.json();
-        loginError!.textContent = error.error || "Login failed";
-        loginError!.classList.remove("hidden");
-      }
-    } catch (error) {
-      loginError!.textContent = "Network error. Please try again.";
-      loginError!.classList.remove("hidden");
-    } finally {
-      loginButton!.disabled = false;
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      // Change to eye-slash icon
+      eyeIcon!.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+      `;
+    } else {
+      passwordInput.type = "password";
+      // Change back to eye icon
+      eyeIcon!.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+      `;
     }
   });
+
+  // Override form's default onsubmit to prevent any default submission
+  loginForm?.setAttribute("onsubmit", "return false;");
+
+  loginForm?.addEventListener(
+    "submit",
+    async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      // Prevent double submission - critical!
+      if (isSubmitting) {
+        console.log("⚠️ Form submission already in progress - BLOCKED");
+        return;
+      }
+
+      const username = usernameInput?.value?.trim();
+      const password = passwordInput?.value;
+
+      if (!username || !password) {
+        loginError!.textContent = "Username and password are required";
+        loginError!.classList.remove("hidden");
+        return;
+      }
+
+      isSubmitting = true;
+      loginButton!.disabled = true;
+
+      try {
+        console.log("📤 Submitting login form with:", {
+          username,
+          password: "***",
+        });
+
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Login successful");
+          // Redirect to dashboard on successful login
+          window.location.href = "/dashboard";
+        } else {
+          const error = await response.json();
+          loginError!.textContent = error.error || "Login failed";
+          loginError!.classList.remove("hidden");
+          console.error("❌ Login failed:", error);
+        }
+      } catch (error) {
+        loginError!.textContent = "Network error. Please try again.";
+        loginError!.classList.remove("hidden");
+        console.error("❌ Network error:", error);
+      } finally {
+        isSubmitting = false;
+        loginButton!.disabled = false;
+      }
+    },
+    true, // Use capture phase to catch before any other handlers
+  );
 </script>

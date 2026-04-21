@@ -65,11 +65,15 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
+    try {
+
     // Get all expenses for this event
     const eventExpenses = await db
       .select()
       .from(expenses)
       .where(eq(expenses.eventId, eventId));
+
+    console.log(`📊 Processing ${eventExpenses.length} expenses for event ${eventId}`);
 
     // Calculate who paid what (in cents)
     const userPaid: { [userId: string]: number } = {};
@@ -78,7 +82,12 @@ export const GET: APIRoute = async (context) => {
     // Initialize all users
     for (const expense of eventExpenses) {
       if (!userPaid[expense.paidBy]) userPaid[expense.paidBy] = 0;
-      userPaid[expense.paidBy] += expense.amount; // Add amount to who paid (already in cents)
+      
+      // Ensure amount is a number
+      const expenseAmount = typeof expense.amount === 'number' ? expense.amount : Number(expense.amount);
+      const tipAmount = typeof expense.tipAmount === 'number' ? expense.tipAmount : Number(expense.tipAmount || 0);
+      
+      userPaid[expense.paidBy] += expenseAmount + tipAmount; // Add amount + tip to who paid (already in cents)
     }
 
     // Get splits only for THIS event's expenses using proper join
@@ -166,7 +175,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Calculate settlements (who needs to send money to whom)
-    const settlements: Array<{
+    const calculatedSettlements: Array<{
       from: string;
       fromName: string;
       to: string;
@@ -190,7 +199,7 @@ export const GET: APIRoute = async (context) => {
 
       const settlementAmount = Math.min(debtAmount, creditAmount);
 
-      settlements.push({
+      calculatedSettlements.push({
         from: debtor.userId,
         fromName: debtor.name,
         to: creditor.userId,
@@ -208,7 +217,7 @@ export const GET: APIRoute = async (context) => {
     return new Response(JSON.stringify({
       success: true,
       balances,
-      settlements: settlements.filter((s) => s.amount > 0.01), // Filter out tiny rounding errors
+      settlements: calculatedSettlements.filter((s) => s.amount > 0.01), // Filter out tiny rounding errors
       completedSettlements: completedSettlements.map((s) => ({
         from: s.fromUserId,
         to: s.toUserId,
@@ -217,13 +226,23 @@ export const GET: APIRoute = async (context) => {
       })),
       summary: {
         totalExpenses: balances.reduce((sum, b) => sum + b.paidAmount, 0),
-        settlementsNeeded: settlements.filter((s) => s.amount > 0.01).length,
+        settlementsNeeded: calculatedSettlements.filter((s) => s.amount > 0.01).length,
         completedSettlements: completedSettlements.length,
       },
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
+    } catch (innerError) {
+      console.error('❌ Error calculating balances:', innerError);
+      return new Response(JSON.stringify({ 
+        error: 'Failed to calculate balances', 
+        details: innerError instanceof Error ? innerError.message : 'Unknown error'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
   } catch (error) {
     console.error('Error calculating balances:', error);
     return new Response(JSON.stringify({ error: 'Failed to calculate balances' }), {

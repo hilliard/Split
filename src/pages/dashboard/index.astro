@@ -353,6 +353,56 @@ if (!sessionId) {
           </div>
         </div>
       </div>
+
+      <!-- Pending Settlements Section -->
+      <div class="mt-6 sm:mt-8">
+        <h2
+          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
+        >
+          Pending Settlements
+        </h2>
+        <div id="settlementsList" class="grid grid-cols-1 gap-4">
+          <!-- Settlements will be loaded here -->
+          <div
+            id="settlementsEmpty"
+            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+          >
+            <h3
+              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
+            >
+              No pending settlements
+            </h3>
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+              All payments are settled up! 🎉
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completed Settlements Section -->
+      <div class="mt-6 sm:mt-8">
+        <h2
+          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
+        >
+          Completed Settlements
+        </h2>
+        <div id="completedSettlementsList" class="grid grid-cols-1 gap-4">
+          <!-- Completed settlements will be loaded here -->
+          <div
+            id="completedSettlementsEmpty"
+            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+          >
+            <h3
+              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
+            >
+              No completed settlements yet
+            </h3>
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+              Completed payments will appear here
+            </p>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- Stats List Modal -->
@@ -1356,6 +1406,200 @@ if (!sessionId) {
       }
     }
 
+    // Load and display pending settlements
+    async function loadSettlements() {
+      try {
+        // First, get all user events
+        const eventsResponse = await fetch("/api/events/list");
+        if (!eventsResponse.ok) {
+          console.warn("Failed to load events for settlements");
+          return;
+        }
+
+        const eventsData = await eventsResponse.json();
+        const events = eventsData.events || [];
+
+        // Fetch settlements for all events
+        let allPendingSettlements = [];
+        let allCompletedSettlements = [];
+        for (const event of events) {
+          try {
+            const settlementsResp = await fetch(
+              `/api/settlements/for-event?eventId=${event.id}`,
+            );
+            if (settlementsResp.ok) {
+              const data = await settlementsResp.json();
+              allPendingSettlements = allPendingSettlements.concat(
+                data.pending || [],
+              );
+              allCompletedSettlements = allCompletedSettlements.concat(
+                data.completed || [],
+              );
+            }
+          } catch (e) {
+            console.warn(
+              `Failed to load settlements for event ${event.id}:`,
+              e,
+            );
+          }
+        }
+
+        // Display pending settlements
+        const settlementsList = document.getElementById("settlementsList");
+        const settlementsEmpty = document.getElementById("settlementsEmpty");
+
+        // Filter to only show settlements involving current user
+        const userPendingSettlements = allPendingSettlements.filter(
+          (s) => s.isCurrentUserPayer || s.isCurrentUserReceiver,
+        );
+
+        if (!userPendingSettlements || userPendingSettlements.length === 0) {
+          if (settlementsList)
+            settlementsList.innerHTML = settlementsEmpty?.outerHTML || "";
+        } else {
+          if (settlementsList) {
+            settlementsList.innerHTML = userPendingSettlements
+              .map((settlement) => {
+                const canConfirm = settlement.isCurrentUserReceiver;
+                const canPay = settlement.isCurrentUserPayer;
+
+                return `
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
+                  <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1">
+                      <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
+                        ${escapeHtml(settlement.fromName)} → ${escapeHtml(settlement.toName)}
+                      </h3>
+                      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        ${settlement.description ? escapeHtml(settlement.description) : "Payment settlement"}
+                      </p>
+                    </div>
+                    <span class="text-sm font-bold text-amber-600 dark:text-amber-400 flex-shrink-0">
+                      $${parseFloat(settlement.amount).toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  <div class="mb-3 text-xs text-slate-500 dark:text-slate-400">
+                    Created ${new Date(settlement.createdAt).toLocaleDateString()}
+                    ${settlement.paymentMethod ? `via ${escapeHtml(settlement.paymentMethod)}` : ""}
+                  </div>
+                  
+                  <div class="pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+                    ${
+                      canConfirm
+                        ? `
+                      <button class="text-sm px-4 py-2 bg-green-600 dark:bg-green-700 text-white hover:bg-green-700 dark:hover:bg-green-600 rounded transition-colors flex-1 confirm-settlement-btn font-medium" data-settlement-id="${settlement.id}">
+                        Mark Paid
+                      </button>
+                    `
+                        : `
+                      <span class="text-xs px-4 py-2 text-slate-600 dark:text-slate-400 flex-1 text-center">
+                        Awaiting your confirmation
+                      </span>
+                    `
+                    }
+                  </div>
+                </div>
+              `;
+              })
+              .join("");
+
+            // Add event listeners to confirm buttons
+            document
+              .querySelectorAll(".confirm-settlement-btn")
+              .forEach((btn) => {
+                btn.addEventListener("click", async (e) => {
+                  const settlementId = e.target.dataset.settlementId;
+                  btn.disabled = true;
+                  btn.textContent = "Confirming...";
+
+                  try {
+                    const response = await fetch(
+                      `/api/settlements/${settlementId}/confirm`,
+                      { method: "PUT" },
+                    );
+                    if (response.ok) {
+                      showToast("Payment confirmed! 🎉");
+                      loadSettlements();
+                    } else {
+                      const error = await response.json();
+                      showToast(
+                        error.error || "Failed to confirm settlement",
+                        4000,
+                      );
+                      btn.disabled = false;
+                      btn.textContent = "Mark Paid";
+                    }
+                  } catch (error) {
+                    console.error("Error confirming settlement:", error);
+                    showToast("Error confirming settlement", 4000);
+                    btn.disabled = false;
+                    btn.textContent = "Mark Paid";
+                  }
+                });
+              });
+          }
+        }
+
+        // Display completed settlements
+        const completedSettlementsList = document.getElementById(
+          "completedSettlementsList",
+        );
+        const completedSettlementsEmpty = document.getElementById(
+          "completedSettlementsEmpty",
+        );
+
+        // Filter to only show completed settlements involving current user
+        const userCompletedSettlements = allCompletedSettlements.filter(
+          (s) => s.isCurrentUserPayer || s.isCurrentUserReceiver,
+        );
+
+        if (
+          !userCompletedSettlements ||
+          userCompletedSettlements.length === 0
+        ) {
+          if (completedSettlementsList)
+            completedSettlementsList.innerHTML =
+              completedSettlementsEmpty?.outerHTML || "";
+        } else {
+          if (completedSettlementsList) {
+            completedSettlementsList.innerHTML = userCompletedSettlements
+              .map((settlement) => {
+                return `
+                <div class="bg-green-50 dark:bg-slate-700 rounded-lg shadow-sm border border-green-200 dark:border-green-600 p-5 sm:p-6">
+                  <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1">
+                      <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
+                        ${escapeHtml(settlement.fromName)} → ${escapeHtml(settlement.toName)}
+                      </h3>
+                      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        ${settlement.description ? escapeHtml(settlement.description) : "Payment settlement"}
+                      </p>
+                    </div>
+                    <span class="text-sm font-bold text-green-600 dark:text-green-400 flex-shrink-0">
+                      $${parseFloat(settlement.amount).toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  <div class="mb-3 text-xs text-slate-500 dark:text-slate-400">
+                    Created ${new Date(settlement.createdAt).toLocaleDateString()}
+                    ${settlement.paymentMethod ? `via ${escapeHtml(settlement.paymentMethod)}` : ""}
+                    <br />
+                    <span class="text-green-600 dark:text-green-400 font-medium">
+                      ✓ Completed ${new Date(settlement.completedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              `;
+              })
+              .join("");
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load settlements:", error);
+      }
+    }
+
     // Update theme emoji based on dark class
 
     // Global theme toggle function accessible from HTML onclick
@@ -1678,6 +1922,8 @@ if (!sessionId) {
         await loadEvents();
         // Load user groups
         await loadGroups();
+        // Load pending settlements
+        await loadSettlements();
         // Update stats panel
         await updateStats();
         // Load pending invitations

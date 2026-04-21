@@ -579,8 +579,10 @@ const grandTotal = totalAmount + totalTips;
         if (result.success) {
           document.getElementById("addExpenseForm").reset();
           updateExpenseSummary();
-          alert("Expense added successfully!");
-          location.reload();
+          showToast("Expense added successfully!");
+          setTimeout(() => {
+            location.reload();
+          }, 1500);
         } else {
           console.error("❌ API returned error:", result.error);
           alert("Error: " + (result.error || "Failed to add expense"));
@@ -594,8 +596,21 @@ const grandTotal = totalAmount + totalTips;
       }
     });
 
+  // Toast notification helper
+  const toast = document.getElementById("toast");
+  const toastMessage = document.getElementById("toast-message");
+
+  function showToast(message) {
+    if (!toast || !toastMessage) return;
+    toastMessage.textContent = message;
+    toast.classList.remove("opacity-0");
+    setTimeout(() => {
+      toast.classList.add("opacity-0");
+    }, 3000);
+  }
+
   function editExpense(expenseId) {
-    alert("Edit functionality coming soon!");
+    showToast("Edit functionality coming soon!");
     // TODO: Implement edit modal
   }
 
@@ -615,8 +630,10 @@ const grandTotal = totalAmount + totalTips;
       const result = await response.json();
 
       if (result.success) {
-        alert("Expense deleted successfully!");
-        location.reload();
+        showToast("Expense deleted successfully!");
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
       } else {
         alert("Error: " + (result.error || "Failed to delete expense"));
       }

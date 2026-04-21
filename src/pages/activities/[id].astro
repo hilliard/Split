@@ -198,6 +198,55 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
             />
           </div>
 
+          <!-- Details/Metadata Section -->
+          <div>
+            <label
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Details (Flight #, Address, Attendees, etc.)
+            </label>
+
+            <!-- Template Selector -->
+            <div class="mb-4 flex gap-2 items-end">
+              <div class="flex-1">
+                <label
+                  for="templateSelect"
+                  class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                >
+                  Quick Templates
+                </label>
+                <select
+                  id="templateSelect"
+                  class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+                >
+                  <option value="">-- Select a template --</option>
+                  <option value="flight">✈️ Flight</option>
+                  <option value="hotel">🏨 Hotel</option>
+                  <option value="restaurant">🍽️ Restaurant/Dinner</option>
+                  <option value="tourist">🎫 Tourist Activity</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                id="applyTemplateBtn"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm whitespace-nowrap"
+              >
+                Apply Template
+              </button>
+            </div>
+
+            <div id="metadataContainer" class="space-y-3">
+              <!-- Dynamic metadata fields will be added here -->
+            </div>
+            <button
+              type="button"
+              id="addMetadataFieldBtn"
+              class="mt-3 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+            >
+              + Add Detail
+            </button>
+          </div>
+
           <!-- Buttons -->
           <div class="flex gap-3 pt-4">
             <button
@@ -230,6 +279,14 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
         </form>
       </div>
     </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div
+    id="toast"
+    class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 max-w-xs"
+  >
+    <span id="toast-message"></span>
   </div>
 
   <!-- Add Expense Modal -->
@@ -336,6 +393,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
       activityId: id,
       eventId: activity.eventId,
       userId: session.userId,
+      activity: activity,
     }}
   >
     const editForm = document.getElementById("editActivityForm");
@@ -345,6 +403,17 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
     const addExpenseForm = document.getElementById("addExpenseForm");
     const cancelExpenseBtn = document.getElementById("cancelExpenseBtn");
     const expenseError = document.getElementById("expenseError");
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+
+    // Toast notification helper
+    function showToast(message) {
+      toastMessage.textContent = message;
+      toast.classList.remove("opacity-0");
+      setTimeout(() => {
+        toast.classList.add("opacity-0");
+      }, 5000);
+    }
 
     // Open Add Expense Modal
     addExpenseBtn.addEventListener("click", () => {
@@ -423,7 +492,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
         }
 
         // Success
-        alert(`Expense of $${amount.toFixed(2)} added successfully!`);
+        showToast(`Expense of $${amount.toFixed(2)} added successfully!`);
         addExpenseModal.classList.add("hidden");
         addExpenseForm.reset();
         expenseError.classList.add("hidden");
@@ -434,10 +503,151 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
       }
     });
 
+    // Metadata field handlers
+    function addMetadataField(key = "", value = "") {
+      const container = document.getElementById("metadataContainer");
+      const fieldId = "metadata-" + Date.now() + Math.random();
+      const fieldHTML = `
+        <div class="flex gap-2" id="${fieldId}">
+          <input
+            type="text"
+            name="metadataKey"
+            placeholder="Key (e.g., Flight Number)"
+            value="${key}"
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+          />
+          <input
+            type="text"
+            name="metadataValue"
+            placeholder="Value (e.g., DL123)"
+            value="${value}"
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+          />
+          <button
+            type="button"
+            onclick="document.getElementById('${fieldId}').remove()"
+            class="px-3 py-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors text-sm font-medium"
+          >
+            ✕
+          </button>
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", fieldHTML);
+    }
+
+    const addMetadataFieldBtn = document.getElementById("addMetadataFieldBtn");
+    if (addMetadataFieldBtn) {
+      addMetadataFieldBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        addMetadataField();
+      });
+    }
+
+    // Template definitions
+    const templates = {
+      flight: [
+        ["Flight Number", ""],
+        ["Airline", ""],
+        ["Departure Time", ""],
+        ["Arrival Time", ""],
+        ["Departure Airport", ""],
+        ["Arrival Airport", ""],
+        ["Gate", ""],
+        ["Seat", ""],
+        ["Confirmation Code", ""],
+      ],
+      hotel: [
+        ["Hotel Name", ""],
+        ["Address", ""],
+        ["Check-in Date", ""],
+        ["Check-out Date", ""],
+        ["Confirmation Code", ""],
+        ["Room Type", ""],
+        ["Parking", ""],
+        ["Contact Number", ""],
+      ],
+      restaurant: [
+        ["Restaurant Name", ""],
+        ["Address", ""],
+        ["Reservation Time", ""],
+        ["Party Size", ""],
+        ["Reservation Name", ""],
+        ["Phone Number", ""],
+        ["Cuisine Type", ""],
+        ["Special Requests", ""],
+        ["Dietary Restrictions", ""],
+      ],
+      tourist: [
+        ["Location/Attraction", ""],
+        ["Address", ""],
+        ["Activity Duration", ""],
+        ["Meeting Point", ""],
+        ["Suggested Time", ""],
+        ["Entrance Fee", ""],
+        ["What to Bring", ""],
+        ["Contact Number", ""],
+      ],
+    };
+
+    // Apply template function
+    function applyTemplate(templateType) {
+      if (!templateType || !templates[templateType]) return;
+
+      const container = document.getElementById("metadataContainer");
+      container.innerHTML = ""; // Clear existing fields
+
+      templates[templateType].forEach(([key, value]) => {
+        addMetadataField(key, value);
+      });
+
+      showToast(
+        `${templateType.charAt(0).toUpperCase() + templateType.slice(1)} template applied!`,
+      );
+    }
+
+    // Template selector event listener
+    const templateSelect = document.getElementById("templateSelect");
+    const applyTemplateBtn = document.getElementById("applyTemplateBtn");
+
+    applyTemplateBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const selectedTemplate = templateSelect.value;
+      applyTemplate(selectedTemplate);
+    });
+
+    // Load existing metadata
+    function loadMetadata() {
+      if (
+        activity &&
+        activity.metadata &&
+        typeof activity.metadata === "object"
+      ) {
+        Object.entries(activity.metadata).forEach(([key, value]) => {
+          addMetadataField(key, String(value));
+        });
+      }
+    }
+
+    loadMetadata();
+
     editForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const formData = new FormData(editForm);
+
+      // Collect metadata fields
+      const metadata = {};
+      const metadataKeys = formData.getAll("metadataKey");
+      const metadataValues = formData.getAll("metadataValue");
+
+      for (let i = 0; i < metadataKeys.length; i++) {
+        const key = metadataKeys[i]?.trim();
+        const value = metadataValues[i]?.trim();
+        if (key && value) {
+          metadata[key] = value;
+        }
+      }
+
       const data = {
         activityId,
         eventId,
@@ -446,6 +656,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
         startTime: formData.get("startTime") || null,
         endTime: formData.get("endTime") || null,
         sequenceOrder: parseInt(formData.get("sequenceOrder")) || 0,
+        metadata: Object.keys(metadata).length > 0 ? metadata : {},
       };
 
       try {
@@ -466,8 +677,10 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
           return;
         }
 
-        alert("Activity updated successfully!");
-        window.location.href = `/activities/?eventId=${eventId}`;
+        showToast("Activity updated successfully!");
+        setTimeout(() => {
+          window.location.href = `/activities/?eventId=${eventId}`;
+        }, 1500);
       } catch (error) {
         alert("Error: " + error.message);
       }
@@ -503,8 +716,10 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
           return;
         }
 
-        alert("Activity deleted successfully!");
-        window.location.href = `/activities/index?eventId=${eventId}`;
+        showToast("Activity deleted successfully!");
+        setTimeout(() => {
+          window.location.href = `/activities/index?eventId=${eventId}`;
+        }, 1500);
       } catch (error) {
         alert("Error: " + error.message);
       }

@@ -292,6 +292,25 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             >
           </div>
 
+          <!-- Details/Metadata Section -->
+          <div>
+            <label
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Event Details (Location, Venue, Contact, etc.)
+            </label>
+            <div id="metadataContainer" class="space-y-3">
+              <!-- Dynamic metadata fields will be added here -->
+            </div>
+            <button
+              type="button"
+              id="addMetadataFieldBtn"
+              class="mt-3 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+            >
+              + Add Detail
+            </button>
+          </div>
+
           <!-- Add Expense Button -->
           <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
             <button
@@ -433,7 +452,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
       </div>
     </div>
 
-    <script define:vars={{ eventId: id, userId }}>
+    <script define:vars={{ eventId: id, userId, event }}>
       // Add Expense Modal
       const addExpenseBtn = document.getElementById("addExpenseBtn");
       const addEventExpenseModal = document.getElementById(
@@ -527,7 +546,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             }
 
             // Success
-            alert(`Expense of $${amount.toFixed(2)} added successfully!`);
+            showToast(`Expense of $${amount.toFixed(2)} added successfully!`);
             addEventExpenseModal.classList.add("hidden");
             addEventExpenseForm.reset();
             expenseError.classList.add("hidden");
@@ -898,6 +917,19 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
 
       // Update currency symbol
       const eventCurrencySelect = document.getElementById("eventCurrency");
+
+      // Toast notification helper
+      const toast = document.getElementById("toast");
+      const toastMessage = document.getElementById("toast-message");
+
+      function showToast(message) {
+        if (!toast || !toastMessage) return;
+        toastMessage.textContent = message;
+        toast.classList.remove("opacity-0");
+        setTimeout(() => {
+          toast.classList.add("opacity-0");
+        }, 3000);
+      }
       const budgetSymbol = document.getElementById("budgetSymbol");
       const currencySymbols = {
         USD: "$",
@@ -924,22 +956,93 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
       const editEventForm = document.getElementById("editEventForm");
       const eventError = document.getElementById("eventError");
 
+      // Metadata field handlers
+      function addMetadataField(key = "", value = "") {
+        const container = document.getElementById("metadataContainer");
+        const fieldId = "metadata-" + Date.now() + Math.random();
+        const fieldHTML = `
+          <div class="flex gap-2" id="${fieldId}">
+            <input
+              type="text"
+              name="metadataKey"
+              placeholder="Key (e.g., Venue Name)"
+              value="${key}"
+              class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+            />
+            <input
+              type="text"
+              name="metadataValue"
+              placeholder="Value (e.g., Grand Ballroom)"
+              value="${value}"
+              class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+            />
+            <button
+              type="button"
+              onclick="document.getElementById('${fieldId}').remove()"
+              class="px-3 py-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors text-sm font-medium"
+            >
+              ✕
+            </button>
+          </div>
+        `;
+        container.insertAdjacentHTML("beforeend", fieldHTML);
+      }
+
+      const addMetadataFieldBtn = document.getElementById(
+        "addMetadataFieldBtn",
+      );
+      if (addMetadataFieldBtn) {
+        addMetadataFieldBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          addMetadataField();
+        });
+      }
+
+      // Load existing metadata
+      function loadMetadata() {
+        if (event && event.metadata && typeof event.metadata === "object") {
+          Object.entries(event.metadata).forEach(([key, value]) => {
+            addMetadataField(key, String(value));
+          });
+        }
+      }
+
+      loadMetadata();
+
       if (editEventForm) {
         editEventForm.addEventListener("submit", async (e) => {
           e.preventDefault();
 
           const formData = new FormData(editEventForm);
+
+          // Collect metadata
+          const metadata = {};
+          const metadataKeys = formData.getAll("metadataKey");
+          const metadataValues = formData.getAll("metadataValue");
+
+          for (let i = 0; i < metadataKeys.length; i++) {
+            const key = metadataKeys[i]?.trim();
+            const value = metadataValues[i]?.trim();
+            if (key && value) {
+              metadata[key] = value;
+            }
+          }
+
           const data = {
             eventId: eventId,
-            name: formData.get("name"),
-            location: formData.get("location") || undefined,
-            startDate: formData.get("startDate") || undefined,
-            endDate: formData.get("endDate") || undefined,
+            title: formData.get("title"),
+            type: formData.get("type"),
             startTime: formData.get("startTime") || undefined,
             endTime: formData.get("endTime") || undefined,
+            timezone: formData.get("timezone"),
+            isVirtual:
+              document.getElementById("eventIsVirtual")?.checked || false,
+            isPublic:
+              document.getElementById("eventIsPublic")?.checked || false,
             currency: formData.get("currency"),
             budget: formData.get("budget") || undefined,
             description: formData.get("description") || undefined,
+            metadata: Object.keys(metadata).length > 0 ? metadata : {},
           };
 
           try {
@@ -958,7 +1061,10 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
                 eventError.classList.remove("hidden");
               }
             } else {
-              window.location.href = `/events/${eventId}`;
+              showToast("Event updated successfully!");
+              setTimeout(() => {
+                window.location.href = `/events/${eventId}`;
+              }, 1500);
             }
           } catch (error) {
             if (eventError) {
@@ -969,5 +1075,12 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
         });
       }
     </script>
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 max-w-xs"
+    >
+      <span id="toast-message"></span>
+    </div>
   </div></Layout
 >

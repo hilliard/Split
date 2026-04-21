@@ -1374,10 +1374,10 @@ if (!sessionId) {
         await loadEvents();
         // Load user groups
         await loadGroups();
-        // Load pending invitations
-        await loadPendingInvitations();
         // Update stats panel
         await updateStats();
+        // Load pending invitations
+        await loadPendingInvitations();
 
         // Setup theme toggle - with explicit logging
         console.log("Before setupThemeToggle");

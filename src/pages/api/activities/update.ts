@@ -16,6 +16,7 @@ const updateActivitySchema = z.object({
   endTime: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).optional(),
   locationName: z.string().max(255).optional().nullable(),
   sequenceOrder: z.number().int().nonnegative().optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export const POST: APIRoute = async (context) => {
@@ -131,6 +132,7 @@ export const POST: APIRoute = async (context) => {
         endTime: validatedData.endTime ? new Date(validatedData.endTime) : undefined,
         locationName: validatedData.locationName !== undefined ? validatedData.locationName : undefined,
         sequenceOrder: validatedData.sequenceOrder || undefined,
+        metadata: validatedData.metadata || undefined,
       })
       .where(eq(activities.id, validatedData.activityId))
       .returning();

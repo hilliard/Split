@@ -576,6 +576,19 @@ const userId = session.userId;
     const cancelEditBtn = document.getElementById("cancelEditBtn");
     const editActivityError = document.getElementById("editActivityError");
     const addExpenseModal = document.getElementById("addExpenseModal");
+    // Toast notification helper
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+
+    function showToast(message) {
+      if (!toast || !toastMessage) return;
+      toastMessage.textContent = message;
+      toast.classList.remove("opacity-0");
+      setTimeout(() => {
+        toast.classList.add("opacity-0");
+      }, 3000);
+    }
+
     const addExpenseForm = document.getElementById("addExpenseForm");
     const cancelExpenseBtn = document.getElementById("cancelExpenseBtn");
     const expenseError = document.getElementById("expenseError");
@@ -923,9 +936,11 @@ const userId = session.userId;
           return;
         }
 
-        alert(`Expense of $${amount.toFixed(2)} added successfully!`);
+        showToast(`Expense of $${amount.toFixed(2)} added successfully!`);
         closeExpenseModal();
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } catch (error) {
         expenseError.textContent = "An error occurred";
         expenseError.classList.remove("hidden");
@@ -934,5 +949,26 @@ const userId = session.userId;
 
     // Load groups when page loads
     window.addEventListener("load", loadGroups);
+
+    // Toast notification helper
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+
+    function showToast(message) {
+      if (!toast || !toastMessage) return;
+      toastMessage.textContent = message;
+      toast.classList.remove("opacity-0");
+      setTimeout(() => {
+        toast.classList.add("opacity-0");
+      }, 3000);
+    }
   </script>
+
+  <!-- Toast Notification -->
+  <div
+    id="toast"
+    class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 max-w-xs"
+  >
+    <span id="toast-message"></span>
+  </div>
 </Layout>

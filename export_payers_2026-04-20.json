@@ -1,0 +1,26 @@
+[
+  {
+    "user_id":"61994963-eb56-4d04-89af-8e1593a507ca",
+    "username":"sonny",
+    "first_name":"sonny",
+    "last_name":"",
+    "expenses_created":5,
+    "total_paid_dollars":827.52,
+    "avg_expense_dollars":165.5,
+    "total_tips_paid_dollars":34.6,
+    "first_expense_date":"2026-04-20T00:00:00.000",
+    "last_expense_date":"2026-04-20T00:00:00.000"
+  },
+  {
+    "user_id":"6d916ed5-f539-4a51-9e17-044d81c956d2",
+    "username":"johndoe",
+    "first_name":"johndoe",
+    "last_name":"",
+    "expenses_created":3,
+    "total_paid_dollars":36.81,
+    "avg_expense_dollars":12.27,
+    "total_tips_paid_dollars":4.47,
+    "first_expense_date":"2026-04-08T00:00:00.000",
+    "last_expense_date":"2026-04-09T00:00:00.000"
+  }
+]

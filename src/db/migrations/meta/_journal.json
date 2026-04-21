@@ -8,6 +8,13 @@
       "when": 1776683528805,
       "tag": "0000_regenerate_from_db",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776768079099,
+      "tag": "0001_broken_mesmero",
+      "breakpoints": true
     }
   ]
 }

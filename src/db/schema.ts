@@ -103,6 +103,7 @@ export const activities = pgTable(
     endTime: timestamp('end_time', { withTimezone: true }),
     locationName: varchar('location_name', { length: 255 }),
     sequenceOrder: integer('sequence_order').default(0),
+    metadata: json('metadata').$type<Record<string, unknown>>().default({} as any),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({

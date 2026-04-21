@@ -14,6 +14,7 @@ The database is now **fully portable** and analyzable:
 ### Architecture
 
 The database uses **integer cents** throughout (standard accounting practice):
+
 - `$100.50` is stored as `10050` (cents)
 - All analytics views automatically convert to dollars with proper formatting
 - This eliminates floating-point errors and ensures currency precision
@@ -23,6 +24,7 @@ The database uses **integer cents** throughout (standard accounting practice):
 All 8 views are in `analytics/materialized_views.sql` and are already created in your database.
 
 **Query them directly:**
+
 ```sql
 SELECT * FROM expense_summary_for_analysis;
 SELECT * FROM daily_spending_trend_for_analysis;
@@ -37,7 +39,7 @@ SELECT * FROM user_payer_summary_for_analysis;
 4. **category_spending_for_analysis** - Spending breakdown by expense category
 5. **group_spending_for_analysis** - Group-level spending summaries
 6. **user_payer_summary_for_analysis** - User statistics as expense creators
-7. **user_participant_summary_for_analysis** - User statistics as split participants  
+7. **user_participant_summary_for_analysis** - User statistics as split participants
 8. **events_summary_for_analysis** - Event-level spending overview
 
 ### Export Data (Node.js)
@@ -55,6 +57,7 @@ node scripts/export-data.js --view all --format csv --output ./exports/
 ```
 
 **Example Output:**
+
 ```bash
 $ node scripts/export-data.js --view expenses --format json
 
@@ -72,11 +75,13 @@ $ node scripts/export-data.js --view expenses --format json
 ### Export Data (Python)
 
 **Requirements:**
+
 ```bash
 pip install psycopg2-binary python-dotenv pandas pyarrow openpyxl
 ```
 
 **Export to CSV, JSON, Parquet, Excel:**
+
 ```bash
 # Export expenses to CSV
 python scripts/export-data.py --view expenses --format csv
@@ -88,6 +93,7 @@ python scripts/export-data.py --view all --format parquet --output-dir ./exports
 ```
 
 **Python Example:**
+
 ```python
 import pandas as pd
 from scripts.export_data import fetch_view_data
@@ -106,11 +112,13 @@ df.to_csv('expenses.csv', index=False)
 ### Direct Database Access
 
 **Connection String** (Neon PostgreSQL):
+
 ```
 postgresql://neondb_owner:PASSWORD@ep-twilight-flower-anebzpau-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require
 ```
 
 **From DBeaver/DataGrip/pgAdmin:**
+
 - Host: `ep-twilight-flower-anebzpau-pooler.c-6.us-east-1.aws.neon.tech`
 - Port: `5432`
 - Database: `neondb`
@@ -122,23 +130,27 @@ postgresql://neondb_owner:PASSWORD@ep-twilight-flower-anebzpau-pooler.c-6.us-eas
 All views work seamlessly with BI tools:
 
 #### Tableau
+
 1. New Data Source → PostgreSQL
 2. Enter connection details
 3. Select view (e.g., `expense_summary_for_analysis`)
 4. Create visualizations
 
 #### Power BI
+
 1. Get Data → PostgreSQL database
 2. Query: `SELECT * FROM expense_summary_for_analysis`
 3. Load into Power BI Desktop
 4. Create reports
 
 #### Excel
+
 1. Data → Get Data → From Database → PostgreSQL
 2. Query views or use export utilities
 3. Create pivot tables and charts
 
 #### Python/Pandas
+
 ```python
 import pandas as pd
 import psycopg2
@@ -148,9 +160,10 @@ df = pd.read_sql_query("SELECT * FROM daily_spending_trend_for_analysis;", conn)
 ```
 
 #### R
+
 ```r
 library(RPostgreSQL)
-conn <- dbConnect(PostgreSQL(), 
+conn <- dbConnect(PostgreSQL(),
   host="ep-twilight-flower-anebzpau-pooler.c-6.us-east-1.aws.neon.tech",
   user="neondb_owner",
   password=Sys.getenv("DB_PASSWORD"),
@@ -162,8 +175,9 @@ df <- dbGetQuery(conn, "SELECT * FROM expense_summary_for_analysis;")
 ### Data Dictionary
 
 See `DATABASE_DATA_DICTIONARY.md` for complete schema documentation:
+
 - All 8 tables explained
-- 40+ columns documented  
+- 40+ columns documented
 - Relationships between tables
 - Units and conversions
 - Example values and formats
@@ -171,24 +185,28 @@ See `DATABASE_DATA_DICTIONARY.md` for complete schema documentation:
 ### Important Notes
 
 **Currency Storage:**
+
 - Database stores ALL monetary values in **cents (integers)**
 - Views automatically convert to dollars with proper decimal places
 - No floating-point precision issues
 - Example: $3.45 is stored as `345` cents and displayed as `3.45` dollars
 
 **Units in Views:**
+
 - All `*_dollars` columns are properly formatted (e.g., 10.50 for $10.50)
 - All `*_cents` columns are integers
 - Amounts always include tips
 - No manual math needed in BI tools
 
 **Performance:**
+
 - Views use LEFT JOINs - safe for analysis (won't lose data due to missing joins)
 - All date fields are DATE type and timezone-aware
 - Indexes on all foreign keys ensure fast aggregations
 - Designed for analytical queries on 10k-1M expense records
 
 **Data Freshness:**
+
 - Views query live tables (not snapshots)
 - To create a fresh export: run export script
 - No materialization delay - always current
@@ -200,7 +218,7 @@ See `DATABASE_DATA_DICTIONARY.md` for complete schema documentation:
 ```sql
 DROP VIEW IF EXISTS my_custom_analysis CASCADE;
 CREATE VIEW my_custom_analysis AS
-SELECT 
+SELECT
   e.created_at::DATE AS expense_date,
   COUNT(*) AS daily_expense_count,
   ROUND(SUM(e.amount) / 100.0::NUMERIC, 2) AS daily_total_dollars
@@ -210,6 +228,7 @@ ORDER BY expense_date DESC;
 ```
 
 **Then execute:**
+
 ```bash
 node execute-views.mjs
 ```
@@ -217,19 +236,23 @@ node execute-views.mjs
 ### Troubleshooting
 
 **"Connection failed" error:**
+
 - Check `.env.local` has `DATABASE_URL`
 - Verify credentials and Neon connection is active
 - Test: `psql $DATABASE_URL -c "SELECT 1;"`
 
 **"View not found" error:**
+
 - Views might not be created yet: `node execute-views.mjs`
 - Verify: `SELECT table_name FROM information_schema.views WHERE table_schema = 'public';`
 
 **Export has wrong amounts:**
+
 - Check the view exports (should be in dollars already converted)
 - All `*_dollars` columns are properly formatted from cents
 
 **Large dataset performance:**
+
 - Use Parquet format for large exports (more efficient than CSV)
 - Consider exporting to cloud storage (S3, GCS) for BI tools
 - Add WHERE clauses to views for date ranges
@@ -245,6 +268,7 @@ node execute-views.mjs
 ### Next Steps
 
 1. **Explore the data:**
+
    ```bash
    node scripts/export-data.js --view all --format csv --output ./exports/
    ```

@@ -150,17 +150,19 @@ const budget = event.budgetCents
               {endDate}
             </p>
           </div>
-          <div>
-            <p
-              class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2"
-            >
-              Total Budget
-            </p>
-            <p class="text-lg font-semibold text-green-600 dark:text-green-400">
-              {event.currency}
-              {budget}
-            </p>
-          </div>
+          {
+            event.budgetCents && event.budgetCents > 0 && (
+              <div>
+                <p class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                  Total Budget
+                </p>
+                <p class="text-lg font-semibold text-green-600 dark:text-green-400">
+                  {event.currency}
+                  {budget}
+                </p>
+              </div>
+            )
+          }
         </div>
 
         <!-- Action Buttons -->
@@ -177,6 +179,12 @@ const budget = event.budgetCents
           >
             📋 Manage Activities
           </a>
+          <button
+            id="exportItineraryBtn"
+            class="inline-flex items-center px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            📄 Export Itinerary
+          </button>
           <button
             id="deleteBtn"
             class="inline-flex items-center px-6 py-2.5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors font-medium"
@@ -247,13 +255,61 @@ const budget = event.budgetCents
 
       <!-- Trip Breakdown Section -->
       <div
-        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 mb-6"
       >
         <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">
           💰 Trip Breakdown
         </h2>
         <div id="breakdownContent" class="space-y-4">
           <p class="text-slate-600 dark:text-slate-400">Loading breakdown...</p>
+        </div>
+      </div>
+
+      <!-- Detailed Breakdown Section -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 mb-6"
+      >
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6">
+          📊 Detailed Trip Summary
+        </h2>
+
+        <!-- Individual Balances -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            Individual Balances
+          </h3>
+          <div
+            id="individualBalances"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            <p class="text-slate-600 dark:text-slate-400">
+              Loading balances...
+            </p>
+          </div>
+        </div>
+
+        <!-- Expenses by Category -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            Expenses by Category
+          </h3>
+          <div id="expensesByCategory" class="space-y-6">
+            <p class="text-slate-600 dark:text-slate-400">
+              Loading expenses...
+            </p>
+          </div>
+        </div>
+
+        <!-- Settlement Summary -->
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            Settlement Summary
+          </h3>
+          <div id="settlementSummary" class="space-y-3">
+            <p class="text-slate-600 dark:text-slate-400">
+              Loading settlements...
+            </p>
+          </div>
         </div>
       </div>
 
@@ -734,14 +790,29 @@ const budget = event.budgetCents
                 >
                   Tip ($)
                 </label>
-                <input
-                  type="number"
-                  id="editExpenseTip"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-                />
+                <div class="flex gap-2">
+                  <input
+                    type="number"
+                    id="editExpenseTip"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    class="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                  />
+                  <button
+                    type="button"
+                    id="editExpenseTipBtn"
+                    class="px-3 py-3 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors font-medium text-sm whitespace-nowrap"
+                    title="Suggest 20% tip based on amount"
+                  >
+                    💡 20%
+                  </button>
+                </div>
+                <p
+                  id="editExpenseTipSuggest"
+                  class="text-xs text-slate-500 dark:text-slate-400 mt-1"
+                >
+                </p>
               </div>
             </div>
 
@@ -1178,6 +1249,44 @@ const budget = event.budgetCents
       });
     }
 
+    // Export itinerary handler
+    const exportItineraryBtn = document.getElementById("exportItineraryBtn");
+    if (exportItineraryBtn) {
+      exportItineraryBtn.addEventListener("click", async () => {
+        try {
+          const response = await fetch("/api/itinerary/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              eventId: eventId,
+              format: "html",
+            }),
+          });
+
+          if (response.ok) {
+            // Create blob and download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download =
+              response.headers
+                .get("content-disposition")
+                ?.split("filename=")[1]
+                ?.replace(/"/g, "") || "itinerary.html";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          } else {
+            alert("Failed to generate itinerary");
+          }
+        } catch (error) {
+          alert("Error generating itinerary: " + error.message);
+        }
+      });
+    }
+
     // Load group and activities
     console.log("Event ID:", eventId);
     const groupMembers = document.getElementById("groupMembers");
@@ -1237,6 +1346,16 @@ const budget = event.budgetCents
                 </div>
               </div>
             `;
+            // Attach event listener to the newly created button
+            const selectExistingGroupBtn = document.getElementById(
+              "selectExistingGroupBtn",
+            );
+            if (selectExistingGroupBtn) {
+              selectExistingGroupBtn.addEventListener("click", async () => {
+                selectGroupModal.classList.remove("hidden");
+                await loadUserGroups();
+              });
+            }
           }
         }
       } catch (error) {
@@ -1376,6 +1495,8 @@ const budget = event.budgetCents
         expense.description;
       document.getElementById("editExpenseCategory").value = expense.category;
       modal.classList.remove("hidden");
+      // Update tip suggestion when modal opens
+      updateEditExpenseTipSuggestion();
     }
 
     // Edit Expense Modal Handlers
@@ -1428,7 +1549,8 @@ const budget = event.budgetCents
               loadContent();
               updateTripTotal(); // Update trip total
               loadBreakdown(); // Update breakdown
-              alert("Expense deleted successfully");
+              loadDetailedSummary(); // Update detailed summary
+              showToast("Expense deleted successfully");
             } else {
               const error = await response.json();
               alert(
@@ -1439,6 +1561,42 @@ const budget = event.budgetCents
             alert("Error deleting expense: " + error.message);
           }
         }
+      });
+    }
+
+    // Calculate tip suggestion for edit expense
+    const editExpenseTipBtn = document.getElementById("editExpenseTipBtn");
+    const editExpenseAmountInput = document.getElementById("editExpenseAmount");
+    const editExpenseTipInput = document.getElementById("editExpenseTip");
+    const editExpenseTipSuggest = document.getElementById(
+      "editExpenseTipSuggest",
+    );
+
+    // Update tip suggestion when amount changes
+    function updateEditExpenseTipSuggestion() {
+      if (!editExpenseAmountInput) return;
+      const amount = parseFloat(editExpenseAmountInput.value) || 0;
+      if (amount > 0) {
+        const tip20 = parseFloat((amount * 0.2).toFixed(2));
+        editExpenseTipSuggest.textContent = `Suggested 20% tip: $${tip20.toFixed(2)}`;
+      } else {
+        editExpenseTipSuggest.textContent = "";
+      }
+    }
+
+    if (editExpenseAmountInput) {
+      editExpenseAmountInput.addEventListener(
+        "input",
+        updateEditExpenseTipSuggestion,
+      );
+    }
+
+    if (editExpenseTipBtn) {
+      editExpenseTipBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const amount = parseFloat(editExpenseAmountInput.value) || 0;
+        const tip20 = parseFloat((amount * 0.2).toFixed(2));
+        editExpenseTipInput.value = tip20;
       });
     }
 
@@ -1486,7 +1644,8 @@ const budget = event.budgetCents
             loadContent();
             updateTripTotal(); // Update trip total
             loadBreakdown(); // Update breakdown
-            alert("Expense updated successfully");
+            loadDetailedSummary(); // Update detailed summary
+            showToast("Expense updated successfully");
           } else {
             const error = await response.json();
             editExpenseError.textContent =
@@ -1648,6 +1807,7 @@ const budget = event.budgetCents
             loadContent(); // Refresh activities and expenses list
             updateTripTotal(); // Update trip total
             loadBreakdown(); // Update breakdown
+            loadDetailedSummary(); // Update detailed summary
           }
         } catch (error) {
           if (activityError) {
@@ -1887,7 +2047,8 @@ const budget = event.budgetCents
             loadContent(); // Refresh activities and expenses list
             updateTripTotal(); // Update trip total
             loadBreakdown(); // Update breakdown
-            alert("✅ Expense added successfully!");
+            loadDetailedSummary(); // Update detailed summary
+            showToast("✅ Expense added successfully!");
           }
         } catch (error) {
           if (directExpenseError) {
@@ -1903,20 +2064,10 @@ const budget = event.budgetCents
 
     // Group linking handlers
     const selectGroupModal = document.getElementById("selectGroupModal");
-    const selectExistingGroupBtn = document.getElementById(
-      "selectExistingGroupBtn",
-    );
     const cancelSelectGroupBtn = document.getElementById(
       "cancelSelectGroupBtn",
     );
     const groupsList = document.getElementById("groupsList");
-
-    if (selectExistingGroupBtn) {
-      selectExistingGroupBtn.addEventListener("click", async () => {
-        selectGroupModal.classList.remove("hidden");
-        await loadUserGroups();
-      });
-    }
 
     if (cancelSelectGroupBtn) {
       cancelSelectGroupBtn.addEventListener("click", () => {
@@ -1972,7 +2123,7 @@ const budget = event.budgetCents
         });
 
         if (response.ok) {
-          alert(`✅ Event linked to group "${groupName}"`);
+          showToast(`✅ Event linked to group "${groupName}"`);
           selectGroupModal.classList.add("hidden");
           loadGroupInfo(); // Refresh group info
         } else {
@@ -2019,6 +2170,172 @@ const budget = event.budgetCents
         }
       } catch (error) {
         console.error("Failed to update trip total:", error);
+      }
+    }
+
+    // Load and display detailed trip summary
+    async function loadDetailedSummary() {
+      try {
+        // Get all expenses
+        const expensesResponse = await fetch(
+          `/api/expenses/list?eventId=${eventId}`,
+        );
+        if (!expensesResponse.ok) return;
+
+        const expensesData = await expensesResponse.json();
+        const expenses = expensesData.expenses || [];
+
+        // Get balances/settlements
+        const balancesResponse = await fetch(
+          `/api/expenses/balances?eventId=${eventId}`,
+        );
+        if (!balancesResponse.ok) return;
+
+        const balancesData = await balancesResponse.json();
+        const settlements = balancesData.settlements || [];
+
+        // Calculate individual balances
+        const personBalances = {};
+        expenses.forEach((expense) => {
+          // Add to payer
+          if (!personBalances[expense.payerName]) {
+            personBalances[expense.payerName] = { paid: 0, owed: 0 };
+          }
+          personBalances[expense.payerName].paid += expense.total;
+
+          // Add to those who owe
+          if (expense.splits) {
+            expense.splits.forEach((split) => {
+              const splitPerson = Object.values(
+                balancesData.members || {},
+              ).find((m) => m.id === split.userId);
+              if (splitPerson) {
+                const personName = splitPerson.name;
+                if (!personBalances[personName]) {
+                  personBalances[personName] = { paid: 0, owed: 0 };
+                }
+                personBalances[personName].owed += parseFloat(
+                  split.amountDollars,
+                );
+              }
+            });
+          }
+        });
+
+        // Display individual balances
+        const balancesEl = document.getElementById("individualBalances");
+        if (balancesEl) {
+          balancesEl.innerHTML = Object.entries(personBalances)
+            .map(
+              ([name, balance]) => `
+            <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+              <p class="font-semibold text-slate-900 dark:text-white mb-3">${name}</p>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-slate-600 dark:text-slate-400">Paid</span>
+                  <span class="font-semibold text-green-600 dark:text-green-400">$${balance.paid.toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-600 dark:text-slate-400">Owes</span>
+                  <span class="font-semibold text-red-600 dark:text-red-400">$${balance.owed.toFixed(2)}</span>
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-600 pt-2 flex justify-between">
+                  <span class="font-semibold text-slate-900 dark:text-white">Net</span>
+                  <span class="font-bold ${balance.paid - balance.owed >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}">
+                    $${(balance.paid - balance.owed).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          `,
+            )
+            .join("");
+        }
+
+        // Group expenses by category
+        const expensesByCtg = {};
+        expenses.forEach((expense) => {
+          const category = expense.category || "Miscellaneous";
+          if (!expensesByCtg[category]) {
+            expensesByCtg[category] = [];
+          }
+          expensesByCtg[category].push(expense);
+        });
+
+        // Display expenses by category
+        const categoryEl = document.getElementById("expensesByCategory");
+        if (categoryEl) {
+          categoryEl.innerHTML = Object.entries(expensesByCtg)
+            .map(
+              ([category, categoryExpenses]) => `
+            <div>
+              <h4 class="font-semibold text-slate-900 dark:text-white mb-3 capitalize">${category}</h4>
+              <div class="space-y-2">
+                ${categoryExpenses
+                  .map(
+                    (exp) => `
+                  <div class="p-3 bg-slate-50 dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600">
+                    <div class="flex justify-between items-start mb-1">
+                      <div>
+                        <p class="font-medium text-slate-900 dark:text-white">${exp.description}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Paid by ${exp.payerName}</p>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-semibold text-slate-900 dark:text-white">$${exp.amount.toFixed(2)}</p>
+                        ${exp.tip > 0 ? `<p class="text-xs text-slate-500 dark:text-slate-400">+ $${exp.tip.toFixed(2)} tip</p>` : ""}
+                      </div>
+                    </div>
+                    ${
+                      exp.splits && exp.splits.length > 0
+                        ? `
+                      <div class="text-xs text-slate-600 dark:text-slate-400 mt-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                        Split among ${exp.splits.length} people
+                      </div>
+                    `
+                        : ""
+                    }
+                  </div>
+                `,
+                  )
+                  .join("")}
+              </div>
+            </div>
+          `,
+            )
+            .join("");
+        }
+
+        // Display settlement summary
+        const settlementEl = document.getElementById("settlementSummary");
+        if (settlementEl) {
+          if (settlements.length === 0) {
+            settlementEl.innerHTML = `
+              <div class="text-center p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <p class="text-green-700 dark:text-green-300 font-semibold">✅ All settled up!</p>
+                <p class="text-sm text-green-600 dark:text-green-400">No one owes anyone money.</p>
+              </div>
+            `;
+          } else {
+            settlementEl.innerHTML = settlements
+              .map(
+                (s) => `
+              <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <p class="font-semibold text-slate-900 dark:text-white">
+                  <span class="text-amber-700 dark:text-amber-300">${s.fromName}</span>
+                  owes
+                  <span class="text-amber-700 dark:text-amber-300">${s.toName}</span>
+                </p>
+                <p class="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">
+                  $${s.amount.toFixed(2)}
+                </p>
+              </div>
+            `,
+              )
+              .join("");
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load detailed summary:", error);
       }
     }
 
@@ -2076,9 +2393,31 @@ const budget = event.budgetCents
     }
 
     // Initialize: Load group info, content, total, and breakdown
+    // Toast notification helper
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+
+    function showToast(message) {
+      if (!toast || !toastMessage) return;
+      toastMessage.textContent = message;
+      toast.classList.remove("opacity-0");
+      setTimeout(() => {
+        toast.classList.add("opacity-0");
+      }, 3000);
+    }
+
     loadGroupInfo();
     loadContent();
     updateTripTotal();
     loadBreakdown();
+    loadDetailedSummary();
   </script>
+
+  <!-- Toast Notification -->
+  <div
+    id="toast"
+    class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 max-w-xs"
+  >
+    <span id="toast-message"></span>
+  </div>
 </Layout>

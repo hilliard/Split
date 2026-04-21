@@ -83,22 +83,26 @@ export const POST: APIRoute = async (context) => {
       }
     }
 
-    // Update event
+    // Update event - only set fields that have values
+    const updateData: any = {
+      title: validatedData.title,
+      currency: validatedData.currency,
+    };
+
+    // Add optional fields only if provided
+    if (validatedData.description !== undefined) updateData.description = validatedData.description || null;
+    if (validatedData.type !== undefined) updateData.type = validatedData.type;
+    if (validatedData.startTime !== undefined) updateData.startTime = validatedData.startTime;
+    if (validatedData.endTime !== undefined) updateData.endTime = validatedData.endTime;
+    if (validatedData.timezone !== undefined) updateData.timezone = validatedData.timezone;
+    if (validatedData.isVirtual !== undefined) updateData.isVirtual = validatedData.isVirtual;
+    if (validatedData.isPublic !== undefined) updateData.isPublic = validatedData.isPublic;
+    if (validatedData.metadata !== undefined) updateData.metadata = validatedData.metadata;
+    if (validatedData.budget !== undefined) updateData.budgetCents = validatedData.budget ? Math.round(parseFloat(validatedData.budget) * 100) : null;
+
     const [updatedEvent] = await db
       .update(events)
-      .set({
-        title: validatedData.title,
-        description: validatedData.description || null,
-        type: validatedData.type || undefined,
-        startTime: validatedData.startTime || undefined,
-        endTime: validatedData.endTime || undefined,
-        timezone: validatedData.timezone || undefined,
-        isVirtual: validatedData.isVirtual !== undefined ? validatedData.isVirtual : undefined,
-        isPublic: validatedData.isPublic !== undefined ? validatedData.isPublic : undefined,
-        currency: validatedData.currency,
-        metadata: validatedData.metadata || undefined,
-        budgetCents: validatedData.budget ? Math.round(parseFloat(validatedData.budget) * 100) : null,
-      })
+      .set(updateData)
       .where(eq(events.id, validatedData.eventId))
       .returning();
 

@@ -272,8 +272,9 @@ import Layout from "../../layouts/Layout.astro";
       });
 
       if (response.ok) {
-        // Redirect to login on successful registration
-        window.location.href = "/auth/login";
+        const data = await response.json();
+        // Redirect to verification pending page
+        window.location.href = `/auth/verification-pending?email=${encodeURIComponent(email)}&customerId=${data.customerId}`;
       } else {
         const error = await response.json();
         registerError!.textContent = error.error || "Registration failed";

@@ -1,11 +1,13 @@
 import type { APIRoute } from 'astro';
-import { hashPassword, createSession } from '../../../utils';
+import { hashPassword } from '../../../utils';
 import { registerSchema } from '../../../utils/validation';
 import { getCustomerByUsername, getHumanByEmail, createHumanWithCustomer } from '../../../db/queries';
 import { db } from '../../../db';
 import { pendingGroupInvitations, groupMembers } from '../../../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { ZodError } from 'zod';
+import { createVerificationToken } from '../../../utils/emailVerification';
+import { sendVerificationEmail } from '../../../utils/email';
 
 export const POST: APIRoute = async (context) => {
   try {
@@ -61,6 +63,27 @@ export const POST: APIRoute = async (context) => {
     console.log('✓ Email history created');
     console.log('✓ Customer role assigned');
     
+    // Create verification token
+    console.log('🔐 Creating verification token...');
+    const token = await createVerificationToken(result.customerId, validatedData.email, 24);
+    console.log('✓ Verification token created');
+    
+    // Send verification email
+    console.log('📧 Sending verification email...');
+    const verificationUrl = `${process.env.PUBLIC_URL || 'http://localhost:4321'}/auth/verify-email?token=${token}&email=${encodeURIComponent(validatedData.email)}`;
+    const emailResult = await sendVerificationEmail({
+      recipientEmail: validatedData.email,
+      firstName: validatedData.username.split('.')[0] || validatedData.username,
+      verificationUrl,
+    });
+    
+    if (!emailResult.success) {
+      console.warn('⚠️  Failed to send verification email:', emailResult.error);
+      // Don't fail registration, just warn
+    } else {
+      console.log('✓ Verification email sent');
+    }
+    
     // Check for pending group invitations and auto-add user
     console.log('👥 Checking for pending group invitations...');
     const pendingInvites = await db
@@ -96,25 +119,12 @@ export const POST: APIRoute = async (context) => {
       }
     }
     
-    // Create session using human ID
-    console.log('🔑 Creating session...');
-    const sessionId = await createSession(result.humanId);
-    console.log('✓ Session created');
-    
-    // Set session cookie
-    context.cookies.set('sessionId', sessionId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: '/',
-    });
-    
     return new Response(JSON.stringify({
       success: true,
       humanId: result.humanId,
       customerId: result.customerId,
-      message: 'Registered successfully',
+      email: validatedData.email,
+      message: 'Registration successful! Check your email to verify your account.',
     }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },

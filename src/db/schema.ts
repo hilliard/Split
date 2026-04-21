@@ -32,7 +32,9 @@ export const customers = pgTable(
       .notNull()
       .references(() => humans.id, { onDelete: 'cascade' }),
     username: varchar('username', { length: 255 }).notNull().unique(),
+    email: varchar('email', { length: 255 }).notNull().unique(),
     passwordHash: text('password_hash').notNull(),
+    emailVerified: boolean('email_verified').default(false).notNull(),
     loyaltyPoints: integer('loyalty_points').default(0),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -40,6 +42,8 @@ export const customers = pgTable(
   (table) => ({
     humanIdx: index('customers_human_idx').on(table.humanId),
     usernameIdx: index('customers_username_idx').on(table.username),
+    emailIdx: index('customers_email_idx').on(table.email),
+    verifiedIdx: index('customers_verified_idx').on(table.emailVerified),
   })
 );
 
@@ -271,6 +275,28 @@ export const sessions = pgTable(
   })
 );
 
+// Email verification tokens - for email verification workflow
+export const emailVerificationTokens = pgTable(
+  'email_verification_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    customerId: uuid('customer_id')
+      .notNull()
+      .references(() => customers.id, { onDelete: 'cascade' }),
+    email: varchar('email', { length: 255 }).notNull(),
+    token: text('token').notNull().unique(),
+    expiresAt: timestamp('expires_at').notNull(),
+    verifiedAt: timestamp('verified_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    customerIdx: index('email_tokens_customer_idx').on(table.customerId),
+    emailIdx: index('email_tokens_email_idx').on(table.email),
+    tokenIdx: index('email_tokens_token_idx').on(table.token),
+    expiresAtIdx: index('email_tokens_expires_at_idx').on(table.expiresAt),
+  })
+);
+
 // Relations
 export const humansRelations = relations(humans, ({ many }) => ({
   events: many(events),
@@ -376,6 +402,13 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(humans, {
     fields: [sessions.userId],
     references: [humans.id],
+  }),
+}));
+
+export const emailVerificationTokensRelations = relations(emailVerificationTokens, ({ one }) => ({
+  customer: one(customers, {
+    fields: [emailVerificationTokens.customerId],
+    references: [customers.id],
   }),
 }));
 

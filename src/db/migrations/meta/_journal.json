@@ -22,6 +22,13 @@
       "when": 1776774550007,
       "tag": "0002_add_metadata_to_expenses",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1776798668430,
+      "tag": "0003_loose_mulholland_black",
+      "breakpoints": true
     }
   ]
 }

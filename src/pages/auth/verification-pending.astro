@@ -1,0 +1,158 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+// Get email from URL query or redirect to register
+const { email, customerId } = Astro.url.searchParams as any;
+
+// Simple check - if no email, redirect to register
+if (!email) {
+  return Astro.redirect("/auth/register");
+}
+---
+
+<Layout title="Verify Your Email - Split">
+  <div
+    class="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 flex items-center justify-center px-4"
+  >
+    <div class="w-full max-w-md">
+      <div class="bg-white rounded-lg shadow-xl p-8 space-y-6">
+        <!-- Icon -->
+        <div class="flex justify-center">
+          <div
+            class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center"
+          >
+            <svg
+              class="w-8 h-8 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Heading -->
+        <div class="text-center space-y-2">
+          <h1 class="text-2xl font-bold text-gray-900">Check your email</h1>
+          <p class="text-gray-600">We've sent a verification link to:</p>
+          <p class="text-lg font-semibold text-blue-600 break-all">{email}</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+          <h2 class="font-semibold text-gray-900">Next steps:</h2>
+          <ol class="space-y-2 text-sm text-gray-700">
+            <li class="flex gap-3">
+              <span
+                class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold"
+                >1</span
+              >
+              <span>Check your email inbox for the verification link</span>
+            </li>
+            <li class="flex gap-3">
+              <span
+                class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold"
+                >2</span
+              >
+              <span>Click the link to verify your email address</span>
+            </li>
+            <li class="flex gap-3">
+              <span
+                class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold"
+                >3</span
+              >
+              <span
+                >You'll be automatically logged in and redirected to the
+                dashboard</span
+              >
+            </li>
+          </ol>
+        </div>
+
+        <!-- Spam warning -->
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <p class="text-sm text-amber-800">
+            💡 <strong>Can't find the email?</strong> Check your spam or junk folder.
+            It may take up to 5 minutes to arrive.
+          </p>
+        </div>
+
+        <!-- Resend link -->
+        <div class="text-center space-y-3 pt-4 border-t border-gray-200">
+          <p class="text-sm text-gray-600">Didn't receive the link?</p>
+          <button
+            id="resendBtn"
+            class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Resend Verification Email
+          </button>
+          <p id="resendStatus" class="text-sm text-gray-500 hidden"></p>
+        </div>
+
+        <!-- Back to login -->
+        <div class="text-center pt-4">
+          <a
+            href="/auth/login"
+            class="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Back to login
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const resendBtn = document.getElementById("resendBtn");
+    const resendStatus = document.getElementById("resendStatus");
+    const email = new URLSearchParams(window.location.search).get("email");
+    const customerId = new URLSearchParams(window.location.search).get(
+      "customerId",
+    );
+
+    if (resendBtn) {
+      resendBtn.addEventListener("click", async () => {
+        try {
+          resendBtn.disabled = true;
+          resendStatus.textContent = "Sending...";
+          resendStatus.classList.remove("hidden", "text-red-500");
+          resendStatus.classList.add("text-gray-500");
+
+          const response = await fetch("/api/auth/resend-verification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, customerId }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            resendStatus.textContent = "✓ Email sent! Check your inbox.";
+            resendStatus.classList.add("text-green-600");
+            resendBtn.disabled = true;
+
+            // Re-enable after 30 seconds
+            setTimeout(() => {
+              resendBtn.disabled = false;
+              resendStatus.classList.add("hidden");
+            }, 30000);
+          } else {
+            resendStatus.textContent = data.error || "Failed to resend email";
+            resendStatus.classList.add("text-red-500");
+            resendBtn.disabled = false;
+          }
+        } catch (error) {
+          resendStatus.textContent = "Error sending email. Please try again.";
+          resendStatus.classList.add("text-red-500");
+          resendBtn.disabled = false;
+        }
+      });
+    }
+  </script>
+</Layout>

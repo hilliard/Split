@@ -1,0 +1,147 @@
+{
+  "count": 4,
+  "events": [
+    {
+      "createdAt": "2026-04-20T15:41:55.704Z",
+      "creatorId": "61994963-eb56-4d04-89af-8e1593a507ca",
+      "creatorName": "sonny",
+      "description": "yello brick road",
+      "endTime": "2026-04-21T15:41:00.000Z",
+      "id": "765856eb-d894-4ea8-ac27-60941d365a41",
+      "startTime": "2026-04-20T15:41:00.000Z",
+      "title": "Trip To OZ"
+    },
+    {
+      "createdAt": "2026-04-21T10:04:10.819Z",
+      "creatorId": "61994963-eb56-4d04-89af-8e1593a507ca",
+      "creatorName": "sonny",
+      "description": "Celebrating the Big '50'",
+      "endTime": "2026-05-19T04:03:00.000Z",
+      "id": "8e130393-445b-42f2-9dca-2315369b553a",
+      "startTime": "2026-05-17T04:03:00.000Z",
+      "title": "Teresa's Birthday Bash 2026"
+    },
+    {
+      "createdAt": "2026-04-21T18:01:20.321Z",
+      "creatorId": "f0abac11-f1ab-4350-9840-bbc126bdc10d",
+      "creatorName": "Alice Test",
+      "description": "Weekend trip to Denver with friends",
+      "endTime": "2026-04-24T18:01:20.321Z",
+      "id": "959b9678-545f-449f-b839-4b35573532df",
+      "startTime": "2026-04-22T18:01:20.321Z",
+      "title": "Denver Weekend Trip"
+    },
+    {
+      "createdAt": "2026-04-21T18:01:20.365Z",
+      "creatorId": "f0abac11-f1ab-4350-9840-bbc126bdc10d",
+      "creatorName": "Alice Test",
+      "description": "Team celebration lunch",
+      "endTime": null,
+      "id": "ef74d380-7ea1-4071-a97c-e1acdc9ba281",
+      "startTime": "2026-04-24T18:01:20.321Z",
+      "title": "Team Lunch"
+    }
+  ],
+  "status": "ok"
+}
+ 
+output.
+
+{
+  "success": true,
+  "balances": [
+    {
+      "userId": "61994963-eb56-4d04-89af-8e1593a507ca",
+      "name": "sonny",
+      "paidAmount": 827.52,
+      "owesAmount": 413.76,
+      "netBalance": 0
+    },
+    {
+      "userId": "75169a5c-569c-4606-b643-12590ae16c6e",
+      "name": "cathyd",
+      "paidAmount": 0,
+      "owesAmount": 413.76,
+      "netBalance": 0
+    }
+  ],
+  "settlements": [
+    {
+      "from": "75169a5c-569c-4606-b643-12590ae16c6e",
+      "fromName": "cathyd",
+      "to": "61994963-eb56-4d04-89af-8e1593a507ca",
+      "toName": "sonny",
+      "amount": 413.76
+    }
+  ],
+  "completedSettlements": [],
+  "summary": {
+    "totalExpenses": 827.52,
+    "settlementsNeeded": 1,
+    "completedSettlements": 0
+  }
+}
+
+
+{
+  "success": true,
+  "balances": [
+    {
+      "userId": "f0abac11-f1ab-4350-9840-bbc126bdc10d",
+      "name": "Alice Test",
+      "paidAmount": 400,
+      "owesAmount": 148.5,
+      "netBalance": 0
+    },
+    {
+      "userId": "83be5978-28bd-4be6-8f80-b0b59ac5fd2f",
+      "name": "Charlie Test",
+      "paidAmount": 144,
+      "owesAmount": 148.5,
+      "netBalance": 0
+    },
+    {
+      "userId": "f93fb85a-6356-49dc-8e11-7eed1e15de74",
+      "name": "Frank Test",
+      "paidAmount": 50,
+      "owesAmount": 148.5,
+      "netBalance": 0
+    },
+    {
+      "userId": "cdc6bb16-7730-4bc5-a9c1-626a08579fd3",
+      "name": "Grace Test",
+      "paidAmount": 0,
+      "owesAmount": 148.5,
+      "netBalance": 0
+    }
+  ],
+  "settlements": [
+    {
+      "from": "cdc6bb16-7730-4bc5-a9c1-626a08579fd3",
+      "fromName": "Grace Test",
+      "to": "f0abac11-f1ab-4350-9840-bbc126bdc10d",
+      "toName": "Alice Test",
+      "amount": 148.5
+    },
+    {
+      "from": "f93fb85a-6356-49dc-8e11-7eed1e15de74",
+      "fromName": "Frank Test",
+      "to": "f0abac11-f1ab-4350-9840-bbc126bdc10d",
+      "toName": "Alice Test",
+      "amount": 98.5
+    },
+    {
+      "from": "83be5978-28bd-4be6-8f80-b0b59ac5fd2f",
+      "fromName": "Charlie Test",
+      "to": "f0abac11-f1ab-4350-9840-bbc126bdc10d",
+      "toName": "Alice Test",
+      "amount": 4.5
+    }
+  ],
+  "completedSettlements": [],
+  "summary": {
+    "totalExpenses": 594,
+    "settlementsNeeded": 3,
+    "completedSettlements": 0
+  }
+}

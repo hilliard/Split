@@ -13,6 +13,12 @@ export interface InvitationEmailData {
   acceptUrl: string;
 }
 
+export interface VerificationEmailData {
+  recipientEmail: string;
+  firstName?: string;
+  verificationUrl: string;
+}
+
 export async function sendGroupInvitationEmail(data: InvitationEmailData): Promise<{ success: boolean; error?: string }> {
   try {
     if (!process.env.RESEND_API_KEY) {
@@ -65,6 +71,63 @@ export async function sendGroupInvitationEmail(data: InvitationEmailData): Promi
     return { success: true };
   } catch (error) {
     console.error('❌ Error sending invitation email:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+}
+
+export async function sendVerificationEmail(data: VerificationEmailData): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('⚠️  RESEND_API_KEY not set - skipping email (dev mode)');
+      return { success: true }; // Don't fail in dev if no API key
+    }
+
+    const resend = getResendClient();
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4f46e5;">Verify your email address</h2>
+        
+        <p>Hi${data.firstName ? ` ${data.firstName}` : ''},</p>
+        
+        <p>Welcome to Split! Please verify your email address to complete your account setup.</p>
+        
+        <div style="margin: 30px 0;">
+          <a href="${data.verificationUrl}" 
+             style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+            Verify Email Address
+          </a>
+        </div>
+        
+        <p style="color: #666; font-size: 14px;">
+          Or copy this link: <code style="background: #f3f4f6; padding: 2px 6px; word-break: break-all;">${data.verificationUrl}</code>
+        </p>
+        
+        <p style="color: #999; font-size: 12px; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+          This verification link expires in 24 hours. If you didn't create a Split account, you can ignore this email.
+        </p>
+      </div>
+    `;
+
+    const result = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+      to: data.recipientEmail,
+      subject: 'Verify your Split account',
+      html: htmlContent,
+    });
+
+    if (result.error) {
+      console.error('❌ Email send failed:', result.error);
+      return { success: false, error: result.error.message };
+    }
+
+    console.log('✓ Verification email sent:', result.data?.id);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error sending verification email:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 

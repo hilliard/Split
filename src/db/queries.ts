@@ -209,13 +209,14 @@ export async function createHumanWithCustomer(
       email,
     });
 
-    // Step 3: Create customer record
+    // Step 3: Create customer record (with email for quick lookup)
     const newCustomer = await db
       .insert(customers)
       .values({
         humanId,
         username,
         passwordHash,
+        email, // Store email in customers too for quick verification lookup
       })
       .returning({ id: customers.id });
 

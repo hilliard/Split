@@ -1870,6 +1870,7 @@ const budget = event.budgetCents
     // Activity modal handlers
     if (addActivityBtn) {
       addActivityBtn.addEventListener("click", () => {
+        addActivityForm.reset(); // Clear form when opening
         addActivityModal.classList.remove("hidden");
         document.getElementById("activityTitle").focus();
       });
@@ -1882,20 +1883,12 @@ const budget = event.budgetCents
       });
     }
 
-    // Close modal on backdrop click
-    if (addActivityModal) {
-      addActivityModal.addEventListener("click", (e) => {
-        if (e.target === addActivityModal) {
-          addActivityModal.classList.add("hidden");
-          addActivityForm.reset();
-        }
-      });
-    }
-
     // Submit activity form
     if (addActivityForm) {
       addActivityForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        console.log("✅ Add Activity form submitted");
 
         const formData = new FormData(addActivityForm);
         const activityError = document.getElementById("activityError");
@@ -1924,6 +1917,13 @@ const budget = event.budgetCents
             }
           }
 
+          console.log("📤 Sending activity creation request:", {
+            eventId,
+            title: formData.get("title"),
+            locationName: formData.get("locationName"),
+            metadata,
+          });
+
           const response = await fetch("/api/activities/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1941,6 +1941,7 @@ const budget = event.budgetCents
           const data = await response.json();
 
           if (!response.ok) {
+            console.error("❌ Activity creation failed:", data.error);
             if (activityError) {
               activityError.textContent =
                 data.error?.message ||
@@ -1949,6 +1950,7 @@ const budget = event.budgetCents
               activityError.classList.remove("hidden");
             }
           } else {
+            console.log("✅ Activity created successfully:", data.activity);
             const newActivityId = data.activity.id;
             const activityTitle = formData.get("title");
 
@@ -1986,19 +1988,27 @@ const budget = event.budgetCents
               }
             }
 
+            console.log("🔄 Closing modal and refreshing content...");
             addActivityModal.classList.add("hidden");
-            addActivityForm.reset();
+
+            console.log("📊 Calling loadContent...");
             loadContent(); // Refresh activities and expenses list
+
+            console.log("💰 Updating totals...");
             updateTripTotal(); // Update trip total
             loadBreakdown(); // Update breakdown
             loadDetailedSummary(); // Update detailed summary
+
+            console.log("✅ Activity submission complete!");
           }
         } catch (error) {
+          console.error("❌ Catch block error:", error);
           if (activityError) {
             activityError.textContent = "An error occurred. Please try again.";
             activityError.classList.remove("hidden");
           }
         } finally {
+          console.log("🏁 Finally block - disabling submit button");
           if (submitBtn) submitBtn.disabled = false;
         }
       });

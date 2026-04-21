@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { activities, sessions, events } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { activities, sessions, events, groupMembers } from '../../../db/schema';
+import { eq, and } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {
   try {
@@ -53,8 +53,25 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    // Check if user is event creator
-    if (event.creatorId !== session.userId) {
+    // Check authorization: user is creator OR member of the group
+    const isCreator = event.creatorId === session.userId;
+    let isGroupMember = false;
+
+    if (event.groupId) {
+      const [membership] = await db
+        .select()
+        .from(groupMembers)
+        .where(
+          and(
+            eq(groupMembers.userId, session.userId),
+            eq(groupMembers.groupId, event.groupId)
+          )
+        )
+        .limit(1);
+      isGroupMember = !!membership;
+    }
+
+    if (!isCreator && !isGroupMember) {
       return new Response(JSON.stringify({ error: 'You do not have permission to view activities for this event' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },

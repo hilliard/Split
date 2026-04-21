@@ -930,12 +930,18 @@ if (!sessionId) {
         // Get groups
         const groupsResponse = await fetch("/api/groups/list");
         let groupCount = 0;
+        let groupsMap = {}; // Map groupId to group name
         statsData.groups = [];
         if (groupsResponse.ok) {
           const groupsData = await groupsResponse.json();
           const groups = groupsData.groups || [];
           groupCount = groups.length;
           statsData.groups = groups;
+
+          // Build a map of groupId -> groupName
+          groups.forEach((group) => {
+            groupsMap[group.id] = group.name;
+          });
 
           const statsGroupCount = document.getElementById("statsGroupCount");
           if (statsGroupCount) {
@@ -957,7 +963,12 @@ if (!sessionId) {
           const eventsData = await eventsResponse.json();
           const events = eventsData.events || [];
           eventCount = events.length;
-          statsData.trips = events;
+
+          // Enrich events with group names
+          statsData.trips = events.map((event) => ({
+            ...event,
+            groupName: event.groupId ? groupsMap[event.groupId] : null,
+          }));
 
           const statsEventCount = document.getElementById("statsEventCount");
           if (statsEventCount) {

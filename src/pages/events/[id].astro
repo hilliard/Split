@@ -2,8 +2,8 @@
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import { db } from "../../db";
-import { events, sessions } from "../../db/schema";
-import { eq } from "drizzle-orm";
+import { events, sessions, groupMembers } from "../../db/schema";
+import { eq, and, or, inArray } from "drizzle-orm";
 
 // Check if user is authenticated
 const sessionId = Astro.cookies.get("sessionId")?.value;
@@ -36,8 +36,28 @@ const [event] = await db
   .where(eq(events.id, id as string))
   .limit(1);
 
-// Verify event exists and belongs to current user
-if (!event || event.creatorId !== session.userId) {
+if (!event) {
+  return Astro.redirect("/dashboard");
+}
+
+// Check authorization: user is creator OR member of the group
+const isCreator = event.creatorId === session.userId;
+const isGroupMember = event.groupId
+  ? (
+      await db
+        .select()
+        .from(groupMembers)
+        .where(
+          and(
+            eq(groupMembers.userId, session.userId),
+            eq(groupMembers.groupId, event.groupId),
+          ),
+        )
+        .limit(1)
+    ).length > 0
+  : false;
+
+if (!isCreator && !isGroupMember) {
   return Astro.redirect("/dashboard");
 }
 

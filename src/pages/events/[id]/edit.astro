@@ -2,8 +2,8 @@
 import Layout from "../../../layouts/Layout.astro";
 import Header from "../../../components/Header.astro";
 import { db } from "../../../db";
-import { events, sessions } from "../../../db/schema";
-import { eq } from "drizzle-orm";
+import { events, sessions, groupMembers } from "../../../db/schema";
+import { eq, and } from "drizzle-orm";
 
 // Check if user is authenticated
 const sessionId = Astro.cookies.get("sessionId")?.value;
@@ -40,8 +40,13 @@ const [event] = await db
   .where(eq(events.id, id as string))
   .limit(1);
 
-// Verify event exists and belongs to current user
-if (!event || event.creatorId !== session.userId) {
+// Verify event exists
+if (!event) {
+  return Astro.redirect("/dashboard");
+}
+
+// For EDIT, only creator can edit (stricter than view)
+if (event.creatorId !== session.userId) {
   return Astro.redirect("/dashboard");
 }
 

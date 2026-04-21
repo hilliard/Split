@@ -16,12 +16,37 @@ if (!sessionId) {
     >
       <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16 gap-4">
-          <h1
-            class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate"
+          <a
+            href="/dashboard"
+            class="text-lg sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors flex-shrink-0"
           >
-            Split
-          </h1>
-          <div class="flex items-center gap-2 sm:gap-4 ml-auto">
+            ⚡ Split
+          </a>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden md:flex items-center gap-1 flex-1 mx-6">
+            <a
+              href="/dashboard"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200"
+            >
+              Dashboard
+            </a>
+            <a
+              href="/events/create"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
+            >
+              Events
+            </a>
+            <a
+              href="/groups/create"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
+            >
+              Groups
+            </a>
+          </nav>
+
+          <!-- Right Side: User Info + Theme Toggle + Mobile Menu + Logout -->
+          <div class="flex items-center gap-2 ml-auto">
             <!-- User Info - Hidden on mobile, shown on sm+ -->
             <div class="text-right hidden sm:block min-w-0">
               <p
@@ -42,21 +67,52 @@ if (!sessionId) {
               type="button"
               id="themeToggle"
               onclick="window.toggleTheme && window.toggleTheme()"
-              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg font-bold flex-shrink-0"
+              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg flex-shrink-0"
               aria-label="Toggle dark mode"
             >
               <span id="themeIcon">☀️</span>
             </button>
 
+            <!-- Mobile Menu Button -->
+            <button
+              id="mobileMenuBtn"
+              class="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
+              aria-label="Toggle menu"
+            >
+              <span class="text-2xl">☰</span>
+            </button>
+
             <!-- Logout button -->
             <button
               id="logoutBtn"
-              class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-semibold flex-shrink-0 whitespace-nowrap"
+              class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold flex-shrink-0 whitespace-nowrap"
             >
               Logout
             </button>
           </div>
         </div>
+
+        <!-- Mobile Navigation Menu -->
+        <nav id="mobileMenu" class="hidden md:hidden pb-4 space-y-2">
+          <a
+            href="/dashboard"
+            class="block px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200"
+          >
+            Dashboard
+          </a>
+          <a
+            href="/events/create"
+            class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            Create Event
+          </a>
+          <a
+            href="/groups/create"
+            class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            Create Group
+          </a>
+        </nav>
       </div>
     </header>
 
@@ -1394,6 +1450,24 @@ if (!sessionId) {
             } catch (error) {
               console.error("Logout error:", error);
             }
+          });
+        }
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const mobileMenu = document.getElementById("mobileMenu");
+
+        if (mobileMenuBtn && mobileMenu) {
+          mobileMenuBtn.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+          });
+
+          // Close menu when clicking on a link
+          const links = mobileMenu.querySelectorAll("a");
+          links.forEach((link) => {
+            link.addEventListener("click", () => {
+              mobileMenu.classList.add("hidden");
+            });
           });
         }
 

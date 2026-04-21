@@ -949,19 +949,6 @@ const userId = session.userId;
 
     // Load groups when page loads
     window.addEventListener("load", loadGroups);
-
-    // Toast notification helper
-    const toast = document.getElementById("toast");
-    const toastMessage = document.getElementById("toast-message");
-
-    function showToast(message) {
-      if (!toast || !toastMessage) return;
-      toastMessage.textContent = message;
-      toast.classList.remove("opacity-0");
-      setTimeout(() => {
-        toast.classList.add("opacity-0");
-      }, 3000);
-    }
   </script>
 
   <!-- Toast Notification -->

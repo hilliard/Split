@@ -980,6 +980,7 @@ if (!sessionId) {
                   statsData.expenses.push({
                     ...expense,
                     tripName: event.name,
+                    currency: event.currency || "USD",
                   });
                   totalExpensesAmount += parseFloat(expense.total) || 0;
                 });
@@ -1078,12 +1079,15 @@ if (!sessionId) {
           .map(
             (exp) => `
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <div class="flex justify-between items-start">
-              <div>
+            <div class="flex justify-between items-start gap-3">
+              <div class="flex-1">
                 <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(exp.description)}</h3>
                 <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(exp.tripName)}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Paid by: ${escapeHtml(exp.payerName || "Unknown")}</p>
               </div>
-              <p class="font-semibold text-green-600 dark:text-green-400">${exp.currency} ${parseFloat(exp.total).toFixed(2)}</p>
+              <div class="text-right flex-shrink-0">
+                <p class="font-semibold text-green-600 dark:text-green-400">${exp.currency || "USD"} ${parseFloat(exp.total || 0).toFixed(2)}</p>
+              </div>
             </div>
           </div>
         `,

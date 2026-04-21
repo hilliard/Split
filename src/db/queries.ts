@@ -75,6 +75,23 @@ export async function getCustomerByUsername(username: string) {
 }
 
 /**
+ * Get human by username (searches customers table)
+ */
+export async function getHumanByUsername(username: string) {
+  const result = await db
+    .select({
+      human: humans,
+      customer: customers,
+    })
+    .from(customers)
+    .innerJoin(humans, eq(customers.humanId, humans.id))
+    .where(eq(customers.username, username))
+    .limit(1);
+
+  return result[0] || null;
+}
+
+/**
  * Check if human has a specific permission
  */
 export async function hasPermission(

@@ -151,7 +151,7 @@ if (!sessionId) {
           >
             Quick Stats
           </h3>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
             <button
               id="statsTripsBtn"
               class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
@@ -216,6 +216,23 @@ if (!sessionId) {
                 Groups
               </p>
             </button>
+            <button
+              id="statsOwesBtn"
+              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+            >
+              <p
+                id="statsOwesAmount"
+                class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400 group-hover:underline"
+              >
+                $0
+              </p>
+              <p
+                class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
+              >
+                Owes
+              </p>
+            </button>
+            <div></div>
             <div>
               <p
                 id="statsTotalExpenses"
@@ -757,6 +774,7 @@ if (!sessionId) {
         const response = await fetch("/api/auth/me");
         if (response.ok) {
           const user = await response.json();
+          currentUserId = user.id; // Store user ID for owes calculation
           const username = user.username || user.email;
 
           console.log("🔧 loadUserInfo called with username:", username);
@@ -994,6 +1012,18 @@ if (!sessionId) {
                     currency: event.currency || "USD",
                   });
                   totalExpensesAmount += parseFloat(expense.total) || 0;
+
+                  // Track owes: if current user didn't pay for this expense, they owe money
+                  if (expense.paidBy !== currentUserId) {
+                    statsData.owes.push({
+                      id: expense.id,
+                      description: expense.description,
+                      amount: parseFloat(expense.total) || 0,
+                      currency: event.currency || "USD",
+                      paidBy: expense.payerName,
+                      tripName: event.name,
+                    });
+                  }
                 });
               } else {
                 const errorData = await expensesResp.json().catch(() => ({}));
@@ -1058,6 +1088,16 @@ if (!sessionId) {
         if (statsTotalExpenses) {
           statsTotalExpenses.textContent = `$${totalExpensesAmount.toFixed(2)}`;
         }
+
+        // Calculate and update total owes amount
+        const totalOwes = statsData.owes.reduce(
+          (sum, owe) => sum + owe.amount,
+          0,
+        );
+        const statsOwesAmount = document.getElementById("statsOwesAmount");
+        if (statsOwesAmount) {
+          statsOwesAmount.textContent = `$${totalOwes.toFixed(2)}`;
+        }
       } catch (error) {
         console.error("Failed to update stats:", error);
       }
@@ -1069,7 +1109,9 @@ if (!sessionId) {
       expenses: [],
       activities: [],
       groups: [],
+      owes: [],
     };
+    let currentUserId = null; // Will be set by loadUserInfo
 
     // Show stats list modal
     function showStatsList(type, title) {
@@ -1135,6 +1177,26 @@ if (!sessionId) {
             <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(grp.name)}</h3>
             <p class="text-sm text-slate-600 dark:text-slate-400">${grp.memberCount || 0} members</p>
           </a>
+        `,
+          )
+          .join("");
+      } else if (type === "owes") {
+        items = statsData.owes;
+        html = items
+          .map(
+            (owe) => `
+          <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+            <div class="flex justify-between items-start gap-3">
+              <div class="flex-1">
+                <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(owe.description)}</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(owe.tripName)}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Owed to: ${escapeHtml(owe.paidBy || "Unknown")}</p>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="font-semibold text-red-600 dark:text-red-400">${owe.currency} ${owe.amount.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
         `,
           )
           .join("");
@@ -1701,6 +1763,13 @@ if (!sessionId) {
         if (statsGroupsBtn) {
           statsGroupsBtn.addEventListener("click", () => {
             showStatsList("groups", "Groups");
+          });
+        }
+
+        const statsOwesBtn = document.getElementById("statsOwesBtn");
+        if (statsOwesBtn) {
+          statsOwesBtn.addEventListener("click", () => {
+            showStatsList("owes", "Amount Owed");
           });
         }
 

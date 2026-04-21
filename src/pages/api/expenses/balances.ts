@@ -15,8 +15,8 @@
 
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { sessions, expenses, events, expenseSplits, humans } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { sessions, expenses, events, expenseSplits, humans, settlements } from '../../../db/schema';
+import { eq, and } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {
   try {
@@ -140,6 +140,31 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
+    // Account for completed settlements
+    const completedSettlements = await db
+      .select()
+      .from(settlements)
+      .where(
+        and(
+          eq(settlements.eventId, eventId),
+          eq(settlements.status, 'completed')
+        )
+      );
+
+    // Apply settlement adjustments to balances
+    for (const settlement of completedSettlements) {
+      const fromBalance = balances.find((b) => b.userId === settlement.fromUserId);
+      const toBalance = balances.find((b) => b.userId === settlement.toUserId);
+
+      if (fromBalance && toBalance) {
+        const settlementAmount = settlement.amount / 100; // Convert to dollars
+        // Payer's balance increases (they paid more)
+        fromBalance.netBalance += settlementAmount;
+        // Receiver's balance decreases (they received payment)
+        toBalance.netBalance -= settlementAmount;
+      }
+    }
+
     // Calculate settlements (who needs to send money to whom)
     const settlements: Array<{
       from: string;
@@ -184,9 +209,16 @@ export const GET: APIRoute = async (context) => {
       success: true,
       balances,
       settlements: settlements.filter((s) => s.amount > 0.01), // Filter out tiny rounding errors
+      completedSettlements: completedSettlements.map((s) => ({
+        from: s.fromUserId,
+        to: s.toUserId,
+        amount: s.amount / 100,
+        completedAt: s.completedAt,
+      })),
       summary: {
         totalExpenses: balances.reduce((sum, b) => sum + b.paidAmount, 0),
         settlementsNeeded: settlements.filter((s) => s.amount > 0.01).length,
+        completedSettlements: completedSettlements.length,
       },
     }), {
       status: 200,

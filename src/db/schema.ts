@@ -222,6 +222,39 @@ export const expenseSplits = pgTable(
   })
 );
 
+// Settlements table - track actual payment transactions
+export const settlements = pgTable(
+  'settlements',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => events.id, { onDelete: 'cascade' }),
+    groupId: uuid('group_id')
+      .references(() => expenseGroups.id, { onDelete: 'set null' }),
+    fromUserId: uuid('from_user_id')
+      .notNull()
+      .references(() => humans.id, { onDelete: 'restrict' }),
+    toUserId: uuid('to_user_id')
+      .notNull()
+      .references(() => humans.id, { onDelete: 'restrict' }),
+    amount: integer('amount').notNull(), // in cents
+    description: varchar('description', { length: 500 }).default(''),
+    status: varchar('status', { length: 50 }).default('pending').notNull(), // pending, completed, disputed, cancelled
+    paymentMethod: varchar('payment_method', { length: 100 }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    completedAt: timestamp('completed_at'),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    eventIdx: index('settlements_event_idx').on(table.eventId),
+    fromUserIdx: index('settlements_from_user_idx').on(table.fromUserId),
+    toUserIdx: index('settlements_to_user_idx').on(table.toUserId),
+    statusIdx: index('settlements_status_idx').on(table.status),
+    createdAtIdx: index('settlements_created_at_idx').on(table.createdAt),
+  })
+);
+
 // Sessions table for authentication
 export const sessions = pgTable(
   'sessions',
@@ -316,6 +349,25 @@ export const expenseSplitsRelations = relations(expenseSplits, ({ one }) => ({
   }),
   user: one(humans, {
     fields: [expenseSplits.userId],
+    references: [humans.id],
+  }),
+}));
+
+export const settlementsRelations = relations(settlements, ({ one }) => ({
+  event: one(events, {
+    fields: [settlements.eventId],
+    references: [events.id],
+  }),
+  group: one(expenseGroups, {
+    fields: [settlements.groupId],
+    references: [expenseGroups.id],
+  }),
+  fromUser: one(humans, {
+    fields: [settlements.fromUserId],
+    references: [humans.id],
+  }),
+  toUser: one(humans, {
+    fields: [settlements.toUserId],
     references: [humans.id],
   }),
 }));

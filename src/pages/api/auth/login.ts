@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { customers } from '../../../db/human-centric-schema';
 import { eq } from 'drizzle-orm';
-import { getHumanByEmail } from '../../../db/queries';
+import { getHumanByUsername } from '../../../db/queries';
 import { verifyPassword, createSession } from '../../../utils';
 import { loginSchema } from '../../../utils/validation';
 import { ZodError } from 'zod';
@@ -14,25 +14,25 @@ export const POST: APIRoute = async (context) => {
     // Validate input
     const validatedData = loginSchema.parse(data);
     
-    console.log('🔍 Attempting login for:', validatedData.email);
+    console.log('🔍 Attempting login for username:', validatedData.username);
     
-    // Get human by email via email_history
-    const result = await getHumanByEmail(validatedData.email);
+    // Get human by username
+    const result = await getHumanByUsername(validatedData.username);
     
     if (!result) {
-      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+      return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
     
-    console.log('✓ Found human with email:', validatedData.email);
+    console.log('✓ Found human with username:', validatedData.username);
     
     const human = result.human;
     
     // Verify customer exists
     if (!result.customer) {
-      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+      return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -44,7 +44,7 @@ export const POST: APIRoute = async (context) => {
     const passwordValid = await verifyPassword(validatedData.password, customer.passwordHash);
     
     if (!passwordValid) {
-      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+      return new Response(JSON.stringify({ error: 'Invalid username or password' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });

@@ -152,50 +152,70 @@ if (!sessionId) {
             Quick Stats
           </h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
-            <div>
+            <button
+              id="statsTripsBtn"
+              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+            >
               <p
                 id="statsEventCount"
-                class="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400"
+                class="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 group-hover:underline"
               >
                 0
               </p>
-              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              <p
+                class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
+              >
                 Trips
               </p>
-            </div>
-            <div>
+            </button>
+            <button
+              id="statsExpensesBtn"
+              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+            >
               <p
                 id="statsExpenseCount"
-                class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400"
+                class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 group-hover:underline"
               >
                 0
               </p>
-              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              <p
+                class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
+              >
                 Expenses
               </p>
-            </div>
-            <div>
+            </button>
+            <button
+              id="statsActivitiesBtn"
+              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+            >
               <p
                 id="statsActivityCount"
-                class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400"
+                class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 group-hover:underline"
               >
                 0
               </p>
-              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              <p
+                class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
+              >
                 Activities
               </p>
-            </div>
-            <div>
+            </button>
+            <button
+              id="statsGroupsBtn"
+              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+            >
               <p
                 id="statsGroupCount"
-                class="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400"
+                class="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 group-hover:underline"
               >
                 0
               </p>
-              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              <p
+                class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
+              >
                 Groups
               </p>
-            </div>
+            </button>
             <div>
               <p
                 id="statsTotalExpenses"
@@ -317,6 +337,40 @@ if (!sessionId) {
         </div>
       </div>
     </main>
+
+    <!-- Stats List Modal -->
+    <div
+      id="statsListModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto"
+      >
+        <!-- Modal Header -->
+        <div
+          class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center"
+        >
+          <h2
+            id="statsListTitle"
+            class="text-xl font-bold text-slate-900 dark:text-white"
+          >
+            Items
+          </h2>
+          <button
+            id="statsListCloseBtn"
+            class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-2xl leading-none"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div id="statsListContent" class="p-6 space-y-3">
+          <!-- Items will be rendered here -->
+        </div>
+      </div>
+    </div>
 
     <!-- Create Event Modal -->
     <div
@@ -873,12 +927,15 @@ if (!sessionId) {
     // Update Quick Stats panel
     async function updateStats() {
       try {
-        // Get groups count
+        // Get groups
         const groupsResponse = await fetch("/api/groups/list");
         let groupCount = 0;
+        statsData.groups = [];
         if (groupsResponse.ok) {
           const groupsData = await groupsResponse.json();
-          groupCount = groupsData.groups ? groupsData.groups.length : 0;
+          const groups = groupsData.groups || [];
+          groupCount = groups.length;
+          statsData.groups = groups;
 
           const statsGroupCount = document.getElementById("statsGroupCount");
           if (statsGroupCount) {
@@ -886,17 +943,21 @@ if (!sessionId) {
           }
         }
 
-        // Get events count
+        // Get events
         const eventsResponse = await fetch("/api/events/list");
         let eventCount = 0;
         let totalExpenseCount = 0;
         let totalActivityCount = 0;
         let totalExpensesAmount = 0;
+        statsData.trips = [];
+        statsData.expenses = [];
+        statsData.activities = [];
 
         if (eventsResponse.ok) {
           const eventsData = await eventsResponse.json();
           const events = eventsData.events || [];
           eventCount = events.length;
+          statsData.trips = events;
 
           const statsEventCount = document.getElementById("statsEventCount");
           if (statsEventCount) {
@@ -914,8 +975,12 @@ if (!sessionId) {
                 const expenses = expensesData.expenses || [];
                 totalExpenseCount += expenses.length;
 
-                // Sum up total spent (including tips)
+                // Add expenses to statsData and sum totals
                 expenses.forEach((expense) => {
+                  statsData.expenses.push({
+                    ...expense,
+                    tripName: event.name,
+                  });
                   totalExpensesAmount += parseFloat(expense.total) || 0;
                 });
               }
@@ -935,6 +1000,14 @@ if (!sessionId) {
                 const activitiesData = await activitiesResp.json();
                 const activities = activitiesData.activities || [];
                 totalActivityCount += activities.length;
+
+                // Add activities to statsData
+                activities.forEach((activity) => {
+                  statsData.activities.push({
+                    ...activity,
+                    tripName: event.name,
+                  });
+                });
               }
             } catch (e) {
               console.error(
@@ -966,6 +1039,94 @@ if (!sessionId) {
       } catch (error) {
         console.error("Failed to update stats:", error);
       }
+    }
+
+    // Store data for stats list modal
+    let statsData = {
+      trips: [],
+      expenses: [],
+      activities: [],
+      groups: [],
+    };
+
+    // Show stats list modal
+    function showStatsList(type, title) {
+      const modal = document.getElementById("statsListModal");
+      const titleElement = document.getElementById("statsListTitle");
+      const content = document.getElementById("statsListContent");
+
+      titleElement.textContent = title;
+
+      let items = [];
+      let html = "";
+
+      if (type === "trips") {
+        items = statsData.trips;
+        html = items
+          .map(
+            (trip) => `
+          <a href="/events/${trip.id}" class="block p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(trip.name)}</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">${trip.groupName ? `Group: ${escapeHtml(trip.groupName)}` : "Personal"}</p>
+          </a>
+        `,
+          )
+          .join("");
+      } else if (type === "expenses") {
+        items = statsData.expenses;
+        html = items
+          .map(
+            (exp) => `
+          <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(exp.description)}</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(exp.tripName)}</p>
+              </div>
+              <p class="font-semibold text-green-600 dark:text-green-400">${exp.currency} ${parseFloat(exp.total).toFixed(2)}</p>
+            </div>
+          </div>
+        `,
+          )
+          .join("");
+      } else if (type === "activities") {
+        items = statsData.activities;
+        html = items
+          .map(
+            (act) => `
+          <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(act.name)}</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(act.tripName)}</p>
+          </div>
+        `,
+          )
+          .join("");
+      } else if (type === "groups") {
+        items = statsData.groups;
+        html = items
+          .map(
+            (grp) => `
+          <a href="/groups/${grp.id}/manage" class="block p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(grp.name)}</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">${grp.memberCount || 0} members</p>
+          </a>
+        `,
+          )
+          .join("");
+      }
+
+      if (items.length === 0) {
+        html = `<p class="text-center text-slate-600 dark:text-slate-400 py-8">No ${title.toLowerCase()} yet</p>`;
+      }
+
+      content.innerHTML = html;
+      modal.classList.remove("hidden");
+    }
+
+    // Close stats list modal
+    function closeStatsList() {
+      const modal = document.getElementById("statsListModal");
+      modal.classList.add("hidden");
     }
 
     // Load and display pending invitations
@@ -1468,6 +1629,53 @@ if (!sessionId) {
             link.addEventListener("click", () => {
               mobileMenu.classList.add("hidden");
             });
+          });
+        }
+
+        // Stats List Modal Event Listeners
+        const statsListCloseBtn = document.getElementById("statsListCloseBtn");
+        const statsListModal = document.getElementById("statsListModal");
+
+        if (statsListCloseBtn) {
+          statsListCloseBtn.addEventListener("click", closeStatsList);
+        }
+
+        if (statsListModal) {
+          statsListModal.addEventListener("click", (e) => {
+            if (e.target === statsListModal) {
+              closeStatsList();
+            }
+          });
+        }
+
+        // Stats buttons
+        const statsTripsBtn = document.getElementById("statsTripsBtn");
+        const statsExpensesBtn = document.getElementById("statsExpensesBtn");
+        const statsActivitiesBtn =
+          document.getElementById("statsActivitiesBtn");
+        const statsGroupsBtn = document.getElementById("statsGroupsBtn");
+
+        if (statsTripsBtn) {
+          statsTripsBtn.addEventListener("click", () => {
+            showStatsList("trips", "Trips");
+          });
+        }
+
+        if (statsExpensesBtn) {
+          statsExpensesBtn.addEventListener("click", () => {
+            showStatsList("expenses", "Expenses");
+          });
+        }
+
+        if (statsActivitiesBtn) {
+          statsActivitiesBtn.addEventListener("click", () => {
+            showStatsList("activities", "Activities");
+          });
+        }
+
+        if (statsGroupsBtn) {
+          statsGroupsBtn.addEventListener("click", () => {
+            showStatsList("groups", "Groups");
           });
         }
 

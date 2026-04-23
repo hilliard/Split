@@ -6,8 +6,15 @@ import { z } from 'zod';
 
 // Validation schema for event creation
 const createEventSchema = z.object({
-  title: z.string().min(1, 'Event title is required').max(255, 'Event title must be less than 255 characters'),
-  description: z.string().max(2000, 'Description must be less than 2000 characters').optional().nullable(),
+  title: z
+    .string()
+    .min(1, 'Event title is required')
+    .max(255, 'Event title must be less than 255 characters'),
+  description: z
+    .string()
+    .max(2000, 'Description must be less than 2000 characters')
+    .optional()
+    .nullable(),
   type: z.string().max(50, 'Type must be less than 50 characters').default('general'),
   startTime: z.string().min(1, 'Start time is required'), // Accept any ISO datetime string
   endTime: z.string().optional().nullable(),
@@ -25,7 +32,7 @@ export const POST: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -34,11 +41,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Get session from database
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -49,22 +52,22 @@ export const POST: APIRoute = async (context) => {
 
     // Parse and validate request body
     const data = await context.request.json();
-    
+
     console.log('📦 Raw request body:', JSON.stringify(data, null, 2));
-    
+
     // Map form field names to schema field names - handle both old and new formats
-    const title = data.title || data.name || "";
-    const startTimeValue = data.startTime || 
-                          (data.startDate ? new Date(data.startDate).toISOString() : undefined);
-    const endTimeValue = data.endTime || 
-                        (data.endDate ? new Date(data.endDate).toISOString() : undefined);
-    
+    const title = data.title || data.name || '';
+    const startTimeValue =
+      data.startTime || (data.startDate ? new Date(data.startDate).toISOString() : undefined);
+    const endTimeValue =
+      data.endTime || (data.endDate ? new Date(data.endDate).toISOString() : undefined);
+
     const mappedData = {
       title: title,
       description: data.description,
-      type: data.type || "general",
-      timezone: data.timezone || "UTC",
-      currency: data.currency || "USD",
+      type: data.type || 'general',
+      timezone: data.timezone || 'UTC',
+      currency: data.currency || 'USD',
       budget: data.budget,
       isVirtual: data.isVirtual || false,
       isPublic: data.isPublic !== false,
@@ -74,7 +77,7 @@ export const POST: APIRoute = async (context) => {
     };
 
     console.log('📝 Mapped data (before validation):', JSON.stringify(mappedData, null, 2));
-    
+
     // Ensure title is not empty
     if (!mappedData.title || !mappedData.title.trim()) {
       return new Response(JSON.stringify({ error: 'Event name is required' }), {
@@ -82,7 +85,7 @@ export const POST: APIRoute = async (context) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
-    
+
     if (!mappedData.startTime) {
       return new Response(JSON.stringify({ error: 'Start time is required' }), {
         status: 400,
@@ -113,61 +116,72 @@ export const POST: APIRoute = async (context) => {
     });
 
     // CREATE THE EVENT
-const [newEvent] = await db
-  .insert(events)
-  .values({
-    creatorId: session.userId,
-    title: validatedData.title,
-    description: validatedData.description || null,
-    type: validatedData.type,
-    status: 'scheduled',
-    startTime: new Date(validatedData.startTime), // CONVERT STRING TO DATE
-    endTime: validatedData.endTime ? new Date(validatedData.endTime) : null, // CONVERT STRING TO DATE
-    timezone: validatedData.timezone,
-    isVirtual: validatedData.isVirtual || false,
-    isPublic: validatedData.isPublic !== false,
-    currency: validatedData.currency,
-    metadata: validatedData.metadata || {},
-    budgetCents: validatedData.budget ? Math.round(parseFloat(validatedData.budget) * 100) : null,
-  })
-  .returning();
+    const [newEvent] = await db
+      .insert(events)
+      .values({
+        creatorId: session.userId,
+        title: validatedData.title,
+        description: validatedData.description || null,
+        type: validatedData.type,
+        status: 'scheduled',
+        startTime: new Date(validatedData.startTime), // CONVERT STRING TO DATE
+        endTime: validatedData.endTime ? new Date(validatedData.endTime) : null, // CONVERT STRING TO DATE
+        timezone: validatedData.timezone,
+        isVirtual: validatedData.isVirtual || false,
+        isPublic: validatedData.isPublic !== false,
+        currency: validatedData.currency,
+        metadata: validatedData.metadata || {},
+        budgetCents: validatedData.budget
+          ? Math.round(parseFloat(validatedData.budget) * 100)
+          : null,
+      })
+      .returning();
 
     console.log('✓ Event created:', newEvent.id);
 
-    return new Response(JSON.stringify({
-      success: true,
-      event: {
-        id: newEvent.id,
-        title: newEvent.title,
-        description: newEvent.description,
-        type: newEvent.type,
-        status: newEvent.status,
-        startTime: newEvent.startTime,
-        endTime: newEvent.endTime,
-        timezone: newEvent.timezone,
-        isVirtual: newEvent.isVirtual,
-        isPublic: newEvent.isPublic,
-        currency: newEvent.currency,
-        budgetCents: newEvent.budgetCents,
-        budget: newEvent.budgetCents ? (newEvent.budgetCents / 100).toFixed(2) : null,
-        createdAt: newEvent.createdAt,
-      },
-    }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        event: {
+          id: newEvent.id,
+          title: newEvent.title,
+          description: newEvent.description,
+          type: newEvent.type,
+          status: newEvent.status,
+          startTime: newEvent.startTime,
+          endTime: newEvent.endTime,
+          timezone: newEvent.timezone,
+          isVirtual: newEvent.isVirtual,
+          isPublic: newEvent.isPublic,
+          currency: newEvent.currency,
+          budgetCents: newEvent.budgetCents,
+          budget: newEvent.budgetCents ? (newEvent.budgetCents / 100).toFixed(2) : null,
+          createdAt: newEvent.createdAt,
+        },
+      }),
+      {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.errors[0]?.message || 'Validation failed' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: error.errors[0]?.message || 'Validation failed' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     console.error('Event creation error:', error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Internal server error' }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 };

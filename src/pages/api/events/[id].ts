@@ -1,6 +1,13 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { events, sessions, expenseGroups, groupMembers, humans, activities } from '../../../db/schema';
+import {
+  events,
+  sessions,
+  expenseGroups,
+  groupMembers,
+  humans,
+  activities,
+} from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 
 export const GET: APIRoute = async ({ params, cookies, url }) => {
@@ -13,11 +20,7 @@ export const GET: APIRoute = async ({ params, cookies, url }) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -36,11 +39,7 @@ export const GET: APIRoute = async ({ params, cookies, url }) => {
       });
     }
 
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -56,7 +55,7 @@ export const GET: APIRoute = async ({ params, cookies, url }) => {
       });
     }
 
-    let response: any = { event };
+    const response: any = { event };
 
     if (includeGroup && event.groupId) {
       const [group] = await db
@@ -108,11 +107,7 @@ export const DELETE: APIRoute = async ({ params, cookies }) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -129,11 +124,7 @@ export const DELETE: APIRoute = async ({ params, cookies }) => {
       });
     }
 
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -143,10 +134,13 @@ export const DELETE: APIRoute = async ({ params, cookies }) => {
     }
 
     if (event.creatorId !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to delete this event' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to delete this event' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Delete event (cascade will handle related records)

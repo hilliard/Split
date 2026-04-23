@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
-import { db } from '@/db';
-import { pendingGroupInvitations, expenseGroups, humans, sessions, users } from '@/db/schema';
+import { getSession } from '../../../utils/session';
+import { db } from '../../../db';
+import { pendingGroupInvitations, expenseGroups } from '../../../db/schema';
+import { customers, humans } from '../../../db/human-centric-schema';
 import { eq, and, gt } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {
@@ -14,32 +16,30 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
-
-    if (!session || new Date(session.expiresAt) < new Date()) {
+    const session = await getSession(sessionId);
+    if (!session) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Get the user's email
-    const [userEmail] = await db
-      .select({ email: users.email })
-      .from(users)
-      .where(eq(users.id, session.userId))
+    // Get the user's email from customers table
+    const [customer] = await db
+      .select({ email: customers.email })
+      .from(customers)
+      .innerJoin(humans, eq(customers.humanId, humans.id))
+      .where(eq(humans.id, session.userId))
       .limit(1);
 
-    if (!userEmail) {
-      return new Response(JSON.stringify({ error: 'User not found' }), {
+    if (!customer?.email) {
+      return new Response(JSON.stringify({ error: 'User email not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    console.log('📧 Fetching pending invitations for:', customer.email);
 
     // Query pending invitations for this email, not expired
     const invitations = await db
@@ -55,48 +55,44 @@ export const GET: APIRoute = async (context) => {
         status: pendingGroupInvitations.status,
       })
       .from(pendingGroupInvitations)
-      .innerJoin(
-        expenseGroups,
-        eq(pendingGroupInvitations.groupId, expenseGroups.id)
-      )
-      .innerJoin(
-        humans,
-        eq(pendingGroupInvitations.invitedBy, humans.id)
-      )
+      .innerJoin(expenseGroups, eq(pendingGroupInvitations.groupId, expenseGroups.id))
+      .innerJoin(humans, eq(pendingGroupInvitations.invitedBy, humans.id))
       .where(
         and(
-          eq(pendingGroupInvitations.email, userEmail.email),
+          eq(pendingGroupInvitations.email, customer.email),
           eq(pendingGroupInvitations.status, 'pending'),
-          gt(
-            pendingGroupInvitations.expiresAt,
-            new Date()
-          )
+          gt(pendingGroupInvitations.expiresAt, new Date())
         )
       );
 
-    return new Response(JSON.stringify({
-      success: true,
-      invitations: invitations.map((inv: any) => ({
-        id: inv.id,
-        groupId: inv.groupId,
-        groupName: inv.groupName,
-        email: inv.email,
-        invitedByName: `${inv.invitedByFirstName} ${inv.invitedByLastName}`,
-        invitedAt: inv.invitedAt?.toISOString(),
-        expiresAt: inv.expiresAt?.toISOString(),
-      })),
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error('Error fetching pending invitations:', error);
+    console.log(`✓ Found ${invitations.length} pending invitation(s)`);
+
     return new Response(
-      JSON.stringify({ error: 'Failed to fetch pending invitations' }),
+      JSON.stringify({
+        success: true,
+        invitations: invitations.map((inv: any) => ({
+          id: inv.id,
+          groupId: inv.groupId,
+          groupName: inv.groupName,
+          email: inv.email,
+          invitedByName: `${inv.invitedByFirstName} ${inv.invitedByLastName}`,
+          invitedAt: inv.invitedAt?.toISOString(),
+          expiresAt: inv.expiresAt?.toISOString(),
+        })),
+      }),
       {
-        status: 500,
+        status: 200,
         headers: { 'Content-Type': 'application/json' },
       }
     );
+  } catch (error) {
+    console.error(
+      '❌ Error fetching pending invitations:',
+      error instanceof Error ? error.message : String(error)
+    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch pending invitations' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

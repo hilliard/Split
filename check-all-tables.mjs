@@ -16,9 +16,9 @@ async function checkTables() {
       WHERE table_schema = 'public'
       ORDER BY table_name
     `);
-    
+
     console.log('\n📋 Tables in database:\n');
-    result.rows.forEach(t => {
+    result.rows.forEach((t) => {
       console.log(`  - ${t.table_name}`);
     });
     console.log('');

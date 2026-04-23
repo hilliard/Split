@@ -19,19 +19,21 @@ try {
     WHERE e.title LIKE '%Oz%'
     GROUP BY e.id, e.title
   `;
-  
+
   console.log('Trip to Oz - Raw Database Values:\n');
-  result.forEach(row => {
+  result.forEach((row) => {
     console.log(`Event: ${row.title}`);
     console.log(`Expense count: ${row.expense_count}`);
     console.log(`Total amount (raw): ${row.total_amount_raw}`);
     console.log(`Type of total_amount_raw: ${typeof row.total_amount_raw}`);
     console.log('\nIndividual expenses:');
     row.expenses.forEach((exp, i) => {
-      console.log(`  ${i+1}. amount=${exp.amount} (type: ${typeof exp.amount}), tip=${exp.tip}, desc="${exp.desc}"`);
+      console.log(
+        `  ${i + 1}. amount=${exp.amount} (type: ${typeof exp.amount}), tip=${exp.tip}, desc="${exp.desc}"`
+      );
     });
   });
-  
+
   process.exit(0);
 } catch (error) {
   console.error('Error:', error);

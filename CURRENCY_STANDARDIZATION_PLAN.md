@@ -40,6 +40,7 @@ The database has **inconsistent currency storage**:
 ### Pages/Components
 
 4. **src/pages/index.astro** (Lines 49-52)
+
    ```typescript
    const tipDollars = parseFloat(exp.tipAmount as any) || 0;
    const tipCents = Math.round(tipDollars * 100); // Manual conversion

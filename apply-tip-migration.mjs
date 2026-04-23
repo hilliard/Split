@@ -9,7 +9,7 @@ const envPath = resolve('.env.local');
 const envContent = readFileSync(envPath, 'utf-8');
 const envVars = {};
 
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   if (line.trim() && !line.startsWith('#')) {
     const [key, ...valueParts] = line.split('=');
     const value = valueParts.join('=').trim();

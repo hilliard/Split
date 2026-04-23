@@ -31,7 +31,7 @@ export interface UserBalance {
 export async function calculateGroupBalances(groupId: string): Promise<Balance[]> {
   try {
     console.log('🔢 calculateGroupBalances called for group:', groupId);
-    
+
     // Get all group members
     const members = await db
       .select({ userId: groupMembers.userId })
@@ -43,10 +43,7 @@ export async function calculateGroupBalances(groupId: string): Promise<Balance[]
     if (members.length === 0) return [];
 
     // Get all expenses for the group
-    const groupExpenses = await db
-      .select()
-      .from(expenses)
-      .where(eq(expenses.groupId, groupId));
+    const groupExpenses = await db.select().from(expenses).where(eq(expenses.groupId, groupId));
 
     console.log('💰 Expenses for group:', groupExpenses.length);
     groupExpenses.forEach((exp, idx) => {
@@ -59,9 +56,7 @@ export async function calculateGroupBalances(groupId: string): Promise<Balance[]
     const splits = await db
       .select()
       .from(expenseSplits)
-      .where(
-        expenseSplits.expenseId.inArray(groupExpenses.map((e) => e.id))
-      );
+      .where(expenseSplits.expenseId.inArray(groupExpenses.map((e) => e.id)));
 
     console.log('📊 Expense splits found:', splits.length);
     splits.forEach((split, idx) => {
@@ -101,11 +96,13 @@ export async function calculateGroupBalances(groupId: string): Promise<Balance[]
       .from(humans)
       .where(humans.id.inArray(userIds));
 
-    const userMap = new Map(userDetails.map((u) => [u.id, `${u.firstName} ${u.lastName}`.trim() || 'Unknown']));
+    const userMap = new Map(
+      userDetails.map((u) => [u.id, `${u.firstName} ${u.lastName}`.trim() || 'Unknown'])
+    );
 
     // Convert to settlement transactions using greedy matching
     const balances: Balance[] = [];
-    
+
     // Separate users into creditors (owed money) and debtors (owe money)
     const creditors: Array<{ userId: string; amount: number }> = [];
     const debtors: Array<{ userId: string; amount: number }> = [];
@@ -154,7 +151,10 @@ export async function calculateGroupBalances(groupId: string): Promise<Balance[]
  * Get user-specific summary for a group
  * Shows total they paid, total they owe, and net balance
  */
-export async function getUserGroupBalance(groupId: string, userId: string): Promise<UserBalance | null> {
+export async function getUserGroupBalance(
+  groupId: string,
+  userId: string
+): Promise<UserBalance | null> {
   try {
     const memberExists = await db
       .select()
@@ -173,10 +173,7 @@ export async function getUserGroupBalance(groupId: string, userId: string): Prom
     const totalPaid = paidExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
     // Get splits they owe
-    const splits = await db
-      .select()
-      .from(expenseSplits)
-      .where(eq(expenseSplits.userId, userId));
+    const splits = await db.select().from(expenseSplits).where(eq(expenseSplits.userId, userId));
 
     const userExpenseIds = new Set(paidExpenses.map((e) => e.id));
     const amountOwed = splits

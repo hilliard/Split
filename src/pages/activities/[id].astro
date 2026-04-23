@@ -1,32 +1,27 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import Header from "../../components/Header.astro";
-import { db } from "../../db";
-import { events, sessions, activities } from "../../db/schema";
-import { eq } from "drizzle-orm";
+import Layout from '../../layouts/Layout.astro';
+import { db } from '../../db';
+import { events, sessions, activities } from '../../db/schema';
+import { eq } from 'drizzle-orm';
 
 // Check if user is authenticated
-const sessionId = Astro.cookies.get("sessionId")?.value;
+const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 
 // Get session and verify user
-const [session] = await db
-  .select()
-  .from(sessions)
-  .where(eq(sessions.id, sessionId))
-  .limit(1);
+const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
 if (!session || new Date(session.expiresAt) < new Date()) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 
 // Get activity ID from URL
 const { id } = Astro.params;
 
 if (!id) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 
 // Get activity
@@ -37,27 +32,23 @@ const [activity] = await db
   .limit(1);
 
 if (!activity) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 
 // Get event and verify ownership
-const [event] = await db
-  .select()
-  .from(events)
-  .where(eq(events.id, activity.eventId))
-  .limit(1);
+const [event] = await db.select().from(events).where(eq(events.id, activity.eventId)).limit(1);
 
 if (!event || event.creatorId !== session.userId) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 
 // Format timestamps for form input
 const formatDatetimeLocal = (date: Date | null | undefined) => {
-  if (!date) return "";
+  if (!date) return '';
   try {
     return new Date(date).toISOString().slice(0, 16);
   } catch {
-    return "";
+    return '';
   }
 };
 
@@ -68,10 +59,9 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
 <Layout
   title={`Edit Activity - ${activity.title}`}
   description="Edit activity details"
+  currentPage="activities"
 >
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <Header title={activity.title} currentPage="activities" />
-
     <!-- Sub-header with breadcrumb and navigation -->
     <nav
       class="bg-slate-100 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 sticky top-16 z-40"
@@ -93,9 +83,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
             Activities
           </a>
           <span class="text-slate-400 dark:text-slate-500">/</span>
-          <span
-            class="text-slate-700 dark:text-slate-300 text-sm font-medium whitespace-nowrap"
-          >
+          <span class="text-slate-700 dark:text-slate-300 text-sm font-medium whitespace-nowrap">
             Edit Activity
           </span>
         </div>
@@ -103,9 +91,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
     </nav>
 
     <!-- Main Content -->
-    <main
-      class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
-    >
+    <main class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
       <!-- Edit Form Card -->
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
@@ -141,7 +127,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
               type="text"
               id="locationName"
               name="locationName"
-              value={activity.locationName || ""}
+              value={activity.locationName || ''}
               class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
             />
           </div>
@@ -200,9 +186,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
 
           <!-- Details/Metadata Section -->
           <div>
-            <label
-              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-            >
+            <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
               Details (Flight #, Address, Attendees, etc.)
             </label>
 
@@ -298,9 +282,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
       class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 my-8"
     >
       <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-          Add Expense
-        </h2>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Add Expense</h2>
       </div>
 
       <form id="addExpenseForm" class="p-5 sm:p-6 space-y-4">
@@ -367,9 +349,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
         >
         </div>
 
-        <div
-          class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
-        >
+        <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
           <button
             type="button"
             id="cancelExpenseBtn"
@@ -396,57 +376,56 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
       activity: activity,
     }}
   >
-    const editForm = document.getElementById("editActivityForm");
-    const deleteBtn = document.getElementById("deleteBtn");
-    const addExpenseBtn = document.getElementById("addExpenseBtn");
-    const addExpenseModal = document.getElementById("addExpenseModal");
-    const addExpenseForm = document.getElementById("addExpenseForm");
-    const cancelExpenseBtn = document.getElementById("cancelExpenseBtn");
-    const expenseError = document.getElementById("expenseError");
-    const toast = document.getElementById("toast");
-    const toastMessage = document.getElementById("toast-message");
+    const editForm = document.getElementById('editActivityForm');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const addExpenseBtn = document.getElementById('addExpenseBtn');
+    const addExpenseModal = document.getElementById('addExpenseModal');
+    const addExpenseForm = document.getElementById('addExpenseForm');
+    const cancelExpenseBtn = document.getElementById('cancelExpenseBtn');
+    const expenseError = document.getElementById('expenseError');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
 
     // Toast notification helper
     function showToast(message) {
       toastMessage.textContent = message;
-      toast.classList.remove("opacity-0");
+      toast.classList.remove('opacity-0');
       setTimeout(() => {
-        toast.classList.add("opacity-0");
+        toast.classList.add('opacity-0');
       }, 5000);
     }
 
     // Open Add Expense Modal
-    addExpenseBtn.addEventListener("click", () => {
-      addExpenseModal.classList.remove("hidden");
+    addExpenseBtn.addEventListener('click', () => {
+      addExpenseModal.classList.remove('hidden');
     });
 
     // Close Add Expense Modal
-    cancelExpenseBtn.addEventListener("click", () => {
-      addExpenseModal.classList.add("hidden");
+    cancelExpenseBtn.addEventListener('click', () => {
+      addExpenseModal.classList.add('hidden');
       addExpenseForm.reset();
-      expenseError.classList.add("hidden");
+      expenseError.classList.add('hidden');
     });
 
     // Close modal on outside click
-    addExpenseModal.addEventListener("click", (e) => {
+    addExpenseModal.addEventListener('click', (e) => {
       if (e.target === addExpenseModal) {
-        addExpenseModal.classList.add("hidden");
+        addExpenseModal.classList.add('hidden');
         addExpenseForm.reset();
-        expenseError.classList.add("hidden");
+        expenseError.classList.add('hidden');
       }
     });
 
     // Add Expense Form Submission
-    addExpenseForm.addEventListener("submit", async (e) => {
+    addExpenseForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       try {
         // Get the event to retrieve groupId
         const eventResponse = await fetch(`/api/events/${eventId}`);
         if (!eventResponse.ok) {
-          expenseError.textContent =
-            "Could not fetch event details. Please try again.";
-          expenseError.classList.remove("hidden");
+          expenseError.textContent = 'Could not fetch event details. Please try again.';
+          expenseError.classList.remove('hidden');
           return;
         }
 
@@ -456,29 +435,29 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
         if (!groupId) {
           expenseError.textContent =
             "This event doesn't have a group assigned yet. Please assign a group first.";
-          expenseError.classList.remove("hidden");
+          expenseError.classList.remove('hidden');
           return;
         }
 
         // Get form data
         const formData = new FormData(addExpenseForm);
-        const amount = parseFloat(formData.get("amount")) || 0;
+        const amount = parseFloat(formData.get('amount')) || 0;
 
         if (amount <= 0) {
-          expenseError.textContent = "Amount must be greater than 0";
-          expenseError.classList.remove("hidden");
+          expenseError.textContent = 'Amount must be greater than 0';
+          expenseError.classList.remove('hidden');
           return;
         }
 
         // Create expense
-        const expenseResponse = await fetch("/api/expenses/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const expenseResponse = await fetch('/api/expenses/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             groupId: groupId,
             activityId: activityId,
-            description: formData.get("description") || null,
-            category: formData.get("category") || "misc",
+            description: formData.get('description') || null,
+            category: formData.get('category') || 'misc',
             amount: Math.round(amount * 100),
             paidBy: userId,
           }),
@@ -486,27 +465,27 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
 
         if (!expenseResponse.ok) {
           const error = await expenseResponse.json();
-          expenseError.textContent = error.error || "Failed to create expense";
-          expenseError.classList.remove("hidden");
+          expenseError.textContent = error.error || 'Failed to create expense';
+          expenseError.classList.remove('hidden');
           return;
         }
 
         // Success
         showToast(`Expense of $${amount.toFixed(2)} added successfully!`);
-        addExpenseModal.classList.add("hidden");
+        addExpenseModal.classList.add('hidden');
         addExpenseForm.reset();
-        expenseError.classList.add("hidden");
+        expenseError.classList.add('hidden');
       } catch (error) {
-        console.error("Error:", error);
-        expenseError.textContent = "An error occurred. Please try again.";
-        expenseError.classList.remove("hidden");
+        console.error('Error:', error);
+        expenseError.textContent = 'An error occurred. Please try again.';
+        expenseError.classList.remove('hidden');
       }
     });
 
     // Metadata field handlers
-    function addMetadataField(key = "", value = "") {
-      const container = document.getElementById("metadataContainer");
-      const fieldId = "metadata-" + Date.now() + Math.random();
+    function addMetadataField(key = '', value = '') {
+      const container = document.getElementById('metadataContainer');
+      const fieldId = 'metadata-' + Date.now() + Math.random();
       const fieldHTML = `
         <div class="flex gap-2" id="${fieldId}">
           <input
@@ -532,12 +511,12 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
           </button>
         </div>
       `;
-      container.insertAdjacentHTML("beforeend", fieldHTML);
+      container.insertAdjacentHTML('beforeend', fieldHTML);
     }
 
-    const addMetadataFieldBtn = document.getElementById("addMetadataFieldBtn");
+    const addMetadataFieldBtn = document.getElementById('addMetadataFieldBtn');
     if (addMetadataFieldBtn) {
-      addMetadataFieldBtn.addEventListener("click", (e) => {
+      addMetadataFieldBtn.addEventListener('click', (e) => {
         e.preventDefault();
         addMetadataField();
       });
@@ -546,46 +525,46 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
     // Template definitions
     const templates = {
       flight: [
-        ["Flight Number", ""],
-        ["Airline", ""],
-        ["Departure Time", ""],
-        ["Arrival Time", ""],
-        ["Departure Airport", ""],
-        ["Arrival Airport", ""],
-        ["Gate", ""],
-        ["Seat", ""],
-        ["Confirmation Code", ""],
+        ['Flight Number', ''],
+        ['Airline', ''],
+        ['Departure Time', ''],
+        ['Arrival Time', ''],
+        ['Departure Airport', ''],
+        ['Arrival Airport', ''],
+        ['Gate', ''],
+        ['Seat', ''],
+        ['Confirmation Code', ''],
       ],
       hotel: [
-        ["Hotel Name", ""],
-        ["Address", ""],
-        ["Check-in Date", ""],
-        ["Check-out Date", ""],
-        ["Confirmation Code", ""],
-        ["Room Type", ""],
-        ["Parking", ""],
-        ["Contact Number", ""],
+        ['Hotel Name', ''],
+        ['Address', ''],
+        ['Check-in Date', ''],
+        ['Check-out Date', ''],
+        ['Confirmation Code', ''],
+        ['Room Type', ''],
+        ['Parking', ''],
+        ['Contact Number', ''],
       ],
       restaurant: [
-        ["Restaurant Name", ""],
-        ["Address", ""],
-        ["Reservation Time", ""],
-        ["Party Size", ""],
-        ["Reservation Name", ""],
-        ["Phone Number", ""],
-        ["Cuisine Type", ""],
-        ["Special Requests", ""],
-        ["Dietary Restrictions", ""],
+        ['Restaurant Name', ''],
+        ['Address', ''],
+        ['Reservation Time', ''],
+        ['Party Size', ''],
+        ['Reservation Name', ''],
+        ['Phone Number', ''],
+        ['Cuisine Type', ''],
+        ['Special Requests', ''],
+        ['Dietary Restrictions', ''],
       ],
       tourist: [
-        ["Location/Attraction", ""],
-        ["Address", ""],
-        ["Activity Duration", ""],
-        ["Meeting Point", ""],
-        ["Suggested Time", ""],
-        ["Entrance Fee", ""],
-        ["What to Bring", ""],
-        ["Contact Number", ""],
+        ['Location/Attraction', ''],
+        ['Address', ''],
+        ['Activity Duration', ''],
+        ['Meeting Point', ''],
+        ['Suggested Time', ''],
+        ['Entrance Fee', ''],
+        ['What to Bring', ''],
+        ['Contact Number', ''],
       ],
     };
 
@@ -593,23 +572,23 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
     function applyTemplate(templateType) {
       if (!templateType || !templates[templateType]) return;
 
-      const container = document.getElementById("metadataContainer");
-      container.innerHTML = ""; // Clear existing fields
+      const container = document.getElementById('metadataContainer');
+      container.innerHTML = ''; // Clear existing fields
 
       templates[templateType].forEach(([key, value]) => {
         addMetadataField(key, value);
       });
 
       showToast(
-        `${templateType.charAt(0).toUpperCase() + templateType.slice(1)} template applied!`,
+        `${templateType.charAt(0).toUpperCase() + templateType.slice(1)} template applied!`
       );
     }
 
     // Template selector event listener
-    const templateSelect = document.getElementById("templateSelect");
-    const applyTemplateBtn = document.getElementById("applyTemplateBtn");
+    const templateSelect = document.getElementById('templateSelect');
+    const applyTemplateBtn = document.getElementById('applyTemplateBtn');
 
-    applyTemplateBtn.addEventListener("click", (e) => {
+    applyTemplateBtn.addEventListener('click', (e) => {
       e.preventDefault();
       const selectedTemplate = templateSelect.value;
       applyTemplate(selectedTemplate);
@@ -617,11 +596,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
 
     // Load existing metadata
     function loadMetadata() {
-      if (
-        activity &&
-        activity.metadata &&
-        typeof activity.metadata === "object"
-      ) {
+      if (activity && activity.metadata && typeof activity.metadata === 'object') {
         Object.entries(activity.metadata).forEach(([key, value]) => {
           addMetadataField(key, String(value));
         });
@@ -630,15 +605,15 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
 
     loadMetadata();
 
-    editForm.addEventListener("submit", async (e) => {
+    editForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const formData = new FormData(editForm);
 
       // Collect metadata fields
       const metadata = {};
-      const metadataKeys = formData.getAll("metadataKey");
-      const metadataValues = formData.getAll("metadataValue");
+      const metadataKeys = formData.getAll('metadataKey');
+      const metadataValues = formData.getAll('metadataValue');
 
       for (let i = 0; i < metadataKeys.length; i++) {
         const key = metadataKeys[i]?.trim();
@@ -651,54 +626,45 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
       const data = {
         activityId,
         eventId,
-        title: formData.get("title"),
-        locationName: formData.get("locationName") || null,
-        startTime: formData.get("startTime") || null,
-        endTime: formData.get("endTime") || null,
-        sequenceOrder: parseInt(formData.get("sequenceOrder")) || 0,
+        title: formData.get('title'),
+        locationName: formData.get('locationName') || null,
+        startTime: formData.get('startTime') || null,
+        endTime: formData.get('endTime') || null,
+        sequenceOrder: parseInt(formData.get('sequenceOrder')) || 0,
         metadata: Object.keys(metadata).length > 0 ? metadata : {},
       };
 
       try {
-        const response = await fetch("/api/activities/update", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/activities/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
 
         if (!response.ok) {
           const error = await response.json();
-          alert(
-            "Error: " +
-              (error.error?.message ||
-                error.error ||
-                "Failed to update activity"),
-          );
+          alert('Error: ' + (error.error?.message || error.error || 'Failed to update activity'));
           return;
         }
 
-        showToast("Activity updated successfully!");
+        showToast('Activity updated successfully!');
         setTimeout(() => {
           window.location.href = `/activities/?eventId=${eventId}`;
         }, 1500);
       } catch (error) {
-        alert("Error: " + error.message);
+        alert('Error: ' + error.message);
       }
     });
 
-    deleteBtn.addEventListener("click", async () => {
-      if (
-        !confirm(
-          "Are you sure you want to delete this activity? This cannot be undone.",
-        )
-      ) {
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to delete this activity? This cannot be undone.')) {
         return;
       }
 
       try {
-        const response = await fetch("/api/activities/delete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/activities/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             activityId,
             eventId,
@@ -707,21 +673,16 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
 
         if (!response.ok) {
           const error = await response.json();
-          alert(
-            "Error: " +
-              (error.error?.message ||
-                error.error ||
-                "Failed to delete activity"),
-          );
+          alert('Error: ' + (error.error?.message || error.error || 'Failed to delete activity'));
           return;
         }
 
-        showToast("Activity deleted successfully!");
+        showToast('Activity deleted successfully!');
         setTimeout(() => {
           window.location.href = `/activities/index?eventId=${eventId}`;
         }, 1500);
       } catch (error) {
-        alert("Error: " + error.message);
+        alert('Error: ' + error.message);
       }
     });
   </script>

@@ -1,6 +1,6 @@
 /**
  * API Route: GET /api/settlements/event?eventId=X&status=pending
- * 
+ *
  * Get all settlements for an event
  * Optional: filter by status (pending, completed, disputed, cancelled)
  */
@@ -21,11 +21,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -46,11 +42,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Verify event exists
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -90,9 +82,7 @@ export const GET: APIRoute = async (context) => {
         return {
           id: settlement.id,
           from: settlement.fromUserId,
-          fromName: fromUser
-            ? `${fromUser.firstName} ${fromUser.lastName}`.trim()
-            : 'Unknown',
+          fromName: fromUser ? `${fromUser.firstName} ${fromUser.lastName}`.trim() : 'Unknown',
           to: settlement.toUserId,
           toName: toUser ? `${toUser.firstName} ${toUser.lastName}`.trim() : 'Unknown',
           amount: settlement.amount / 100, // Convert to dollars

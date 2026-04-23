@@ -12,9 +12,11 @@ A complete two-tier role-based authorization system that allows:
 ## New Files Created
 
 ### Database
+
 - `migrations/020-add-role-based-authorization.sql` - Database schema changes
 
 ### Drizzle ORM
+
 - New tables in `src/db/schema.ts`:
   - `systemRoles` - System roles (admin, user)
   - `groupRoles` - Group roles (owner, admin, member, viewer)
@@ -23,6 +25,7 @@ A complete two-tier role-based authorization system that allows:
   - `groupRolePermissions` - Role ↔ Permission mapping
 
 ### Authorization Module
+
 - Updated `src/db/authorization.ts` with:
   - `SystemRole` enum
   - `GroupRole` enum
@@ -34,11 +37,13 @@ A complete two-tier role-based authorization system that allows:
   - Event authorization functions (maintained from before)
 
 ### API Endpoints
+
 - `GET /api/users/list` - List all users with roles (admin only)
 - `PUT /api/users/[id]/role` - Update user's system role (admin only)
 - `DELETE /api/users/[id]` - Delete user (admin only)
 
 ### Admin Dashboard
+
 - `src/pages/admin/users.astro` - Admin dashboard for user management
 
 ## Database Setup
@@ -57,6 +62,7 @@ psql -h your-host -U postgres -d your-db -f migrations/020-add-role-based-author
 ### Option 2: Manual Setup
 
 The migration automatically:
+
 1. Creates the role and permission tables
 2. Inserts default system roles (admin, user)
 3. Inserts default group roles (owner, admin, member, viewer)
@@ -89,19 +95,19 @@ SELECT 'YOUR_USER_ID', id FROM system_roles WHERE name = 'admin';
 
 ### System Roles (App-Wide)
 
-| Role | Permissions |
-|------|-------------|
+| Role      | Permissions                                                          |
+| --------- | -------------------------------------------------------------------- |
 | **ADMIN** | Manage all users, view admin dashboard, all group/event capabilities |
-| **USER** | Create groups, create events, participate in shared expenses |
+| **USER**  | Create groups, create events, participate in shared expenses         |
 
 ### Group Roles (Within a Group)
 
-| Role | Capabilities |
-|------|--------------|
-| **OWNER** | Full control - invite/remove members, manage events, delete group |
-| **ADMIN** | Manage events created by others, invite members (not remove admins) |
-| **MEMBER** | Create own events, participate in group |
-| **VIEWER** | Read-only access to group and events |
+| Role       | Capabilities                                                        |
+| ---------- | ------------------------------------------------------------------- |
+| **OWNER**  | Full control - invite/remove members, manage events, delete group   |
+| **ADMIN**  | Manage events created by others, invite members (not remove admins) |
+| **MEMBER** | Create own events, participate in group                             |
+| **VIEWER** | Read-only access to group and events                                |
 
 ## API Usage Examples
 
@@ -122,7 +128,7 @@ const users = await response.json();
 const response = await fetch('/api/users/USER_ID/role', {
   method: 'PUT',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ systemRole: 'admin' })
+  body: JSON.stringify({ systemRole: 'admin' }),
 });
 ```
 
@@ -130,7 +136,7 @@ const response = await fetch('/api/users/USER_ID/role', {
 
 ```typescript
 const response = await fetch('/api/users/USER_ID/role', {
-  method: 'DELETE'
+  method: 'DELETE',
 });
 ```
 
@@ -175,6 +181,7 @@ if (!canEdit) {
 If you had the previous authorization system with just `isGroupOwner()` and `isGroupMember()`:
 
 **Old Code:**
+
 ```typescript
 const isOwner = await isGroupOwner(userId, groupId);
 if (!isOwner) {
@@ -183,6 +190,7 @@ if (!isOwner) {
 ```
 
 **New Code (Fully Compatible):**
+
 ```typescript
 const canManage = await canUserManageGroup(userId, groupId);
 if (!canManage) {
@@ -220,14 +228,17 @@ curl http://localhost:3000/api/users/list \
 ## Troubleshooting
 
 ### "User not found" when setting role
+
 - Make sure the user ID is correct
 - Verify user exists in the humans table
 
 ### Admin dashboard shows "No users found"
+
 - Check that you're running the migration
 - Verify you have admin role assigned
 
 ### Cannot delete user
+
 - Cannot delete your own admin account
 - Make sure you have admin privileges
 

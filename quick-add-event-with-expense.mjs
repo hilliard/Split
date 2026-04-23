@@ -9,11 +9,11 @@ const sql = postgres(process.env.DATABASE_URL);
 
 try {
   console.log('\n🚀 Creating event with initial expense...\n');
-  
+
   // Get an existing user (sonny)
   const userId = '61994963-eb56-4d04-89af-8e1593a507ca'; // sonny
   const groupId = 'd06517e4-ac7a-4141-9d47-fc00647cda9c'; // existing group
-  
+
   // Create event
   const eventId = uuidv4();
   const eventResult = await sql`
@@ -39,12 +39,12 @@ try {
     )
     RETURNING id, title, created_at
   `;
-  
+
   console.log('✅ Event created:');
   console.log(`   ID: ${eventResult[0].id}`);
   console.log(`   Title: ${eventResult[0].title}`);
   console.log(`   Created: ${eventResult[0].created_at}`);
-  
+
   // Create expense
   const expenseId = uuidv4();
   const expenseResult = await sql`
@@ -61,7 +61,7 @@ try {
     )
     RETURNING id, event_id, amount, description, paid_by, created_at
   `;
-  
+
   console.log('\n✅ Expense created:');
   console.log(`   ID: ${expenseResult[0].id}`);
   console.log(`   Event ID: ${expenseResult[0].event_id}`);
@@ -69,9 +69,8 @@ try {
   console.log(`   Description: ${expenseResult[0].description}`);
   console.log(`   Paid by: ${expenseResult[0].paid_by}`);
   console.log(`   Created: ${expenseResult[0].created_at}`);
-  
+
   console.log('\n✅ SUCCESS! Event and expense created.\n');
-  
 } catch (error) {
   console.error('\n❌ Error:', error.message);
   if (error.detail) console.error('Detail:', error.detail);

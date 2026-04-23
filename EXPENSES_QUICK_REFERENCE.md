@@ -241,9 +241,9 @@ curl "http://localhost:3000/api/expenses/balances?eventId=trip-colorado-2026" \
 ### Get User's Balance
 
 ```typescript
-import { getUserBalance, formatDollars } from "../utils/expenses.ts";
+import { getUserBalance, formatDollars } from '../utils/expenses.ts';
 
-const balance = await getUserBalance("alice-id");
+const balance = await getUserBalance('alice-id');
 console.log(`Alice: ${formatDollars(balance)}`);
 // Output: Alice: -$87.53 (owes money)
 ```
@@ -251,26 +251,24 @@ console.log(`Alice: ${formatDollars(balance)}`);
 ### Check All Debts Settled
 
 ```typescript
-import { areDebtsSettled } from "../utils/expenses.ts";
+import { areDebtsSettled } from '../utils/expenses.ts';
 
-const settled = await areDebtsSettled("trip-colorado-2026");
+const settled = await areDebtsSettled('trip-colorado-2026');
 if (settled) {
-  console.log("✅ Trip is all settled up!");
+  console.log('✅ Trip is all settled up!');
 } else {
-  console.log("⚠️ Pending payments needed");
+  console.log('⚠️ Pending payments needed');
 }
 ```
 
 ### Get Settlement Plan
 
 ```typescript
-import { calculateSettlements, formatDollars } from "../utils/expenses.ts";
+import { calculateSettlements, formatDollars } from '../utils/expenses.ts';
 
-const plan = await calculateSettlements("trip-colorado-2026");
+const plan = await calculateSettlements('trip-colorado-2026');
 plan.forEach((settlement) => {
-  console.log(
-    `${settlement.fromName} → ${settlement.toName}: ${formatDollars(settlement.amount)}`,
-  );
+  console.log(`${settlement.fromName} → ${settlement.toName}: ${formatDollars(settlement.amount)}`);
 });
 ```
 

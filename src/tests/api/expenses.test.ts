@@ -1,25 +1,18 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { db } from '@/db';
-import {
-  sessions,
-  users,
-  expenseGroups,
-  groupMembers,
-  activities,
-  expenses,
-} from '@/db/schema';
+import { sessions, users, expenseGroups, groupMembers, activities, expenses } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { v4 as uuid } from 'uuid';
 
 /**
  * API Integration Tests for Expenses and Activities
- * 
+ *
  * Tests cover:
  * - Expense categories (meal, transport, accommodation, parking, entertainment, tickets, misc)
  * - GET /api/activities/[id] - Fetch activity details
  * - POST /api/expenses/create - Create expense with category
  * - Activity creation with optional expense
- * 
+ *
  * Note: These are integration tests that require a running database.
  */
 
@@ -32,7 +25,7 @@ describe.skip('Expenses and Activities API', () => {
   beforeAll(async () => {
     // Create test user
     const userId = uuid();
-    
+
     await db.insert(users).values({
       id: userId,
       email: `test-expenses-${Date.now()}@example.com`,
@@ -45,7 +38,7 @@ describe.skip('Expenses and Activities API', () => {
     // Create test session
     const sessionId = uuid();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    
+
     await db.insert(sessions).values({
       id: sessionId,
       userId: userId,
@@ -56,7 +49,7 @@ describe.skip('Expenses and Activities API', () => {
 
     // Create test group
     const groupId = uuid();
-    
+
     await db.insert(expenseGroups).values({
       id: groupId,
       name: `Test Group - ${Date.now()}`,
@@ -76,7 +69,7 @@ describe.skip('Expenses and Activities API', () => {
 
     // Create test activity
     const activityId = uuid();
-    
+
     await db.insert(activities).values({
       id: activityId,
       title: 'Test Activity',
@@ -90,8 +83,16 @@ describe.skip('Expenses and Activities API', () => {
 
   describe('Expense Categories', () => {
     it('should accept all valid expense categories', async () => {
-      const categories = ['meal', 'transport', 'accommodation', 'parking', 'entertainment', 'tickets', 'misc'];
-      
+      const categories = [
+        'meal',
+        'transport',
+        'accommodation',
+        'parking',
+        'entertainment',
+        'tickets',
+        'misc',
+      ];
+
       for (const category of categories) {
         const expenseId = uuid();
         const result = await db.insert(expenses).values({
@@ -110,15 +111,18 @@ describe.skip('Expenses and Activities API', () => {
 
     it('should default to misc category for expenses without category', async () => {
       const expenseId = uuid();
-      
-      const expense = await db.insert(expenses).values({
-        id: expenseId,
-        groupId: testGroup.id,
-        description: 'Default category expense',
-        amount: 2000,
-        paidBy: testUser.id,
-        activityId: null,
-      }).returning();
+
+      const expense = await db
+        .insert(expenses)
+        .values({
+          id: expenseId,
+          groupId: testGroup.id,
+          description: 'Default category expense',
+          amount: 2000,
+          paidBy: testUser.id,
+          activityId: null,
+        })
+        .returning();
 
       expect(expense[0].category).toBe('misc');
     });
@@ -156,16 +160,19 @@ describe.skip('Expenses and Activities API', () => {
   describe('Expense Creation with Category', () => {
     it('should create expense with all fields including category', async () => {
       const expenseId = uuid();
-      
-      const result = await db.insert(expenses).values({
-        id: expenseId,
-        groupId: testGroup.id,
-        description: 'Restaurant meal',
-        category: 'meal',
-        amount: 3500, // $35.00
-        paidBy: testUser.id,
-        activityId: testActivity.id,
-      }).returning();
+
+      const result = await db
+        .insert(expenses)
+        .values({
+          id: expenseId,
+          groupId: testGroup.id,
+          description: 'Restaurant meal',
+          category: 'meal',
+          amount: 3500, // $35.00
+          paidBy: testUser.id,
+          activityId: testActivity.id,
+        })
+        .returning();
 
       expect(result[0]).toMatchObject({
         description: 'Restaurant meal',
@@ -179,7 +186,7 @@ describe.skip('Expenses and Activities API', () => {
 
     it('should link expense to activity when provided', async () => {
       const expenseId = uuid();
-      
+
       await db.insert(expenses).values({
         id: expenseId,
         groupId: testGroup.id,
@@ -191,18 +198,14 @@ describe.skip('Expenses and Activities API', () => {
       });
 
       // Verify the link
-      const expense = await db
-        .select()
-        .from(expenses)
-        .where(eq(expenses.id, expenseId))
-        .limit(1);
+      const expense = await db.select().from(expenses).where(eq(expenses.id, expenseId)).limit(1);
 
       expect(expense[0].activityId).toBe(testActivity.id);
     });
 
     it('should allow null activity ID for standalone expenses', async () => {
       const expenseId = uuid();
-      
+
       await db.insert(expenses).values({
         id: expenseId,
         groupId: testGroup.id,
@@ -213,11 +216,7 @@ describe.skip('Expenses and Activities API', () => {
         activityId: null,
       });
 
-      const expense = await db
-        .select()
-        .from(expenses)
-        .where(eq(expenses.id, expenseId))
-        .limit(1);
+      const expense = await db.select().from(expenses).where(eq(expenses.id, expenseId)).limit(1);
 
       expect(expense[0].activityId).toBeNull();
     });
@@ -228,16 +227,16 @@ describe.skip('Expenses and Activities API', () => {
     if (testActivity?.id) {
       await db.delete(activities).where(eq(activities.id, testActivity.id));
     }
-    
+
     if (testGroup?.id) {
       await db.delete(groupMembers).where(eq(groupMembers.groupId, testGroup.id));
       await db.delete(expenseGroups).where(eq(expenseGroups.id, testGroup.id));
     }
-    
+
     if (testSession?.id) {
       await db.delete(sessions).where(eq(sessions.id, testSession.id));
     }
-    
+
     if (testUser?.id) {
       await db.delete(users).where(eq(users.id, testUser.id));
     }

@@ -7,13 +7,14 @@ const sql = postgres({
   database: 'neondb',
   username: 'neondb_owner',
   password: 'npg_0lxTYBLMgh2r',
-  ssl: 'require'
+  ssl: 'require',
 });
 
 console.log('\n=== VERIFICATION: Trip To OZ Event & Expense ===\n');
 
 // Check the event
-const events = await sql`SELECT id, title, group_id, created_at FROM events WHERE title ILIKE '%Oz%' ORDER BY created_at DESC LIMIT 1`;
+const events =
+  await sql`SELECT id, title, group_id, created_at FROM events WHERE title ILIKE '%Oz%' ORDER BY created_at DESC LIMIT 1`;
 if (events.length > 0) {
   const event = events[0];
   console.log('✅ EVENT FOUND:');
@@ -24,10 +25,11 @@ if (events.length > 0) {
 
   // If group_id is set, check for expenses
   if (event.group_id) {
-    const expenses = await sql`SELECT id, amount, description FROM expenses WHERE group_id = ${event.group_id}`;
+    const expenses =
+      await sql`SELECT id, amount, description FROM expenses WHERE group_id = ${event.group_id}`;
     console.log(`\n   Expenses in group: ${expenses.length}`);
     expenses.forEach((exp, i) => {
-      console.log(`   ${i+1}. $${(exp.amount/100).toFixed(2)} - ${exp.description}`);
+      console.log(`   ${i + 1}. $${(exp.amount / 100).toFixed(2)} - ${exp.description}`);
     });
   } else {
     console.log('\n   ❌ No group linked to event - expenses cannot exist');
@@ -37,11 +39,12 @@ if (events.length > 0) {
 }
 
 // Check for orphan expense
-const orphanExpense = await sql`SELECT id, amount, description, group_id FROM expenses WHERE amount = 56393`;
+const orphanExpense =
+  await sql`SELECT id, amount, description, group_id FROM expenses WHERE amount = 56393`;
 if (orphanExpense.length > 0) {
   console.log('\n⚠️  ORPHAN EXPENSE FOUND:');
-  orphanExpense.forEach(exp => {
-    console.log(`   $${(exp.amount/100).toFixed(2)} - ${exp.description}`);
+  orphanExpense.forEach((exp) => {
+    console.log(`   $${(exp.amount / 100).toFixed(2)} - ${exp.description}`);
     console.log(`   Group: ${exp.group_id || 'null'}`);
   });
 }

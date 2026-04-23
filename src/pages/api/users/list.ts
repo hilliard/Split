@@ -4,7 +4,7 @@ import { humans, humanSystemRoles, systemRoles, customers } from '@/db/schema';
 import { emailHistory } from '@/db/human-centric-schema';
 import { getSession } from '@/utils/session';
 import { isSystemAdmin } from '@/db/authorization';
-import { eq, isNull } from 'drizzle-orm';
+import { eq, isNull, and } from 'drizzle-orm';
 
 /**
  * GET /api/users/list
@@ -26,7 +26,7 @@ export const GET: APIRoute = async (context) => {
       return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     }
 
-    // Get all users with their system roles
+    // Get all users with their system roles and current email
     const users = await db
       .select({
         id: humans.id,
@@ -41,21 +41,17 @@ export const GET: APIRoute = async (context) => {
       .leftJoin(customers, eq(humans.id, customers.humanId))
       .leftJoin(
         emailHistory,
-        eq(humans.id, emailHistory.humanId) // current email only
+        and(
+          eq(humans.id, emailHistory.humanId),
+          isNull(emailHistory.effectiveTo) // Get current email only
+        )
       )
-      .leftJoin(
-        humanSystemRoles,
-        eq(humans.id, humanSystemRoles.humanId)
-      )
-      .leftJoin(systemRoles, eq(humanSystemRoles.systemRoleId, systemRoles.id))
-      .where(isNull(emailHistory.effectiveTo));
+      .leftJoin(humanSystemRoles, eq(humans.id, humanSystemRoles.humanId))
+      .leftJoin(systemRoles, eq(humanSystemRoles.systemRoleId, systemRoles.id));
 
     return new Response(JSON.stringify(users), { status: 200 });
   } catch (error) {
     console.error('Error fetching users:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to fetch users' }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch users' }), { status: 500 });
   }
 };

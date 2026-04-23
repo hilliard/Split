@@ -18,11 +18,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Validate session
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -78,7 +74,7 @@ export const GET: APIRoute = async (context) => {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
       },
     });
   } catch (error) {
@@ -97,7 +93,7 @@ export function broadcastUpdate(subscriptionId: string, event: any) {
 
   const encoder = new TextEncoder();
   const message = `data: ${JSON.stringify(event)}\n\n`;
-  
+
   for (const controller of clients) {
     try {
       controller.enqueue(encoder.encode(message));

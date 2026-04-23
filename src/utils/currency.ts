@@ -1,11 +1,11 @@
 /**
  * Currency Conversion Utilities
- * 
+ *
  * CORE PRINCIPLE:
  * - Application stores all monetary values as CENTS (integers) in the database
  * - UI always displays and receives DOLLARS (with decimals)
  * - All conversions happen through these functions to prevent double-conversion bugs
- * 
+ *
  * Usage:
  * - Frontend form input (dollars) → dollarsToCents() → send to API
  * - API receives dollars, stores as cents using dollarsToCents()
@@ -20,11 +20,11 @@
  */
 export function dollarsToCents(dollars: number | string): number {
   const dollarAmount = typeof dollars === 'string' ? parseFloat(dollars) : dollars;
-  
+
   if (isNaN(dollarAmount)) {
     return 0;
   }
-  
+
   // Round to nearest cent to avoid floating point issues
   return Math.round(dollarAmount * 100);
 }
@@ -36,11 +36,11 @@ export function dollarsToCents(dollars: number | string): number {
  */
 export function centsToDollars(cents: number | string): string {
   const centAmount = typeof cents === 'string' ? parseInt(cents) : cents;
-  
+
   if (isNaN(centAmount)) {
-    return "0.00";
+    return '0.00';
   }
-  
+
   return (centAmount / 100).toFixed(2);
 }
 

@@ -11,6 +11,7 @@ node TEST_SSE_SCRIPT.mjs
 ```
 
 ## Test Users
+
 - **cathyd** / password123 (member of Houston Party People)
 - **charlie** / CharliePass123 (member of Houston Party People)
 
@@ -21,7 +22,7 @@ node TEST_SSE_SCRIPT.mjs
    - Go to any event
 
 2. Open `http://localhost:3000` in **Tab B** (same browser)
-   - Login: cathyd / password123  
+   - Login: cathyd / password123
    - Go to the **SAME event** as Tab A
 
 3. In **Tab B**: Create a new activity
@@ -37,16 +38,20 @@ node TEST_SSE_SCRIPT.mjs
 ## Debug Checklist
 
 ### Connection Issues
+
 ```
 DevTools → Network tab → Filter "stream"
 ```
+
 Should show:
+
 - Request: `GET /api/events/stream?eventId=...`
 - Status: 200
 - Type: XHR (or fetch)
 - State: **pending** (long-lived connection)
 
 ### No Notification?
+
 1. Check DevTools **Console** tab
    - Should show: `✅ Connected to real-time updates`
    - If not: session expired or event page didn't load
@@ -60,27 +65,29 @@ Should show:
    - If not → activity creation failed
 
 ### Toast Not Visible?
+
 1. Check if it's auto-hidden (dismisses after 3 seconds)
 2. Create activity again from Tab B
 3. Watch for green banner at bottom-right of Tab A
 
 ### No List Refresh?
+
 1. Browser console should show errors if any
 2. Check `loadContent()` function is called
 3. Try manual page refresh to compare
 
 ## Test Scenarios Overview
 
-| # | Scenario | Time | Setup | Key Check |
-|---|----------|------|-------|-----------|
-| 1 | Same user, 2 tabs | 5m | cathyd in 2 tabs | Toast appears |
-| 2 | Different users | 5m | cathyd + charlie | Cross-user notification |
-| 3 | Connection resilience | 10m | Close/reopen tabs | Auto-reconnect works |
-| 4 | Performance (5 activities) | 10m | Rapid creates | All toasts appear |
-| 5 | Network throttling | 15m | Slow 3G + recover | Delayed but arrives |
-| 6 | Event isolation | 5m | 2 different events | Notification only in correct event |
-| 7 | Memory leak (10 notifications) | 10m | Long session | Heap < 5MB increase |
-| 8 | Browser compatibility | 10m | Chrome, Firefox, Safari | All work identically |
+| #   | Scenario                       | Time | Setup                   | Key Check                          |
+| --- | ------------------------------ | ---- | ----------------------- | ---------------------------------- |
+| 1   | Same user, 2 tabs              | 5m   | cathyd in 2 tabs        | Toast appears                      |
+| 2   | Different users                | 5m   | cathyd + charlie        | Cross-user notification            |
+| 3   | Connection resilience          | 10m  | Close/reopen tabs       | Auto-reconnect works               |
+| 4   | Performance (5 activities)     | 10m  | Rapid creates           | All toasts appear                  |
+| 5   | Network throttling             | 15m  | Slow 3G + recover       | Delayed but arrives                |
+| 6   | Event isolation                | 5m   | 2 different events      | Notification only in correct event |
+| 7   | Memory leak (10 notifications) | 10m  | Long session            | Heap < 5MB increase                |
+| 8   | Browser compatibility          | 10m  | Chrome, Firefox, Safari | All work identically               |
 
 **Total time for full suite: ~70 minutes**
 
@@ -105,12 +112,14 @@ src/pages/events/[id].astro
 ## Console Messages
 
 ✅ **Good** (look for these):
+
 ```javascript
 ✅ Connected to real-time updates
 📢 New activity: { id, title, ... }
 ```
 
 ❌ **Bad** (if you see these):
+
 ```javascript
 ❌ Session expired
 ❌ Error parsing SSE
@@ -120,11 +129,13 @@ Unauthorized
 ## Network Traffic Expected
 
 ### When page loads:
+
 ```
 GET /api/events/stream?eventId=xxx → 200 (pending)
 ```
 
 ### When activity created in another tab:
+
 ```
 POST /api/activities/create → 201
 // SSE receives data event
@@ -132,6 +143,7 @@ data: {"type":"activity_created","activity":{...},"timestamp":"..."}
 ```
 
 ### Response chain:
+
 1. User creates activity (POST)
 2. Backend creates activity (DB insert)
 3. Backend broadcasts to all connected clients
@@ -152,9 +164,11 @@ data: {"type":"activity_created","activity":{...},"timestamp":"..."}
 ## If Something Breaks
 
 1. **Check build:**
+
    ```bash
    npm run build
    ```
+
    Should complete without errors
 
 2. **Check logs:**
@@ -162,6 +176,7 @@ data: {"type":"activity_created","activity":{...},"timestamp":"..."}
    - Browser DevTools Console
 
 3. **Verify endpoints exist:**
+
    ```bash
    # Should return connection
    curl http://localhost:3000/api/events/stream
@@ -176,6 +191,7 @@ data: {"type":"activity_created","activity":{...},"timestamp":"..."}
 When ready for CI/CD, test template is in TEST_SSE_SCRIPT.mjs
 
 To add Playwright tests:
+
 1. Copy AUTOMATED_TEST_TEMPLATE from TEST_SSE_SCRIPT.mjs
 2. Save to `src/tests/sse.spec.ts`
 3. Run: `npx playwright test sse.spec.ts`
@@ -183,6 +199,7 @@ To add Playwright tests:
 ## Cleanup for Deployment
 
 Before going live:
+
 - [ ] Remove `broadcastUpdate` calls from dev/debug endpoints
 - [ ] Verify no console.log() calls remain in production code
 - [ ] Check /api/events/stream handles session timeout properly

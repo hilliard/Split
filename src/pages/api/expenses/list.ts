@@ -1,13 +1,20 @@
 /**
  * API Route: GET /api/expenses/list
- * 
+ *
  * List all expenses for an event
  * Shows who paid what and splits
  */
 
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { sessions, expenses, events, expenseSplits, humans, groupMembers } from '../../../db/schema';
+import {
+  sessions,
+  expenses,
+  events,
+  expenseSplits,
+  humans,
+  groupMembers,
+} from '../../../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { centsToDollars } from '../../../utils/currency';
 
@@ -22,11 +29,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -45,11 +48,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Verify event exists
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -67,27 +66,24 @@ export const GET: APIRoute = async (context) => {
         .select()
         .from(groupMembers)
         .where(
-          and(
-            eq(groupMembers.userId, session.userId),
-            eq(groupMembers.groupId, event.groupId)
-          )
+          and(eq(groupMembers.userId, session.userId), eq(groupMembers.groupId, event.groupId))
         )
         .limit(1);
       isGroupMember = !!membership;
     }
 
     if (!isCreator && !isGroupMember) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to view expenses for this event' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to view expenses for this event' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Get all expenses for this event
-    const eventExpenses = await db
-      .select()
-      .from(expenses)
-      .where(eq(expenses.eventId, eventId));
+    const eventExpenses = await db.select().from(expenses).where(eq(expenses.eventId, eventId));
 
     // Enrich with split details and payer name
     const enrichedExpenses = await Promise.all(
@@ -124,17 +120,20 @@ export const GET: APIRoute = async (context) => {
       })
     );
 
-    return new Response(JSON.stringify({
-      success: true,
-      total: enrichedExpenses.length,
-      expenses: enrichedExpenses,
-      totalAmount: enrichedExpenses.reduce((sum, e) => sum + e.amount, 0),
-      totalTips: enrichedExpenses.reduce((sum, e) => sum + e.tip, 0),
-      totalWithTips: enrichedExpenses.reduce((sum, e) => sum + e.total, 0),
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        total: enrichedExpenses.length,
+        expenses: enrichedExpenses,
+        totalAmount: enrichedExpenses.reduce((sum, e) => sum + e.amount, 0),
+        totalTips: enrichedExpenses.reduce((sum, e) => sum + e.tip, 0),
+        totalWithTips: enrichedExpenses.reduce((sum, e) => sum + e.total, 0),
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error fetching expenses:', error);
     return new Response(JSON.stringify({ error: 'Failed to fetch expenses' }), {

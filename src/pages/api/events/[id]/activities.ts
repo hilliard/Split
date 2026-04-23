@@ -13,11 +13,7 @@ export const GET: APIRoute = async ({ params, cookies }) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -36,11 +32,7 @@ export const GET: APIRoute = async ({ params, cookies }) => {
     }
 
     // Verify event ownership
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event || event.creatorId !== session.userId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -61,12 +53,9 @@ export const GET: APIRoute = async ({ params, cookies }) => {
     });
   } catch (error) {
     console.error('Error fetching activities:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to fetch activities' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch activities' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

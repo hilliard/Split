@@ -3,6 +3,7 @@
 ## Current (Placeholder) Roles Analysis
 
 ❌ The placeholder roles don't map well to Split's domain:
+
 - **admin** - Good, but vague scope (app-level? group-level?)
 - **customer** - Too generic for an expense app
 - **organizer** - Not specific enough
@@ -15,12 +16,13 @@
 
 These roles determine what a user can do across the entire app.
 
-| Role | Scope | Capabilities | Use Case |
-|------|-------|--------------|----------|
+| Role      | Scope       | Capabilities                                               | Use Case          |
+| --------- | ----------- | ---------------------------------------------------------- | ----------------- |
 | **ADMIN** | System-wide | Manage users, view all groups, system settings, audit logs | You, support team |
-| **USER** | Personal | Create groups, manage own data, join groups | Everyone else |
+| **USER**  | Personal    | Create groups, manage own data, join groups                | Everyone else     |
 
 **Structure:**
+
 ```
 System Admin
 └── Can view/manage any user, group, event
@@ -40,14 +42,15 @@ Regular User
 
 When a user is part of a group, they have a role within that group.
 
-| Role | Scope | Capabilities | How Assigned |
-|------|-------|--------------|--------------|
-| **OWNER** | Single group | Full control - manage members, delete group, events | Auto: User who created group |
-| **ADMIN** | Single group | Invite members, delete/edit events, manage group | Owner assigns |
-| **MEMBER** | Single group | Create/edit own events, view group data | Accept invite, auto-add by admin |
-| **VIEWER** | Single group | Read-only access | Owner assigns (for reporting, auditing) |
+| Role       | Scope        | Capabilities                                        | How Assigned                            |
+| ---------- | ------------ | --------------------------------------------------- | --------------------------------------- |
+| **OWNER**  | Single group | Full control - manage members, delete group, events | Auto: User who created group            |
+| **ADMIN**  | Single group | Invite members, delete/edit events, manage group    | Owner assigns                           |
+| **MEMBER** | Single group | Create/edit own events, view group data             | Accept invite, auto-add by admin        |
+| **VIEWER** | Single group | Read-only access                                    | Owner assigns (for reporting, auditing) |
 
 **Structure:**
+
 ```
 Group
 ├── OWNER (creator)
@@ -77,12 +80,12 @@ Group
 
 When a user participates in an event, they implicitly have roles based on their actions.
 
-| Role | Scope | Description |
-|------|-------|-------------|
-| **CREATOR** | Single event | User who created the event |
-| **PARTICIPANT** | Single event | Part of this event's expenses |
-| **PAYER** | Single expense | User who paid for an expense |
-| **PAYEE** | Single expense | User who owes money on an expense |
+| Role            | Scope          | Description                       |
+| --------------- | -------------- | --------------------------------- |
+| **CREATOR**     | Single event   | User who created the event        |
+| **PARTICIPANT** | Single event   | Part of this event's expenses     |
+| **PAYER**       | Single expense | User who paid for an expense      |
+| **PAYEE**       | Single expense | User who owes money on an expense |
 
 **Note:** These are **automated** based on actions, not explicitly assigned.
 
@@ -91,6 +94,7 @@ When a user participates in an event, they implicitly have roles based on their 
 ## Authorization Decision Tree
 
 ### User wants to CREATE a GROUP
+
 ```
 Q: Is user authenticated?
   NO  → 401 Unauthorized
@@ -98,6 +102,7 @@ Q: Is user authenticated?
 ```
 
 ### User wants to INVITE someone to a GROUP
+
 ```
 Q: Is user authenticated?
   NO  → 401 Unauthorized
@@ -109,6 +114,7 @@ Q: Is user authenticated?
 ```
 
 ### User wants to DELETE someone from a GROUP
+
 ```
 Q: Is user authenticated?
   NO  → 401 Unauthorized
@@ -121,6 +127,7 @@ Q: Is user authenticated?
 ```
 
 ### User wants to DELETE the GROUP
+
 ```
 Q: Is user authenticated?
   NO  → 401 Unauthorized
@@ -131,6 +138,7 @@ Q: Is user authenticated?
 ```
 
 ### User wants to CREATE an EVENT
+
 ```
 Q: Is user authenticated?
   NO  → 401 Unauthorized
@@ -140,12 +148,13 @@ Q: Is user authenticated?
         Q: User's role in group?
           OWNER/ADMIN/MEMBER → Allow ✅
           VIEWER             → Deny 403
-      
+
       PERSONAL event:
         Allow (always) ✅
 ```
 
 ### User wants to EDIT an EVENT
+
 ```
 Q: Is user authenticated?
   NO  → 401 Unauthorized
@@ -252,7 +261,7 @@ export async function getUserSystemRole(userId: string): Promise<SystemRole | nu
     .where(eq(human_system_roles.humanId, userId))
     .limit(1);
 
-  return result?.roleName as SystemRole || null;
+  return (result?.roleName as SystemRole) || null;
 }
 
 /**
@@ -266,23 +275,15 @@ export async function isSystemAdmin(userId: string): Promise<boolean> {
 /**
  * Get user's role within a group
  */
-export async function getUserGroupRole(
-  userId: string,
-  groupId: string
-): Promise<GroupRole | null> {
+export async function getUserGroupRole(userId: string, groupId: string): Promise<GroupRole | null> {
   const [result] = await db
     .select({ roleName: group_roles.name })
     .from(group_memberships)
     .innerJoin(group_roles, eq(group_memberships.groupRoleId, group_roles.id))
-    .where(
-      and(
-        eq(group_memberships.humanId, userId),
-        eq(group_memberships.groupId, groupId)
-      )
-    )
+    .where(and(eq(group_memberships.humanId, userId), eq(group_memberships.groupId, groupId)))
     .limit(1);
 
-  return result?.roleName as GroupRole || null;
+  return (result?.roleName as GroupRole) || null;
 }
 
 /**
@@ -294,9 +295,9 @@ export async function canUserManageGroupMember(
   targetUserId: string
 ): Promise<boolean> {
   const role = await getUserGroupRole(userId, groupId);
-  
+
   if (role === GroupRole.OWNER) return true; // Owner can do anything
-  
+
   if (role === GroupRole.ADMIN) {
     // Admin can remove members but not admins
     const targetRole = await getUserGroupRole(targetUserId, groupId);
@@ -309,10 +310,7 @@ export async function canUserManageGroupMember(
 /**
  * Check if user can delete group
  */
-export async function canUserDeleteGroup(
-  userId: string,
-  groupId: string
-): Promise<boolean> {
+export async function canUserDeleteGroup(userId: string, groupId: string): Promise<boolean> {
   const role = await getUserGroupRole(userId, groupId);
   return role === GroupRole.OWNER;
 }
@@ -320,10 +318,7 @@ export async function canUserDeleteGroup(
 /**
  * Check if user can invite to group
  */
-export async function canUserInviteToGroup(
-  userId: string,
-  groupId: string
-): Promise<boolean> {
+export async function canUserInviteToGroup(userId: string, groupId: string): Promise<boolean> {
   const role = await getUserGroupRole(userId, groupId);
   return role === GroupRole.OWNER || role === GroupRole.ADMIN;
 }
@@ -361,16 +356,16 @@ INSERT INTO permissions (resource, action, description) VALUES
   ('group', 'delete', 'Delete group'),
   ('group.member', 'invite', 'Invite user to group'),
   ('group.member', 'remove', 'Remove user from group'),
-  
+
   ('event', 'create', 'Create event in group'),
   ('event', 'read', 'View event'),
   ('event', 'update', 'Edit event'),
   ('event', 'delete', 'Delete event'),
-  
+
   ('expense', 'create', 'Add expense'),
   ('expense', 'read', 'View expense'),
   ('expense', 'edit', 'Edit expense'),
-  
+
   ('user', 'manage', 'Manage users (admin only)');
 ```
 
@@ -402,16 +397,19 @@ WHERE action = 'read';
 ## Summary
 
 ### System Roles (2)
+
 - ADMIN: App-level admin
 - USER: Regular user
 
 ### Group Roles (4)
+
 - OWNER: Group creator (full control)
 - ADMIN: Promoted by owner (invite, manage events)
 - MEMBER: Group participant
 - VIEWER: Read-only
 
 ### Event/Expense
+
 - Automated based on actions (not explicit roles)
 - CREATOR: Made the event
 - PAYER: Paid the expense

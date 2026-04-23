@@ -35,10 +35,10 @@ TypeScript utilities for managing user roles:
 **Usage:**
 
 ```typescript
-import { assignSystemRole, isAdmin } from "../utils/roles.ts";
+import { assignSystemRole, isAdmin } from '../utils/roles.ts';
 
 // Assign admin role
-await assignSystemRole(userId, "admin");
+await assignSystemRole(userId, 'admin');
 
 // Check if admin
 const isUserAdmin = await isAdmin(userId);
@@ -62,7 +62,7 @@ Authentication middleware for protecting API endpoints:
 **Usage:**
 
 ```typescript
-import { withAdminAuth } from "../../utils/auth-middleware.ts";
+import { withAdminAuth } from '../../utils/auth-middleware.ts';
 
 export const GET: APIRoute = withAdminAuth(async (req, context, auth) => {
   // Your admin-only code here
@@ -231,7 +231,7 @@ Use these credentials to test different privilege levels:
 ### Protect Admin Endpoints
 
 ```typescript
-import { withAdminAuth } from "../../utils/auth-middleware.ts";
+import { withAdminAuth } from '../../utils/auth-middleware.ts';
 
 export const POST: APIRoute = withAdminAuth(async (req, context, auth) => {
   // Your code here - only runs if user is admin
@@ -242,20 +242,20 @@ export const POST: APIRoute = withAdminAuth(async (req, context, auth) => {
 ### Protect Group Endpoints
 
 ```typescript
-import { requireGroupEdit } from "../../utils/auth-middleware.ts";
+import { requireGroupEdit } from '../../utils/auth-middleware.ts';
 
 try {
   const auth = await requireGroupEdit(cookies, groupId);
   // User has edit permission in this group
 } catch (error) {
-  return forbiddenResponse("Cannot edit this group");
+  return forbiddenResponse('Cannot edit this group');
 }
 ```
 
 ### Check Permissions in Code
 
 ```typescript
-import { isAdmin, canUserEditGroup } from "../utils/roles.ts";
+import { isAdmin, canUserEditGroup } from '../utils/roles.ts';
 
 // Check system admin
 if (await isAdmin(userId)) {

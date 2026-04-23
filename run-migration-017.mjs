@@ -16,12 +16,13 @@ const migrationSQL = fs.readFileSync(migrationFile, 'utf-8');
 console.log('🔄 Running migration 017...');
 console.log('─'.repeat(60));
 
-sql.unsafe(migrationSQL)
+sql
+  .unsafe(migrationSQL)
   .then(async () => {
     console.log('─'.repeat(60));
     console.log('✅ Migration 017 completed successfully');
     console.log('✓ Fixed expense_groups FK to point to humans table');
-    
+
     // Test the fix
     console.log('\n🧪 Testing group creation...');
     const result = await sql`
@@ -30,7 +31,7 @@ sql.unsafe(migrationSQL)
       RETURNING id, name, created_by
     `;
     console.log('✅ Group created successfully:', result[0].name);
-    
+
     // Clean up
     await sql`DELETE FROM expense_groups WHERE name = 'Test Success'`;
   })

@@ -271,13 +271,17 @@ import Layout from "../../layouts/Layout.astro";
         body: JSON.stringify({ username, email, password }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         // Redirect to verification pending page
-        window.location.href = `/auth/verification-pending?email=${encodeURIComponent(email)}&customerId=${data.customerId}`;
+        const redirectUrl = `/auth/verification-pending?email=${encodeURIComponent(email)}&customerId=${data.customerId}`;
+        // Use a small delay to ensure response is fully processed before redirect
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 100);
       } else {
-        const error = await response.json();
-        registerError!.textContent = error.error || "Registration failed";
+        registerError!.textContent = data.error || "Registration failed";
         registerError!.classList.remove("hidden");
       }
     } catch (error) {

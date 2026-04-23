@@ -1,6 +1,6 @@
 /**
  * API Route: GET /api/expenses/list-by-activity
- * 
+ *
  * List all expenses for a specific activity
  */
 
@@ -20,11 +20,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -84,16 +80,19 @@ export const GET: APIRoute = async (context) => {
       })
     );
 
-    return new Response(JSON.stringify({
-      success: true,
-      total: enrichedExpenses.length,
-      expenses: enrichedExpenses,
-      totalAmount: enrichedExpenses.reduce((sum, e) => sum + parseFloat(e.amountDollars), 0),
-      totalTips: enrichedExpenses.reduce((sum, e) => sum + parseFloat(e.tipAmount as any), 0),
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        total: enrichedExpenses.length,
+        expenses: enrichedExpenses,
+        totalAmount: enrichedExpenses.reduce((sum, e) => sum + parseFloat(e.amountDollars), 0),
+        totalTips: enrichedExpenses.reduce((sum, e) => sum + parseFloat(e.tipAmount as any), 0),
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error fetching expenses:', error);
     return new Response(JSON.stringify({ error: 'Failed to fetch expenses' }), {

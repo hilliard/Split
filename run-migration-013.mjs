@@ -12,7 +12,7 @@ if (!process.env.DATABASE_URL) {
   try {
     const envPath = path.resolve(__dirname, '.env.local');
     const envContent = fs.readFileSync(envPath, 'utf-8');
-    envContent.split('\n').forEach(line => {
+    envContent.split('\n').forEach((line) => {
       if (line.trim() && !line.startsWith('#')) {
         const [key, ...valueParts] = line.split('=');
         const value = valueParts.join('=').trim();
@@ -39,19 +39,19 @@ async function runMigration() {
   try {
     const migrationFile = path.join(__dirname, 'migrations/013-add-title-to-activities.sql');
     const migrationSql = fs.readFileSync(migrationFile, 'utf-8');
-    
+
     console.log('Running migration: 013-add-title-to-activities.sql');
-    
+
     // Split by semicolon and filter out empty statements
-    const statements = migrationSql.split(';').filter(stmt => stmt.trim());
-    
+    const statements = migrationSql.split(';').filter((stmt) => stmt.trim());
+
     for (const statement of statements) {
       if (statement.trim()) {
         console.log(`Executing: ${statement.trim().substring(0, 80)}...`);
         await sql.unsafe(statement);
       }
     }
-    
+
     console.log('Migration completed successfully!');
     await sql.end();
     process.exit(0);

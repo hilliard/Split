@@ -11,7 +11,7 @@ if (!process.env.DATABASE_URL) {
   try {
     const envPath = resolve('.env.local');
     const envContent = readFileSync(envPath, 'utf-8');
-    envContent.split('\n').forEach(line => {
+    envContent.split('\n').forEach((line) => {
       if (line.trim() && !line.startsWith('#')) {
         const [key, ...valueParts] = line.split('=');
         const value = valueParts.join('=').trim();
@@ -26,11 +26,17 @@ if (!process.env.DATABASE_URL) {
 }
 
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is not set. Make sure .env.local exists and contains DATABASE_URL.');
+  throw new Error(
+    'DATABASE_URL environment variable is not set. Make sure .env.local exists and contains DATABASE_URL.'
+  );
 }
 
 console.log('🔗 DATABASE_URL:', process.env.DATABASE_URL);
-console.log('🔐 Has password:', process.env.DATABASE_URL.includes(':') && process.env.DATABASE_URL.split('@')[0].split(':').length > 1);
+console.log(
+  '🔐 Has password:',
+  process.env.DATABASE_URL.includes(':') &&
+    process.env.DATABASE_URL.split('@')[0].split(':').length > 1
+);
 console.log('📊 Database schema: PHASE 1→2 TRANSITION (old and new schemas loaded)');
 
 // Use full connection string to preserve SSL and other parameters
@@ -56,17 +62,18 @@ pool.on('error', (err) => {
 export const db = drizzle({
   client: pool,
   schema: {
-    ...oldSchema,  // Keep old tables available for backward compatibility
-    ...newSchema,  // Add new human-centric tables and views
+    ...oldSchema, // Keep old tables available for backward compatibility
+    ...newSchema, // Add new human-centric tables and views
   },
 });
 
 // Test pool connection at startup (non-blocking)
-pool.connect()
-  .then(client => {
+pool
+  .connect()
+  .then((client) => {
     console.log('✓ Database pool connected at startup');
     client.release();
   })
-  .catch(err => {
+  .catch((err) => {
     console.error('⚠ Initial connection attempt failed:', err.message);
   });

@@ -15,18 +15,18 @@ async function checkConstraints() {
       WHERE table_name = 'events'
       ORDER BY constraint_name
     `);
-    
+
     console.log('\n📋 Constraints on "events" table:\n');
     if (result.rows.length === 0) {
       console.log('(no constraints found)\n');
     } else {
-      result.rows.forEach(c => {
+      result.rows.forEach((c) => {
         console.log(`Constraint: ${c.constraint_name}`);
         console.log(`  Column: ${c.column_name}`);
         console.log('');
       });
     }
-    
+
     // Also check all table constraints
     console.log('\n📋 All constraints on "events" table:\n');
     const allConstraints = await pool.query(`
@@ -35,8 +35,8 @@ async function checkConstraints() {
       WHERE conrelid = 'events'::regclass
       ORDER BY conname
     `);
-    
-    allConstraints.rows.forEach(c => {
+
+    allConstraints.rows.forEach((c) => {
       console.log(`${c.conname} (type: ${c.contype})`);
     });
   } catch (error) {

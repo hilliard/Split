@@ -1,6 +1,6 @@
 /**
  * API Route: DELETE /api/expenses/delete
- * 
+ *
  * Delete an expense and its splits
  */
 
@@ -20,11 +20,7 @@ export const DELETE: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -43,11 +39,7 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Get the expense
-    const [expense] = await db
-      .select()
-      .from(expenses)
-      .where(eq(expenses.id, expenseId))
-      .limit(1);
+    const [expense] = await db.select().from(expenses).where(eq(expenses.id, expenseId)).limit(1);
 
     if (!expense) {
       return new Response(JSON.stringify({ error: 'Expense not found' }), {
@@ -57,17 +49,16 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Verify event exists and user owns it
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, expense.eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, expense.eventId)).limit(1);
 
     if (!event || event.creatorId !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to delete this expense' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to delete this expense' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Delete expense splits first (due to foreign key)
@@ -76,13 +67,16 @@ export const DELETE: APIRoute = async (context) => {
     // Delete expense
     await db.delete(expenses).where(eq(expenses.id, expenseId));
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Expense deleted successfully',
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Expense deleted successfully',
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error deleting expense:', error);
     return new Response(JSON.stringify({ error: 'Failed to delete expense' }), {

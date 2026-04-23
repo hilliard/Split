@@ -60,15 +60,9 @@ export async function isSystemAdmin(userId: string): Promise<boolean> {
  * Returns the group role from the groupMembers table,
  * or OWNER if user created the group, or NONE if not a member
  */
-export async function getUserGroupRole(
-  userId: string,
-  groupId: string
-): Promise<GroupRole> {
+export async function getUserGroupRole(userId: string, groupId: string): Promise<GroupRole> {
   // Check if user is the group creator (they're automatically an owner)
-  const [group] = await db
-    .select()
-    .from(expenseGroups)
-    .where(eq(expenseGroups.id, groupId));
+  const [group] = await db.select().from(expenseGroups).where(eq(expenseGroups.id, groupId));
 
   if (group && group.createdBy === userId) {
     return GroupRole.OWNER;
@@ -81,12 +75,7 @@ export async function getUserGroupRole(
     })
     .from(groupMembers)
     .innerJoin(groupRoles, eq(groupMembers.groupRoleId, groupRoles.id))
-    .where(
-      and(
-        eq(groupMembers.groupId, groupId),
-        eq(groupMembers.userId, userId)
-      )
-    );
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)));
 
   if (membership) {
     return membership.roleName as GroupRole;
@@ -98,10 +87,7 @@ export async function getUserGroupRole(
 /**
  * Check if user can invite members to a group
  */
-export async function canUserInviteToGroup(
-  userId: string,
-  groupId: string
-): Promise<boolean> {
+export async function canUserInviteToGroup(userId: string, groupId: string): Promise<boolean> {
   const role = await getUserGroupRole(userId, groupId);
   return role === GroupRole.OWNER || role === GroupRole.ADMIN;
 }
@@ -132,10 +118,7 @@ export async function canUserRemoveFromGroup(
 /**
  * Check if user can manage a group (edit, delete, invite)
  */
-export async function canUserManageGroup(
-  userId: string,
-  groupId: string
-): Promise<boolean> {
+export async function canUserManageGroup(userId: string, groupId: string): Promise<boolean> {
   const role = await getUserGroupRole(userId, groupId);
   return role === GroupRole.OWNER;
 }
@@ -143,10 +126,7 @@ export async function canUserManageGroup(
 /**
  * Check if user can view a group
  */
-export async function canUserViewGroup(
-  userId: string,
-  groupId: string
-): Promise<boolean> {
+export async function canUserViewGroup(userId: string, groupId: string): Promise<boolean> {
   const role = await getUserGroupRole(userId, groupId);
   return role !== GroupRole.NONE;
 }
@@ -161,14 +141,8 @@ export async function canUserViewGroup(
  * - VIEWER: Event is public and user has VIEWER role in group (or is not in group but event is public)
  * - NONE: No access
  */
-export async function getEventRole(
-  userId: string,
-  eventId: string
-): Promise<GroupRole> {
-  const [event] = await db
-    .select()
-    .from(events)
-    .where(eq(events.id, eventId));
+export async function getEventRole(userId: string, eventId: string): Promise<GroupRole> {
+  const [event] = await db.select().from(events).where(eq(events.id, eventId));
 
   if (!event) {
     return GroupRole.NONE;
@@ -198,10 +172,7 @@ export async function getEventRole(
 /**
  * Check if user can read an event
  */
-export async function canUserReadEvent(
-  userId: string,
-  eventId: string
-): Promise<boolean> {
+export async function canUserReadEvent(userId: string, eventId: string): Promise<boolean> {
   const role = await getEventRole(userId, eventId);
   return role !== GroupRole.NONE;
 }
@@ -210,10 +181,7 @@ export async function canUserReadEvent(
  * Check if user can edit an event
  * Allowed for: OWNER, ADMIN
  */
-export async function canUserEditEvent(
-  userId: string,
-  eventId: string
-): Promise<boolean> {
+export async function canUserEditEvent(userId: string, eventId: string): Promise<boolean> {
   const role = await getEventRole(userId, eventId);
   return role === GroupRole.OWNER || role === GroupRole.ADMIN;
 }
@@ -222,10 +190,7 @@ export async function canUserEditEvent(
  * Check if user can delete an event
  * Allowed for: OWNER, ADMIN
  */
-export async function canUserDeleteEvent(
-  userId: string,
-  eventId: string
-): Promise<boolean> {
+export async function canUserDeleteEvent(userId: string, eventId: string): Promise<boolean> {
   const role = await getEventRole(userId, eventId);
   return role === GroupRole.OWNER || role === GroupRole.ADMIN;
 }

@@ -12,7 +12,7 @@ export const POST: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -21,11 +21,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Verify session
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -53,10 +49,13 @@ export const POST: APIRoute = async (context) => {
     }
 
     if (event.creatorId !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to delete this event' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to delete this event' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Delete event (cascade will handle related records)
@@ -68,7 +67,7 @@ export const POST: APIRoute = async (context) => {
     });
   } catch (error) {
     console.error('Error deleting event:', error);
-    
+
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ error: error.flatten() }), {
         status: 400,

@@ -9,7 +9,7 @@ export const POST: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -18,11 +18,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Get session from database
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     console.log('🔍 Session lookup result:', { sessionId, sessionExists: !!session });
 
@@ -38,7 +34,7 @@ export const POST: APIRoute = async (context) => {
     // Parse and validate request body
     const data = await context.request.json();
     console.log('📦 Raw request data:', JSON.stringify(data, null, 2));
-    
+
     // Manual validation with lenient parsing (handle both 'name' and 'title' fields)
     const name = String(data.name || data.title || '').trim();
     const description = String(data.description || '').trim();
@@ -49,26 +45,34 @@ export const POST: APIRoute = async (context) => {
     const currency = String(data.currency || 'USD').trim();
     const budget = String(data.budget || '').trim();
     const timezone = String(data.timezone || 'UTC').trim();
-    const isVirtual = data.isVirtual === true || data.isVirtual === 'on' || data.isVirtual === 'true';
-    const isPublic = data.isPublic !== false && data.isPublic !== 'off' && data.isPublic !== 'false';
+    const isVirtual =
+      data.isVirtual === true || data.isVirtual === 'on' || data.isVirtual === 'true';
+    const isPublic =
+      data.isPublic !== false && data.isPublic !== 'off' && data.isPublic !== 'false';
     const type = String(data.type || 'general').trim();
     const groupId = data.groupId ? String(data.groupId).trim() : null;
-    
+
     if (!name) {
       return new Response(JSON.stringify({ error: 'Event name is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
-    
+
     if (!startDate) {
       return new Response(JSON.stringify({ error: 'Start date/time is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
-    
-    console.log('✓ Data parsed:', { name, currency, timezone, hasStartDate: !!startDate, hasBudget: !!budget });
+
+    console.log('✓ Data parsed:', {
+      name,
+      currency,
+      timezone,
+      hasStartDate: !!startDate,
+      hasBudget: !!budget,
+    });
 
     // Validate date range if both dates provided
     if (startDate && endDate) {
@@ -127,29 +131,32 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Return the created event (use the data we just inserted)
-    return new Response(JSON.stringify({
-      success: true,
-      event: {
-        id: eventData.id,
-        title: eventData.title,
-        description: eventData.description,
-        location: eventData.location,
-        startTime: eventData.startTime.toISOString(),
-        endTime: eventData.endTime?.toISOString() || null,
-        timezone: eventData.timezone,
-        currency: eventData.currency,
-        budgetCents: eventData.budgetCents,
-        budget: eventData.budgetCents ? (eventData.budgetCents / 100).toFixed(2) : null,
-        type: eventData.type,
-        status: eventData.status,
-        isVirtual: eventData.isVirtual,
-        isPublic: eventData.isPublic,
-        createdAt: eventData.createdAt.toISOString(),
-      },
-    }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        event: {
+          id: eventData.id,
+          title: eventData.title,
+          description: eventData.description,
+          location: eventData.location,
+          startTime: eventData.startTime.toISOString(),
+          endTime: eventData.endTime?.toISOString() || null,
+          timezone: eventData.timezone,
+          currency: eventData.currency,
+          budgetCents: eventData.budgetCents,
+          budget: eventData.budgetCents ? (eventData.budgetCents / 100).toFixed(2) : null,
+          type: eventData.type,
+          status: eventData.status,
+          isVirtual: eventData.isVirtual,
+          isPublic: eventData.isPublic,
+          createdAt: eventData.createdAt.toISOString(),
+        },
+      }),
+      {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('❌ Event creation error:', error);
     const errorMsg = error instanceof Error ? error.message : 'Internal server error';

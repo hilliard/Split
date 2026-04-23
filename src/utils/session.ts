@@ -23,11 +23,7 @@ export async function createSession(userId: string): Promise<string> {
 }
 
 export async function getSession(sessionId: string) {
-  const [session] = await db
-    .select()
-    .from(sessions)
-    .where(eq(sessions.id, sessionId))
-    .limit(1);
+  const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
   if (!session || new Date(session.expiresAt) < new Date()) {
     if (session) {

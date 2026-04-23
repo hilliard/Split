@@ -7,7 +7,7 @@ export const GET: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -16,11 +16,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Get session from database
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -31,7 +27,7 @@ export const GET: APIRoute = async (context) => {
 
     // Get activity ID from URL params
     const activityId = context.params.id;
-    
+
     if (!activityId) {
       return new Response(JSON.stringify({ error: 'Activity ID is required' }), {
         status: 400,
@@ -64,7 +60,7 @@ export const GET: APIRoute = async (context) => {
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
-      },
+      }
     );
   }
 };

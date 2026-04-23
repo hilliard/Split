@@ -7,7 +7,7 @@ if (!process.env.DATABASE_URL) {
   try {
     const envPath = resolve('.env.local');
     const envContent = readFileSync(envPath, 'utf-8');
-    envContent.split('\n').forEach(line => {
+    envContent.split('\n').forEach((line) => {
       if (line.trim() && !line.startsWith('#')) {
         const [key, ...valueParts] = line.split('=');
         const value = valueParts.join('=').trim();
@@ -29,12 +29,12 @@ const pool = new Pool({
 async function runMigrations() {
   try {
     console.log('🚀 Starting migrations...');
-    
+
     // First, run init.sql to create base schema
     console.log('\n▶️  Running: init.sql (base schema)');
     const initPath = resolve('./init.sql');
     const initSql = readFileSync(initPath, 'utf-8');
-    
+
     try {
       await pool.query(initSql);
       console.log('✅ init.sql completed');
@@ -42,20 +42,20 @@ async function runMigrations() {
       console.error(`❌ init.sql failed:`, err.message);
       // Continue with migrations anyway in case some tables were created
     }
-    
+
     // Get all migration files in order
     const migrationsDir = resolve('./migrations');
     const files = readdirSync(migrationsDir)
-      .filter(f => f.endsWith('.sql'))
+      .filter((f) => f.endsWith('.sql'))
       .sort();
-    
+
     console.log(`📁 Found ${files.length} migration files`);
-    
+
     for (const file of files) {
       console.log(`\n▶️  Running: ${file}`);
       const filePath = resolve(migrationsDir, file);
       const sql = readFileSync(filePath, 'utf-8');
-      
+
       try {
         await pool.query(sql);
         console.log(`✅ ${file} completed`);
@@ -64,7 +64,7 @@ async function runMigrations() {
         // Continue with next migration
       }
     }
-    
+
     console.log('\n✨ Migrations complete!');
     process.exit(0);
   } catch (err) {

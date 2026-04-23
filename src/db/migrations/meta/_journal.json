@@ -27,7 +27,14 @@
       "idx": 3,
       "version": "7",
       "when": 1776798668430,
-      "tag": "0003_loose_mulholland_black",
+      "tag": "0003_add_settlements_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1776801600000,
+      "tag": "0004_add_email_verification",
       "breakpoints": true
     }
   ]

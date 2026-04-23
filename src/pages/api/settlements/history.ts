@@ -1,6 +1,6 @@
 /**
  * API Route: GET /api/settlements/history?userId=X&eventId=Y
- * 
+ *
  * Get all settlements where user is payer or receiver
  * Shows payment history with status
  */
@@ -21,11 +21,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -57,10 +53,7 @@ export const GET: APIRoute = async (context) => {
     if (eventId) {
       whereCondition = and(
         eq(settlements.eventId, eventId),
-        or(
-          eq(settlements.fromUserId, targetUserId),
-          eq(settlements.toUserId, targetUserId)
-        )
+        or(eq(settlements.fromUserId, targetUserId), eq(settlements.toUserId, targetUserId))
       );
     } else {
       whereCondition = or(
@@ -100,9 +93,7 @@ export const GET: APIRoute = async (context) => {
         return {
           id: settlement.id,
           from: settlement.fromUserId,
-          fromName: fromUser
-            ? `${fromUser.firstName} ${fromUser.lastName}`.trim()
-            : 'Unknown',
+          fromName: fromUser ? `${fromUser.firstName} ${fromUser.lastName}`.trim() : 'Unknown',
           to: settlement.toUserId,
           toName: toUser ? `${toUser.firstName} ${toUser.lastName}`.trim() : 'Unknown',
           amount: settlement.amount / 100, // Convert to dollars

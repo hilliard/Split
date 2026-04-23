@@ -160,8 +160,8 @@ const query = db
     emailHistory,
     and(
       eq(humans.id, emailHistory.humanId),
-      isNull(emailHistory.effectiveTo), // Current email only
-    ),
+      isNull(emailHistory.effectiveTo) // Current email only
+    )
   );
 ```
 
@@ -173,17 +173,9 @@ const hasPermission = db
   .from(humans)
   .innerJoin(humanSiteRoles, eq(humans.id, humanSiteRoles.humanId))
   .innerJoin(siteRoles, eq(humanSiteRoles.siteRoleId, siteRoles.id))
-  .innerJoin(
-    siteRolePermissions,
-    eq(siteRoles.id, siteRolePermissions.siteRoleId),
-  )
+  .innerJoin(siteRolePermissions, eq(siteRoles.id, siteRolePermissions.siteRoleId))
   .innerJoin(permissions, eq(siteRolePermissions.permissionId, permissions.id))
-  .where(
-    and(
-      eq(humans.id, someHumanId),
-      eq(permissions.permissionName, "events.create"),
-    ),
-  );
+  .where(and(eq(humans.id, someHumanId), eq(permissions.permissionName, 'events.create')));
 ```
 
 ### Pattern 3: Get All Humans with a Role
@@ -194,7 +186,7 @@ const query = db
   .from(humans)
   .innerJoin(humanSiteRoles, eq(humans.id, humanSiteRoles.humanId))
   .innerJoin(siteRoles, eq(humanSiteRoles.siteRoleId, siteRoles.id))
-  .where(eq(siteRoles.roleName, "admin"));
+  .where(eq(siteRoles.roleName, 'admin'));
 ```
 
 ### Pattern 4: Get Email History for a Human

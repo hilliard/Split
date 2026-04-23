@@ -7,7 +7,7 @@ const { Pool } = pg;
 const envPath = resolve('.env.local');
 const envContent = readFileSync(envPath, 'utf-8');
 const envVars: Record<string, string> = {};
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   if (line.trim() && !line.startsWith('#')) {
     const [key, ...valueParts] = line.split('=');
     const value = valueParts.join('=').trim();
@@ -25,20 +25,20 @@ if (!DATABASE_URL) {
 
 async function main() {
   const pool = new Pool({ connectionString: DATABASE_URL });
-  
+
   try {
     const client = await pool.connect();
     console.log('✓ Connected to database');
-    
+
     // Get list of migration files
     const migrationsDir = resolve('./migrations');
     const migrationFiles = readdirSync(migrationsDir)
-      .filter(f => f.endsWith('.sql'))
+      .filter((f) => f.endsWith('.sql'))
       .sort();
-    
+
     console.log(`\n📁 Found ${migrationFiles.length} migration files:`);
-    migrationFiles.forEach(f => console.log(`   - ${f}`));
-    
+    migrationFiles.forEach((f) => console.log(`   - ${f}`));
+
     // Execute first migration
     const firstMigration = migrationFiles[0];
     if (!firstMigration) {
@@ -46,10 +46,10 @@ async function main() {
       client.release();
       process.exit(0);
     }
-    
+
     console.log(`\n🔄 Running: ${firstMigration}`);
     const migrationSQL = readFileSync(resolve(migrationsDir, firstMigration), 'utf-8');
-    
+
     // Execute the entire migration as a single transaction
     try {
       await client.query(migrationSQL);
@@ -57,7 +57,7 @@ async function main() {
     } catch (error) {
       console.error('❌ Migration failed:', error);
     }
-    
+
     client.release();
     process.exit(0);
   } catch (error) {

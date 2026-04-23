@@ -7,7 +7,7 @@ const envPath = resolve('.env.local');
 const envContent = readFileSync(envPath, 'utf-8');
 const envVars = {};
 
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   if (line.trim() && !line.startsWith('#')) {
     const [key, ...valueParts] = line.split('=');
     const value = valueParts.join('=').trim();
@@ -33,12 +33,12 @@ const sql = postgres(databaseUrl);
 async function applyMigration() {
   try {
     console.log('Applying settlements migration...');
-    
+
     // Split by statement-breakpoint
     const statements = migrationSql
       .split('--> statement-breakpoint')
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
 
     for (const statement of statements) {
       console.log('Executing:', statement.substring(0, 50) + '...');

@@ -65,8 +65,7 @@ const insertValues = {
 **Context:**
 
 ```typescript
-if (validatedData.tipAmount !== undefined)
-  updateData.tipAmount = validatedData.tipAmount; // Line 93
+if (validatedData.tipAmount !== undefined) updateData.tipAmount = validatedData.tipAmount; // Line 93
 // Later...
 tipInCents = Math.round(validatedData.tipAmount * 100); // Line 112 - WRONG
 // ...

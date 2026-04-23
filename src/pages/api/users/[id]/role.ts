@@ -1,10 +1,6 @@
 import type { APIRoute } from 'astro';
 import { db } from '@/db';
-import {
-  humanSystemRoles,
-  systemRoles,
-  humans,
-} from '@/db/schema';
+import { humanSystemRoles, systemRoles, humans } from '@/db/schema';
 import { getSession } from '@/utils/session';
 import { isSystemAdmin } from '@/db/authorization';
 import { eq, and } from 'drizzle-orm';
@@ -53,10 +49,7 @@ export const PUT: APIRoute = async (context) => {
     const { systemRole } = parseResult.data;
 
     // Verify target user exists
-    const [targetUser] = await db
-      .select()
-      .from(humans)
-      .where(eq(humans.id, targetUserId));
+    const [targetUser] = await db.select().from(humans).where(eq(humans.id, targetUserId));
 
     if (!targetUser) {
       return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
@@ -73,9 +66,7 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Remove old role if exists
-    await db
-      .delete(humanSystemRoles)
-      .where(eq(humanSystemRoles.humanId, targetUserId));
+    await db.delete(humanSystemRoles).where(eq(humanSystemRoles.humanId, targetUserId));
 
     // Assign new role
     await db.insert(humanSystemRoles).values({
@@ -84,16 +75,10 @@ export const PUT: APIRoute = async (context) => {
       assignedBy: session.userId,
     });
 
-    return new Response(
-      JSON.stringify({ message: 'Role updated successfully' }),
-      { status: 200 }
-    );
+    return new Response(JSON.stringify({ message: 'Role updated successfully' }), { status: 200 });
   } catch (error) {
     console.error('Error updating user role:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to update user role' }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to update user role' }), { status: 500 });
   }
 };
 
@@ -124,36 +109,24 @@ export const DELETE: APIRoute = async (context) => {
 
     // Cannot delete self
     if (targetUserId === session.userId) {
-      return new Response(
-        JSON.stringify({ error: 'Cannot delete your own account' }),
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: 'Cannot delete your own account' }), {
+        status: 400,
+      });
     }
 
     // Verify user exists
-    const [targetUser] = await db
-      .select()
-      .from(humans)
-      .where(eq(humans.id, targetUserId));
+    const [targetUser] = await db.select().from(humans).where(eq(humans.id, targetUserId));
 
     if (!targetUser) {
       return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
     }
 
     // Delete user (cascade will handle related data)
-    await db
-      .delete(humans)
-      .where(eq(humans.id, targetUserId));
+    await db.delete(humans).where(eq(humans.id, targetUserId));
 
-    return new Response(
-      JSON.stringify({ message: 'User deleted successfully' }),
-      { status: 200 }
-    );
+    return new Response(JSON.stringify({ message: 'User deleted successfully' }), { status: 200 });
   } catch (error) {
     console.error('Error deleting user:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to delete user' }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to delete user' }), { status: 500 });
   }
 };

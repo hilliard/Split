@@ -33,8 +33,8 @@ Unit tests verify that **individual functions work correctly in isolation**. The
 
 ```typescript
 // Example: Testing a password hash function
-it("should hash a password", async () => {
-  const password = "mySecurePassword123";
+it('should hash a password', async () => {
+  const password = 'mySecurePassword123';
   const hash = await hashPassword(password);
 
   expect(hash).not.toBe(password); // Hash should differ from original
@@ -46,18 +46,18 @@ it("should hash a password", async () => {
 Every test follows this pattern:
 
 ```typescript
-describe("Feature Name", () => {
+describe('Feature Name', () => {
   // Group related tests
-  it("should do something", () => {
+  it('should do something', () => {
     // Individual test case
     // ARRANGE: Set up test data
-    const input = { name: "Alice" };
+    const input = { name: 'Alice' };
 
     // ACT: Call the function
     const result = processInput(input);
 
     // ASSERT: Verify the result
-    expect(result.name).toBe("Alice");
+    expect(result.name).toBe('Alice');
   });
 });
 ```
@@ -70,13 +70,13 @@ Test that input validation works correctly:
 
 ```typescript
 // ✅ Valid input should pass
-it("should accept valid email", () => {
-  expect(() => schema.parse({ email: "user@example.com" })).not.toThrow();
+it('should accept valid email', () => {
+  expect(() => schema.parse({ email: 'user@example.com' })).not.toThrow();
 });
 
 // ❌ Invalid input should fail
-it("should reject invalid email", () => {
-  expect(() => schema.parse({ email: "not-an-email" })).toThrow();
+it('should reject invalid email', () => {
+  expect(() => schema.parse({ email: 'not-an-email' })).toThrow();
 });
 ```
 
@@ -85,16 +85,16 @@ it("should reject invalid email", () => {
 Test password hashing and verification:
 
 ```typescript
-it("should verify correct password", async () => {
-  const password = "myPassword123";
+it('should verify correct password', async () => {
+  const password = 'myPassword123';
   const hash = await hashPassword(password);
   const isValid = await verifyPassword(password, hash);
   expect(isValid).toBe(true);
 });
 
-it("should reject wrong password", async () => {
-  const hash = await hashPassword("password123");
-  const isValid = await verifyPassword("wrongPassword", hash);
+it('should reject wrong password', async () => {
+  const hash = await hashPassword('password123');
+  const isValid = await verifyPassword('wrongPassword', hash);
   expect(isValid).toBe(false);
 });
 ```
@@ -104,10 +104,10 @@ it("should reject wrong password", async () => {
 Test that API endpoints validate incoming data correctly:
 
 ```typescript
-it("should reject activity without title", () => {
+it('should reject activity without title', () => {
   const invalidData = {
-    eventId: "valid-uuid",
-    title: "", // ❌ Empty!
+    eventId: 'valid-uuid',
+    title: '', // ❌ Empty!
   };
   expect(() => createActivitySchema.parse(invalidData)).toThrow();
 });
@@ -139,17 +139,17 @@ E2E tests verify that **complete workflows work from start to finish** using a r
 
 ```typescript
 // Example: User registers and logs in
-it("should register and login successfully", async ({ page }) => {
+it('should register and login successfully', async ({ page }) => {
   // Navigate to signup
-  await page.goto("http://localhost:3000/auth/register");
+  await page.goto('http://localhost:3000/auth/register');
 
   // Fill form
-  await page.fill('input[name="email"]', "alice@example.com");
-  await page.fill('input[name="password"]', "SecurePass123");
+  await page.fill('input[name="email"]', 'alice@example.com');
+  await page.fill('input[name="password"]', 'SecurePass123');
   await page.click('button:has-text("Register")');
 
   // Verify success
-  await expect(page).toHaveURL("http://localhost:3000/dashboard");
+  await expect(page).toHaveURL('http://localhost:3000/dashboard');
 });
 ```
 
@@ -310,14 +310,14 @@ Tests the activity creation endpoint validation:
 ### Step 2: Write the test
 
 ```typescript
-import { describe, it, expect } from "vitest";
-import { createEventSchema } from "@/utils/validation";
+import { describe, it, expect } from 'vitest';
+import { createEventSchema } from '@/utils/validation';
 
-describe("Event Creation", () => {
-  it("should reject event with no name", () => {
+describe('Event Creation', () => {
+  it('should reject event with no name', () => {
     const invalidData = {
-      name: "",
-      description: "A party",
+      name: '',
+      description: 'A party',
     };
     expect(() => createEventSchema.parse(invalidData)).toThrow();
   });

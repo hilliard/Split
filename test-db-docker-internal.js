@@ -15,15 +15,15 @@ pool.query('SELECT NOW()', (err, res) => {
   } else {
     console.log('✅ localhost works!', res.rows[0].now);
   }
-  
+
   // Now try with 127.0.0.1 from inside container
   const pool2 = new Pool({
-    host: '127.0.0.1' ,
+    host: '127.0.0.1',
     port: 5432,
     user: 'postgres',
     database: 'split_db',
   });
-  
+
   pool2.query('SELECT NOW()', (err, res) => {
     if (err) {
       console.error('❌ 127.0.0.1 error:', err.message);

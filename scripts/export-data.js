@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
  * Split Database Export Tool
- * 
+ *
  * Exports expense data for external analysis tools (Tableau, Power BI, Excel, R, Python, etc.)
- * 
+ *
  * USAGE:
  *   node scripts/export-data.js --format csv --view expenses
  *   node scripts/export-data.js --format json --view settlements --output settlements.json
  *   node scripts/export-data.js --format csv --view all
- * 
+ *
  * FORMATS: csv, json, tsv, sql-insert
  * VIEWS: expenses, settlements, categories, events, users, groups, trends, all
  */
@@ -23,9 +23,11 @@ import { createReadStream, createWriteStream } from 'fs';
 dotenv.config({ path: '.env.local' });
 
 const args = process.argv.slice(2);
-const format = args.find(a => a.startsWith('--format'))?.split('=')[1] || 'csv';
-const viewName = args.find(a => a.startsWith('--view'))?.split('=')[1] || 'expenses';
-const output = args.find(a => a.startsWith('--output'))?.split('=')[1] || `export_${viewName}_${new Date().toISOString().split('T')[0]}.${format}`;
+const format = args.find((a) => a.startsWith('--format'))?.split('=')[1] || 'csv';
+const viewName = args.find((a) => a.startsWith('--view'))?.split('=')[1] || 'expenses';
+const output =
+  args.find((a) => a.startsWith('--output'))?.split('=')[1] ||
+  `export_${viewName}_${new Date().toISOString().split('T')[0]}.${format}`;
 
 const views = {
   expenses: 'expense_summary_for_analysis',
@@ -63,12 +65,12 @@ async function exportData() {
         allExports.push(fileName);
       }
       console.log(`\n✅ Exported ${allExports.length} files:`);
-      allExports.forEach(f => console.log(`   - ${f}`));
+      allExports.forEach((f) => console.log(`   - ${f}`));
     } else {
       // Single view
       const viewName_trimmed = viewName.trim();
       const viewQuery = views[viewName_trimmed];
-      
+
       if (!viewQuery) {
         console.error(`❌ Unknown view: ${viewName_trimmed}`);
         console.error(`Available views: ${Object.keys(views).join(', ')}`);
@@ -81,12 +83,11 @@ async function exportData() {
 
       const data = await fetchViewData(viewQuery);
       const result = await writeFile(output, data, format);
-      
+
       console.log(`✅ Export complete!`);
       console.log(`   Rows: ${data.length}`);
       console.log(`   File size: ${(result / 1024).toFixed(2)} KB`);
     }
-
   } catch (error) {
     console.error('❌ Export failed:', error.message);
     process.exit(1);
@@ -128,7 +129,7 @@ async function writeFile(fileName, data, format) {
 
   fs.writeFileSync(fileName, content);
   console.log(`✅ Saved to: ${fileName}`);
-  
+
   return content.length;
 }
 
@@ -137,34 +138,36 @@ function convertToCSV(rows, delimiter = ',') {
 
   // Get headers from first row
   const headers = Object.keys(rows[0]);
-  const headerRow = headers.map(h => `"${h}"`).join(delimiter);
+  const headerRow = headers.map((h) => `"${h}"`).join(delimiter);
 
   // Convert rows
-  const csvRows = rows.map(row => {
-    return headers.map(header => {
-      const value = row[header];
-      
-      // Handle null/undefined
-      if (value === null || value === undefined) {
-        return '';
-      }
-      
-      // Handle booleans
-      if (typeof value === 'boolean') {
-        return value ? 'TRUE' : 'FALSE';
-      }
-      
-      // Handle strings with special characters
-      if (typeof value === 'string') {
-        if (value.includes(delimiter) || value.includes('"') || value.includes('\n')) {
-          return `"${value.replace(/"/g, '""')}"`;
+  const csvRows = rows.map((row) => {
+    return headers
+      .map((header) => {
+        const value = row[header];
+
+        // Handle null/undefined
+        if (value === null || value === undefined) {
+          return '';
         }
-        return `"${value}"`;
-      }
-      
-      // Numbers and dates
-      return String(value);
-    }).join(delimiter);
+
+        // Handle booleans
+        if (typeof value === 'boolean') {
+          return value ? 'TRUE' : 'FALSE';
+        }
+
+        // Handle strings with special characters
+        if (typeof value === 'string') {
+          if (value.includes(delimiter) || value.includes('"') || value.includes('\n')) {
+            return `"${value.replace(/"/g, '""')}"`;
+          }
+          return `"${value}"`;
+        }
+
+        // Numbers and dates
+        return String(value);
+      })
+      .join(delimiter);
   });
 
   return [headerRow, ...csvRows].join('\n');
@@ -178,15 +181,15 @@ function convertToSQL(rows) {
   const columns = Object.keys(firstRow);
   const tableName = 'export_data';
 
-  const statements = rows.map(row => {
-    const values = columns.map(col => {
+  const statements = rows.map((row) => {
+    const values = columns.map((col) => {
       const value = row[col];
       if (value === null || value === undefined) return 'NULL';
       if (typeof value === 'string') return `'${value.replace(/'/g, "''")}'`;
       if (typeof value === 'boolean') return value ? 'TRUE' : 'FALSE';
       return value;
     });
-    
+
     return `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${values.join(', ')});`;
   });
 

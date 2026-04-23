@@ -7,7 +7,7 @@ if (!process.env.DATABASE_URL) {
   try {
     const envPath = resolve('.env.local');
     const envContent = readFileSync(envPath, 'utf-8');
-    envContent.split('\n').forEach(line => {
+    envContent.split('\n').forEach((line) => {
       if (line.trim() && !line.startsWith('#')) {
         const [key, ...valueParts] = line.split('=');
         const value = valueParts.join('=').trim();

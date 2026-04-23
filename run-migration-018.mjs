@@ -16,12 +16,13 @@ const migrationSQL = fs.readFileSync(migrationFile, 'utf-8');
 console.log('🔄 Running migration 018...');
 console.log('─'.repeat(60));
 
-sql.unsafe(migrationSQL)
+sql
+  .unsafe(migrationSQL)
   .then(async () => {
     console.log('─'.repeat(60));
     console.log('✅ Migration 018 completed successfully');
     console.log('✓ Fixed all user_id FKs to point to humans table');
-    
+
     // Verify the fixes
     console.log('\n🔍 Verifying FK constraints...');
     const fks = await sql`
@@ -38,9 +39,9 @@ sql.unsafe(migrationSQL)
         AND kcu.column_name = 'user_id'
       ORDER BY tc.table_name
     `;
-    
+
     console.log('\nForeign keys for user_id columns:');
-    fks.forEach(fk => {
+    fks.forEach((fk) => {
       const status = fk.referenced_table === 'humans' ? '✅' : '❌';
       console.log(`  ${status} ${fk.table_name}.user_id -> ${fk.referenced_table}.id`);
     });

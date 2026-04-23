@@ -1,8 +1,8 @@
 /**
  * API Route: PUT /api/expenses/:id/splits
- * 
+ *
  * Recalculate or customize how an expense is split among group members
- * 
+ *
  * Body:
  * - expenseId: Expense ID
  * - splitAmong: Array of user IDs to split among (will redistribute equally)
@@ -29,11 +29,7 @@ export const PUT: APIRoute = async (context) => {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), { status: 401 });
@@ -56,11 +52,20 @@ export const PUT: APIRoute = async (context) => {
 
     // Verify user created the expense (or is a group admin)
     // For now, just check if user is in the group
-    const groupId = expense.groupId || 
-      (await db.select({ groupId: expenses.groupId }).from(expenses).where(eq(expenses.id, validatedData.expenseId)).limit(1))[0]?.groupId;
+    const groupId =
+      expense.groupId ||
+      (
+        await db
+          .select({ groupId: expenses.groupId })
+          .from(expenses)
+          .where(eq(expenses.id, validatedData.expenseId))
+          .limit(1)
+      )[0]?.groupId;
 
     if (!groupId) {
-      return new Response(JSON.stringify({ error: 'Expense has no group assigned' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'Expense has no group assigned' }), {
+        status: 400,
+      });
     }
 
     const isMember = await db
@@ -70,7 +75,9 @@ export const PUT: APIRoute = async (context) => {
       .limit(1);
 
     if (!isMember.length) {
-      return new Response(JSON.stringify({ error: 'Not authorized to modify this expense' }), { status: 403 });
+      return new Response(JSON.stringify({ error: 'Not authorized to modify this expense' }), {
+        status: 403,
+      });
     }
 
     // Delete existing splits
@@ -89,7 +96,9 @@ export const PUT: APIRoute = async (context) => {
       }));
     } else if (validatedData.splitAmong && validatedData.splitAmong.length > 0) {
       // Equal split among specified users
-      const totalAmount = expense.amount + (expense.tipAmount ? Math.round(parseFloat(expense.tipAmount as any) * 100) : 0);
+      const totalAmount =
+        expense.amount +
+        (expense.tipAmount ? Math.round(parseFloat(expense.tipAmount as any) * 100) : 0);
       const perPersonAmount = Math.floor(totalAmount / validatedData.splitAmong.length);
       const remainder = totalAmount % validatedData.splitAmong.length;
 
@@ -100,7 +109,10 @@ export const PUT: APIRoute = async (context) => {
         amount: perPersonAmount + (index === 0 ? remainder : 0),
       }));
     } else {
-      return new Response(JSON.stringify({ error: 'Must specify either splitAmong or customSplits' }), { status: 400 });
+      return new Response(
+        JSON.stringify({ error: 'Must specify either splitAmong or customSplits' }),
+        { status: 400 }
+      );
     }
 
     // Insert new splits

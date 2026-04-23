@@ -1,63 +1,40 @@
-import { db } from "../../../db";
-import { events, activities, sessions } from "../../../db/schema";
-import { eq } from "drizzle-orm";
-import type { APIRoute } from "astro";
+import { db } from '../../../db';
+import { events, activities, sessions } from '../../../db/schema';
+import { eq } from 'drizzle-orm';
+import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     // Check authentication
-    const sessionId = cookies.get("sessionId")?.value;
+    const sessionId = cookies.get('sessionId')?.value;
     if (!sessionId) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401 }
-      );
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
 
     // Get session
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
-      return new Response(
-        JSON.stringify({ error: "Session expired" }),
-        { status: 401 }
-      );
+      return new Response(JSON.stringify({ error: 'Session expired' }), { status: 401 });
     }
 
     // Parse request body
     const body = await request.json();
-    const { eventId, format = "text" } = body;
+    const { eventId, format = 'text' } = body;
 
     if (!eventId) {
-      return new Response(
-        JSON.stringify({ error: "Event ID is required" }),
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: 'Event ID is required' }), { status: 400 });
     }
 
     // Get event and verify ownership
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
-      return new Response(
-        JSON.stringify({ error: "Event not found" }),
-        { status: 404 }
-      );
+      return new Response(JSON.stringify({ error: 'Event not found' }), { status: 404 });
     }
 
     if (event.creatorId !== session.userId) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 403 }
-      );
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 403 });
     }
 
     // Get all activities for this event
@@ -68,14 +45,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .orderBy(activities.sequenceOrder);
 
     // Generate itinerary content
-    let content = "";
+    let content = '';
 
-    if (format === "html") {
+    if (format === 'html') {
       content = generateHtmlItinerary(event, eventActivities);
       return new Response(content, {
         headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Content-Disposition": `attachment; filename="itinerary-${event.title.replace(/\s+/g, "-").toLowerCase()}.html"`,
+          'Content-Type': 'text/html; charset=utf-8',
+          'Content-Disposition': `attachment; filename="itinerary-${event.title.replace(/\s+/g, '-').toLowerCase()}.html"`,
         },
       });
     } else {
@@ -83,51 +60,45 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       content = generateTextItinerary(event, eventActivities);
       return new Response(content, {
         headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Content-Disposition": `attachment; filename="itinerary-${event.title.replace(/\s+/g, "-").toLowerCase()}.txt"`,
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Content-Disposition': `attachment; filename="itinerary-${event.title.replace(/\s+/g, '-').toLowerCase()}.txt"`,
         },
       });
     }
   } catch (error) {
-    console.error("Error generating itinerary:", error);
-    return new Response(
-      JSON.stringify({ error: "Failed to generate itinerary" }),
-      { status: 500 }
-    );
+    console.error('Error generating itinerary:', error);
+    return new Response(JSON.stringify({ error: 'Failed to generate itinerary' }), { status: 500 });
   }
 };
 
-function generateTextItinerary(
-  event: any,
-  eventActivities: any[]
-): string {
+function generateTextItinerary(event: any, eventActivities: any[]): string {
   const lines: string[] = [];
 
   // Header
-  lines.push("=".repeat(70));
+  lines.push('='.repeat(70));
   lines.push(`ITINERARY: ${event.title}`);
-  lines.push("=".repeat(70));
-  lines.push("");
+  lines.push('='.repeat(70));
+  lines.push('');
 
   // Event dates
   if (event.startDate || event.endDate) {
-    lines.push("EVENT DATES:");
+    lines.push('EVENT DATES:');
     if (event.startDate) {
       lines.push(`  Start: ${new Date(event.startDate).toLocaleDateString()}`);
     }
     if (event.endDate) {
       lines.push(`  End: ${new Date(event.endDate).toLocaleDateString()}`);
     }
-    lines.push("");
+    lines.push('');
   }
 
   // Activities
   if (eventActivities.length === 0) {
-    lines.push("No activities planned for this event.");
+    lines.push('No activities planned for this event.');
   } else {
     lines.push(`ACTIVITIES (${eventActivities.length}):`);
-    lines.push("-".repeat(70));
-    lines.push("");
+    lines.push('-'.repeat(70));
+    lines.push('');
 
     eventActivities.forEach((activity: any, index: number) => {
       lines.push(`${index + 1}. ${activity.title.toUpperCase()}`);
@@ -139,44 +110,42 @@ function generateTextItinerary(
       if (activity.startTime) {
         const startDate = new Date(activity.startTime);
         lines.push(
-          `   Time: ${startDate.toLocaleDateString()} ${startDate.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
+          `   Time: ${startDate.toLocaleDateString()} ${startDate.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
           })}`
         );
       }
 
       // Add metadata/details
-      if (activity.metadata && typeof activity.metadata === "object") {
+      if (activity.metadata && typeof activity.metadata === 'object') {
         const metadataEntries = Object.entries(activity.metadata);
         if (metadataEntries.length > 0) {
-          lines.push("   Details:");
+          lines.push('   Details:');
           metadataEntries.forEach(([key, value]: [string, any]) => {
             lines.push(`     - ${key}: ${String(value)}`);
           });
         }
       }
 
-      lines.push("");
+      lines.push('');
     });
   }
 
   // Footer
-  lines.push("-".repeat(70));
+  lines.push('-'.repeat(70));
   lines.push(`Generated on ${new Date().toLocaleString()}`);
-  lines.push("");
+  lines.push('');
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
-function generateHtmlItinerary(
-  event: any,
-  eventActivities: any[]
-): string {
-  const eventTitle = event.title.replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+function generateHtmlItinerary(event: any, eventActivities: any[]): string {
+  const eventTitle = event.title
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 
   let html = `<!DOCTYPE html>
 <html lang="en">
@@ -309,14 +278,16 @@ function generateHtmlItinerary(
     html += `<div class="activities-header">Activities (${eventActivities.length})</div>`;
 
     eventActivities.forEach((activity: any, index: number) => {
-      const activityTitle = String(activity.title).replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
-      const location = String(activity.locationName || "").replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
+      const activityTitle = String(activity.title)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
+      const location = String(activity.locationName || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
 
       html += `<div class="activity">
                 <span class="activity-number">${index + 1}.</span>
@@ -328,28 +299,30 @@ function generateHtmlItinerary(
 
       if (activity.startTime) {
         const startDate = new Date(activity.startTime);
-        const timeStr = startDate.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
+        const timeStr = startDate.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
         });
         html += `<div class="activity-detail"><span class="detail-label">🕐 Time:</span> ${startDate.toLocaleDateString()} ${timeStr}</div>`;
       }
 
       // Add metadata
-      if (activity.metadata && typeof activity.metadata === "object") {
+      if (activity.metadata && typeof activity.metadata === 'object') {
         const metadataEntries = Object.entries(activity.metadata);
         if (metadataEntries.length > 0) {
           html += `<div class="metadata">
                         <div style="font-weight: 600; margin-bottom: 8px; color: #1f2937;">Details:</div>`;
           metadataEntries.forEach(([key, value]: [string, any]) => {
-            const safeKey = String(key).replaceAll("&", "&amp;")
-              .replaceAll("<", "&lt;")
-              .replaceAll(">", "&gt;")
-              .replaceAll('"', "&quot;");
-            const safeValue = String(value).replaceAll("&", "&amp;")
-              .replaceAll("<", "&lt;")
-              .replaceAll(">", "&gt;")
-              .replaceAll('"', "&quot;");
+            const safeKey = String(key)
+              .replaceAll('&', '&amp;')
+              .replaceAll('<', '&lt;')
+              .replaceAll('>', '&gt;')
+              .replaceAll('"', '&quot;');
+            const safeValue = String(value)
+              .replaceAll('&', '&amp;')
+              .replaceAll('<', '&lt;')
+              .replaceAll('>', '&gt;')
+              .replaceAll('"', '&quot;');
             html += `<div class="metadata-item"><span class="metadata-key">${safeKey}:</span> ${safeValue}</div>`;
           });
           html += `</div>`;

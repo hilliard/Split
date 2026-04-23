@@ -6,7 +6,7 @@ if (!process.env.DATABASE_URL) {
   try {
     const envPath = resolve('.env.local');
     const envContent = readFileSync(envPath, 'utf-8');
-    envContent.split('\n').forEach(line => {
+    envContent.split('\n').forEach((line) => {
       if (line.trim() && !line.startsWith('#')) {
         const [key, ...valueParts] = line.split('=');
         const value = valueParts.join('=').trim();
@@ -28,7 +28,7 @@ const pool = new Pool({
 async function checkSchema() {
   try {
     console.log('🔍 Checking events table schema...\n');
-    
+
     const result = await pool.query(`
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns
@@ -43,33 +43,56 @@ async function checkSchema() {
 
     console.log('📋 Events table columns:');
     console.log('─'.repeat(60));
-    result.rows.forEach(row => {
+    result.rows.forEach((row) => {
       const nullable = row.is_nullable === 'YES' ? 'nullable' : 'NOT NULL';
       console.log(`  ${row.column_name.padEnd(20)} | ${row.data_type.padEnd(20)} | ${nullable}`);
     });
     console.log('─'.repeat(60));
-    
+
     // Check for critical columns
-    const columns = result.rows.map(r => r.column_name);
-    const required = ['id', 'creator_id', 'title', 'description', 'type', 'status', 'start_time', 'end_time', 'timezone', 'is_virtual', 'is_public', 'currency', 'budget_cents', 'metadata', 'created_at'];
-    
-    const missing = required.filter(col => !columns.includes(col));
-    const extra = columns.filter(col => !required.includes(col) && col !== 'group_id' && col !== 'location' && col !== 'venue_id' && col !== 'updated_at');
-    
+    const columns = result.rows.map((r) => r.column_name);
+    const required = [
+      'id',
+      'creator_id',
+      'title',
+      'description',
+      'type',
+      'status',
+      'start_time',
+      'end_time',
+      'timezone',
+      'is_virtual',
+      'is_public',
+      'currency',
+      'budget_cents',
+      'metadata',
+      'created_at',
+    ];
+
+    const missing = required.filter((col) => !columns.includes(col));
+    const extra = columns.filter(
+      (col) =>
+        !required.includes(col) &&
+        col !== 'group_id' &&
+        col !== 'location' &&
+        col !== 'venue_id' &&
+        col !== 'updated_at'
+    );
+
     if (missing.length > 0) {
       console.log(`\n⚠️  Missing columns: ${missing.join(', ')}`);
     }
     if (extra.length > 0) {
       console.log(`\n✅ Extra columns: ${extra.join(', ')}`);
     }
-    
+
     const hasTitle = columns.includes('title');
     if (hasTitle) {
       console.log('\n✅ Title column exists!');
     } else {
       console.log('\n❌ Title column does not exist');
     }
-    
+
     console.log('\n✨ Schema check complete!');
     process.exit(0);
   } catch (error) {

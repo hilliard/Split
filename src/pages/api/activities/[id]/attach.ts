@@ -7,7 +7,7 @@ export const PUT: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -16,11 +16,7 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Get session from database
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -48,11 +44,7 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Get the event and verify user is creator
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -83,31 +75,34 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Attach activity to event
-    await db
-      .update(activities)
-      .set({ eventId: eventId })
-      .where(eq(activities.id, activityId));
+    await db.update(activities).set({ eventId: eventId }).where(eq(activities.id, activityId));
 
     console.log(`📎 Attached activity ${activityId} to event ${eventId}`);
 
-    return new Response(JSON.stringify({
-      success: true,
-      activity: activity,
-      message: 'Activity attached to event',
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        activity: activity,
+        message: 'Activity attached to event',
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error attaching activity:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
-    return new Response(JSON.stringify({ 
-      error: 'Failed to attach activity',
-      details: errorMessage,
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to attach activity',
+        details: errorMessage,
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 };

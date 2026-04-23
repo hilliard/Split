@@ -1,10 +1,18 @@
 ---
+import { getSession } from '@/utils/session';
+import { isSystemAdmin } from '@/db/authorization';
+
 interface Props {
   title?: string;
   currentPage?: string;
 }
 
-const { title = "Split", currentPage } = Astro.props;
+const { title = 'Split', currentPage } = Astro.props;
+
+// Get user session and check if admin
+const sessionId = Astro.cookies.get('sessionId')?.value;
+const session = sessionId ? await getSession(sessionId) : null;
+const isAdmin = session ? await isSystemAdmin(session.userId) : false;
 ---
 
 <header
@@ -25,9 +33,9 @@ const { title = "Split", currentPage } = Astro.props;
         <a
           href="/dashboard"
           class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            currentPage === "dashboard"
-              ? "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
+            currentPage === 'dashboard'
+              ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
           }`}
         >
           Dashboard
@@ -35,13 +43,47 @@ const { title = "Split", currentPage } = Astro.props;
         <a
           href="/standalone-activities"
           class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            currentPage === "activities"
-              ? "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
+            currentPage === 'activities'
+              ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
           }`}
         >
           Activities
         </a>
+        <a
+          href="/events/create"
+          class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            currentPage === 'events'
+              ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
+          }`}
+        >
+          Events
+        </a>
+        <a
+          href="/groups/create"
+          class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            currentPage === 'groups'
+              ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
+          }`}
+        >
+          Groups
+        </a>
+        {
+          isAdmin && (
+            <a
+              href="/admin/users"
+              class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === 'admin'
+                  ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200'
+                  : 'text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900'
+              }`}
+            >
+              🔐 Manage Users
+            </a>
+          )
+        }
       </nav>
 
       <!-- Right Side: Theme Toggle + Mobile Menu + Logout -->
@@ -66,20 +108,19 @@ const { title = "Split", currentPage } = Astro.props;
         </button>
 
         <!-- Logout Button -->
-        <a
-          href="/api/auth/logout"
-          class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold flex-shrink-0 whitespace-nowrap"
-        >
-          Logout
-        </a>
+        <form method="POST" action="/api/auth/logout" style="display: inline;">
+          <button
+            type="submit"
+            class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold flex-shrink-0 whitespace-nowrap border-0 cursor-pointer"
+          >
+            Logout
+          </button>
+        </form>
       </div>
     </div>
 
     <!-- Mobile Navigation Menu -->
-    <nav
-      id="mobileMenu"
-      class="hidden md:hidden pb-4 space-y-2 animate-in fade-in duration-200"
-    >
+    <nav id="mobileMenu" class="hidden md:hidden pb-4 space-y-2 animate-in fade-in duration-200">
       <a
         href="/dashboard"
         class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
@@ -92,25 +133,47 @@ const { title = "Split", currentPage } = Astro.props;
       >
         Activities
       </a>
+      <a
+        href="/events/create"
+        class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+      >
+        Events
+      </a>
+      <a
+        href="/groups/create"
+        class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+      >
+        Groups
+      </a>
+      {
+        isAdmin && (
+          <a
+            href="/admin/users"
+            class="block px-4 py-2 rounded-lg text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900 transition-colors"
+          >
+            🔐 Manage Users
+          </a>
+        )
+      }
     </nav>
   </div>
 </header>
 
 <script>
   // Mobile menu toggle
-  const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-  const mobileMenu = document.getElementById("mobileMenu");
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
 
   if (mobileMenuBtn && mobileMenu) {
-    mobileMenuBtn.addEventListener("click", () => {
-      mobileMenu.classList.toggle("hidden");
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
     });
 
     // Close menu when clicking on a link
-    const links = mobileMenu.querySelectorAll("a");
+    const links = mobileMenu.querySelectorAll('a');
     links.forEach((link) => {
-      link.addEventListener("click", () => {
-        mobileMenu.classList.add("hidden");
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
       });
     });
   }

@@ -21,7 +21,7 @@ async function testConnection() {
   }
 }
 
-testConnection().catch(err => {
+testConnection().catch((err) => {
   console.error('Test script error:', err);
   process.exit(1);
 });

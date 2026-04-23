@@ -10,13 +10,25 @@ const updateEventSchema = z.object({
   title: z.string().min(1, 'Event title is required').max(255).optional(),
   description: z.string().max(2000).optional(),
   type: z.string().max(50).optional(),
-  startTime: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).optional(),
-  endTime: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).optional(),
+  startTime: z
+    .string()
+    .datetime()
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/))
+    .optional(),
+  endTime: z
+    .string()
+    .datetime()
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/))
+    .optional(),
   timezone: z.string().max(50).optional(),
   isVirtual: z.boolean().optional(),
   isPublic: z.boolean().optional(),
   currency: z.string().length(3).optional(),
-  budget: z.string().regex(/^\d+(\.\d{1,2})?$/).optional().nullable(),
+  budget: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/)
+    .optional()
+    .nullable(),
   metadata: z.record(z.unknown()).optional(),
 });
 
@@ -24,7 +36,7 @@ export const POST: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -33,11 +45,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Verify session
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -65,10 +73,13 @@ export const POST: APIRoute = async (context) => {
     }
 
     if (event.creatorId !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to edit this event' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to edit this event' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Validate datetime range
@@ -89,16 +100,21 @@ export const POST: APIRoute = async (context) => {
     // Add optional fields only if provided
     if (validatedData.title !== undefined) updateData.title = validatedData.title;
     if (validatedData.currency !== undefined) updateData.currency = validatedData.currency;
-    if (validatedData.description !== undefined) updateData.description = validatedData.description || null;
+    if (validatedData.description !== undefined)
+      updateData.description = validatedData.description || null;
     if (validatedData.type !== undefined) updateData.type = validatedData.type;
     // Convert ISO timestamp strings to Date objects for Drizzle ORM
-    if (validatedData.startTime !== undefined) updateData.startTime = new Date(validatedData.startTime);
+    if (validatedData.startTime !== undefined)
+      updateData.startTime = new Date(validatedData.startTime);
     if (validatedData.endTime !== undefined) updateData.endTime = new Date(validatedData.endTime);
     if (validatedData.timezone !== undefined) updateData.timezone = validatedData.timezone;
     if (validatedData.isVirtual !== undefined) updateData.isVirtual = validatedData.isVirtual;
     if (validatedData.isPublic !== undefined) updateData.isPublic = validatedData.isPublic;
     if (validatedData.metadata !== undefined) updateData.metadata = validatedData.metadata;
-    if (validatedData.budget !== undefined) updateData.budgetCents = validatedData.budget ? Math.round(parseFloat(validatedData.budget) * 100) : null;
+    if (validatedData.budget !== undefined)
+      updateData.budgetCents = validatedData.budget
+        ? Math.round(parseFloat(validatedData.budget) * 100)
+        : null;
 
     // Ensure we're actually updating something
     if (Object.keys(updateData).length === 0) {
@@ -116,16 +132,19 @@ export const POST: APIRoute = async (context) => {
       .where(eq(events.id, validatedData.eventId))
       .returning();
 
-    return new Response(JSON.stringify({
-      success: true,
-      event: updatedEvent,
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        event: updatedEvent,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error updating event:', error);
-    
+
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ error: error.flatten() }), {
         status: 400,
@@ -138,9 +157,12 @@ export const POST: APIRoute = async (context) => {
     const errorStack = error instanceof Error ? error.stack : '';
     console.error('Full error details:', errorMessage, errorStack);
 
-    return new Response(JSON.stringify({ error: 'Failed to update event', details: errorMessage }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: 'Failed to update event', details: errorMessage }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 };

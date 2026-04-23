@@ -1,43 +1,35 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import Header from "../../components/Header.astro";
-import { db } from "../../db";
-import { sessions } from "../../db/schema";
-import { eq } from "drizzle-orm";
+import Layout from '../../layouts/Layout.astro';
+import { db } from '../../db';
+import { sessions } from '../../db/schema';
+import { eq } from 'drizzle-orm';
 
 // Check if user is authenticated
-const sessionId = Astro.cookies.get("sessionId")?.value;
+const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 
 // Verify session
-const [session] = await db
-  .select()
-  .from(sessions)
-  .where(eq(sessions.id, sessionId))
-  .limit(1);
+const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
 if (!session || new Date(session.expiresAt) < new Date()) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 ---
 
 <Layout
   title="Create Event"
   description="Create a new event for expense tracking"
+  currentPage="dashboard"
 >
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <Header title="Split" currentPage="dashboard" />
-
     <!-- Page Title -->
     <div
       class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
       <div class="max-w-4xl mx-auto">
-        <h1
-          class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
-        >
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">
           Create New Event
         </h1>
         <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
@@ -47,9 +39,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     </div>
 
     <!-- Main Content -->
-    <main
-      class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
-    >
+    <main class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
       <!-- Create Form Card -->
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
@@ -189,8 +179,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
                   name="isVirtual"
                   class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-indigo-600 focus:ring-2 focus:ring-indigo-600"
                 />
-                <span class="text-sm font-medium text-slate-900 dark:text-white"
-                  >Virtual Event</span
+                <span class="text-sm font-medium text-slate-900 dark:text-white">Virtual Event</span
                 >
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
@@ -201,9 +190,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
                   checked
                   class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-indigo-600 focus:ring-2 focus:ring-indigo-600"
                 />
-                <span class="text-sm font-medium text-slate-900 dark:text-white"
-                  >Public</span
-                >
+                <span class="text-sm font-medium text-slate-900 dark:text-white">Public</span>
               </label>
             </div>
           </div>
@@ -217,9 +204,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
               Total Budget (Optional)
             </label>
             <div class="flex items-center gap-2">
-              <span
-                id="budgetSymbol"
-                class="text-lg font-semibold text-slate-900 dark:text-white"
+              <span id="budgetSymbol" class="text-lg font-semibold text-slate-900 dark:text-white"
                 >$</span
               >
               <input
@@ -354,10 +339,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
                   Cancel
                 </button>
               </div>
-              <div
-                id="groupCreationError"
-                class="text-sm text-red-600 dark:text-red-400 hidden"
-              >
+              <div id="groupCreationError" class="text-sm text-red-600 dark:text-red-400 hidden">
               </div>
             </div>
 
@@ -405,9 +387,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           </div>
 
           <!-- Action Buttons -->
-          <div
-            class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
-          >
+          <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
             <a
               href="/dashboard"
               class="px-6 py-2 text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium"
@@ -436,44 +416,34 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
     // Global theme toggle function accessible from HTML onclick
     window.toggleTheme = function () {
-      console.log("🖱️ Theme toggle clicked");
+      console.log('🖱️ Theme toggle clicked');
 
       const html = document.documentElement;
-      const isDark = html.classList.contains("dark");
-      const icon = document.getElementById("themeIcon");
-      const mainDiv = document.querySelector(
-        "div.min-h-screen",
-      ) as HTMLElement | null;
+      const isDark = html.classList.contains('dark');
+      const icon = document.getElementById('themeIcon');
+      const mainDiv = document.querySelector('div.min-h-screen') as HTMLElement | null;
 
       if (isDark) {
         // Switch to LIGHT mode
-        console.log("→ Switching to light mode");
-        html.classList.remove("dark");
-        document.body.style.setProperty(
-          "background-color",
-          "rgb(255, 255, 255)",
-          "important",
-        );
-        document.body.style.setProperty(
-          "color",
-          "rgb(15, 23, 42)",
-          "important",
-        );
+        console.log('→ Switching to light mode');
+        html.classList.remove('dark');
+        document.body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+        document.body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
 
         // Clear inline styles from main div
         if (mainDiv) {
-          mainDiv.style.backgroundColor = "";
-          mainDiv.style.color = "";
+          mainDiv.style.backgroundColor = '';
+          mainDiv.style.color = '';
         }
 
         // Remove dark mode styles and apply light mode styles
-        let darkStyles = document.getElementById("dynamicDarkStyles");
+        let darkStyles = document.getElementById('dynamicDarkStyles');
         if (darkStyles) darkStyles.remove();
 
         // Inject light mode styles
-        if (!document.getElementById("dynamicLightStyles")) {
-          const style = document.createElement("style");
-          style.id = "dynamicLightStyles";
+        if (!document.getElementById('dynamicLightStyles')) {
+          const style = document.createElement('style');
+          style.id = 'dynamicLightStyles';
           style.textContent = `
             html:not(.dark) header {
               background-color: rgb(255, 255, 255) !important;
@@ -521,42 +491,30 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           document.head.appendChild(style);
         }
 
-        localStorage.setItem("theme", "light");
-        console.log("✅ Switched to light mode");
-        if (icon) icon.textContent = "☀️";
+        localStorage.setItem('theme', 'light');
+        console.log('✅ Switched to light mode');
+        if (icon) icon.textContent = '☀️';
       } else {
         // Switch to DARK mode
-        console.log("→ Switching to dark mode");
-        html.classList.add("dark");
-        document.body.style.setProperty(
-          "background-color",
-          "rgb(6, 6, 10)",
-          "important",
-        );
-        document.body.style.setProperty(
-          "color",
-          "rgb(248, 250, 252)",
-          "important",
-        );
+        console.log('→ Switching to dark mode');
+        html.classList.add('dark');
+        document.body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        document.body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
 
         // Set inline styles on main div for dark mode
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(6, 6, 10)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         }
 
         // Remove light mode styles and apply dark mode styles
-        let lightStyles = document.getElementById("dynamicLightStyles");
+        let lightStyles = document.getElementById('dynamicLightStyles');
         if (lightStyles) lightStyles.remove();
 
         // Inject dark mode styles
-        if (!document.getElementById("dynamicDarkStyles")) {
-          const style = document.createElement("style");
-          style.id = "dynamicDarkStyles";
+        if (!document.getElementById('dynamicDarkStyles')) {
+          const style = document.createElement('style');
+          style.id = 'dynamicDarkStyles';
           style.textContent = `
             html.dark header {
               background-color: rgb(15, 23, 42) !important;
@@ -609,38 +567,36 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           document.head.appendChild(style);
         }
 
-        localStorage.setItem("theme", "dark");
-        console.log("✅ Switched to dark mode");
-        if (icon) icon.textContent = "🌙";
+        localStorage.setItem('theme', 'dark');
+        console.log('✅ Switched to dark mode');
+        if (icon) icon.textContent = '🌙';
       }
     };
 
     // Setup theme toggle on page load
     function setupThemeToggle() {
-      const btn = document.getElementById("themeToggle");
-      const icon = document.getElementById("themeIcon");
+      const btn = document.getElementById('themeToggle');
+      const icon = document.getElementById('themeIcon');
       const html = document.documentElement;
       const body = document.body;
-      const mainDiv = document.querySelector(
-        "div.min-h-screen",
-      ) as HTMLElement | null;
+      const mainDiv = document.querySelector('div.min-h-screen') as HTMLElement | null;
 
       if (!btn) {
-        console.error("❌ Theme toggle button not found");
+        console.error('❌ Theme toggle button not found');
         return;
       }
 
-      console.log("✅ Theme toggle setup started");
+      console.log('✅ Theme toggle setup started');
 
       // Update icon to match current theme on initialization
-      const isDark = html.classList.contains("dark");
-      if (icon) icon.textContent = isDark ? "🌙" : "☀️";
+      const isDark = html.classList.contains('dark');
+      if (icon) icon.textContent = isDark ? '🌙' : '☀️';
 
       // Inject CSS styles for current theme (both light and dark)
-      if (isDark && !document.getElementById("dynamicDarkStyles")) {
+      if (isDark && !document.getElementById('dynamicDarkStyles')) {
         // Inject dark mode CSS
-        const darkStyle = document.createElement("style");
-        darkStyle.id = "dynamicDarkStyles";
+        const darkStyle = document.createElement('style');
+        darkStyle.id = 'dynamicDarkStyles';
         darkStyle.textContent = `
           html.dark header {
             background-color: rgb(15, 23, 42) !important;
@@ -679,10 +635,10 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           }
         `;
         document.head.appendChild(darkStyle);
-      } else if (!isDark && !document.getElementById("dynamicLightStyles")) {
+      } else if (!isDark && !document.getElementById('dynamicLightStyles')) {
         // Inject light mode CSS
-        const lightStyle = document.createElement("style");
-        lightStyle.id = "dynamicLightStyles";
+        const lightStyle = document.createElement('style');
+        lightStyle.id = 'dynamicLightStyles';
         lightStyle.textContent = `
           html:not(.dark) header {
             background-color: rgb(255, 255, 255) !important;
@@ -720,71 +676,52 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
       // Apply inline styles with setProperty to match current theme
       if (isDark) {
-        html.style.setProperty("color-scheme", "dark", "important");
-        body.style.setProperty(
-          "background-color",
-          "rgb(6, 6, 10)",
-          "important",
-        );
-        body.style.setProperty("color", "rgb(248, 250, 252)", "important");
+        html.style.setProperty('color-scheme', 'dark', 'important');
+        body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(6, 6, 10)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         }
       } else {
-        html.style.setProperty("color-scheme", "light", "important");
-        body.style.setProperty(
-          "background-color",
-          "rgb(255, 255, 255)",
-          "important",
-        );
-        body.style.setProperty("color", "rgb(15, 23, 42)", "important");
+        html.style.setProperty('color-scheme', 'light', 'important');
+        body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+        body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(255, 255, 255)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(15, 23, 42)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
         }
       }
 
-      console.log("✅ Theme toggle ready");
+      console.log('✅ Theme toggle ready');
     }
 
     // Initialize theme on page load (wait for DOM to be fully ready)
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", setupThemeToggle);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupThemeToggle);
     } else {
       setTimeout(setupThemeToggle, 0);
     }
 
     // Update currency symbol
     const eventCurrencySelect = document.getElementById(
-      "eventCurrency",
+      'eventCurrency'
     ) as HTMLSelectElement | null;
-    const budgetSymbol = document.getElementById(
-      "budgetSymbol",
-    ) as HTMLElement | null;
+    const budgetSymbol = document.getElementById('budgetSymbol') as HTMLElement | null;
     const currencySymbols: { [key: string]: string } = {
-      USD: "$",
-      EUR: "€",
-      GBP: "£",
-      CAD: "$",
-      AUD: "$",
-      JPY: "¥",
-      MXN: "$",
-      INR: "₹",
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      CAD: '$',
+      AUD: '$',
+      JPY: '¥',
+      MXN: '$',
+      INR: '₹',
     };
 
     if (eventCurrencySelect) {
-      eventCurrencySelect.addEventListener("change", () => {
-        const selectedCurrency = (eventCurrencySelect as HTMLSelectElement)
-          .value;
+      eventCurrencySelect.addEventListener('change', () => {
+        const selectedCurrency = (eventCurrencySelect as HTMLSelectElement).value;
         const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
         if (budgetSymbol) {
           budgetSymbol.textContent = symbol;
@@ -793,84 +730,58 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     }
 
     // Form submission
-    const createEventForm = document.getElementById(
-      "createEventForm",
-    ) as HTMLFormElement | null;
-    const eventError = document.getElementById(
-      "eventError",
-    ) as HTMLElement | null;
+    const createEventForm = document.getElementById('createEventForm') as HTMLFormElement | null;
+    const eventError = document.getElementById('eventError') as HTMLElement | null;
 
     // Expense Toggle Handler
     const addInitialExpenseCheckbox = document.getElementById(
-      "addInitialExpense",
+      'addInitialExpense'
     ) as HTMLInputElement | null;
     const toggleInitialExpenseSwitch = document.getElementById(
-      "toggleInitialExpenseSwitch",
+      'toggleInitialExpenseSwitch'
     ) as HTMLElement | null;
     const toggleInitialExpenseThumb = document.getElementById(
-      "toggleInitialExpenseThumb",
+      'toggleInitialExpenseThumb'
     ) as HTMLElement | null;
     const toggleInitialExpenseLabel = document.getElementById(
-      "toggleInitialExpenseLabel",
+      'toggleInitialExpenseLabel'
     ) as HTMLElement | null;
     const initialExpenseFieldsContainer = document.getElementById(
-      "initialExpenseFieldsContainer",
+      'initialExpenseFieldsContainer'
     ) as HTMLElement | null;
 
     function updateExpenseToggleState() {
-      const isChecked =
-        (addInitialExpenseCheckbox as HTMLInputElement)?.checked ?? false;
+      const isChecked = (addInitialExpenseCheckbox as HTMLInputElement)?.checked ?? false;
 
       if (isChecked) {
         // Checked state
-        toggleInitialExpenseSwitch?.classList.remove(
-          "bg-gray-300",
-          "dark:bg-gray-600",
-        );
-        toggleInitialExpenseSwitch?.classList.add(
-          "bg-green-500",
-          "dark:bg-green-600",
-        );
-        toggleInitialExpenseThumb?.classList.remove("translate-x-0");
-        toggleInitialExpenseThumb?.classList.add("translate-x-6");
+        toggleInitialExpenseSwitch?.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+        toggleInitialExpenseSwitch?.classList.add('bg-green-500', 'dark:bg-green-600');
+        toggleInitialExpenseThumb?.classList.remove('translate-x-0');
+        toggleInitialExpenseThumb?.classList.add('translate-x-6');
         if (toggleInitialExpenseLabel)
-          toggleInitialExpenseLabel.textContent = "✓ Add Initial Expense";
-        toggleInitialExpenseLabel?.classList.remove("text-gray-700");
-        toggleInitialExpenseLabel?.classList.add(
-          "text-green-900",
-          "dark:text-green-100",
-        );
-        initialExpenseFieldsContainer?.classList.remove("hidden");
+          toggleInitialExpenseLabel.textContent = '✓ Add Initial Expense';
+        toggleInitialExpenseLabel?.classList.remove('text-gray-700');
+        toggleInitialExpenseLabel?.classList.add('text-green-900', 'dark:text-green-100');
+        initialExpenseFieldsContainer?.classList.remove('hidden');
       } else {
         // Unchecked state
-        toggleInitialExpenseSwitch?.classList.remove(
-          "bg-green-500",
-          "dark:bg-green-600",
-        );
-        toggleInitialExpenseSwitch?.classList.add(
-          "bg-gray-300",
-          "dark:bg-gray-600",
-        );
-        toggleInitialExpenseThumb?.classList.remove("translate-x-6");
-        toggleInitialExpenseThumb?.classList.add("translate-x-0");
+        toggleInitialExpenseSwitch?.classList.remove('bg-green-500', 'dark:bg-green-600');
+        toggleInitialExpenseSwitch?.classList.add('bg-gray-300', 'dark:bg-gray-600');
+        toggleInitialExpenseThumb?.classList.remove('translate-x-6');
+        toggleInitialExpenseThumb?.classList.add('translate-x-0');
         if (toggleInitialExpenseLabel)
-          toggleInitialExpenseLabel.textContent = "○ Add Initial Expense";
-        toggleInitialExpenseLabel?.classList.remove(
-          "text-green-900",
-          "dark:text-green-100",
-        );
-        toggleInitialExpenseLabel?.classList.add(
-          "text-gray-700",
-          "dark:text-gray-300",
-        );
-        initialExpenseFieldsContainer?.classList.add("hidden");
+          toggleInitialExpenseLabel.textContent = '○ Add Initial Expense';
+        toggleInitialExpenseLabel?.classList.remove('text-green-900', 'dark:text-green-100');
+        toggleInitialExpenseLabel?.classList.add('text-gray-700', 'dark:text-gray-300');
+        initialExpenseFieldsContainer?.classList.add('hidden');
       }
     }
 
     // Initialize expense toggle
     if (addInitialExpenseCheckbox) {
       updateExpenseToggleState();
-      addInitialExpenseCheckbox.addEventListener("change", async () => {
+      addInitialExpenseCheckbox.addEventListener('change', async () => {
         updateExpenseToggleState();
 
         // If checked, fetch groups
@@ -883,86 +794,77 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     // Load user's groups
     async function loadUserGroups() {
       try {
-        const response = await fetch("/api/groups/my-groups");
+        const response = await fetch('/api/groups/my-groups');
         const data = await response.json();
 
         const groupSelect = document.getElementById(
-          "expenseGroupSelect",
+          'expenseGroupSelect'
         ) as HTMLSelectElement | null;
         if (groupSelect && data.groups && data.groups.length > 0) {
           // Clear existing options except the default
-          groupSelect.innerHTML =
-            '<option value="">-- Select Existing Group --</option>';
+          groupSelect.innerHTML = '<option value="">-- Select Existing Group --</option>';
 
           data.groups.forEach((group: any) => {
-            const option = document.createElement("option");
+            const option = document.createElement('option');
             option.value = group.id;
             option.textContent = group.name;
             groupSelect.appendChild(option);
           });
         }
       } catch (error) {
-        console.error("Error loading groups:", error);
+        console.error('Error loading groups:', error);
       }
     }
 
     // Group creation handlers
-    const createNewGroupBtn = document.getElementById(
-      "createNewGroupBtn",
-    ) as HTMLElement | null;
-    const createNewGroupForm = document.getElementById(
-      "createNewGroupForm",
-    ) as HTMLElement | null;
+    const createNewGroupBtn = document.getElementById('createNewGroupBtn') as HTMLElement | null;
+    const createNewGroupForm = document.getElementById('createNewGroupForm') as HTMLElement | null;
     const createGroupConfirmBtn = document.getElementById(
-      "createGroupConfirmBtn",
+      'createGroupConfirmBtn'
     ) as HTMLElement | null;
     const createGroupCancelBtn = document.getElementById(
-      "createGroupCancelBtn",
+      'createGroupCancelBtn'
     ) as HTMLElement | null;
-    const newGroupNameInput = document.getElementById(
-      "newGroupName",
-    ) as HTMLInputElement | null;
-    const groupCreationError = document.getElementById(
-      "groupCreationError",
-    ) as HTMLElement | null;
+    const newGroupNameInput = document.getElementById('newGroupName') as HTMLInputElement | null;
+    const groupCreationError = document.getElementById('groupCreationError') as HTMLElement | null;
 
     if (createNewGroupBtn) {
-      createNewGroupBtn.addEventListener("click", (e) => {
+      createNewGroupBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        createNewGroupForm?.classList.remove("hidden");
+        createNewGroupForm?.classList.remove('hidden');
         newGroupNameInput?.focus();
       });
     }
 
     if (createGroupCancelBtn) {
-      createGroupCancelBtn.addEventListener("click", (e) => {
+      createGroupCancelBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        createNewGroupForm?.classList.add("hidden");
-        if (newGroupNameInput) newGroupNameInput.value = "";
+        createNewGroupForm?.classList.add('hidden');
+        if (newGroupNameInput) newGroupNameInput.value = '';
         if (groupCreationError) {
-          groupCreationError.textContent = "";
-          groupCreationError.classList.add("hidden");
+          groupCreationError.textContent = '';
+          groupCreationError.classList.add('hidden');
         }
       });
     }
 
     if (createGroupConfirmBtn) {
-      createGroupConfirmBtn.addEventListener("click", async (e) => {
+      createGroupConfirmBtn.addEventListener('click', async (e) => {
         e.preventDefault();
 
-        const groupName = (newGroupNameInput?.value ?? "").trim();
+        const groupName = (newGroupNameInput?.value ?? '').trim();
         if (!groupName) {
           if (groupCreationError) {
-            groupCreationError.textContent = "Group name is required";
-            groupCreationError.classList.remove("hidden");
+            groupCreationError.textContent = 'Group name is required';
+            groupCreationError.classList.remove('hidden');
           }
           return;
         }
 
         try {
-          const response = await fetch("/api/groups/create", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          const response = await fetch('/api/groups/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: groupName }),
           });
 
@@ -970,17 +872,16 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
           if (!response.ok) {
             if (groupCreationError) {
-              groupCreationError.textContent =
-                result.error || "Failed to create group";
-              groupCreationError.classList.remove("hidden");
+              groupCreationError.textContent = result.error || 'Failed to create group';
+              groupCreationError.classList.remove('hidden');
             }
             return;
           }
 
           // Add the new group to the dropdown
-          const groupSelect = document.getElementById("expenseGroupSelect");
+          const groupSelect = document.getElementById('expenseGroupSelect');
           if (groupSelect) {
-            const option = document.createElement("option");
+            const option = document.createElement('option');
             option.value = result.group.id;
             option.textContent = result.group.name;
             option.selected = true;
@@ -989,30 +890,29 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
           // Hide form and reset
           if (createNewGroupForm) {
-            createNewGroupForm.classList.add("hidden");
+            createNewGroupForm.classList.add('hidden');
           }
           if (newGroupNameInput) {
-            newGroupNameInput.value = "";
+            newGroupNameInput.value = '';
           }
           if (groupCreationError) {
-            groupCreationError.textContent = "";
-            groupCreationError.classList.add("hidden");
+            groupCreationError.textContent = '';
+            groupCreationError.classList.add('hidden');
           }
         } catch (error) {
-          console.error("Error creating group:", error);
+          console.error('Error creating group:', error);
           if (groupCreationError) {
-            groupCreationError.textContent = "An error occurred";
-            groupCreationError.classList.remove("hidden");
+            groupCreationError.textContent = 'An error occurred';
+            groupCreationError.classList.remove('hidden');
           }
         }
       });
     }
 
     if (toggleInitialExpenseSwitch) {
-      toggleInitialExpenseSwitch.addEventListener("click", () => {
+      toggleInitialExpenseSwitch.addEventListener('click', () => {
         if (addInitialExpenseCheckbox) {
-          addInitialExpenseCheckbox.checked =
-            !addInitialExpenseCheckbox.checked;
+          addInitialExpenseCheckbox.checked = !addInitialExpenseCheckbox.checked;
           updateExpenseToggleState();
 
           // If checked, fetch groups
@@ -1024,21 +924,21 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     }
 
     if (createEventForm) {
-      console.log("✅ Form handler attached to:", createEventForm.id);
-      createEventForm.addEventListener("submit", async (e) => {
-        console.log("🎯 FORM SUBMIT FIRED");
+      console.log('✅ Form handler attached to:', createEventForm.id);
+      createEventForm.addEventListener('submit', async (e) => {
+        console.log('🎯 FORM SUBMIT FIRED');
 
         // Add visible indicator
-        const indicator = document.createElement("div");
-        indicator.style.position = "fixed";
-        indicator.style.top = "20px";
-        indicator.style.right = "20px";
-        indicator.style.padding = "20px";
-        indicator.style.backgroundColor = "#22c55e";
-        indicator.style.color = "white";
-        indicator.style.borderRadius = "8px";
-        indicator.style.zIndex = "9999";
-        indicator.textContent = "✅ Form submitted! Check console...";
+        const indicator = document.createElement('div');
+        indicator.style.position = 'fixed';
+        indicator.style.top = '20px';
+        indicator.style.right = '20px';
+        indicator.style.padding = '20px';
+        indicator.style.backgroundColor = '#22c55e';
+        indicator.style.color = 'white';
+        indicator.style.borderRadius = '8px';
+        indicator.style.zIndex = '9999';
+        indicator.textContent = '✅ Form submitted! Check console...';
         document.body.appendChild(indicator);
 
         e.preventDefault();
@@ -1046,23 +946,21 @@ if (!session || new Date(session.expiresAt) < new Date()) {
         const formData = new FormData(createEventForm as HTMLFormElement);
 
         // Convert datetime-local to ISO 8601 string
-        const startTimeInput = (formData.get("startTime") as string) ?? "";
-        const endTimeInput = (formData.get("endTime") as string) ?? "";
-        const shouldAddExpense =
-          (addInitialExpenseCheckbox as HTMLInputElement)?.checked ?? false;
+        const startTimeInput = (formData.get('startTime') as string) ?? '';
+        const endTimeInput = (formData.get('endTime') as string) ?? '';
+        const shouldAddExpense = (addInitialExpenseCheckbox as HTMLInputElement)?.checked ?? false;
         const expenseDescription = (
-          (formData.get("initialExpenseDescription") as string) ?? ""
+          (formData.get('initialExpenseDescription') as string) ?? ''
         ).trim();
         const expenseAmount =
-          parseFloat((formData.get("initialExpenseAmount") as string) ?? "0") ||
-          0;
-        const expenseGroupId = (formData.get("expenseGroupId") as string) ?? "";
+          parseFloat((formData.get('initialExpenseAmount') as string) ?? '0') || 0;
+        const expenseGroupId = (formData.get('expenseGroupId') as string) ?? '';
 
         // DEBUG: Log form submission state
-        console.log("🚀 Form Submission Started:", {
+        console.log('🚀 Form Submission Started:', {
           shouldAddExpense,
           expenseDescription,
-          expenseAmountRaw: formData.get("initialExpenseAmount"),
+          expenseAmountRaw: formData.get('initialExpenseAmount'),
           expenseAmount,
           expenseGroupId,
           checkboxElement: addInitialExpenseCheckbox,
@@ -1070,64 +968,55 @@ if (!session || new Date(session.expiresAt) < new Date()) {
         });
 
         const data = {
-          title: formData.get("title"),
-          type: formData.get("type"),
-          description: formData.get("description") || undefined,
-          startTime: startTimeInput
-            ? new Date(startTimeInput).toISOString()
-            : undefined,
-          endTime: endTimeInput
-            ? new Date(endTimeInput).toISOString()
-            : undefined,
-          timezone: formData.get("timezone"),
-          isVirtual: formData.get("isVirtual") === "on",
-          isPublic: formData.get("isPublic") === "on",
-          currency: formData.get("currency"),
-          budget: formData.get("budget") || undefined,
+          title: formData.get('title'),
+          type: formData.get('type'),
+          description: formData.get('description') || undefined,
+          startTime: startTimeInput ? new Date(startTimeInput).toISOString() : undefined,
+          endTime: endTimeInput ? new Date(endTimeInput).toISOString() : undefined,
+          timezone: formData.get('timezone'),
+          isVirtual: formData.get('isVirtual') === 'on',
+          isPublic: formData.get('isPublic') === 'on',
+          currency: formData.get('currency'),
+          budget: formData.get('budget') || undefined,
           // Include groupId if expense is being added
-          ...(shouldAddExpense && expenseGroupId
-            ? { groupId: expenseGroupId }
-            : {}),
+          ...(shouldAddExpense && expenseGroupId ? { groupId: expenseGroupId } : {}),
         };
 
         try {
           // Validate expense fields if expense is enabled
           if (shouldAddExpense) {
-            console.log("🔍 Expense validation triggered");
+            console.log('🔍 Expense validation triggered');
             if (!expenseGroupId) {
               if (eventError) {
-                eventError.textContent =
-                  "Please select or create a group for the expense";
-                eventError.classList.remove("hidden");
+                eventError.textContent = 'Please select or create a group for the expense';
+                eventError.classList.remove('hidden');
               }
               return;
             }
 
             if (!expenseDescription || !expenseDescription.trim()) {
               if (eventError) {
-                eventError.textContent =
-                  "Please provide an expense description";
-                eventError.classList.remove("hidden");
+                eventError.textContent = 'Please provide an expense description';
+                eventError.classList.remove('hidden');
               }
               return;
             }
 
             if (expenseAmount <= 0) {
               if (eventError) {
-                eventError.textContent =
-                  "Expense amount must be greater than 0";
-                eventError.classList.remove("hidden");
+                eventError.textContent = 'Expense amount must be greater than 0';
+                eventError.classList.remove('hidden');
               }
               return;
             }
-            console.log("✅ Expense validation passed");
+            console.log('✅ Expense validation passed');
           } else {
-            console.warn("⚠️ shouldAddExpense is false - skipping expense");
+            console.warn('⚠️ shouldAddExpense is false - skipping expense');
           }
 
-          const response = await fetch("/api/events", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          const response = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
           });
 
@@ -1135,51 +1024,48 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
           if (!response.ok) {
             if (eventError) {
-              eventError.textContent = result.error || "Failed to create event";
-              eventError.classList.remove("hidden");
+              eventError.textContent = result.error || 'Failed to create event';
+              eventError.classList.remove('hidden');
             }
           } else {
             // Event created successfully
             const eventId = result.event.id;
-            console.log("✅ Event created:", eventId);
+            console.log('✅ Event created:', eventId);
             console.log(
-              "🔄 Checking expense creation conditions: shouldAddExpense=" +
+              '🔄 Checking expense creation conditions: shouldAddExpense=' +
                 shouldAddExpense +
-                ", expenseAmount=" +
-                expenseAmount,
+                ', expenseAmount=' +
+                expenseAmount
             );
 
             // Create expense if enabled
             if (shouldAddExpense && expenseAmount > 0) {
-              console.log("🟢 INSIDE expense creation block");
+              console.log('🟢 INSIDE expense creation block');
               try {
-                console.log("📝 Creating expense:", {
+                console.log('📝 Creating expense:', {
                   groupId: expenseGroupId,
                   amount: expenseAmount,
                   description: expenseDescription,
                 });
 
                 // Get current user ID
-                console.log("🔄 Fetching user from /api/auth/me...");
-                const meResponse = await fetch("/api/auth/me");
-                console.log("📡 Fetch response status:", meResponse.status);
+                console.log('🔄 Fetching user from /api/auth/me...');
+                const meResponse = await fetch('/api/auth/me');
+                console.log('📡 Fetch response status:', meResponse.status);
                 const meData = await meResponse.json();
-                console.log("📦 /api/auth/me returned:", meData);
+                console.log('📦 /api/auth/me returned:', meData);
                 const userId = meData.id; // Fixed: use meData.id directly, not meData.human?.id
-                console.log("🆔 Extracted userId:", userId);
+                console.log('🆔 Extracted userId:', userId);
 
                 if (!userId) {
-                  console.warn(
-                    "❌ Could not create expense - user ID not available",
-                    meData,
-                  );
+                  console.warn('❌ Could not create expense - user ID not available', meData);
                   // Still redirect even if expense creation fails
                   // window.location.href = `/events/${eventId}`;
-                  console.warn("❌ USER ID NOT AVAILABLE - NOT REDIRECTING");
+                  console.warn('❌ USER ID NOT AVAILABLE - NOT REDIRECTING');
                   return;
                 }
 
-                console.log("✅ Got user ID:", userId);
+                console.log('✅ Got user ID:', userId);
 
                 const expenseData = {
                   eventId: eventId, // Changed from groupId to eventId - expenses are linked to events, not groups
@@ -1188,69 +1074,54 @@ if (!session || new Date(session.expiresAt) < new Date()) {
                   paidBy: userId,
                 };
 
-                console.log("📤 Expense details:", {
+                console.log('📤 Expense details:', {
                   description: expenseDescription,
                   amount: expenseAmount,
                   groupId: expenseGroupId,
                   paidBy: userId,
-                  descriptionTrimmed: (expenseDescription ?? "").trim(),
-                  amountIsNumber: typeof expenseAmount === "number",
+                  descriptionTrimmed: (expenseDescription ?? '').trim(),
+                  amountIsNumber: typeof expenseAmount === 'number',
                   amountIsPositive: expenseAmount > 0,
                 });
-                console.log(
-                  "📤 Sending expense data:",
-                  JSON.stringify(expenseData),
-                );
+                console.log('📤 Sending expense data:', JSON.stringify(expenseData));
 
-                const expenseResponse = await fetch("/api/expenses/create", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
+                const expenseResponse = await fetch('/api/expenses/create', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(expenseData),
                 });
 
                 const expenseResult = await expenseResponse.json();
-                console.log(
-                  "📥 Expense response:",
-                  expenseResponse.status,
-                  expenseResult,
-                );
+                console.log('📥 Expense response:', expenseResponse.status, expenseResult);
 
                 if (!expenseResponse.ok) {
-                  console.warn(
-                    "❌ Expense creation failed:",
-                    expenseResult.error || expenseResult,
-                  );
+                  console.warn('❌ Expense creation failed:', expenseResult.error || expenseResult);
                 } else {
-                  console.log(
-                    "✅ Expense created successfully:",
-                    expenseResult.expense?.id,
-                  );
+                  console.log('✅ Expense created successfully:', expenseResult.expense?.id);
                 }
               } catch (error) {
-                console.error("❌ Error creating expense:", error);
+                console.error('❌ Error creating expense:', error);
                 // Still redirect even if expense creation fails
               }
             } else {
               console.warn(
-                "🔴 SKIPPED expense creation: shouldAddExpense=" +
+                '🔴 SKIPPED expense creation: shouldAddExpense=' +
                   shouldAddExpense +
-                  ", expenseAmount=" +
-                  expenseAmount,
+                  ', expenseAmount=' +
+                  expenseAmount
               );
             }
 
             // Redirect to the newly created event
-            console.log(
-              "✅✅✅ SUBMISSION COMPLETE - Redirecting to event ✅✅✅",
-            );
+            console.log('✅✅✅ SUBMISSION COMPLETE - Redirecting to event ✅✅✅');
             setTimeout(() => {
               window.location.href = `/events/${eventId}`;
             }, 1000);
           }
         } catch (error) {
           if (eventError) {
-            eventError.textContent = "An error occurred. Please try again.";
-            eventError.classList.remove("hidden");
+            eventError.textContent = 'An error occurred. Please try again.';
+            eventError.classList.remove('hidden');
           }
         }
       });

@@ -197,14 +197,14 @@ Update to import both old and new schemas:
 
 ```typescript
 // src/db/index.ts
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Client } from "pg";
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Client } from 'pg';
 
 // OLD SCHEMA (temporarily keep for backward compatibility)
-import * as oldSchema from "./schema";
+import * as oldSchema from './schema';
 
 // NEW SCHEMA (human-centric)
-import * as newSchema from "./human-centric-schema";
+import * as newSchema from './human-centric-schema';
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -220,8 +220,8 @@ export const db = drizzle({
 
 client
   .connect()
-  .then(() => console.log("✓ Database connected"))
-  .catch((err) => console.error("⚠ Connection error:", err.message));
+  .then(() => console.log('✓ Database connected'))
+  .catch((err) => console.error('⚠ Connection error:', err.message));
 
 export default db;
 ```
@@ -234,8 +234,8 @@ export default db;
 
 ```typescript
 // For authenticating users against the new schema
-import { eq } from "drizzle-orm";
-import type { humans, customers, emailHistory } from "./human-centric-schema";
+import { eq } from 'drizzle-orm';
+import type { humans, customers, emailHistory } from './human-centric-schema';
 
 // Get human by email (searches email_history for current email)
 export async function getHumanByEmail(email: string) {
@@ -251,8 +251,8 @@ export async function getHumanByEmail(email: string) {
     .where(
       and(
         eq(emailHistory.email, email),
-        isNull(emailHistory.effectiveTo), // Get current email only
-      ),
+        isNull(emailHistory.effectiveTo) // Get current email only
+      )
     )
     .limit(1);
 
@@ -278,29 +278,15 @@ export async function getHumanWithRoles(humanId: string) {
 }
 
 // Check if human has permission
-export async function hasPermission(
-  humanId: string,
-  permissionName: string,
-): Promise<boolean> {
+export async function hasPermission(humanId: string, permissionName: string): Promise<boolean> {
   const result = await db
     .select({ exists: sql<number>`count(*)::int` })
     .from(humans)
     .innerJoin(humanSiteRoles, eq(humans.id, humanSiteRoles.humanId))
     .innerJoin(siteRoles, eq(humanSiteRoles.siteRoleId, siteRoles.id))
-    .innerJoin(
-      siteRolePermissions,
-      eq(siteRoles.id, siteRolePermissions.siteRoleId),
-    )
-    .innerJoin(
-      permissions,
-      eq(siteRolePermissions.permissionId, permissions.id),
-    )
-    .where(
-      and(
-        eq(humans.id, humanId),
-        eq(permissions.permissionName, permissionName),
-      ),
-    );
+    .innerJoin(siteRolePermissions, eq(siteRoles.id, siteRolePermissions.siteRoleId))
+    .innerJoin(permissions, eq(siteRolePermissions.permissionId, permissions.id))
+    .where(and(eq(humans.id, humanId), eq(permissions.permissionName, permissionName)));
 
   return (result[0]?.exists ?? 0) > 0;
 }
@@ -316,10 +302,7 @@ export async function hasPermission(
 
 ```typescript
 // Uses: users table
-const existingUser = await db
-  .select()
-  .from(users)
-  .where(eq(users.email, email));
+const existingUser = await db.select().from(users).where(eq(users.email, email));
 ```
 
 **AFTER** (Phase 1 - keep both working):
@@ -327,10 +310,7 @@ const existingUser = await db
 ```typescript
 // Check both old and new schemas during transition
 const fromNewSchema = await getHumanByEmail(email);
-const fromOldSchema = await db
-  .select()
-  .from(users)
-  .where(eq(users.email, email));
+const fromOldSchema = await db.select().from(users).where(eq(users.email, email));
 
 const exists = fromNewSchema || fromOldSchema;
 ```
@@ -350,40 +330,34 @@ const exists = human !== null;
 ### Test Script: `test-migration.ts`
 
 ```typescript
-import { db } from "./src/db";
-import * as tables from "./src/db/human-centric-schema";
-import { eq } from "drizzle-orm";
+import { db } from './src/db';
+import * as tables from './src/db/human-centric-schema';
+import { eq } from 'drizzle-orm';
 
 async function testMigration() {
-  console.log("🧪 Testing schema migration...\n");
+  console.log('🧪 Testing schema migration...\n');
 
   // Test 1: Humans table has data
   const humanCount = await db.select().from(tables.humans).limit(1);
-  console.log(`✅ Humans table:`, humanCount.length > 0 ? "OK" : "EMPTY");
+  console.log(`✅ Humans table:`, humanCount.length > 0 ? 'OK' : 'EMPTY');
 
   // Test 2: Email history populated
   const emailCount = await db.select().from(tables.emailHistory).limit(1);
-  console.log(`✅ Email history:`, emailCount.length > 0 ? "OK" : "EMPTY");
+  console.log(`✅ Email history:`, emailCount.length > 0 ? 'OK' : 'EMPTY');
 
   // Test 3: Customers migrated
   const customerCount = await db.select().from(tables.customers).limit(1);
-  console.log(`✅ Customers:`, customerCount.length > 0 ? "OK" : "EMPTY");
+  console.log(`✅ Customers:`, customerCount.length > 0 ? 'OK' : 'EMPTY');
 
   // Test 4: Default roles created
   const roles = await db.select().from(tables.siteRoles);
-  console.log(
-    `✅ Roles:`,
-    roles.length === 5 ? "All 5 created" : `${roles.length} roles`,
-  );
+  console.log(`✅ Roles:`, roles.length === 5 ? 'All 5 created' : `${roles.length} roles`);
 
   // Test 5: Permissions created
   const perms = await db.select().from(tables.permissions);
-  console.log(
-    `✅ Permissions:`,
-    perms.length === 13 ? "All 13 created" : `${perms.length} perms`,
-  );
+  console.log(`✅ Permissions:`, perms.length === 13 ? 'All 13 created' : `${perms.length} perms`);
 
-  console.log("\n🎉 Migration successful!");
+  console.log('\n🎉 Migration successful!');
 }
 
 testMigration().catch(console.error);
@@ -424,9 +398,7 @@ groups.create, groups.manage, groups.view
 // Make a human an admin
 await db.insert(humanSiteRoles).values({
   humanId: someHumanId,
-  siteRoleId: (
-    await db.select().from(siteRoles).where(eq(siteRoles.roleName, "admin"))
-  )[0].id,
+  siteRoleId: (await db.select().from(siteRoles).where(eq(siteRoles.roleName, 'admin')))[0].id,
   assignedBy: currentUserHumanId,
 });
 ```

@@ -15,11 +15,7 @@ export const DELETE: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -65,17 +61,11 @@ export const DELETE: APIRoute = async (context) => {
 
     // Delete the group (cascade will handle members and pending invitations)
     // But we'll explicitly delete them for clarity
-    await db
-      .delete(pendingGroupInvitations)
-      .where(eq(pendingGroupInvitations.groupId, groupId));
+    await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.groupId, groupId));
 
-    await db
-      .delete(groupMembers)
-      .where(eq(groupMembers.groupId, groupId));
+    await db.delete(groupMembers).where(eq(groupMembers.groupId, groupId));
 
-    await db
-      .delete(expenseGroups)
-      .where(eq(expenseGroups.id, groupId));
+    await db.delete(expenseGroups).where(eq(expenseGroups.id, groupId));
 
     return new Response(
       JSON.stringify({

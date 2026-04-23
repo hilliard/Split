@@ -1,16 +1,19 @@
 # Invitation UI Implementation Roadmap
 
 ## Status
+
 Email infrastructure complete. Time to build the user-facing UI.
 
 ## Phase 1: Dashboard Invitations Section
 
 ### What to Build
+
 Add section to `/dashboard/index.astro` showing pending invitations received by current user.
 
 **Location:** Below the "Your Events" section
 
 **Content:**
+
 - Heading: "Pending Invitations"
 - List of invitations with:
   - Group name (who invited you)
@@ -21,10 +24,11 @@ Add section to `/dashboard/index.astro` showing pending invitations received by 
   - Empty state: "No pending invitations"
 
 **API Needed:**
+
 ```typescript
 // GET /api/dashboard/pending-invitations
 // Returns: Array<{
-//   id, groupId, groupName, invitedBy, invitedByName, 
+//   id, groupId, groupName, invitedBy, invitedByName,
 //   expiresAt, status
 // }>
 ```
@@ -32,11 +36,11 @@ Add section to `/dashboard/index.astro` showing pending invitations received by 
 **Component:** Can be inline in dashboard or separate component
 
 ### Implementation Steps
+
 1. Create endpoint: `src/pages/api/dashboard/pending-invitations.ts`
    - Query `pendingGroupInvitations` JOIN `expenseGroups` JOIN `humans`
    - Filter by email + status = 'pending' + not expired
    - Authentication required
-   
 2. Update `src/pages/dashboard/index.astro`
    - Fetch pending invitations on page load
    - Display with styling matching existing cards
@@ -50,14 +54,17 @@ Add section to `/dashboard/index.astro` showing pending invitations received by 
 ## Phase 2: Group Invite Form
 
 ### What to Build
+
 Add invite form to group detail/settings page where owner can invite new members.
 
-**Location:** 
+**Location:**
+
 - Option A: New `/groups/[name]/settings.astro` page
 - Option B: New `/groups/manage/[id].astro` page
 - Option C: Add to existing group detail page
 
 **Content:**
+
 - Heading: "Invite Members"
 - Email input field
 - "Send Invitation" button
@@ -65,6 +72,7 @@ Add invite form to group detail/settings page where owner can invite new members
 - List of: current members + pending invitations
 
 **Fields:**
+
 - Email: Required, must be valid email format
 - Optional: personal message (future enhancement)
 
@@ -73,6 +81,7 @@ Add invite form to group detail/settings page where owner can invite new members
 **Component:** Can be inline or separate
 
 ### Implementation Steps
+
 1. Create new page: `src/pages/groups/[name]/manage.astro`
    - Show group name and details
    - Display current members list
@@ -94,9 +103,11 @@ Add invite form to group detail/settings page where owner can invite new members
 ## Phase 3: Member Management
 
 ### What to Build (Future)
+
 Add ability to manage group members.
 
 **Features:**
+
 - Remove member from group
 - Resend invitation to pending member
 - Cancel pending invitation
@@ -120,8 +131,9 @@ Add ability to manage group members.
 ## Database Queries Needed
 
 ### For Dashboard Invitations
+
 ```sql
-SELECT 
+SELECT
   pgi.id,
   pgi.group_id,
   eg.name as group_name,
@@ -138,6 +150,7 @@ ORDER BY pgi.invited_at DESC;
 ```
 
 ### For Group Members List
+
 ```sql
 -- Members
 SELECT h.*, gm.joined_at
@@ -156,6 +169,7 @@ ORDER BY invited_at DESC;
 ## Styling Notes
 
 **Use existing patterns from dashboard:**
+
 - White card with subtle shadow
 - Dark mode support (dark:bg-slate-800)
 - Indigo accent color (indigo-600)
@@ -163,6 +177,7 @@ ORDER BY invited_at DESC;
 - Consistent spacing (p-5 sm:p-6)
 
 **For lists:**
+
 - Use grid or simple div list
 - Card per invitation/member
 - Right-align action buttons
@@ -186,11 +201,13 @@ ORDER BY invited_at DESC;
 ## Files to Create/Modify
 
 ### Phase 1
+
 - `src/pages/api/dashboard/pending-invitations.ts` (NEW)
 - `src/pages/api/groups/invitations/decline.ts` (NEW)
 - `src/pages/dashboard/index.astro` (MODIFY)
 
 ### Phase 2
+
 - `src/pages/groups/[name]/manage.astro` (NEW)
 - `src/pages/api/groups/[id]/members.ts` (NEW)
 

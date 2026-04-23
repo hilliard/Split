@@ -1,60 +1,48 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import Header from "@/components/Header.astro";
-import { db } from "@/db";
-import { sessions, expenseGroups } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import Layout from '@/layouts/Layout.astro';
+import { db } from '@/db';
+import { sessions, expenseGroups } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 // Check if user is authenticated
-const sessionId = Astro.cookies.get("sessionId")?.value;
+const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 
 // Verify session
-const [session] = await db
-  .select()
-  .from(sessions)
-  .where(eq(sessions.id, sessionId))
-  .limit(1);
+const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
 if (!session || new Date(session.expiresAt) < new Date()) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 
 // Get group ID from URL
 const { id: groupId } = Astro.params;
 if (!groupId) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 
 // Verify group exists
-const [group] = await db
-  .select()
-  .from(expenseGroups)
-  .where(eq(expenseGroups.id, groupId))
-  .limit(1);
+const [group] = await db.select().from(expenseGroups).where(eq(expenseGroups.id, groupId)).limit(1);
 
 if (!group) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 ---
 
 <Layout
   title={`Manage ${group.name}`}
   description={`Manage ${group.name} group`}
+  currentPage="dashboard"
 >
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <Header title={group.name} currentPage="dashboard" />
-
     <!-- Page Title -->
     <div
       class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
       <div class="max-w-7xl mx-auto">
-        <h1
-          class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
-        >
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">
           {group.name}
         </h1>
         <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
@@ -64,9 +52,7 @@ if (!group) {
     </div>
 
     <!-- Main Content -->
-    <main
-      class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
-    >
+    <main class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       <!-- Navigation Buttons -->
       <div class="flex gap-3 mb-6 flex-wrap">
         <a
@@ -87,9 +73,7 @@ if (!group) {
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6 mb-6 sm:mb-8"
       >
-        <h2
-          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
-        >
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
           Invite Members
         </h2>
         <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4">
@@ -124,15 +108,9 @@ if (!group) {
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6 mb-6 sm:mb-8"
       >
-        <h2
-          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
-        >
-          Members
-        </h2>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">Members</h2>
         <div id="membersList" class="space-y-3">
-          <div
-            class="flex items-center justify-center p-8 text-slate-600 dark:text-slate-400"
-          >
+          <div class="flex items-center justify-center p-8 text-slate-600 dark:text-slate-400">
             <p>Loading members...</p>
           </div>
         </div>
@@ -142,15 +120,11 @@ if (!group) {
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6 mb-6 sm:mb-8"
       >
-        <h2
-          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
-        >
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
           Pending Invitations
         </h2>
         <div id="invitationsList" class="space-y-3">
-          <div
-            class="flex items-center justify-center p-8 text-slate-600 dark:text-slate-400"
-          >
+          <div class="flex items-center justify-center p-8 text-slate-600 dark:text-slate-400">
             <p>Loading invitations...</p>
           </div>
         </div>
@@ -172,44 +146,44 @@ if (!group) {
   <script is:inline define:vars={{ groupId }}>
     // Setup theme toggle
     function setupThemeToggle() {
-      const icon = document.getElementById("themeIcon");
+      const icon = document.getElementById('themeIcon');
       if (!icon) return;
 
-      const isDark = document.documentElement.classList.contains("dark");
-      icon.textContent = isDark ? "☀️" : "🌙";
+      const isDark = document.documentElement.classList.contains('dark');
+      icon.textContent = isDark ? '☀️' : '🌙';
     }
 
     window.toggleTheme = function () {
       const html = document.documentElement;
-      html.classList.toggle("dark");
-      const isDark = html.classList.contains("dark");
-      const icon = document.getElementById("themeIcon");
+      html.classList.toggle('dark');
+      const isDark = html.classList.contains('dark');
+      const icon = document.getElementById('themeIcon');
       if (icon) {
-        icon.textContent = isDark ? "☀️" : "🌙";
+        icon.textContent = isDark ? '☀️' : '🌙';
       }
-      localStorage.setItem("theme", isDark ? "dark" : "light");
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
     };
 
-    function showToast(message = "Success!", duration = 3000) {
-      const toast = document.getElementById("toast");
-      const toastMessage = document.getElementById("toastMessage");
+    function showToast(message = 'Success!', duration = 3000) {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
       if (toast && toastMessage) {
         toastMessage.textContent = message;
-        toast.classList.remove("hidden");
+        toast.classList.remove('hidden');
         setTimeout(() => {
-          toast.classList.add("hidden");
+          toast.classList.add('hidden');
         }, duration);
       }
     }
 
     function escapeHtml(text) {
-      if (!text) return "";
+      if (!text) return '';
       const map = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
       };
       return text.replace(/[&<>"']/g, (m) => map[m]);
     }
@@ -219,13 +193,13 @@ if (!group) {
       try {
         const response = await fetch(`/api/groups/${groupId}/members`);
         if (!response.ok) {
-          console.error("Failed to load group data:", response.status);
+          console.error('Failed to load group data:', response.status);
           return;
         }
 
         const data = await response.json();
-        const membersList = document.getElementById("membersList");
-        const invitationsList = document.getElementById("invitationsList");
+        const membersList = document.getElementById('membersList');
+        const invitationsList = document.getElementById('invitationsList');
 
         // Load members
         if (data.members && data.members.length > 0) {
@@ -239,9 +213,9 @@ if (!group) {
                 <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Joined ${new Date(member.joinedAt).toLocaleDateString()}</p>
               </div>
             </div>
-          `,
+          `
             )
-            .join("");
+            .join('');
         } else {
           membersList.innerHTML =
             '<p class="text-center text-slate-600 dark:text-slate-400 py-8">No members yet</p>';
@@ -265,13 +239,13 @@ if (!group) {
                 </button>
               </div>
             </div>
-          `,
+          `
             )
-            .join("");
+            .join('');
 
           // Add event listeners to delete buttons
-          document.querySelectorAll(".delete-invitation-btn").forEach((btn) => {
-            btn.addEventListener("click", async (e) => {
+          document.querySelectorAll('.delete-invitation-btn').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
               const email = btn.dataset.email;
               if (!confirm(`Delete invitation for ${email}?`)) {
                 return;
@@ -279,12 +253,12 @@ if (!group) {
 
               try {
                 btn.disabled = true;
-                btn.textContent = "Deleting...";
+                btn.textContent = 'Deleting...';
                 const invitationId = btn.dataset.invitationId;
 
-                const response = await fetch("/api/groups/invitations/delete", {
-                  method: "DELETE",
-                  headers: { "Content-Type": "application/json" },
+                const response = await fetch('/api/groups/invitations/delete', {
+                  method: 'DELETE',
+                  headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ invitationId }),
                 });
 
@@ -293,15 +267,15 @@ if (!group) {
                   await loadGroupData();
                 } else {
                   const error = await response.json();
-                  alert(error.error || "Failed to delete invitation");
+                  alert(error.error || 'Failed to delete invitation');
                   btn.disabled = false;
-                  btn.textContent = "Delete";
+                  btn.textContent = 'Delete';
                 }
               } catch (error) {
-                console.error("Error deleting invitation:", error);
-                alert("Error deleting invitation");
+                console.error('Error deleting invitation:', error);
+                alert('Error deleting invitation');
                 btn.disabled = false;
-                btn.textContent = "Delete";
+                btn.textContent = 'Delete';
               }
             });
           });
@@ -310,57 +284,55 @@ if (!group) {
             '<p class="text-center text-slate-600 dark:text-slate-400 py-8">No pending invitations</p>';
         }
       } catch (error) {
-        console.error("Error loading group data:", error);
+        console.error('Error loading group data:', error);
       }
     }
 
     // Handle invite form submission
-    document
-      .getElementById("inviteForm")
-      .addEventListener("submit", async (e) => {
-        e.preventDefault();
+    document.getElementById('inviteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-        const emailInput = document.getElementById("inviteEmail");
-        const errorDiv = document.getElementById("inviteError");
-        const submitBtn = e.target.querySelector("button[type=submit]");
+      const emailInput = document.getElementById('inviteEmail');
+      const errorDiv = document.getElementById('inviteError');
+      const submitBtn = e.target.querySelector('button[type=submit]');
 
-        // Validate email
-        if (!emailInput.value || !emailInput.value.includes("@")) {
-          errorDiv.textContent = "Please enter a valid email address";
-          errorDiv.classList.remove("hidden");
-          return;
+      // Validate email
+      if (!emailInput.value || !emailInput.value.includes('@')) {
+        errorDiv.textContent = 'Please enter a valid email address';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        errorDiv.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        const response = await fetch(`/api/groups/${groupId}/invite`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailInput.value }),
+        });
+
+        if (response.ok) {
+          showToast('Invitation sent successfully!');
+          emailInput.value = '';
+          // Reload the invitations list
+          await loadGroupData();
+        } else {
+          const error = await response.json();
+          errorDiv.textContent = error.error || 'Failed to send invitation';
+          errorDiv.classList.remove('hidden');
         }
-
-        try {
-          errorDiv.classList.add("hidden");
-          submitBtn.disabled = true;
-          submitBtn.textContent = "Sending...";
-
-          const response = await fetch(`/api/groups/${groupId}/invite`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: emailInput.value }),
-          });
-
-          if (response.ok) {
-            showToast("Invitation sent successfully!");
-            emailInput.value = "";
-            // Reload the invitations list
-            await loadGroupData();
-          } else {
-            const error = await response.json();
-            errorDiv.textContent = error.error || "Failed to send invitation";
-            errorDiv.classList.remove("hidden");
-          }
-        } catch (error) {
-          console.error("Error sending invitation:", error);
-          errorDiv.textContent = "Error sending invitation";
-          errorDiv.classList.remove("hidden");
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Send Invite";
-        }
-      });
+      } catch (error) {
+        console.error('Error sending invitation:', error);
+        errorDiv.textContent = 'Error sending invitation';
+        errorDiv.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Invite';
+      }
+    });
 
     // Initialize
     function init() {

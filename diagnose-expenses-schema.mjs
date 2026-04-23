@@ -9,7 +9,7 @@ const envPath = resolve('.env.local');
 const envContent = readFileSync(envPath, 'utf-8');
 const envVars = {};
 
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   if (line.trim() && !line.startsWith('#')) {
     const [key, ...valueParts] = line.split('=');
     const value = valueParts.join('=').trim();
@@ -60,7 +60,7 @@ async function diagnoseSchema() {
 
     console.log('📊 Expenses table columns:');
     console.log('─'.repeat(60));
-    columns.rows.forEach(col => {
+    columns.rows.forEach((col) => {
       const nullable = col.is_nullable === 'YES' ? '(nullable)' : '(NOT NULL)';
       console.log(`  ${col.column_name.padEnd(20)} ${col.data_type.padEnd(20)} ${nullable}`);
     });
@@ -74,7 +74,6 @@ async function diagnoseSchema() {
       const sample = await client.query('SELECT * FROM "expenses" LIMIT 1');
       console.log('\n📋 Sample row keys:', Object.keys(sample.rows[0]));
     }
-
   } catch (error) {
     console.error('❌ Error:', error.message);
     process.exit(1);

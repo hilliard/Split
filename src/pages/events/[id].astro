@@ -1669,6 +1669,17 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
       }
     }
 
+    // Helper function to escape HTML special characters
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     async function loadContent() {
       // Load both activities and expenses, then render them together
       try {
@@ -1695,10 +1706,13 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                 hour: '2-digit',
                 minute: '2-digit',
               });
+              const escapedDescription = escapeHtml(expense.description || 'Untitled Expense');
+              const escapedPayerName = escapeHtml(expense.payerName || 'Unknown');
+              const escapedCategory = escapeHtml(expense.category || 'misc');
 
               return `<div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
               <div class="flex justify-between items-start mb-2">
-                <h3 class="font-semibold text-slate-900 dark:text-white">${expense.description || 'Untitled Expense'}</h3>
+                <h3 class="font-semibold text-slate-900 dark:text-white">${escapedDescription}</h3>
                 <div class="flex gap-2 items-center">
                   <span class="text-xs px-2 py-1 bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 rounded font-medium">
                     $${total}
@@ -1707,16 +1721,16 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     data-expense-id="${expense.id}" 
                     data-amount="${amount}"
                     data-tip="${tip}"
-                    data-description="${expense.description || ''}"
-                    data-category="${expense.category || 'misc'}"
+                    data-description="${escapeHtml(expense.description || '')}"
+                    data-category="${escapedCategory}"
                     data-metadata="${btoa(JSON.stringify(expense.metadata || {}))}"
                     class="editExpenseBtn text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
                     ✏️ Edit
                   </button>
                 </div>
               </div>
-              <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">💰 Paid by: ${expense.payerName || 'Unknown'}</p>
-              ${expense.category ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">📂 Category: ${expense.category}</p>` : ''}
+              <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">💰 Paid by: ${escapedPayerName}</p>
+              ${expense.category ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">📂 Category: ${escapedCategory}</p>` : ''}
               ${tip !== '0.00' ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">💡 Tip: $${tip}</p>` : ''}
               ${(() => {
                 if (!expense.metadata || Object.keys(expense.metadata).length === 0) return '';
@@ -1746,6 +1760,8 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         if (activitiesData.activities && activitiesData.activities.length > 0) {
           html += activitiesData.activities
             .map((activity) => {
+              const escapedTitle = escapeHtml(activity.title);
+              const escapedLocationName = escapeHtml(activity.locationName);
               const startTime = activity.startTime
                 ? new Date(activity.startTime).toLocaleString('en-US', {
                     month: 'short',
@@ -1757,10 +1773,10 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
 
               return `<div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
               <div class="flex justify-between items-start mb-2">
-                <h3 class="font-semibold text-slate-900 dark:text-white">${activity.title}</h3>
+                <h3 class="font-semibold text-slate-900 dark:text-white">${escapedTitle}</h3>
                 <a href="/activities/${activity.id}" class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800">Edit</a>
               </div>
-              ${activity.locationName ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">📍 ${activity.locationName}</p>` : ''}
+              ${activity.locationName ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">📍 ${escapedLocationName}</p>` : ''}
               ${startTime ? `<p class="text-xs text-slate-500 dark:text-slate-400">🕐 ${startTime}</p>` : ''}
             </div>`;
             })
@@ -2550,7 +2566,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             .map(
               ([name, balance]) => `
             <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-              <p class="font-semibold text-slate-900 dark:text-white mb-3">${name}</p>
+              <p class="font-semibold text-slate-900 dark:text-white mb-3">${escapeHtml(name)}</p>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                   <span class="text-slate-600 dark:text-slate-400">Paid</span>
@@ -2590,7 +2606,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             .map(
               ([category, categoryExpenses]) => `
             <div>
-              <h4 class="font-semibold text-slate-900 dark:text-white mb-3 capitalize">${category}</h4>
+              <h4 class="font-semibold text-slate-900 dark:text-white mb-3 capitalize">${escapeHtml(category)}</h4>
               <div class="space-y-2">
                 ${categoryExpenses
                   .map(
@@ -2598,8 +2614,8 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                   <div class="p-3 bg-slate-50 dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600">
                     <div class="flex justify-between items-start mb-1">
                       <div>
-                        <p class="font-medium text-slate-900 dark:text-white">${exp.description}</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Paid by ${exp.payerName}</p>
+                        <p class="font-medium text-slate-900 dark:text-white">${escapeHtml(exp.description || 'Untitled Expense')}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Paid by ${escapeHtml(exp.payerName || 'Unknown')}</p>
                       </div>
                       <div class="text-right">
                         <p class="font-semibold text-slate-900 dark:text-white">$${exp.amount.toFixed(2)}</p>
@@ -2685,9 +2701,9 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     (settlement) => `
                   <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                     <p class="font-semibold text-slate-900 dark:text-white">
-                      <span class="text-amber-700 dark:text-amber-300">${settlement.fromName}</span>
+                      <span class="text-amber-700 dark:text-amber-300">${escapeHtml(settlement.fromName)}</span>
                       owes
-                      <span class="text-amber-700 dark:text-amber-300">${settlement.toName}</span>
+                      <span class="text-amber-700 dark:text-amber-300">${escapeHtml(settlement.toName)}</span>
                     </p>
                     <p class="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">
                       $${settlement.amount.toFixed(2)}

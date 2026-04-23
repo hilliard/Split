@@ -1,40 +1,31 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import Header from "../../components/Header.astro";
-import { db } from "../../db";
-import { sessions } from "../../db/schema";
-import { eq } from "drizzle-orm";
+import Layout from '../../layouts/Layout.astro';
+import { db } from '../../db';
+import { sessions } from '../../db/schema';
+import { eq } from 'drizzle-orm';
 
 // Check if user is authenticated
-const sessionId = Astro.cookies.get("sessionId")?.value;
+const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 
 // Verify session
-const [session] = await db
-  .select()
-  .from(sessions)
-  .where(eq(sessions.id, sessionId))
-  .limit(1);
+const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
 if (!session || new Date(session.expiresAt) < new Date()) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 ---
 
-<Layout title="Create Group" description="Create a group to split expenses">
+<Layout title="Create Group" description="Create a group to split expenses" currentPage="dashboard">
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <Header title="Split" currentPage="dashboard" />
-
     <!-- Page Title -->
     <div
       class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
       <div class="max-w-4xl mx-auto">
-        <h1
-          class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
-        >
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">
           Create New Group
         </h1>
         <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
@@ -44,9 +35,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     </div>
 
     <!-- Main Content -->
-    <main
-      class="flex-1 max-w-2xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
-    >
+    <main class="flex-1 max-w-2xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
       >
       <!-- Create Group Card -->
       <div
@@ -79,9 +68,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           </div>
 
           <!-- Action Buttons -->
-          <div
-            class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
-          >
+          <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
             <a
               href="/dashboard"
               class="px-6 py-2 text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium"
@@ -103,13 +90,8 @@ if (!session || new Date(session.expiresAt) < new Date()) {
         id="addMembersSection"
         class="hidden bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
       >
-        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-          Add Members
-        </h2>
-        <p
-          id="groupNameDisplay"
-          class="text-slate-600 dark:text-slate-400 mb-4"
-        >
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Add Members</h2>
+        <p id="groupNameDisplay" class="text-slate-600 dark:text-slate-400 mb-4">
           Group: <span id="groupNameSpan" class="font-semibold"></span>
         </p>
 
@@ -137,16 +119,12 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
         <!-- Members List -->
         <div>
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">
-            Group Members
-          </h3>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Group Members</h3>
           <div id="membersList" class="space-y-2 mb-4"></div>
         </div>
 
         <!-- Buttons -->
-        <div
-          class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
-        >
+        <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
           <a
             href="/dashboard"
             class="px-6 py-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium"
@@ -160,47 +138,39 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
   <script is:inline>
     let currentGroupId = null;
-    let currentGroupName = "";
+    let currentGroupName = '';
     let groupMembers = [];
 
     // Global theme toggle function accessible from HTML onclick
     window.toggleTheme = function () {
-      console.log("🖱️ Theme toggle clicked");
+      console.log('🖱️ Theme toggle clicked');
 
       const html = document.documentElement;
-      const isDark = html.classList.contains("dark");
-      const icon = document.getElementById("themeIcon");
-      const mainDiv = document.querySelector("div.min-h-screen");
+      const isDark = html.classList.contains('dark');
+      const icon = document.getElementById('themeIcon');
+      const mainDiv = document.querySelector('div.min-h-screen');
 
       if (isDark) {
         // Switch to LIGHT mode
-        console.log("→ Switching to light mode");
-        html.classList.remove("dark");
-        document.body.style.setProperty(
-          "background-color",
-          "rgb(255, 255, 255)",
-          "important",
-        );
-        document.body.style.setProperty(
-          "color",
-          "rgb(15, 23, 42)",
-          "important",
-        );
+        console.log('→ Switching to light mode');
+        html.classList.remove('dark');
+        document.body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+        document.body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
 
         // Clear inline styles from main div
         if (mainDiv) {
-          mainDiv.style.backgroundColor = "";
-          mainDiv.style.color = "";
+          mainDiv.style.backgroundColor = '';
+          mainDiv.style.color = '';
         }
 
         // Remove dark mode styles and apply light mode styles
-        let darkStyles = document.getElementById("dynamicDarkStyles");
+        let darkStyles = document.getElementById('dynamicDarkStyles');
         if (darkStyles) darkStyles.remove();
 
         // Inject light mode styles
-        if (!document.getElementById("dynamicLightStyles")) {
-          const style = document.createElement("style");
-          style.id = "dynamicLightStyles";
+        if (!document.getElementById('dynamicLightStyles')) {
+          const style = document.createElement('style');
+          style.id = 'dynamicLightStyles';
           style.textContent = `
             html:not(.dark) header {
               background-color: rgb(255, 255, 255) !important;
@@ -248,42 +218,30 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           document.head.appendChild(style);
         }
 
-        localStorage.setItem("theme", "light");
-        console.log("✅ Switched to light mode");
-        if (icon) icon.textContent = "☀️";
+        localStorage.setItem('theme', 'light');
+        console.log('✅ Switched to light mode');
+        if (icon) icon.textContent = '☀️';
       } else {
         // Switch to DARK mode
-        console.log("→ Switching to dark mode");
-        html.classList.add("dark");
-        document.body.style.setProperty(
-          "background-color",
-          "rgb(6, 6, 10)",
-          "important",
-        );
-        document.body.style.setProperty(
-          "color",
-          "rgb(248, 250, 252)",
-          "important",
-        );
+        console.log('→ Switching to dark mode');
+        html.classList.add('dark');
+        document.body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        document.body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
 
         // Set inline styles on main div for dark mode
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(6, 6, 10)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         }
 
         // Remove light mode styles and apply dark mode styles
-        let lightStyles = document.getElementById("dynamicLightStyles");
+        let lightStyles = document.getElementById('dynamicLightStyles');
         if (lightStyles) lightStyles.remove();
 
         // Inject dark mode styles
-        if (!document.getElementById("dynamicDarkStyles")) {
-          const style = document.createElement("style");
-          style.id = "dynamicDarkStyles";
+        if (!document.getElementById('dynamicDarkStyles')) {
+          const style = document.createElement('style');
+          style.id = 'dynamicDarkStyles';
           style.textContent = `
             html.dark header {
               background-color: rgb(15, 23, 42) !important;
@@ -336,36 +294,36 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           document.head.appendChild(style);
         }
 
-        localStorage.setItem("theme", "dark");
-        console.log("✅ Switched to dark mode");
-        if (icon) icon.textContent = "🌙";
+        localStorage.setItem('theme', 'dark');
+        console.log('✅ Switched to dark mode');
+        if (icon) icon.textContent = '🌙';
       }
     };
 
     // Setup theme toggle on page load
     function setupThemeToggle() {
-      const btn = document.getElementById("themeToggle");
-      const icon = document.getElementById("themeIcon");
+      const btn = document.getElementById('themeToggle');
+      const icon = document.getElementById('themeIcon');
       const html = document.documentElement;
       const body = document.body;
-      const mainDiv = document.querySelector("div.min-h-screen");
+      const mainDiv = document.querySelector('div.min-h-screen');
 
       if (!btn) {
-        console.error("❌ Theme toggle button not found");
+        console.error('❌ Theme toggle button not found');
         return;
       }
 
-      console.log("✅ Theme toggle setup started");
+      console.log('✅ Theme toggle setup started');
 
       // Update icon to match current theme on initialization
-      const isDark = html.classList.contains("dark");
-      if (icon) icon.textContent = isDark ? "🌙" : "☀️";
+      const isDark = html.classList.contains('dark');
+      if (icon) icon.textContent = isDark ? '🌙' : '☀️';
 
       // Inject CSS styles for current theme (both light and dark)
-      if (isDark && !document.getElementById("dynamicDarkStyles")) {
+      if (isDark && !document.getElementById('dynamicDarkStyles')) {
         // Inject dark mode CSS
-        const darkStyle = document.createElement("style");
-        darkStyle.id = "dynamicDarkStyles";
+        const darkStyle = document.createElement('style');
+        darkStyle.id = 'dynamicDarkStyles';
         darkStyle.textContent = `
           html.dark header {
             background-color: rgb(15, 23, 42) !important;
@@ -416,10 +374,10 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           }
         `;
         document.head.appendChild(darkStyle);
-      } else if (!isDark && !document.getElementById("dynamicLightStyles")) {
+      } else if (!isDark && !document.getElementById('dynamicLightStyles')) {
         // Inject light mode CSS
-        const lightStyle = document.createElement("style");
-        lightStyle.id = "dynamicLightStyles";
+        const lightStyle = document.createElement('style');
+        lightStyle.id = 'dynamicLightStyles';
         lightStyle.textContent = `
           html:not(.dark) header {
             background-color: rgb(255, 255, 255) !important;
@@ -469,77 +427,59 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
       // Apply inline styles with setProperty to match current theme
       if (isDark) {
-        html.style.setProperty("color-scheme", "dark", "important");
-        body.style.setProperty(
-          "background-color",
-          "rgb(6, 6, 10)",
-          "important",
-        );
-        body.style.setProperty("color", "rgb(248, 250, 252)", "important");
+        html.style.setProperty('color-scheme', 'dark', 'important');
+        body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(6, 6, 10)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         }
       } else {
-        html.style.setProperty("color-scheme", "light", "important");
-        body.style.setProperty(
-          "background-color",
-          "rgb(255, 255, 255)",
-          "important",
-        );
-        body.style.setProperty("color", "rgb(15, 23, 42)", "important");
+        html.style.setProperty('color-scheme', 'light', 'important');
+        body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+        body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(255, 255, 255)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(15, 23, 42)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
         }
       }
 
-      console.log("✅ Theme toggle ready");
+      console.log('✅ Theme toggle ready');
     }
 
     // Initialize theme on page load (wait for DOM to be fully ready)
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", setupThemeToggle);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupThemeToggle);
     } else {
       setTimeout(setupThemeToggle, 0);
     }
 
     // Create group form
-    const createGroupForm = document.getElementById("createGroupForm");
-    const groupError = document.getElementById("groupError");
-    const addMembersSection = document.getElementById("addMembersSection");
-    const groupNameDisplay = document.getElementById("groupNameDisplay");
-    const groupNameSpan = document.getElementById("groupNameSpan");
-    const membersList = document.getElementById("membersList");
+    const createGroupForm = document.getElementById('createGroupForm');
+    const groupError = document.getElementById('groupError');
+    const addMembersSection = document.getElementById('addMembersSection');
+    const groupNameDisplay = document.getElementById('groupNameDisplay');
+    const groupNameSpan = document.getElementById('groupNameSpan');
+    const membersList = document.getElementById('membersList');
 
     if (createGroupForm) {
-      createGroupForm.addEventListener("submit", async (e) => {
+      createGroupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const groupName = document.getElementById("groupName").value;
-        const submitBtn = createGroupForm.querySelector(
-          'button[type="submit"]',
-        );
+        const groupName = document.getElementById('groupName').value;
+        const submitBtn = createGroupForm.querySelector('button[type="submit"]');
 
         if (groupError) {
-          groupError.textContent = "";
-          groupError.classList.add("hidden");
+          groupError.textContent = '';
+          groupError.classList.add('hidden');
         }
 
         if (submitBtn) submitBtn.disabled = true;
 
         try {
-          const response = await fetch("/api/groups/create", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          const response = await fetch('/api/groups/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: groupName }),
           });
 
@@ -547,28 +487,26 @@ if (!session || new Date(session.expiresAt) < new Date()) {
 
           if (!response.ok) {
             if (groupError) {
-              groupError.textContent = data.error || "Failed to create group";
-              groupError.classList.remove("hidden");
+              groupError.textContent = data.error || 'Failed to create group';
+              groupError.classList.remove('hidden');
             }
           } else {
             currentGroupId = data.group.id;
             currentGroupName = data.group.name;
-            groupMembers = [
-              { userId: data.group.createdBy, name: "You (Owner)" },
-            ];
+            groupMembers = [{ userId: data.group.createdBy, name: 'You (Owner)' }];
 
             // Show add members section
-            createGroupForm.style.display = "none";
+            createGroupForm.style.display = 'none';
             if (addMembersSection) {
-              addMembersSection.classList.remove("hidden");
+              addMembersSection.classList.remove('hidden');
               groupNameSpan.textContent = currentGroupName;
               renderMembers();
             }
           }
         } catch (error) {
           if (groupError) {
-            groupError.textContent = "An error occurred. Please try again.";
-            groupError.classList.remove("hidden");
+            groupError.textContent = 'An error occurred. Please try again.';
+            groupError.classList.remove('hidden');
           }
         } finally {
           if (submitBtn) submitBtn.disabled = false;
@@ -577,25 +515,23 @@ if (!session || new Date(session.expiresAt) < new Date()) {
     }
 
     // Search for users
-    const searchUsers = document.getElementById("searchUsers");
-    const searchResults = document.getElementById("searchResults");
+    const searchUsers = document.getElementById('searchUsers');
+    const searchResults = document.getElementById('searchResults');
 
     if (searchUsers) {
       let searchTimeout;
-      searchUsers.addEventListener("input", (e) => {
+      searchUsers.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         const query = e.target.value.trim();
 
         if (query.length < 2) {
-          searchResults.classList.add("hidden");
+          searchResults.classList.add('hidden');
           return;
         }
 
         searchTimeout = setTimeout(async () => {
           try {
-            const response = await fetch(
-              `/api/users/search?q=${encodeURIComponent(query)}`,
-            );
+            const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
             const data = await response.json();
 
             if (data.users && data.users.length > 0) {
@@ -609,30 +545,30 @@ if (!session || new Date(session.expiresAt) < new Date()) {
                   data-user-name="${user.firstName} ${user.lastName}"
                 >
                   <p class="font-medium text-slate-900 dark:text-white">${user.firstName} ${user.lastName}</p>
-                  ${user.phone ? `<p class="text-xs text-slate-500">${user.phone}</p>` : ""}
-                </button>`,
+                  ${user.phone ? `<p class="text-xs text-slate-500">${user.phone}</p>` : ''}
+                </button>`
                 )
-                .join("");
-              searchResults.classList.remove("hidden");
+                .join('');
+              searchResults.classList.remove('hidden');
 
               // Add click handlers
-              document.querySelectorAll(".user-item").forEach((item) => {
-                item.addEventListener("click", (e) => {
+              document.querySelectorAll('.user-item').forEach((item) => {
+                item.addEventListener('click', (e) => {
                   e.preventDefault();
                   const userId = item.dataset.userId;
                   const userName = item.dataset.userName;
                   addMemberToGroup(userId, userName);
-                  searchResults.classList.add("hidden");
-                  searchUsers.value = "";
+                  searchResults.classList.add('hidden');
+                  searchUsers.value = '';
                 });
               });
             } else {
               searchResults.innerHTML =
                 '<div class="px-4 py-2 text-slate-500">No users found</div>';
-              searchResults.classList.remove("hidden");
+              searchResults.classList.remove('hidden');
             }
           } catch (error) {
-            console.error("Search error:", error);
+            console.error('Search error:', error);
           }
         }, 300);
       });
@@ -646,7 +582,7 @@ if (!session || new Date(session.expiresAt) < new Date()) {
               `<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
             <span class="text-slate-900 dark:text-white">${member.name}</span>
             ${
-              member.userId !== (currentGroupId ? "owner" : "")
+              member.userId !== (currentGroupId ? 'owner' : '')
                 ? `<button
               type="button"
               class="text-xs px-3 py-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded transition-colors remove-member-btn"
@@ -654,19 +590,19 @@ if (!session || new Date(session.expiresAt) < new Date()) {
             >
               Remove
             </button>`
-                : ""
+                : ''
             }
-          </div>`,
+          </div>`
           )
-          .join("");
+          .join('');
       }
     }
 
     async function addMemberToGroup(userId, userName) {
       try {
-        const response = await fetch("/api/groups/add-member", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/groups/add-member', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             groupId: currentGroupId,
             userId: userId,
@@ -678,10 +614,10 @@ if (!session || new Date(session.expiresAt) < new Date()) {
           renderMembers();
         } else {
           const data = await response.json();
-          alert(data.error || "Failed to add member");
+          alert(data.error || 'Failed to add member');
         }
       } catch (error) {
-        alert("Error adding member: " + error.message);
+        alert('Error adding member: ' + error.message);
       }
     }
   </script>

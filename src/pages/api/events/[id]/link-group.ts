@@ -13,11 +13,7 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -45,11 +41,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Verify event exists and user is creator
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -84,10 +76,7 @@ export const POST: APIRoute = async (context) => {
       const [membership] = await db
         .select()
         .from(groupMembers)
-        .where(
-          eq(groupMembers.groupId, groupId) && 
-          eq(groupMembers.userId, session.userId)
-        )
+        .where(eq(groupMembers.groupId, groupId) && eq(groupMembers.userId, session.userId))
         .limit(1);
 
       if (!membership) {

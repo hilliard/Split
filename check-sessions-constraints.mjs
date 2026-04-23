@@ -15,9 +15,9 @@ async function checkSessionConstraints() {
       WHERE conrelid = 'sessions'::regclass
       ORDER BY conname
     `);
-    
+
     console.log('\n📋 Constraints on "sessions" table:\n');
-    result.rows.forEach(c => {
+    result.rows.forEach((c) => {
       console.log(`Constraint: ${c.conname}`);
       if (c.referenced_table) console.log(`  References: ${c.referenced_table}`);
       console.log('');

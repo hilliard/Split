@@ -1,4 +1,4 @@
-import pkg from "pg";
+import pkg from 'pg';
 const { Client } = pkg;
 
 const client = new Client({
@@ -14,10 +14,10 @@ try {
      FROM events 
      WHERE name ILIKE '%good foot%' 
      ORDER BY "createdAt" DESC 
-     LIMIT 1`,
+     LIMIT 1`
   );
 
-  console.log("📋 Event found:", eventResult.rows[0]);
+  console.log('📋 Event found:', eventResult.rows[0]);
 
   if (eventResult.rows[0]) {
     const eventId = eventResult.rows[0].id;
@@ -29,28 +29,24 @@ try {
        FROM expenses 
        WHERE "groupId" = $1 
        ORDER BY "createdAt" DESC`,
-      [groupId],
+      [groupId]
     );
 
-    console.log(
-      `💰 Expenses in group ${groupId}:`,
-      expenseResult.rows.length,
-      expenseResult.rows,
-    );
+    console.log(`💰 Expenses in group ${groupId}:`, expenseResult.rows.length, expenseResult.rows);
 
     // Check group details
     const groupResult = await client.query(
       `SELECT id, name, "creatorId" FROM expense_groups WHERE id = $1`,
-      [groupId],
+      [groupId]
     );
-    console.log("👥 Group:", groupResult.rows[0]);
+    console.log('👥 Group:', groupResult.rows[0]);
 
     // Check group members
     const membersResult = await client.query(
       `SELECT "userId", "joinedAt" FROM "groupMembers" WHERE "groupId" = $1`,
-      [groupId],
+      [groupId]
     );
-    console.log("👤 Group members:", membersResult.rows);
+    console.log('👤 Group members:', membersResult.rows);
   }
 } finally {
   await client.end();

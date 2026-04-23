@@ -5,6 +5,49 @@ function getResendClient() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
+// Format email data for logging
+function getEmailLog(type: string, recipient: string, subject: string, id?: string) {
+  return {
+    timestamp: new Date().toISOString(),
+    type,
+    recipient,
+    subject,
+    from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+    environment: process.env.NODE_ENV,
+    resendId: id,
+    dashboardUrl: id ? `https://dashboard.resend.com/emails/${id}` : undefined,
+  };
+}
+
+/**
+ * Development helper: Redirect test emails to a catch-all address
+ * Allows unlimited test users with fake/test email addresses
+ *
+ * Usage in .env.local:
+ *   DEV_TEST_EMAIL_CATCH_ALL=your-email+split@gmail.com
+ *
+ * Then any email sent to test+anything@example.com will be redirected to the catch-all
+ */
+function getEffectiveRecipient(email: string): string {
+  const isDev = process.env.NODE_ENV === 'development';
+  const catchAll = process.env.DEV_TEST_EMAIL_CATCH_ALL;
+
+  if (!isDev || !catchAll) {
+    return email;
+  }
+
+  // Check if email looks like a test email (test+, staging+, demo+, etc.)
+  const testPatterns = ['test+', 'staging+', 'demo+', 'dev+', 'qa+'];
+  const isTestEmail = testPatterns.some((pattern) => email.toLowerCase().includes(pattern));
+
+  if (isTestEmail) {
+    console.log(`🧪 Test email routing: ${email} → ${catchAll}`);
+    return catchAll;
+  }
+
+  return email;
+}
+
 export interface InvitationEmailData {
   recipientEmail: string;
   recipientName?: string;
@@ -19,14 +62,22 @@ export interface VerificationEmailData {
   verificationUrl: string;
 }
 
-export async function sendGroupInvitationEmail(data: InvitationEmailData): Promise<{ success: boolean; error?: string }> {
+export async function sendGroupInvitationEmail(
+  data: InvitationEmailData
+): Promise<{ success: boolean; error?: string }> {
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.warn('⚠️  RESEND_API_KEY not set - skipping email (dev mode)');
-      return { success: true }; // Don't fail in dev if no API key
+      console.warn('⚠️  RESEND_API_KEY not set - email send skipped (dev mode)');
+      console.info('📧 Dev Mode Email:', {
+        type: 'Group Invitation',
+        to: data.recipientEmail,
+        subject: `${data.senderName} invited you to ${data.groupName} on Split`,
+      });
+      return { success: true };
     }
 
     const resend = getResendClient();
+    const effectiveRecipient = getEffectiveRecipient(data.recipientEmail);
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -56,36 +107,59 @@ export async function sendGroupInvitationEmail(data: InvitationEmailData): Promi
     `;
 
     const result = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev', // Default to Resend test email
-      to: data.recipientEmail,
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+      to: effectiveRecipient,
       subject: `${data.senderName} invited you to ${data.groupName} on Split`,
       html: htmlContent,
     });
 
     if (result.error) {
-      console.error('❌ Email send failed:', result.error);
+      console.error(
+        '❌ Group invitation email failed:',
+        getEmailLog(
+          'Group Invitation',
+          data.recipientEmail,
+          `${data.senderName} invited you to ${data.groupName} on Split`
+        )
+      );
       return { success: false, error: result.error.message };
     }
 
-    console.log('✓ Invitation email sent:', result.data?.id);
+    console.log(
+      '✅ Group invitation email sent:',
+      getEmailLog(
+        'Group Invitation',
+        data.recipientEmail,
+        `${data.senderName} invited you to ${data.groupName} on Split`,
+        result.data?.id
+      )
+    );
     return { success: true };
   } catch (error) {
-    console.error('❌ Error sending invitation email:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    console.error('❌ Error sending group invitation:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
 
-export async function sendVerificationEmail(data: VerificationEmailData): Promise<{ success: boolean; error?: string }> {
+export async function sendVerificationEmail(
+  data: VerificationEmailData
+): Promise<{ success: boolean; error?: string }> {
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.warn('⚠️  RESEND_API_KEY not set - skipping email (dev mode)');
-      return { success: true }; // Don't fail in dev if no API key
+      console.warn('⚠️  RESEND_API_KEY not set - email send skipped (dev mode)');
+      console.info('📧 Dev Mode Email:', {
+        type: 'Email Verification',
+        to: data.recipientEmail,
+        subject: 'Verify your Split account',
+      });
+      return { success: true };
     }
 
     const resend = getResendClient();
+    const effectiveRecipient = getEffectiveRecipient(data.recipientEmail);
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -114,23 +188,34 @@ export async function sendVerificationEmail(data: VerificationEmailData): Promis
 
     const result = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-      to: data.recipientEmail,
+      to: effectiveRecipient,
       subject: 'Verify your Split account',
       html: htmlContent,
     });
 
     if (result.error) {
-      console.error('❌ Email send failed:', result.error);
+      console.error(
+        '❌ Email verification email failed:',
+        getEmailLog('Email Verification', data.recipientEmail, 'Verify your Split account')
+      );
       return { success: false, error: result.error.message };
     }
 
-    console.log('✓ Verification email sent:', result.data?.id);
+    console.log(
+      '✅ Verification email sent:',
+      getEmailLog(
+        'Email Verification',
+        data.recipientEmail,
+        'Verify your Split account',
+        result.data?.id
+      )
+    );
     return { success: true };
   } catch (error) {
     console.error('❌ Error sending verification email:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }

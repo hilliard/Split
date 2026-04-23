@@ -13,7 +13,7 @@ export const POST: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -22,11 +22,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Get session from database
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -54,10 +50,13 @@ export const POST: APIRoute = async (context) => {
     }
 
     if (event.creatorId !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to delete activities for this event' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to delete activities for this event' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Verify activity exists and belongs to event
@@ -75,20 +74,21 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Delete activity
-    await db
-      .delete(activities)
-      .where(eq(activities.id, validatedData.activityId));
+    await db.delete(activities).where(eq(activities.id, validatedData.activityId));
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Activity deleted successfully',
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Activity deleted successfully',
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error deleting activity:', error);
-    
+
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ error: error.flatten() }), {
         status: 400,

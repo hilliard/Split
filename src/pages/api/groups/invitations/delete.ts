@@ -14,11 +14,7 @@ export const DELETE: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -60,19 +56,14 @@ export const DELETE: APIRoute = async (context) => {
       .limit(1);
 
     if (!group || group.createdBy !== session.userId) {
-      return new Response(
-        JSON.stringify({ error: 'Not authorized to delete this invitation' }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Not authorized to delete this invitation' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Delete the invitation
-    await db
-      .delete(pendingGroupInvitations)
-      .where(eq(pendingGroupInvitations.id, invitationId));
+    await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, invitationId));
 
     return new Response(
       JSON.stringify({
@@ -86,12 +77,9 @@ export const DELETE: APIRoute = async (context) => {
     );
   } catch (error) {
     console.error('Error deleting invitation:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to delete invitation' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to delete invitation' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

@@ -1,47 +1,36 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import { db } from "../../db";
-import { events, sessions, expenses, humans } from "../../db/schema";
-import { eq } from "drizzle-orm";
-import {
-  getTipStats,
-  getTipDemographics,
-  calculateSettlements,
-} from "../../utils/expenses";
+import Layout from '../../layouts/Layout.astro';
+import { db } from '../../db';
+import { events, sessions, expenses, humans } from '../../db/schema';
+import { eq } from 'drizzle-orm';
+import { getTipStats, getTipDemographics, calculateSettlements } from '../../utils/expenses';
+import { centsToDollars } from '../../utils/currency';
 
 // Check if user is authenticated
-const sessionId = Astro.cookies.get("sessionId")?.value;
+const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 
 // Get session and verify user
-const [session] = await db
-  .select()
-  .from(sessions)
-  .where(eq(sessions.id, sessionId))
-  .limit(1);
+const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
 if (!session || new Date(session.expiresAt) < new Date()) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 
 // Get event ID from query parameters
-const eventId = Astro.url.searchParams.get("eventId");
+const eventId = Astro.url.searchParams.get('eventId');
 
 if (!eventId) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 
 // Get event and verify ownership
-const [event] = await db
-  .select()
-  .from(events)
-  .where(eq(events.id, eventId))
-  .limit(1);
+const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
 if (!event || event.creatorId !== session.userId) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 
 // Get all expenses for this event (via the group)
@@ -57,22 +46,13 @@ const tipStats = await getTipStats(eventId);
 const tipDemographics = await getTipDemographics(eventId);
 const settlements = await calculateSettlements(eventId);
 
-// Calculate totals
-const totalAmount = eventExpenses.reduce(
-  (sum, e) => sum + parseFloat(e.amount as any) / 100,
-  0,
-);
-const totalTips = eventExpenses.reduce(
-  (sum, e) => sum + (e.tipAmount ? parseFloat(e.tipAmount as any) : 0),
-  0,
-);
+// Calculate totals (keep in cents)
+const totalAmount = eventExpenses.reduce((sum, e) => sum + e.amount, 0);
+const totalTips = eventExpenses.reduce((sum, e) => sum + (e.tipAmount ? e.tipAmount : 0), 0);
 const grandTotal = totalAmount + totalTips;
 ---
 
-<Layout
-  title={`Analytics - ${event.title}`}
-  description="Expense analytics and settlements"
->
+<Layout title={`Analytics - ${event.title}`} description="Expense analytics and settlements">
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
     <!-- Header -->
     <header
@@ -99,59 +79,49 @@ const grandTotal = totalAmount + totalTips;
     </header>
 
     <!-- Main Content -->
-    <main
-      class="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
-    >
+    <main class="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
       <!-- Overall Summary -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div
           class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
         >
-          <p
-            class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1"
-          >
+          <p class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1">
             Total Expenses
           </p>
           <p class="text-2xl font-bold text-slate-900 dark:text-white">
             {event.currency}
-            {totalAmount.toFixed(2)}
+            {centsToDollars(totalAmount)}
           </p>
         </div>
 
         <div
           class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
         >
-          <p
-            class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1"
-          >
+          <p class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1">
             Total Tips
           </p>
           <p class="text-2xl font-bold text-green-600 dark:text-green-400">
             {event.currency}
-            {totalTips.toFixed(2)}
+            {centsToDollars(totalTips)}
           </p>
         </div>
 
         <div
           class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
         >
-          <p
-            class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1"
-          >
+          <p class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1">
             Grand Total
           </p>
           <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
             {event.currency}
-            {grandTotal.toFixed(2)}
+            {centsToDollars(grandTotal)}
           </p>
         </div>
 
         <div
           class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
         >
-          <p
-            class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1"
-          >
+          <p class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1">
             Avg Tip %
           </p>
           <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">
@@ -162,9 +132,7 @@ const grandTotal = totalAmount + totalTips;
         <div
           class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
         >
-          <p
-            class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1"
-          >
+          <p class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase mb-1">
             Expenses Count
           </p>
           <p class="text-2xl font-bold text-slate-900 dark:text-white">
@@ -177,15 +145,11 @@ const grandTotal = totalAmount + totalTips;
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 mb-6"
       >
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">
-          💰 Tip Statistics
-        </h2>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">💰 Tip Statistics</h2>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">
-              Average Tip
-            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">Average Tip</p>
             <p class="text-xl font-bold text-slate-900 dark:text-white">
               {event.currency}
               {tipStats.averageTip.toFixed(2)}
@@ -193,9 +157,7 @@ const grandTotal = totalAmount + totalTips;
           </div>
 
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">
-              Median Tip
-            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">Median Tip</p>
             <p class="text-xl font-bold text-slate-900 dark:text-white">
               {event.currency}
               {tipStats.medianTip.toFixed(2)}
@@ -203,9 +165,7 @@ const grandTotal = totalAmount + totalTips;
           </div>
 
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">
-              Min Tip
-            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">Min Tip</p>
             <p class="text-xl font-bold text-slate-900 dark:text-white">
               {event.currency}
               {tipStats.minTip.toFixed(2)}
@@ -213,9 +173,7 @@ const grandTotal = totalAmount + totalTips;
           </div>
 
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">
-              Max Tip
-            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">Max Tip</p>
             <p class="text-xl font-bold text-slate-900 dark:text-white">
               {event.currency}
               {tipStats.maxTip.toFixed(2)}
@@ -223,9 +181,7 @@ const grandTotal = totalAmount + totalTips;
           </div>
 
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">
-              Avg % of Subtotal
-            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">Avg % of Subtotal</p>
             <p class="text-xl font-bold text-orange-600 dark:text-orange-400">
               {tipStats.averageTipPercentage.toFixed(1)}%
             </p>
@@ -308,13 +264,11 @@ const grandTotal = totalAmount + totalTips;
                   <div>
                     <p class="font-medium text-slate-900 dark:text-white">
                       <span class="font-bold">{settlement.fromName}</span>
-                      <span class="text-slate-600 dark:text-slate-400 mx-2">
-                        owes
-                      </span>
+                      <span class="text-slate-600 dark:text-slate-400 mx-2">owes</span>
                       <span class="font-bold">{settlement.toName}</span>
                     </p>
                     <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                      Amount:{" "}
+                      Amount:{' '}
                       <span class="font-semibold text-slate-900 dark:text-white">
                         {event.currency} {settlement.amount.toFixed(2)}
                       </span>
@@ -355,7 +309,7 @@ const grandTotal = totalAmount + totalTips;
 
 <script>
   function markPaid(from, to, amount) {
-    alert("Payment tracking coming soon!");
+    alert('Payment tracking coming soon!');
     // TODO: Implement payment confirmation
   }
 </script>

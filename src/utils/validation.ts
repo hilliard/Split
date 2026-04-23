@@ -4,10 +4,6 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   username: z.string().min(3, 'Username must be at least 3 characters').max(255),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
 });
 
 export const loginSchema = z.object({
@@ -39,10 +35,14 @@ export const createExpenseSchema = z.object({
   activityId: z.string().uuid('Invalid activity ID').optional(),
   description: z.string().min(1, 'Description is required').max(255),
   amount: z.number().int().positive('Amount must be positive'),
-  splits: z.array(z.object({
-    userId: z.string().uuid('Invalid user ID'),
-    amount: z.number().int().nonnegative(),
-  })).min(1, 'At least one person must be included in the split'),
+  splits: z
+    .array(
+      z.object({
+        userId: z.string().uuid('Invalid user ID'),
+        amount: z.number().int().nonnegative(),
+      })
+    )
+    .min(1, 'At least one person must be included in the split'),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

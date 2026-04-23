@@ -20,11 +20,7 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -74,13 +70,10 @@ export const POST: APIRoute = async (context) => {
       .limit(1);
 
     if (existing) {
-      return new Response(
-        JSON.stringify({ error: 'Invitation already sent to this email' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Invitation already sent to this email' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Create pending invitation
@@ -100,11 +93,7 @@ export const POST: APIRoute = async (context) => {
     console.log('✓ Invitation created:', invitation.id);
 
     // Get sender info
-    const [sender] = await db
-      .select()
-      .from(humans)
-      .where(eq(humans.id, session.userId))
-      .limit(1);
+    const [sender] = await db.select().from(humans).where(eq(humans.id, session.userId)).limit(1);
 
     const senderName = sender?.firstName || 'A friend';
 
@@ -147,10 +136,13 @@ export const POST: APIRoute = async (context) => {
     console.error('Error inviting to group:', error);
 
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.issues[0]?.message ?? 'Validation error' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: error.issues[0]?.message ?? 'Validation error' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

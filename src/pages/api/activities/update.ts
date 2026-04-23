@@ -6,14 +6,18 @@ import { z } from 'zod';
 
 const updateActivitySchema = z.object({
   activityId: z.string().uuid('Invalid activity ID'),
-  eventId: z.union([
-    z.string().uuid('Invalid event ID'),
-    z.null(),
-    z.undefined()
-  ]).optional(),
+  eventId: z.union([z.string().uuid('Invalid event ID'), z.null(), z.undefined()]).optional(),
   title: z.string().min(1, 'Activity title is required').max(255).optional(),
-  startTime: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).optional(),
-  endTime: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).optional(),
+  startTime: z
+    .string()
+    .datetime()
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/))
+    .optional(),
+  endTime: z
+    .string()
+    .datetime()
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/))
+    .optional(),
   locationName: z.string().max(255).optional().nullable(),
   sequenceOrder: z.number().int().nonnegative().optional(),
   metadata: z.record(z.string(), z.any()).optional(),
@@ -23,7 +27,7 @@ export const POST: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -32,11 +36,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Get session from database
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -90,10 +90,13 @@ export const POST: APIRoute = async (context) => {
       }
 
       if (event.creatorId !== session.userId) {
-        return new Response(JSON.stringify({ error: 'You do not have permission to edit activities for this event' }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        });
+        return new Response(
+          JSON.stringify({ error: 'You do not have permission to edit activities for this event' }),
+          {
+            status: 403,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
       }
 
       // Verify activity exists and belongs to event
@@ -130,23 +133,27 @@ export const POST: APIRoute = async (context) => {
         title: validatedData.title || undefined,
         startTime: validatedData.startTime ? new Date(validatedData.startTime) : undefined,
         endTime: validatedData.endTime ? new Date(validatedData.endTime) : undefined,
-        locationName: validatedData.locationName !== undefined ? validatedData.locationName : undefined,
+        locationName:
+          validatedData.locationName !== undefined ? validatedData.locationName : undefined,
         sequenceOrder: validatedData.sequenceOrder || undefined,
         metadata: validatedData.metadata || undefined,
       })
       .where(eq(activities.id, validatedData.activityId))
       .returning();
 
-    return new Response(JSON.stringify({
-      success: true,
-      activity: updatedActivity,
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        activity: updatedActivity,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error updating activity:', error);
-    
+
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ error: error.flatten() }), {
         status: 400,

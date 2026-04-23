@@ -8,6 +8,7 @@ import {
   humans,
   customers,
   emailHistory,
+  emailVerificationTokens,
   siteRoles,
   permissions,
   humanSiteRoles,
@@ -65,11 +66,7 @@ export async function getHumanWithRoles(humanId: string) {
  * Get customer by username
  */
 export async function getCustomerByUsername(username: string) {
-  const result = await db
-    .select()
-    .from(customers)
-    .where(eq(customers.username, username))
-    .limit(1);
+  const result = await db.select().from(customers).where(eq(customers.username, username)).limit(1);
 
   return result[0] || null;
 }
@@ -94,29 +91,15 @@ export async function getHumanByUsername(username: string) {
 /**
  * Check if human has a specific permission
  */
-export async function hasPermission(
-  humanId: string,
-  permissionName: string
-): Promise<boolean> {
+export async function hasPermission(humanId: string, permissionName: string): Promise<boolean> {
   const result = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(humans)
     .innerJoin(humanSiteRoles, eq(humans.id, humanSiteRoles.humanId))
     .innerJoin(siteRoles, eq(humanSiteRoles.siteRoleId, siteRoles.id))
-    .innerJoin(
-      siteRolePermissions,
-      eq(siteRoles.id, siteRolePermissions.siteRoleId)
-    )
-    .innerJoin(
-      permissions,
-      eq(siteRolePermissions.permissionId, permissions.id)
-    )
-    .where(
-      and(
-        eq(humans.id, humanId),
-        eq(permissions.permissionName, permissionName)
-      )
-    );
+    .innerJoin(siteRolePermissions, eq(siteRoles.id, siteRolePermissions.siteRoleId))
+    .innerJoin(permissions, eq(siteRolePermissions.permissionId, permissions.id))
+    .where(and(eq(humans.id, humanId), eq(permissions.permissionName, permissionName)));
 
   return (result[0]?.count ?? 0) > 0;
 }
@@ -124,18 +107,13 @@ export async function hasPermission(
 /**
  * Check if human has any of the specified roles
  */
-export async function hasRole(
-  humanId: string,
-  roleNames: string[]
-): Promise<boolean> {
+export async function hasRole(humanId: string, roleNames: string[]): Promise<boolean> {
   const result = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(humans)
     .innerJoin(humanSiteRoles, eq(humans.id, humanSiteRoles.humanId))
     .innerJoin(siteRoles, eq(humanSiteRoles.siteRoleId, siteRoles.id))
-    .where(
-      and(eq(humans.id, humanId), sql`${siteRoles.roleName} = ANY(${roleNames})`)
-    );
+    .where(and(eq(humans.id, humanId), sql`${siteRoles.roleName} = ANY(${roleNames})`));
 
   return (result[0]?.count ?? 0) > 0;
 }
@@ -223,17 +201,23 @@ export async function createHumanWithCustomer(
     if (!newCustomer[0]) throw new Error('Failed to create customer');
 
     // Step 4: Assign customer role (find the customer role ID)
-    const customerRole = await db
-      .select({ id: siteRoles.id })
-      .from(siteRoles)
-      .where(eq(siteRoles.roleName, 'customer'))
-      .limit(1);
+    // This is optional - if site_roles table doesn't exist, we skip it
+    try {
+      const customerRole = await db
+        .select({ id: siteRoles.id })
+        .from(siteRoles)
+        .where(eq(siteRoles.roleName, 'customer'))
+        .limit(1);
 
-    if (customerRole[0]) {
-      await db.insert(humanSiteRoles).values({
-        humanId,
-        siteRoleId: customerRole[0].id,
-      });
+      if (customerRole[0]) {
+        await db.insert(humanSiteRoles).values({
+          humanId,
+          siteRoleId: customerRole[0].id,
+        });
+      }
+    } catch (roleError) {
+      // Silently skip role assignment if table doesn't exist or role not found
+      console.debug('Skipping role assignment (site_roles table may not exist yet)');
     }
 
     return {
@@ -251,11 +235,7 @@ export async function createHumanWithCustomer(
 /**
  * Assign a role to a human
  */
-export async function assignRoleToHuman(
-  humanId: string,
-  roleName: string,
-  assignedBy?: string
-) {
+export async function assignRoleToHuman(humanId: string, roleName: string, assignedBy?: string) {
   try {
     const role = await db
       .select({ id: siteRoles.id })
@@ -281,10 +261,7 @@ export async function assignRoleToHuman(
 /**
  * Update customer password
  */
-export async function updateCustomerPassword(
-  customerId: string,
-  newPasswordHash: string
-) {
+export async function updateCustomerPassword(customerId: string, newPasswordHash: string) {
   try {
     await db
       .update(customers)
@@ -312,12 +289,7 @@ export async function updateCustomerEmail(humanId: string, newEmail: string) {
       .set({
         effectiveTo: new Date(),
       })
-      .where(
-        and(
-          eq(emailHistory.humanId, humanId),
-          isNull(emailHistory.effectiveTo)
-        )
-      );
+      .where(and(eq(emailHistory.humanId, humanId), isNull(emailHistory.effectiveTo)));
 
     // Step 2: Create new email history record
     await db.insert(emailHistory).values({

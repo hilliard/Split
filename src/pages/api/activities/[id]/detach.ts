@@ -7,7 +7,7 @@ export const PUT: APIRoute = async (context) => {
   try {
     // Get session from cookies
     const sessionId = context.cookies.get('sessionId')?.value;
-    
+
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -16,11 +16,7 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Get session from database
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -31,7 +27,7 @@ export const PUT: APIRoute = async (context) => {
 
     // Get activity ID from params
     const activityId = context.params.id;
-    
+
     if (!activityId) {
       return new Response(JSON.stringify({ error: 'Activity ID required' }), {
         status: 400,
@@ -70,30 +66,33 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Detach activity from event
-    await db
-      .update(activities)
-      .set({ eventId: null })
-      .where(eq(activities.id, activityId));
+    await db.update(activities).set({ eventId: null }).where(eq(activities.id, activityId));
 
     console.log(`📍 Detached activity ${activityId} from event`);
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Activity detached from event',
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Activity detached from event',
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error detaching activity:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
-    return new Response(JSON.stringify({ 
-      error: 'Failed to detach activity',
-      details: errorMessage,
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to detach activity',
+        details: errorMessage,
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 };

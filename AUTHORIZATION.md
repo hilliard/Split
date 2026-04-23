@@ -15,12 +15,13 @@ This ensures data security and proper access control across all resources.
 
 ```typescript
 enum SystemRole {
-  ADMIN = 'admin',  // System administrator - full app access
-  USER = 'user',    // Regular user - personal and group access
+  ADMIN = 'admin', // System administrator - full app access
+  USER = 'user', // Regular user - personal and group access
 }
 ```
 
 **Rules:**
+
 - **ADMIN**: Can manage users, view all groups/events, access admin dashboard
 - **USER**: Can create groups, events, and participate in shared expenses
 
@@ -28,15 +29,16 @@ enum SystemRole {
 
 ```typescript
 enum GroupRole {
-  OWNER = 'owner',      // Group creator - full control
-  ADMIN = 'admin',      // Promoted by owner - manage events/members
-  MEMBER = 'member',    // Can create/edit own events
-  VIEWER = 'viewer',    // Read-only access
-  NONE = 'none',        // Not a member
+  OWNER = 'owner', // Group creator - full control
+  ADMIN = 'admin', // Promoted by owner - manage events/members
+  MEMBER = 'member', // Can create/edit own events
+  VIEWER = 'viewer', // Read-only access
+  NONE = 'none', // Not a member
 }
 ```
 
 **Rules:**
+
 - **OWNER**: User who created the group (automatic)
 - **ADMIN**: User promoted by the group owner
 - **MEMBER**: User invited to and accepted membership
@@ -47,24 +49,24 @@ enum GroupRole {
 
 ### Group Management
 
-| Action | OWNER | ADMIN | MEMBER | VIEWER | Non-Member |
-|--------|-------|-------|--------|--------|-----------|
-| View | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Edit | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Delete | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Invite Members | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Remove Members | ✅ | ⚠️* | ❌ | ❌ | ❌ |
+| Action         | OWNER | ADMIN | MEMBER | VIEWER | Non-Member |
+| -------------- | ----- | ----- | ------ | ------ | ---------- |
+| View           | ✅    | ✅    | ✅     | ✅     | ❌         |
+| Edit           | ✅    | ❌    | ❌     | ❌     | ❌         |
+| Delete         | ✅    | ❌    | ❌     | ❌     | ❌         |
+| Invite Members | ✅    | ✅    | ❌     | ❌     | ❌         |
+| Remove Members | ✅    | ⚠️\*  | ❌     | ❌     | ❌         |
 
-*Admin can remove MEMBER and VIEWER but not other ADMINs or the OWNER
+\*Admin can remove MEMBER and VIEWER but not other ADMINs or the OWNER
 
 ### Event Management (Within a Group)
 
 | Action | OWNER | ADMIN | MEMBER | VIEWER | Non-Member |
-|--------|-------|-------|--------|--------|-----------|
-| Create | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Read | ✅ | ✅ | ✅ | ✅ | ⚠️** |
-| Edit | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Delete | ✅ | ✅ | ❌ | ❌ | ❌ |
+| ------ | ----- | ----- | ------ | ------ | ---------- |
+| Create | ✅    | ✅    | ✅     | ❌     | ❌         |
+| Read   | ✅    | ✅    | ✅     | ✅     | ⚠️\*\*     |
+| Edit   | ✅    | ✅    | ❌     | ❌     | ❌         |
+| Delete | ✅    | ✅    | ❌     | ❌     | ❌         |
 
 **OWNER**: User who created the event (always can read/edit/delete)
 **ADMIN**: User with group ADMIN role (can edit/delete any event)
@@ -72,19 +74,20 @@ enum GroupRole {
 **VIEWER**: User with group VIEWER role (can only read)
 **Non-Member**: Can read if event is public
 
-*Non-members can only read if event.isPublic = true
+\*Non-members can only read if event.isPublic = true
 
 ### User Management (System Admin Only)
 
-| Action | System Admin | Regular User |
-|--------|-------------|--------------|
-| View All Users | ✅ | ❌ |
-| Change User Role | ✅ | ❌ |
-| Delete User | ✅ | ❌ |
-| View Own Profile | ✅ | ✅ |
-| Edit Own Profile | ✅ | ✅ |
+| Action           | System Admin | Regular User |
+| ---------------- | ------------ | ------------ |
+| View All Users   | ✅           | ❌           |
+| Change User Role | ✅           | ❌           |
+| Delete User      | ✅           | ❌           |
+| View Own Profile | ✅           | ✅           |
+| Edit Own Profile | ✅           | ✅           |
 
 ## Implementation
+
 - **VIEWER**: Event is public (`isPublic = true`)
 - **NONE**: Event is private and user has no access
 
@@ -144,10 +147,9 @@ export const PUT: APIRoute = async (context) => {
   // Check permission
   const canEdit = await canUserEditEvent(session.userId, eventId);
   if (!canEdit) {
-    return new Response(
-      JSON.stringify({ error: 'Not authorized to edit this event' }),
-      { status: 403 }
-    );
+    return new Response(JSON.stringify({ error: 'Not authorized to edit this event' }), {
+      status: 403,
+    });
   }
 
   // Proceed with update...
@@ -170,15 +172,15 @@ export const GET: APIRoute = async (context) => {
     case Role.ADMIN:
       // Return full details including sensitive info
       return fullEventDetails;
-    
+
     case Role.MEMBER:
       // Return member-accessible info
       return memberVisibleDetails;
-    
+
     case Role.VIEWER:
       // Return only public info
       return publicEventDetails;
-    
+
     default:
       // No access
       return forbiddenError;
@@ -191,48 +193,59 @@ export const GET: APIRoute = async (context) => {
 ### Groups
 
 ✅ **POST** `/api/groups/create`
+
 - Requires: Authenticated user
 - Creates group, user becomes owner
 
 ✅ **GET** `/api/groups/list`
+
 - Requires: Authenticated user
 - Returns: Groups where user is member
 
 ✅ **PUT** `/api/groups/[id]/update`
+
 - Requires: Group owner
 - Returns: 403 if not owner
 
 ✅ **DELETE** `/api/groups/[id]/delete`
+
 - Requires: Group owner
 - Returns: 403 if not owner
 
 ✅ **GET** `/api/groups/[id]/members`
+
 - Requires: Group member or owner
 - Returns: 403 if not member
 
 ✅ **POST** `/api/groups/[id]/invite`
+
 - Requires: Group owner (not implemented yet - TODO)
 - Sends invitation to new member
 
 ### Events
 
 ✅ **POST** `/api/events/create`
+
 - Requires: Authenticated user
 - Creates event, user becomes owner
 
 ✅ **GET** `/api/events/list`
+
 - Requires: Authenticated user
 - Returns: All events user can access
 
 ✅ **GET** `/api/events/[id]`
+
 - Requires: User can read event (owner, group member, or public)
 - Returns: 403 if not authorized
 
 ✅ **PUT** `/api/events/[id]/update`
+
 - Requires: Event owner or group admin
 - Returns: 403 if not authorized
 
 ✅ **DELETE** `/api/events/[id]/delete`
+
 - Requires: Event owner or group admin
 - Returns: 403 if not authorized
 
@@ -289,25 +302,30 @@ if (!hasPermission) return new Response(..., { status: 403 });
 ## Future Enhancements
 
 ### 1. System Admins
+
 - Add global admin role for system-level management
 - Allow admins to delete any resource
 
 ### 2. RBAC (Role-Based Access Control)
+
 - Define specific roles per group (admin, moderator, member, viewer)
 - Store user's role in groupMembers table
 - More granular permissions
 
 ### 3. Explicit Permissions
+
 - Add permissions table for flexibility
 - Allow custom permission definitions
 - Support for feature-based access control
 
 ### 4. Audit Logging
+
 - Track who accessed/modified what resource
 - When was the action taken
 - From what IP/device
 
 ### 5. Rate Limiting
+
 - Limit API calls per user
 - Prevent abuse
 - Tiered limits based on user roles
@@ -337,6 +355,7 @@ See `src/tests/` for test suite examples that verify authorization checks.
 ## Summary
 
 The authorization system ensures:
+
 - 🔒 Data security - Only authorized users can access/modify data
 - 👥 Collaborative access - Multiple users can work on shared resources
 - 🛡️ Privacy - Private resources are protected

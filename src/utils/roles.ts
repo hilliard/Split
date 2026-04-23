@@ -1,17 +1,11 @@
 /**
  * User Role Management Utilities
- * 
+ *
  * Functions for managing user privileges and roles across system and group levels
  */
 
 import { db } from '../db/index.ts';
-import {
-  humans,
-  systemRoles,
-  humanSystemRoles,
-  groupRoles,
-  groupMembers,
-} from '../db/schema.ts';
+import { humans, systemRoles, humanSystemRoles, groupRoles, groupMembers } from '../db/schema.ts';
 import { eq, and } from 'drizzle-orm';
 
 /**
@@ -76,10 +70,7 @@ export async function revokeSystemRole(humanId: string, roleName: string) {
     await db
       .delete(humanSystemRoles)
       .where(
-        and(
-          eq(humanSystemRoles.humanId, humanId),
-          eq(humanSystemRoles.systemRoleId, role.id)
-        )
+        and(eq(humanSystemRoles.humanId, humanId), eq(humanSystemRoles.systemRoleId, role.id))
       );
 
     return {
@@ -144,7 +135,11 @@ export async function isAdmin(humanId: string): Promise<boolean> {
  * Group-level role management
  */
 
-export async function assignGroupRole(groupId: string, humanId: string, roleName: 'owner' | 'admin' | 'member' | 'viewer') {
+export async function assignGroupRole(
+  groupId: string,
+  humanId: string,
+  roleName: 'owner' | 'admin' | 'member' | 'viewer'
+) {
   try {
     // Get or create the group role
     let role = await db.query.groupRoles.findFirst({
@@ -168,12 +163,7 @@ export async function assignGroupRole(groupId: string, humanId: string, roleName
       .set({
         groupRoleId: role.id,
       })
-      .where(
-        and(
-          eq(groupMembers.groupId, groupId),
-          eq(groupMembers.userId, humanId)
-        )
-      );
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, humanId)));
 
     return {
       success: true,
@@ -193,10 +183,7 @@ export async function assignGroupRole(groupId: string, humanId: string, roleName
 export async function getUserGroupRole(groupId: string, humanId: string) {
   try {
     const membership = await db.query.groupMembers.findFirst({
-      where: and(
-        eq(groupMembers.groupId, groupId),
-        eq(groupMembers.userId, humanId)
-      ),
+      where: and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, humanId)),
       with: {
         role: true,
       },
@@ -219,10 +206,7 @@ export async function getUserGroupRole(groupId: string, humanId: string) {
 export async function canUserEditGroup(groupId: string, humanId: string): Promise<boolean> {
   try {
     const membership = await db.query.groupMembers.findFirst({
-      where: and(
-        eq(groupMembers.groupId, groupId),
-        eq(groupMembers.userId, humanId)
-      ),
+      where: and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, humanId)),
       with: {
         role: true,
       },
@@ -240,10 +224,7 @@ export async function canUserEditGroup(groupId: string, humanId: string): Promis
 export async function canUserViewGroup(groupId: string, humanId: string): Promise<boolean> {
   try {
     const membership = await db.query.groupMembers.findFirst({
-      where: and(
-        eq(groupMembers.groupId, groupId),
-        eq(groupMembers.userId, humanId)
-      ),
+      where: and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, humanId)),
     });
 
     return !!membership;

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Mobile-first enhancements */
 @media (max-width: 640px) {

@@ -1,6 +1,13 @@
 import type { APIRoute } from 'astro';
 import { db } from '@/db';
-import { groupMembers, pendingGroupInvitations, humans, sessions, expenseGroups, users } from '@/db/schema';
+import {
+  groupMembers,
+  pendingGroupInvitations,
+  humans,
+  sessions,
+  expenseGroups,
+  users,
+} from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {
@@ -14,11 +21,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -57,12 +60,7 @@ export const GET: APIRoute = async (context) => {
     const [membership] = await db
       .select()
       .from(groupMembers)
-      .where(
-        and(
-          eq(groupMembers.groupId, groupId),
-          eq(groupMembers.userId, session.userId)
-        )
-      )
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, session.userId)))
       .limit(1);
 
     if (!isOwner && !membership) {
@@ -138,12 +136,9 @@ export const GET: APIRoute = async (context) => {
     );
   } catch (error) {
     console.error('Error fetching group members:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to fetch group members' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch group members' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

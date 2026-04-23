@@ -104,12 +104,8 @@
           "name": "activities_event_id_events_id_fk",
           "tableFrom": "activities",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -251,12 +247,8 @@
           "name": "customers_human_id_humans_id_fk",
           "tableFrom": "customers",
           "tableTo": "humans",
-          "columnsFrom": [
-            "human_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["human_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -266,16 +258,12 @@
         "customers_username_unique": {
           "name": "customers_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         },
         "customers_email_unique": {
           "name": "customers_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -398,12 +386,8 @@
           "name": "email_verification_tokens_customer_id_customers_id_fk",
           "tableFrom": "email_verification_tokens",
           "tableTo": "customers",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -413,9 +397,7 @@
         "email_verification_tokens_token_unique": {
           "name": "email_verification_tokens_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -605,12 +587,8 @@
           "name": "events_creator_id_humans_id_fk",
           "tableFrom": "events",
           "tableTo": "humans",
-          "columnsFrom": [
-            "creator_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["creator_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -618,12 +596,8 @@
           "name": "events_group_id_expense_groups_id_fk",
           "tableFrom": "events",
           "tableTo": "expense_groups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -687,12 +661,8 @@
           "name": "expense_groups_created_by_humans_id_fk",
           "tableFrom": "expense_groups",
           "tableTo": "humans",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -770,12 +740,8 @@
           "name": "expense_splits_expense_id_expenses_id_fk",
           "tableFrom": "expense_splits",
           "tableTo": "expenses",
-          "columnsFrom": [
-            "expense_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["expense_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -783,12 +749,8 @@
           "name": "expense_splits_user_id_humans_id_fk",
           "tableFrom": "expense_splits",
           "tableTo": "humans",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -958,12 +920,8 @@
           "name": "expenses_event_id_events_id_fk",
           "tableFrom": "expenses",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -971,12 +929,8 @@
           "name": "expenses_group_id_expense_groups_id_fk",
           "tableFrom": "expenses",
           "tableTo": "expense_groups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -984,12 +938,8 @@
           "name": "expenses_activity_id_activities_id_fk",
           "tableFrom": "expenses",
           "tableTo": "activities",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["activity_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -997,12 +947,8 @@
           "name": "expenses_paid_by_humans_id_fk",
           "tableFrom": "expenses",
           "tableTo": "humans",
-          "columnsFrom": [
-            "paid_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["paid_by"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1099,12 +1045,8 @@
           "name": "group_members_group_id_expense_groups_id_fk",
           "tableFrom": "group_members",
           "tableTo": "expense_groups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1112,12 +1054,8 @@
           "name": "group_members_user_id_humans_id_fk",
           "tableFrom": "group_members",
           "tableTo": "humans",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1125,12 +1063,8 @@
           "name": "group_members_group_role_id_group_roles_id_fk",
           "tableFrom": "group_members",
           "tableTo": "group_roles",
-          "columnsFrom": [
-            "group_role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_role_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1209,12 +1143,8 @@
           "name": "group_role_permissions_group_role_id_group_roles_id_fk",
           "tableFrom": "group_role_permissions",
           "tableTo": "group_roles",
-          "columnsFrom": [
-            "group_role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_role_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1222,12 +1152,8 @@
           "name": "group_role_permissions_permission_id_permissions_id_fk",
           "tableFrom": "group_role_permissions",
           "tableTo": "permissions",
-          "columnsFrom": [
-            "permission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["permission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1276,9 +1202,7 @@
         "group_roles_name_unique": {
           "name": "group_roles_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       },
       "policies": {},
@@ -1359,12 +1283,8 @@
           "name": "human_system_roles_human_id_humans_id_fk",
           "tableFrom": "human_system_roles",
           "tableTo": "humans",
-          "columnsFrom": [
-            "human_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["human_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1372,12 +1292,8 @@
           "name": "human_system_roles_system_role_id_system_roles_id_fk",
           "tableFrom": "human_system_roles",
           "tableTo": "system_roles",
-          "columnsFrom": [
-            "system_role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["system_role_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1385,12 +1301,8 @@
           "name": "human_system_roles_assigned_by_humans_id_fk",
           "tableFrom": "human_system_roles",
           "tableTo": "humans",
-          "columnsFrom": [
-            "assigned_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1586,12 +1498,8 @@
           "name": "pending_group_invitations_group_id_expense_groups_id_fk",
           "tableFrom": "pending_group_invitations",
           "tableTo": "expense_groups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1599,12 +1507,8 @@
           "name": "pending_group_invitations_invited_by_humans_id_fk",
           "tableFrom": "pending_group_invitations",
           "tableTo": "humans",
-          "columnsFrom": [
-            "invited_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invited_by"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1742,12 +1646,8 @@
           "name": "sessions_user_id_humans_id_fk",
           "tableFrom": "sessions",
           "tableTo": "humans",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1922,12 +1822,8 @@
           "name": "settlements_event_id_events_id_fk",
           "tableFrom": "settlements",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1935,12 +1831,8 @@
           "name": "settlements_group_id_expense_groups_id_fk",
           "tableFrom": "settlements",
           "tableTo": "expense_groups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1948,12 +1840,8 @@
           "name": "settlements_from_user_id_humans_id_fk",
           "tableFrom": "settlements",
           "tableTo": "humans",
-          "columnsFrom": [
-            "from_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["from_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1961,12 +1849,8 @@
           "name": "settlements_to_user_id_humans_id_fk",
           "tableFrom": "settlements",
           "tableTo": "humans",
-          "columnsFrom": [
-            "to_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["to_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -2015,9 +1899,7 @@
         "system_roles_name_unique": {
           "name": "system_roles_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       },
       "policies": {},
@@ -2091,9 +1973,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},

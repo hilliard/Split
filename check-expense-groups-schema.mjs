@@ -31,7 +31,9 @@ async function checkSchema() {
     `;
     console.log('\n📋 Columns:');
     columns.forEach((col) => {
-      console.log(`  - ${col.column_name}: ${col.data_type} ${col.is_nullable === 'NO' ? 'NOT NULL' : 'NULL'} ${col.column_default ? `DEFAULT ${col.column_default}` : ''}`);
+      console.log(
+        `  - ${col.column_name}: ${col.data_type} ${col.is_nullable === 'NO' ? 'NOT NULL' : 'NULL'} ${col.column_default ? `DEFAULT ${col.column_default}` : ''}`
+      );
     });
 
     // Get constraints
@@ -61,17 +63,19 @@ async function checkSchema() {
       console.log('  (none)');
     } else {
       fks.forEach((fk) => {
-        console.log(`  - FK: ${fk.column_name} -> ${fk.referenced_table_name}.${fk.referenced_column_name}`);
+        console.log(
+          `  - FK: ${fk.column_name} -> ${fk.referenced_table_name}.${fk.referenced_column_name}`
+        );
       });
     }
 
     // Try inserting a test record
     console.log('\n─'.repeat(60));
     console.log('Testing INSERT...');
-    
+
     const testId = '00000000-0000-0000-0000-000000000001';
     const testUserId = '6d916ed5-f539-4a51-9e17-044d81c956d2';
-    
+
     try {
       const result = await sql`
         INSERT INTO expense_groups (id, name, created_by, created_at)
@@ -79,7 +83,7 @@ async function checkSchema() {
         RETURNING id, name, created_by
       `;
       console.log('✅ INSERT succeeded:', result[0]);
-      
+
       // Clean up
       await sql`DELETE FROM expense_groups WHERE id = ${testId}`;
     } catch (insertError) {

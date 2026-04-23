@@ -12,7 +12,7 @@ if (!process.env.DATABASE_URL) {
   try {
     const envPath = path.resolve(__dirname, '.env.local');
     const envContent = fs.readFileSync(envPath, 'utf-8');
-    envContent.split('\n').forEach(line => {
+    envContent.split('\n').forEach((line) => {
       if (line.trim() && !line.startsWith('#')) {
         const [key, ...valueParts] = line.split('=');
         const value = valueParts.join('=').trim();
@@ -38,7 +38,7 @@ const sql = postgres(databaseUrl);
 async function checkSchema() {
   try {
     console.log('Checking activities table schema...\n');
-    
+
     // Get column information
     const columns = await sql`
       SELECT column_name, data_type, is_nullable
@@ -46,39 +46,41 @@ async function checkSchema() {
       WHERE table_name = 'activities'
       ORDER BY ordinal_position
     `;
-    
+
     console.log('Activities table columns:');
     console.log('========================');
-    columns.forEach(col => {
-      console.log(`  ${col.column_name.padEnd(20)} | ${col.data_type.padEnd(20)} | ${col.is_nullable === 'NO' ? 'NOT NULL' : 'NULLABLE'}`);
+    columns.forEach((col) => {
+      console.log(
+        `  ${col.column_name.padEnd(20)} | ${col.data_type.padEnd(20)} | ${col.is_nullable === 'NO' ? 'NOT NULL' : 'NULLABLE'}`
+      );
     });
-    
+
     console.log('\n\nChecking constraints and indexes...\n');
-    
+
     // Get constraints
     const constraints = await sql`
       SELECT constraint_name, constraint_type
       FROM information_schema.table_constraints
       WHERE table_name = 'activities'
     `;
-    
+
     console.log('Constraints:');
-    constraints.forEach(c => {
+    constraints.forEach((c) => {
       console.log(`  ${c.constraint_name.padEnd(30)} | ${c.constraint_type}`);
     });
-    
+
     console.log('\n\nSample data:');
     const samples = await sql`SELECT COUNT(*) as count FROM activities`;
     console.log(`  Total activities: ${samples[0].count}`);
-    
+
     if (samples[0].count > 0) {
       const data = await sql`SELECT id, event_id, title, created_at FROM activities LIMIT 3`;
       console.log('\n  First 3 activities:');
-      data.forEach(row => {
+      data.forEach((row) => {
         console.log(`    ${row.id} | ${row.event_id} | ${row.title}`);
       });
     }
-    
+
     await sql.end();
     process.exit(0);
   } catch (error) {

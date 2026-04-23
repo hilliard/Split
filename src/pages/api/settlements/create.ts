@@ -1,8 +1,8 @@
 /**
  * API Route: POST /api/settlements/create
- * 
+ *
  * Record a payment transaction between users to settle an expense debt
- * 
+ *
  * Request:
  * {
  *   "eventId": "event-uuid",
@@ -30,11 +30,7 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -81,11 +77,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Verify event exists
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -95,17 +87,9 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Verify both users exist
-    const [fromUser] = await db
-      .select()
-      .from(humans)
-      .where(eq(humans.id, fromUserId))
-      .limit(1);
+    const [fromUser] = await db.select().from(humans).where(eq(humans.id, fromUserId)).limit(1);
 
-    const [toUser] = await db
-      .select()
-      .from(humans)
-      .where(eq(humans.id, toUserId))
-      .limit(1);
+    const [toUser] = await db.select().from(humans).where(eq(humans.id, toUserId)).limit(1);
 
     if (!fromUser || !toUser) {
       return new Response(JSON.stringify({ error: 'One or both users not found' }), {

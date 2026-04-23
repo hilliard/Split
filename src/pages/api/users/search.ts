@@ -15,11 +15,7 @@ export const GET: APIRoute = async ({ cookies, url }) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -51,7 +47,7 @@ export const GET: APIRoute = async ({ cookies, url }) => {
         or(
           ilike(humans.firstName, `%${query}%`),
           ilike(humans.lastName, `%${query}%`),
-          ilike(humans.phone, `%${query}%`),
+          ilike(humans.phone, `%${query}%`)
         )
       )
       .limit(10);

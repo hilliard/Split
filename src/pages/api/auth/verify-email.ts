@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { validateVerificationToken, markTokenAsVerified } from '@/utils/emailVerification';
 import { db } from '@/db/index';
-import { customers } from '@/db/schema';
+import { customers } from '@/db/human-centric-schema';
 import { eq } from 'drizzle-orm';
 
 export const GET: APIRoute = async ({ url, cookies }) => {
@@ -21,6 +21,7 @@ export const GET: APIRoute = async ({ url, cookies }) => {
 
     // Validate token
     const validation = await validateVerificationToken(email, token);
+
     if (!validation.valid) {
       return new Response(
         JSON.stringify({
@@ -60,11 +61,7 @@ export const GET: APIRoute = async ({ url, cookies }) => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
     // Get the human ID from customer
-    const customer = await db
-      .select()
-      .from(customers)
-      .where(eq(customers.id, customerId))
-      .limit(1);
+    const customer = await db.select().from(customers).where(eq(customers.id, customerId)).limit(1);
 
     if (customer.length === 0) {
       return new Response(

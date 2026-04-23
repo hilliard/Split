@@ -1,9 +1,9 @@
 /**
  * API Route: POST /api/admin/roles/assign-group-role
- * 
+ *
  * Assign a group-level role to a user
  * Only accessible to group owner or admin
- * 
+ *
  * Query params:
  * - groupId: Group ID
  * - humanId: User ID to assign role to
@@ -21,10 +21,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // Check authentication
     const sessionId = cookies.get('session_id')?.value;
     if (!sessionId) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Get current user
@@ -33,10 +33,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (!session) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid session' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Invalid session' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Parse request body
@@ -44,10 +44,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { groupId, humanId, role } = body;
 
     if (!groupId || !humanId || !role) {
-      return new Response(
-        JSON.stringify({ error: 'Missing groupId, humanId, or role' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Missing groupId, humanId, or role' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     if (!['owner', 'admin', 'member', 'viewer'].includes(role)) {
@@ -80,9 +80,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Error assigning group role:', err);
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

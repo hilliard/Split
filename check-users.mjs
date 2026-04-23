@@ -14,7 +14,7 @@ async function checkUsers() {
     const result = await client.query(
       `SELECT id, email, username, created_at FROM users ORDER BY created_at DESC`
     );
-    
+
     console.log('\n📋 Users in database:\n');
     if (result.rows.length === 0) {
       console.log('(no users found)\n');

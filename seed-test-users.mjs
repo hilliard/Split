@@ -18,7 +18,7 @@ async function hashPassword(password) {
 (async () => {
   try {
     console.log('\n🌱 Creating test users...\n');
-    
+
     const testUsers = [
       {
         firstName: 'Alice',
@@ -48,10 +48,9 @@ async function hashPassword(password) {
 
     for (const user of testUsers) {
       // Check if user already exists
-      const existing = await pool.query(
-        'SELECT id FROM customers WHERE username = $1',
-        [user.username]
-      );
+      const existing = await pool.query('SELECT id FROM customers WHERE username = $1', [
+        user.username,
+      ]);
 
       if (existing.rows.length > 0) {
         console.log(`⏭️  ${user.username} already exists, skipping`);
@@ -60,10 +59,11 @@ async function hashPassword(password) {
 
       // Create human
       const humanId = uuidv4();
-      await pool.query(
-        `INSERT INTO humans (id, first_name, last_name) VALUES ($1, $2, $3)`,
-        [humanId, user.firstName, user.lastName]
-      );
+      await pool.query(`INSERT INTO humans (id, first_name, last_name) VALUES ($1, $2, $3)`, [
+        humanId,
+        user.firstName,
+        user.lastName,
+      ]);
       console.log(`✓ Created human: ${user.firstName} ${user.lastName}`);
 
       // Hash password
@@ -79,7 +79,6 @@ async function hashPassword(password) {
     }
 
     console.log('\n✅ Test users created successfully!\n');
-    
   } catch (error) {
     console.error('❌ Error:', error.message);
   } finally {

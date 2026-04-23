@@ -7,7 +7,7 @@ import { calculateGroupBalances, getUserGroupBalance } from '@/utils/balance-cal
 export const GET: APIRoute = async (context) => {
   try {
     console.log('📊 Balances API called');
-    
+
     // Get session
     const sessionId = context.cookies.get('sessionId')?.value;
     if (!sessionId) {
@@ -15,11 +15,7 @@ export const GET: APIRoute = async (context) => {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       console.warn('❌ Session expired or not found');
@@ -30,7 +26,7 @@ export const GET: APIRoute = async (context) => {
 
     const { id } = context.params;
     console.log('📍 Group ID from params:', id);
-    
+
     if (!id) {
       console.warn('❌ No group ID provided');
       return new Response(JSON.stringify({ error: 'Group ID required' }), { status: 400 });
@@ -45,7 +41,9 @@ export const GET: APIRoute = async (context) => {
 
     if (!isMember.length) {
       console.warn('❌ User is not a member of this group');
-      return new Response(JSON.stringify({ error: 'Forbidden - not a group member' }), { status: 403 });
+      return new Response(JSON.stringify({ error: 'Forbidden - not a group member' }), {
+        status: 403,
+      });
     }
 
     console.log('✓ User is group member');

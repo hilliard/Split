@@ -15,13 +15,13 @@ async function checkSchema() {
       WHERE table_name = 'events'
       ORDER BY ordinal_position
     `);
-    
+
     console.log('\n📋 Events Table Schema:\n');
-    result.rows.forEach(row => {
+    result.rows.forEach((row) => {
       const nullable = row.is_nullable === 'YES' ? '(nullable)' : '(required)';
       console.log(`  ${row.column_name.padEnd(20)} ${row.data_type.padEnd(15)} ${nullable}`);
     });
-    
+
     console.log('\n');
   } catch (error) {
     console.error('Error:', error);

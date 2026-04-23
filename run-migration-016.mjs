@@ -10,13 +10,18 @@ if (!connectionString) {
 
 const sql = postgres(connectionString, { ssl: 'require' });
 
-const migrationFile = path.join(process.cwd(), 'migrations', '016-backfill-humans-for-customers.sql');
+const migrationFile = path.join(
+  process.cwd(),
+  'migrations',
+  '016-backfill-humans-for-customers.sql'
+);
 const migrationSQL = fs.readFileSync(migrationFile, 'utf-8');
 
 console.log('🔄 Running migration 016...');
 console.log('─'.repeat(60));
 
-sql.unsafe(migrationSQL)
+sql
+  .unsafe(migrationSQL)
   .then(() => {
     console.log('─'.repeat(60));
     console.log('✅ Migration 016 completed successfully');

@@ -30,11 +30,7 @@ export const PUT: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -53,10 +49,7 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Get event
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId));
+    const [event] = await db.select().from(events).where(eq(events.id, eventId));
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -87,15 +80,17 @@ export const PUT: APIRoute = async (context) => {
     if (validatedData.description !== undefined) updateData.description = validatedData.description;
     if (validatedData.type !== undefined) updateData.type = validatedData.type;
     if (validatedData.status !== undefined) updateData.status = validatedData.status;
-    if (validatedData.startTime !== undefined) updateData.startTime = new Date(validatedData.startTime);
-    if (validatedData.endTime !== undefined) updateData.endTime = validatedData.endTime ? new Date(validatedData.endTime) : null;
+    if (validatedData.startTime !== undefined)
+      updateData.startTime = new Date(validatedData.startTime);
+    if (validatedData.endTime !== undefined)
+      updateData.endTime = validatedData.endTime ? new Date(validatedData.endTime) : null;
     if (validatedData.timezone !== undefined) updateData.timezone = validatedData.timezone;
     if (validatedData.isVirtual !== undefined) updateData.isVirtual = validatedData.isVirtual;
     if (validatedData.isPublic !== undefined) updateData.isPublic = validatedData.isPublic;
     if (validatedData.currency !== undefined) updateData.currency = validatedData.currency;
     if (validatedData.budget !== undefined) {
       // Convert budget to cents
-      const budgetCents = validatedData.budget 
+      const budgetCents = validatedData.budget
         ? Math.round(parseFloat(validatedData.budget) * 100)
         : null;
       updateData.budgetCents = budgetCents;

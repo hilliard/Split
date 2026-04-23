@@ -1,6 +1,6 @@
 /**
  * API Route: PUT /api/expenses/update
- * 
+ *
  * Update an existing expense
  * Can change amount, category, description, and who it's split among
  */
@@ -34,11 +34,7 @@ export const PUT: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -78,20 +74,24 @@ export const PUT: APIRoute = async (context) => {
     const [event] = await db
       .select()
       .from(events)
-      .where(eq(events.id, expense.eventId ?? ""))
+      .where(eq(events.id, expense.eventId ?? ''))
       .limit(1);
 
     if (!event || event.creatorId !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to update this expense' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to update this expense' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Update expense fields
     const updateData: any = {};
     if (validatedData.amount) updateData.amount = dollarsToCents(validatedData.amount); // Convert dollars to cents
-    if (validatedData.tipAmount !== undefined) updateData.tipAmount = dollarsToCents(validatedData.tipAmount); // Convert dollars to cents
+    if (validatedData.tipAmount !== undefined)
+      updateData.tipAmount = dollarsToCents(validatedData.tipAmount); // Convert dollars to cents
     if (validatedData.category) updateData.category = validatedData.category;
     if (validatedData.description !== undefined) updateData.description = validatedData.description;
     if (validatedData.metadata) updateData.metadata = validatedData.metadata;
@@ -106,8 +106,10 @@ export const PUT: APIRoute = async (context) => {
       await db.delete(expenseSplits).where(eq(expenseSplits.expenseId, validatedData.expenseId));
 
       // Calculate total using provided or existing values (all in cents in DB)
-      const amountInCents = validatedData.amount ? dollarsToCents(validatedData.amount) : expense.amount;
-      
+      const amountInCents = validatedData.amount
+        ? dollarsToCents(validatedData.amount)
+        : expense.amount;
+
       // Handle tipAmount - now stored as cents in DB
       let tipInCents = 0;
       if (validatedData.tipAmount !== undefined) {
@@ -116,7 +118,7 @@ export const PUT: APIRoute = async (context) => {
         // tipAmount is already in cents from DB
         tipInCents = expense.tipAmount;
       }
-      
+
       const totalInCents = amountInCents + tipInCents;
 
       // Create new splits using total
@@ -132,13 +134,16 @@ export const PUT: APIRoute = async (context) => {
       );
     }
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Expense updated successfully',
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Expense updated successfully',
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error updating expense:', error);
     if (error instanceof z.ZodError) {

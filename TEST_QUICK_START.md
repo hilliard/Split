@@ -158,7 +158,7 @@ const createActivitySchema = z.object({
     .min(1)
     .refine(
       (v) => /^(do|make|book|cook|visit|plan)/i.test(v),
-      "Activity title must start with action verb",
+      'Activity title must start with action verb'
     ),
 });
 ```
@@ -175,18 +175,18 @@ Run tests to see details → npm run test
 ### You: Add test for the new rule
 
 ```typescript
-it("should require activity title to start with action verb", () => {
+it('should require activity title to start with action verb', () => {
   const invalidData = {
     eventId: valid - uuid,
-    title: "Coffee", // ✗ Doesn't start with action
+    title: 'Coffee', // ✗ Doesn't start with action
   };
   expect(() => createActivitySchema.parse(invalidData)).toThrow();
 });
 
-it("should accept activity starting with action verb", () => {
+it('should accept activity starting with action verb', () => {
   const validData = {
     eventId: valid - uuid,
-    title: "Get coffee", // ✓ Starts with "Get"
+    title: 'Get coffee', // ✓ Starts with "Get"
   };
   expect(() => createActivitySchema.parse(validData)).not.toThrow();
 });
@@ -206,8 +206,8 @@ it("should accept activity starting with action verb", () => {
 ### Unit Tests (Vitest)
 
 ```typescript
-describe("Feature", () => {
-  it("should do something", () => {
+describe('Feature', () => {
+  it('should do something', () => {
     // Test ONE function in isolation
     const result = myFunction(input);
     expect(result).toBe(expected);
@@ -222,12 +222,12 @@ describe("Feature", () => {
 ### E2E Tests (Playwright)
 
 ```typescript
-test("should create activity", async ({ page }) => {
+test('should create activity', async ({ page }) => {
   // Test ENTIRE workflow in real browser
-  await page.goto("http://localhost:4322/activities");
-  await page.fill('input[name="title"]', "Breakfast");
+  await page.goto('http://localhost:4322/activities');
+  await page.fill('input[name="title"]', 'Breakfast');
   await page.click('button:has-text("Add Activity")');
-  await expect(page.locator("text=Breakfast")).toBeVisible();
+  await expect(page.locator('text=Breakfast')).toBeVisible();
 });
 ```
 
@@ -308,13 +308,13 @@ npm run e2e:ui
 ### Step 2: Check the test
 
 ```typescript
-it("should reject invalid email", () => {
+it('should reject invalid email', () => {
   const schema = z.object({
     email: z.string().email(),
   });
 
   // This is NOT throwing an error!
-  expect(() => schema.parse({ email: "invalid" })).toThrow();
+  expect(() => schema.parse({ email: 'invalid' })).toThrow();
 });
 ```
 
@@ -323,7 +323,7 @@ it("should reject invalid email", () => {
 Option A: Fix the code (if it's wrong):
 
 ```typescript
-expect(() => schema.parse({ email: "invalid" })).toThrow();
+expect(() => schema.parse({ email: 'invalid' })).toThrow();
 // will NOW throw because 'invalid' fails email validation
 ```
 
@@ -331,7 +331,7 @@ Option B: Fix the test (if test is wrong):
 
 ```typescript
 // Had wrong expectations
-expect(() => schema.parse({ email: "valid@example.com" })).not.toThrow();
+expect(() => schema.parse({ email: 'valid@example.com' })).not.toThrow();
 ```
 
 ### Step 4: Test passes ✓

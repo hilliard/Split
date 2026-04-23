@@ -1,9 +1,9 @@
 /**
  * API Route: POST /api/expenses/create
- * 
+ *
  * Create a new expense for a group
  * Expenses track actual money spent and who paid
- * 
+ *
  * Body:
  * - groupId: Group ID (from event.groupId)
  * - amount: Cost in dollars
@@ -16,14 +16,21 @@
 
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { sessions, expenses, events, expenseGroups, groupMembers, expenseSplits } from '../../../db/schema';
+import {
+  sessions,
+  expenses,
+  events,
+  expenseGroups,
+  groupMembers,
+  expenseSplits,
+} from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { dollarsToCents, calculateSplitPerPerson, centsToDollars } from '../../../utils/currency';
 
 const createExpenseSchema = z.object({
-  eventId: z.string().uuid('Invalid event ID'),  // Changed from groupId to eventId
+  eventId: z.string().uuid('Invalid event ID'), // Changed from groupId to eventId
   amount: z.number().positive('Amount must be greater than 0'),
   tipAmount: z.number().nonnegative('Tip must be 0 or greater').default(0),
   description: z.string().max(500).default(''),
@@ -45,11 +52,7 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -109,10 +112,10 @@ export const POST: APIRoute = async (context) => {
         const members = await db
           .select()
           .from(groupMembers)
-          .where(eq(groupMembers.groupId, groupId));  // Use groupId from event
-        
+          .where(eq(groupMembers.groupId, groupId)); // Use groupId from event
+
         if (members && members.length > 0) {
-          splitAmong = members.map(m => m.userId);
+          splitAmong = members.map((m) => m.userId);
         } else {
           splitAmong = [validatedData.paidBy]; // At least split among the payer
         }
@@ -121,13 +124,16 @@ export const POST: APIRoute = async (context) => {
         splitAmong = [validatedData.paidBy]; // At least split among the payer
       }
     }
-    
+
     // Ensure splitAmong is never empty
     if (!splitAmong || splitAmong.length === 0) {
-      return new Response(JSON.stringify({ error: 'At least one person must be included in the expense split' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'At least one person must be included in the expense split' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Convert dollars to cents for storage and calculation
@@ -148,10 +154,10 @@ export const POST: APIRoute = async (context) => {
       const insertValues = {
         id: uuidv4(),
         eventId: validatedData.eventId,
-        groupId: groupId,  // Add groupId from the event
+        groupId: groupId, // Add groupId from the event
         activityId: validatedData.activityId,
-        amount: amountInCents,  // Store as integer cents
-        tipAmount: tipInCents,  // Store as integer cents (e.g., 345 = $3.45)
+        amount: amountInCents, // Store as integer cents
+        tipAmount: tipInCents, // Store as integer cents (e.g., 345 = $3.45)
         description: validatedData.description || '',
         category: validatedData.category || 'misc',
         paidBy: validatedData.paidBy,
@@ -173,36 +179,38 @@ export const POST: APIRoute = async (context) => {
 
       // Verify all required fields are present
       if (!insertValues.id || !insertValues.eventId || typeof insertValues.amount === 'undefined') {
-        throw new Error(`Missing required fields: id=${insertValues.id}, eventId=${insertValues.eventId}, amount=${insertValues.amount}`);
+        throw new Error(
+          `Missing required fields: id=${insertValues.id}, eventId=${insertValues.eventId}, amount=${insertValues.amount}`
+        );
       }
 
       console.log('🔍 About to call db.insert()...');
-      const inserted = await db
-        .insert(expenses)
-        .values(insertValues)
-        .returning();
-      
+      const inserted = await db.insert(expenses).values(insertValues).returning();
+
       console.log('✅ Insert succeeded, returned:', inserted);
-      
+
       if (!inserted || inserted.length === 0) {
-        return new Response(JSON.stringify({ error: 'Failed to create expense - no record returned' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        });
+        return new Response(
+          JSON.stringify({ error: 'Failed to create expense - no record returned' }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
       }
-      
+
       expense = inserted[0];
       console.log('✅ Expense created:', expense.id);
     } catch (dbError) {
       console.error('❌ Error inserting expense:', dbError);
       console.error('❌ Error type:', dbError?.constructor?.name);
       console.error('Full error object:', JSON.stringify(dbError, null, 2));
-      
+
       // Log specific database error details
       if (dbError instanceof Error) {
         console.error('Error stack:', dbError.stack);
       }
-      
+
       // Extract meaningful error message
       let errorMsg = 'Failed to create expense in database';
       if (dbError instanceof Error) {
@@ -220,9 +228,9 @@ export const POST: APIRoute = async (context) => {
           errorMsg = dbError.message;
         }
       }
-      
+
       console.error('Final error response:', { errorMsg });
-      
+
       return new Response(JSON.stringify({ error: errorMsg }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -230,10 +238,13 @@ export const POST: APIRoute = async (context) => {
     }
 
     if (!expense) {
-      return new Response(JSON.stringify({ error: 'Failed to create expense - no record returned' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Failed to create expense - no record returned' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Create expense splits using TOTAL (amount + tip)
@@ -257,23 +268,26 @@ export const POST: APIRoute = async (context) => {
 
     const splitPerPersonCents = calculateSplitPerPerson(totalInCents, splitAmong.length);
 
-    return new Response(JSON.stringify({
-      success: true,
-      expense: {
-        id: expense.id,
-        subtotal: validatedData.amount,
-        tip: validatedData.tipAmount,
-        total: validatedData.amount + validatedData.tipAmount,
-        description: validatedData.description,
-        paidBy: validatedData.paidBy,
-        splitAmong,
-        splitPerPerson: centsToDollars(splitPerPersonCents), // Display as dollars
-        tipPerPerson: centsToDollars(Math.floor(tipInCents / splitAmong.length)), // Display as dollars
-      },
-    }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        expense: {
+          id: expense.id,
+          subtotal: validatedData.amount,
+          tip: validatedData.tipAmount,
+          total: validatedData.amount + validatedData.tipAmount,
+          description: validatedData.description,
+          paidBy: validatedData.paidBy,
+          splitAmong,
+          splitPerPerson: centsToDollars(splitPerPersonCents), // Display as dollars
+          tipPerPerson: centsToDollars(Math.floor(tipInCents / splitAmong.length)), // Display as dollars
+        },
+      }),
+      {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error creating expense:', error);
     if (error instanceof z.ZodError) {

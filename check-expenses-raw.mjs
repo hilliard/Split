@@ -25,20 +25,21 @@ try {
     ORDER BY e.created_at DESC
     LIMIT 5
   `);
-  
+
   console.log('Raw database check:\n');
-  result.rows.forEach(row => {
+  result.rows.forEach((row) => {
     console.log(`Event: ${row.title} (${row.event_id})`);
     console.log(`  Expense count: ${row.expense_count}`);
     console.log(`  Total amount (raw): ${row.total_amount_raw}`);
     console.log(`  Total tips (raw): ${row.total_tips_raw}`);
     console.log(`  Grand total (raw): ${row.grand_total_raw}`);
     if (row.expenses && row.expenses[0]) {
-      console.log(`  First expense: amount=${row.expenses[0].amount}, tip=${row.expenses[0].tip}, desc="${row.expenses[0].description}"`);
+      console.log(
+        `  First expense: amount=${row.expenses[0].amount}, tip=${row.expenses[0].tip}, desc="${row.expenses[0].description}"`
+      );
     }
     console.log();
   });
-  
 } catch (error) {
   console.error('Error:', error);
 } finally {

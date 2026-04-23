@@ -20,8 +20,10 @@ try {
   `);
 
   console.log('Expenses table columns in database:');
-  result.rows.forEach(row => {
-    console.log(`  • ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'NOT NULL'})`);
+  result.rows.forEach((row) => {
+    console.log(
+      `  • ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'NOT NULL'})`
+    );
   });
 
   await client.end();

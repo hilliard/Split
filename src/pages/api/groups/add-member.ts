@@ -20,11 +20,7 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -52,19 +48,20 @@ export const POST: APIRoute = async (context) => {
     }
 
     if (group.createdBy !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to manage this group' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to manage this group' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Check if member already exists
     const [existingMember] = await db
       .select()
       .from(groupMembers)
-      .where(
-        eq(groupMembers.groupId, validatedData.groupId),
-      )
+      .where(eq(groupMembers.groupId, validatedData.groupId))
       .limit(1);
 
     if (existingMember && existingMember.userId === validatedData.userId) {
@@ -84,13 +81,16 @@ export const POST: APIRoute = async (context) => {
       })
       .returning();
 
-    return new Response(JSON.stringify({
-      success: true,
-      member: newMember,
-    }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        member: newMember,
+      }),
+      {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error adding member:', error);
 

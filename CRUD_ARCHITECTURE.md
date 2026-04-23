@@ -65,6 +65,7 @@ Each entity should follow this pattern:
 #### 1. **CREATE** - POST `/api/[entity]/create`
 
 **Request:**
+
 ```json
 {
   "name": "string",
@@ -74,6 +75,7 @@ Each entity should follow this pattern:
 ```
 
 **Response (201 - Created):**
+
 ```json
 {
   "success": true,
@@ -82,6 +84,7 @@ Each entity should follow this pattern:
 ```
 
 **Error (400, 401, 403, 500):**
+
 ```json
 {
   "error": "error message"
@@ -91,12 +94,14 @@ Each entity should follow this pattern:
 #### 2. **LIST** - GET `/api/[entity]/list`
 
 **Query Params (optional):**
+
 - `page`: pagination
 - `limit`: items per page
 - `filter`: search filter
 - `sort`: sort field
 
 **Response (200):**
+
 ```json
 {
   "items": [...],
@@ -110,6 +115,7 @@ Each entity should follow this pattern:
 #### 3. **READ** - GET `/api/[entity]/[id]`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -120,6 +126,7 @@ Each entity should follow this pattern:
 #### 4. **UPDATE** - PUT `/api/[entity]/[id]`
 
 **Request:**
+
 ```json
 {
   "field": "new value",
@@ -128,6 +135,7 @@ Each entity should follow this pattern:
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -138,6 +146,7 @@ Each entity should follow this pattern:
 #### 5. **DELETE** - DELETE `/api/[entity]/[id]`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -148,6 +157,7 @@ Each entity should follow this pattern:
 ## Current Implementation Status
 
 ### ✅ Groups (Mostly Complete)
+
 - [x] Create: `POST /api/groups/create`
 - [x] List: `GET /api/groups/list`
 - [x] Get: Via `/api/groups/list?id={id}` (could be `/api/groups/[id]/get`)
@@ -157,11 +167,13 @@ Each entity should follow this pattern:
 - [x] Invite: `POST /api/groups/[id]/invite`
 
 **Pages:**
+
 - [x] Create: `/groups/create`
 - [x] Manage: `/groups/[id]/manage`
 - [x] Edit: `/groups/[id]/edit`
 
 ### 🟡 Events (Partial)
+
 - [x] Create: `POST /api/events/create`
 - [x] List: `GET /api/events/list`
 - [ ] Get: `GET /api/events/[id]` (missing)
@@ -169,11 +181,13 @@ Each entity should follow this pattern:
 - [ ] Delete: `DELETE /api/events/[id]/delete` (missing)
 
 **Pages:**
+
 - [x] Create: `/events/create`
 - [ ] View: `/events/[id]` (missing)
 - [ ] Edit: `/events/[id]/edit` (missing)
 
 ### ❌ Activities (Not Started)
+
 - [ ] Create
 - [ ] List
 - [ ] Get
@@ -181,9 +195,11 @@ Each entity should follow this pattern:
 - [ ] Delete
 
 **Pages:**
+
 - [ ] All missing
 
 ### ❌ Users (Not Started)
+
 - [ ] Create (via auth/register exists)
 - [ ] List
 - [ ] Get: `/api/auth/me` (exists)
@@ -191,40 +207,46 @@ Each entity should follow this pattern:
 - [ ] Delete: (missing)
 
 **Pages:**
+
 - [ ] Profile: (missing)
 - [ ] Edit Profile: (missing)
 
 ## Best Practices
 
 ### 1. Authentication
+
 - Always check session in every endpoint
 - Verify user has permission to perform action
 - Return 401 for auth errors, 403 for permission errors
 
 ### 2. Validation
+
 - Use Zod schemas for input validation
 - Return 400 with specific error messages
 - Validate permissions before executing
 
 ### 3. Error Handling
+
 ```typescript
 try {
   // operation
 } catch (error) {
   console.error('Error doing thing:', error);
-  return new Response(
-    JSON.stringify({ error: 'Failed to do thing' }),
-    { status: 500, headers: { 'Content-Type': 'application/json' } }
-  );
+  return new Response(JSON.stringify({ error: 'Failed to do thing' }), {
+    status: 500,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 ```
 
 ### 4. Consistency
+
 - Use same response structure for all endpoints
 - Use consistent naming conventions
 - Follow the same patterns for similar operations
 
 ### 5. Documentation
+
 - Add comments above complex queries
 - Document required permissions
 - Keep API.md updated with examples
@@ -288,17 +310,19 @@ Expense
 ## Files to Create/Modify
 
 ### High Priority
+
 1. Event Get/Update/Delete endpoints
 2. Event view/edit pages
 3. User profile endpoints
 
 ### Medium Priority
+
 1. Activity CRUD endpoints
 2. Activity pages
 3. Pagination utilities
 
 ### Low Priority
+
 1. Advanced filtering
 2. Search functionality
 3. Bulk operations
-

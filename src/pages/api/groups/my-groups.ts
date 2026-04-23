@@ -13,11 +13,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -41,18 +37,13 @@ export const GET: APIRoute = async (context) => {
         createdAt: expenseGroups.createdAt,
       })
       .from(expenseGroups)
-      .innerJoin(
-        groupMembers,
-        eq(groupMembers.groupId, expenseGroups.id)
-      )
+      .innerJoin(groupMembers, eq(groupMembers.groupId, expenseGroups.id))
       .where(eq(groupMembers.userId, session.userId));
 
     // Combine and deduplicate
     const allGroups = [
       ...createdGroups,
-      ...membershipGroups.filter(
-        (mg) => !createdGroups.some((cg) => cg.id === mg.id)
-      ),
+      ...membershipGroups.filter((mg) => !createdGroups.some((cg) => cg.id === mg.id)),
     ];
 
     return new Response(JSON.stringify({ groups: allGroups }), {

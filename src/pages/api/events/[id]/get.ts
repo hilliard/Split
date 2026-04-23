@@ -15,11 +15,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -38,10 +34,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Get event
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId));
+    const [event] = await db.select().from(events).where(eq(events.id, eventId));
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -63,10 +56,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Get creator info
-    const [creator] = await db
-      .select()
-      .from(humans)
-      .where(eq(humans.id, event.creatorId));
+    const [creator] = await db.select().from(humans).where(eq(humans.id, event.creatorId));
 
     return new Response(
       JSON.stringify({
@@ -101,12 +91,9 @@ export const GET: APIRoute = async (context) => {
     );
   } catch (error) {
     console.error('Error fetching event:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to fetch event' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch event' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

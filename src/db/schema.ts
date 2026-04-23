@@ -1,4 +1,15 @@
-import { pgTable, text, timestamp, uuid, varchar, integer, index, boolean, json, date } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+  integer,
+  index,
+  boolean,
+  json,
+  date,
+} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // ============================================================
@@ -84,7 +95,9 @@ export const events = pgTable(
     isPublic: boolean('is_public').default(true),
     currency: varchar('currency', { length: 3 }).default('USD'),
     budgetCents: integer('budget_cents'),
-    metadata: json('metadata').$type<Record<string, unknown>>().default({} as any),
+    metadata: json('metadata')
+      .$type<Record<string, unknown>>()
+      .default({} as any),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
@@ -100,14 +113,15 @@ export const activities = pgTable(
   'activities',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    eventId: uuid('event_id')
-      .references(() => events.id, { onDelete: 'cascade' }),  // Made nullable to allow activities without events
+    eventId: uuid('event_id').references(() => events.id, { onDelete: 'cascade' }), // Made nullable to allow activities without events
     title: varchar('title', { length: 255 }).notNull(),
     startTime: timestamp('start_time', { withTimezone: true }),
     endTime: timestamp('end_time', { withTimezone: true }),
     locationName: varchar('location_name', { length: 255 }),
     sequenceOrder: integer('sequence_order').default(0),
-    metadata: json('metadata').$type<Record<string, unknown>>().default({} as any),
+    metadata: json('metadata')
+      .$type<Record<string, unknown>>()
+      .default({} as any),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
@@ -125,16 +139,19 @@ export const expenses = pgTable(
   'expenses',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    eventId: uuid('event_id')
-      .references(() => events.id, { onDelete: 'cascade' }),
+    eventId: uuid('event_id').references(() => events.id, { onDelete: 'cascade' }),
     groupId: uuid('group_id').references(() => expenseGroups.id, { onDelete: 'set null' }),
     activityId: uuid('activity_id').references(() => activities.id, { onDelete: 'set null' }),
-    amount: integer('amount').notNull(),  // CENTS: $50.25 = 5025 | Use centsToDollars() to display
-    tipAmount: integer('tip_amount').notNull().default(0),  // CENTS: $3.45 = 345 | Use centsToDollars() to display
+    amount: integer('amount').notNull(), // CENTS: $50.25 = 5025 | Use centsToDollars() to display
+    tipAmount: integer('tip_amount').notNull().default(0), // CENTS: $3.45 = 345 | Use centsToDollars() to display
     category: varchar('category', { length: 50 }).default('misc'),
     description: varchar('description', { length: 500 }).notNull().default(''),
-    paidBy: uuid('paid_by').notNull().references(() => humans.id, { onDelete: 'restrict' }),
-    metadata: json('metadata').$type<Record<string, unknown>>().default({} as any),
+    paidBy: uuid('paid_by')
+      .notNull()
+      .references(() => humans.id, { onDelete: 'restrict' }),
+    metadata: json('metadata')
+      .$type<Record<string, unknown>>()
+      .default({} as any),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
@@ -206,7 +223,6 @@ export const pendingGroupInvitations = pgTable(
   })
 );
 
-
 // Expense splits - how an expense is divided among group members
 export const expenseSplits = pgTable(
   'expense_splits',
@@ -234,8 +250,7 @@ export const settlements = pgTable(
     eventId: uuid('event_id')
       .notNull()
       .references(() => events.id, { onDelete: 'cascade' }),
-    groupId: uuid('group_id')
-      .references(() => expenseGroups.id, { onDelete: 'set null' }),
+    groupId: uuid('group_id').references(() => expenseGroups.id, { onDelete: 'set null' }),
     fromUserId: uuid('from_user_id')
       .notNull()
       .references(() => humans.id, { onDelete: 'restrict' }),
@@ -366,8 +381,6 @@ export const groupMembersRelations = relations(groupMembers, ({ one }) => ({
   }),
 }));
 
-
-
 export const expenseSplitsRelations = relations(expenseSplits, ({ one }) => ({
   expense: one(expenses, {
     fields: [expenseSplits.expenseId],
@@ -417,26 +430,20 @@ export const emailVerificationTokensRelations = relations(emailVerificationToken
 // ============================================================
 
 // System roles - app-level (admin, user)
-export const systemRoles = pgTable(
-  'system_roles',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    name: varchar('name', { length: 50 }).notNull().unique(),
-    description: text('description'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-  }
-);
+export const systemRoles = pgTable('system_roles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 50 }).notNull().unique(),
+  description: text('description'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
 
 // Group roles - group-level (owner, admin, member, viewer)
-export const groupRoles = pgTable(
-  'group_roles',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    name: varchar('name', { length: 50 }).notNull().unique(),
-    description: text('description'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-  }
-);
+export const groupRoles = pgTable('group_roles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 50 }).notNull().unique(),
+  description: text('description'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
 
 // Permissions - what actions are allowed
 export const permissions = pgTable(

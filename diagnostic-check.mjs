@@ -19,16 +19,16 @@ async function runDiagnostics() {
     // 1. Check Schema
     console.log('📋 SCHEMA CHECK');
     console.log('─'.repeat(60));
-    
+
     const expensesCols = await sql`
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns
       WHERE table_name = 'expenses'
       ORDER BY ordinal_position
     `;
-    
+
     console.log('Expenses table columns:');
-    expensesCols.forEach(col => {
+    expensesCols.forEach((col) => {
       const nullable = col.is_nullable === 'YES' ? '✓ NULL' : '✗ NOT NULL';
       console.log(`  • ${col.column_name.padEnd(20)} ${col.data_type.padEnd(18)} ${nullable}`);
     });
@@ -36,7 +36,7 @@ async function runDiagnostics() {
     // 2. Check Foreign Keys
     console.log('\n🔗 FOREIGN KEY CONSTRAINTS');
     console.log('─'.repeat(60));
-    
+
     const fks = await sql`
       SELECT
         tc.constraint_name,
@@ -52,11 +52,11 @@ async function runDiagnostics() {
         AND ccu.table_schema = tc.table_schema
       WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name = 'expenses'
     `;
-    
+
     if (fks.length === 0) {
       console.log('⚠️  NO FOREIGN KEY CONSTRAINTS FOUND!');
     } else {
-      fks.forEach(fk => {
+      fks.forEach((fk) => {
         console.log(`  • ${fk.column_name} → ${fk.foreign_table_name}(${fk.foreign_column_name})`);
       });
     }
@@ -64,7 +64,7 @@ async function runDiagnostics() {
     // 3. Data Integrity Check
     console.log('\n📊 DATA INTEGRITY CHECK');
     console.log('─'.repeat(60));
-    
+
     const counts = await sql`
       SELECT 
         (SELECT COUNT(*) FROM expenses) as total_expenses,
@@ -73,7 +73,7 @@ async function runDiagnostics() {
         (SELECT COUNT(*) FROM events) as total_events,
         (SELECT COUNT(*) FROM events WHERE group_id IS NOT NULL) as events_with_group
     `;
-    
+
     const c = counts[0];
     console.log(`  Total expenses: ${c.total_expenses}`);
     console.log(`  ├─ With event_id: ${c.expenses_with_event}`);
@@ -84,7 +84,7 @@ async function runDiagnostics() {
     // 4. Recent Expenses (last 10)
     console.log('\n📝 RECENT EXPENSES (Last 10)');
     console.log('─'.repeat(60));
-    
+
     const expenses = await sql`
       SELECT 
         e.id,
@@ -102,7 +102,7 @@ async function runDiagnostics() {
       ORDER BY e.created_at DESC
       LIMIT 10
     `;
-    
+
     if (expenses.length === 0) {
       console.log('  (no expenses found)');
     } else {
@@ -110,7 +110,9 @@ async function runDiagnostics() {
         console.log(`\n  ${idx + 1}. ${exp.description || '(no description)'}`);
         console.log(`     ID: ${exp.id}`);
         console.log(`     Amount: $${(exp.amount / 100).toFixed(2)} (${exp.amount} cents)`);
-        console.log(`     Event: ${exp.event_id ? `${exp.event_title} (${exp.event_id})` : '❌ NOT LINKED'}`);
+        console.log(
+          `     Event: ${exp.event_id ? `${exp.event_title} (${exp.event_id})` : '❌ NOT LINKED'}`
+        );
         console.log(`     Group: ${exp.group_id || '(null)'}`);
         console.log(`     Paid by: ${exp.paid_by}`);
         console.log(`     Category: ${exp.category}`);
@@ -121,7 +123,7 @@ async function runDiagnostics() {
     // 5. Check for broken relationships
     console.log('\n\n🔍 RELATIONSHIP VALIDATION');
     console.log('─'.repeat(60));
-    
+
     const orphanedExpenses = await sql`
       SELECT COUNT(*) as count
       FROM expenses e
@@ -129,9 +131,9 @@ async function runDiagnostics() {
         SELECT 1 FROM events ev WHERE ev.id = e.event_id
       )
     `;
-    
+
     console.log(`Expenses with missing events: ${orphanedExpenses[0].count}`);
-    
+
     const orphanedActivities = await sql`
       SELECT COUNT(*) as count
       FROM expenses e
@@ -139,34 +141,34 @@ async function runDiagnostics() {
         SELECT 1 FROM activities a WHERE a.id = e.activity_id
       )
     `;
-    
+
     console.log(`Expenses with missing activities: ${orphanedActivities[0].count}`);
 
     // 6. Query Test (to see if API would find them)
     console.log('\n\n🧪 API QUERY TEST');
     console.log('─'.repeat(60));
-    
+
     const recentEvent = await sql`
       SELECT id, title, group_id, created_at
       FROM events
       ORDER BY created_at DESC
       LIMIT 1
     `;
-    
+
     if (recentEvent.length > 0) {
       const evt = recentEvent[0];
       console.log(`\nMost recent event: "${evt.title}" (${evt.id})`);
       console.log(`Created: ${new Date(evt.created_at).toLocaleString()}`);
-      
+
       const expensesForEvent = await sql`
         SELECT id, description, amount, category, created_at
         FROM expenses
         WHERE event_id = ${evt.id}
       `;
-      
+
       console.log(`Expenses for this event: ${expensesForEvent.length}`);
       if (expensesForEvent.length > 0) {
-        expensesForEvent.forEach(exp => {
+        expensesForEvent.forEach((exp) => {
           console.log(`  ✓ ${exp.description}: $${(exp.amount / 100).toFixed(2)}`);
         });
       } else {
@@ -177,7 +179,7 @@ async function runDiagnostics() {
     // 7. Database Statistics
     console.log('\n\n📈 DATABASE STATISTICS');
     console.log('─'.repeat(60));
-    
+
     const stats = await sql`
       SELECT 
         (SELECT COUNT(*) FROM humans) as humans,
@@ -189,7 +191,7 @@ async function runDiagnostics() {
         (SELECT COUNT(*) FROM expense_splits) as splits,
         (SELECT COUNT(*) FROM group_members) as group_members
     `;
-    
+
     const s = stats[0];
     console.log(`  Humans: ${s.humans}`);
     console.log(`  Customers: ${s.customers}`);
@@ -201,7 +203,6 @@ async function runDiagnostics() {
     console.log(`  Group Members: ${s.group_members}`);
 
     console.log('\n✅ Diagnostic complete!\n');
-
   } catch (error) {
     console.error('\n❌ Error during diagnostics:', error.message);
     if (error.detail) console.error('Detail:', error.detail);

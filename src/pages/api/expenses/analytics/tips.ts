@@ -1,9 +1,9 @@
 /**
  * API Route: GET /api/expenses/analytics/tips
- * 
+ *
  * Tip analytics for sponsor/business intelligence
  * Shows tipping trends, demographics, and category breakdowns
- * 
+ *
  * Query params:
  * - eventId: Event ID to analyze
  */
@@ -25,11 +25,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -48,11 +44,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Verify event exists
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -63,10 +55,13 @@ export const GET: APIRoute = async (context) => {
 
     // Only event creator can view analytics
     if (event.creatorId !== session.userId) {
-      return new Response(JSON.stringify({ error: 'You do not have permission to view this analytics' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'You do not have permission to view this analytics' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Calculate all tip analytics

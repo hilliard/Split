@@ -217,11 +217,7 @@ Remove an expense and all its splits.
 ### Track Individual User's Payment Status
 
 ```typescript
-import {
-  getUserBalance,
-  getUserTotalPaid,
-  getUserTotalOwes,
-} from "../utils/expenses.ts";
+import { getUserBalance, getUserTotalPaid, getUserTotalOwes } from '../utils/expenses.ts';
 
 // Check user's balance
 const balance = await getUserBalance(userId);
@@ -235,37 +231,32 @@ if (balance > 0) {
 ### Calculate Event Summary
 
 ```typescript
-import {
-  calculateEventBalances,
-  calculateSettlements,
-} from "../utils/expenses.ts";
+import { calculateEventBalances, calculateSettlements } from '../utils/expenses.ts';
 
 // Get all balances
 const balances = await calculateEventBalances(eventId);
 balances.forEach((balance) => {
   console.log(
-    `${balance.name}: ${balance.netBalance > 0 ? "owed" : "owes"} $${Math.abs(balance.netBalance)}`,
+    `${balance.name}: ${balance.netBalance > 0 ? 'owed' : 'owes'} $${Math.abs(balance.netBalance)}`
   );
 });
 
 // Get settlement plan
 const settlements = await calculateSettlements(eventId);
 settlements.forEach((settlement) => {
-  console.log(
-    `${settlement.fromName} sends $${settlement.amount} to ${settlement.toName}`,
-  );
+  console.log(`${settlement.fromName} sends $${settlement.amount} to ${settlement.toName}`);
 });
 ```
 
 ### Check if Event is Settled
 
 ```typescript
-import { areDebtsSettled } from "../utils/expenses.ts";
+import { areDebtsSettled } from '../utils/expenses.ts';
 
 if (await areDebtsSettled(eventId)) {
-  console.log("All debts are settled!");
+  console.log('All debts are settled!');
 } else {
-  console.log("Pending settlements needed");
+  console.log('Pending settlements needed');
 }
 ```
 
@@ -319,16 +310,16 @@ Alice sends Carol $22.30 (Alice has leftover from what Bob owes her)
 ### Step 1: Create Expense
 
 ```typescript
-import { formatDollars } from "../utils/expenses.ts";
+import { formatDollars } from '../utils/expenses.ts';
 
-const response = await fetch("/api/expenses/create", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
+const response = await fetch('/api/expenses/create', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     eventId,
     amount: 34.95,
-    category: "meal",
-    description: "Breakfast",
+    category: 'meal',
+    description: 'Breakfast',
     paidBy: currentUserId,
     splitAmong: [userId1, userId2, userId3],
   }),
@@ -348,9 +339,7 @@ balances.forEach((balance) => {
 
 // Show who needs to pay whom
 settlements.forEach((settlement) => {
-  console.log(
-    `${settlement.fromName} → ${settlement.toName}: ${formatDollars(settlement.amount)}`,
-  );
+  console.log(`${settlement.fromName} → ${settlement.toName}: ${formatDollars(settlement.amount)}`);
 });
 ```
 
@@ -447,7 +436,7 @@ const message =
 const splitAmong = groupMembers;
 const perPersonAmount = expenseAmount / splitAmong.length;
 if (perPersonAmount < 0.01) {
-  return error("Split amount too small");
+  return error('Split amount too small');
 }
 ```
 

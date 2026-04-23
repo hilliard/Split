@@ -2,13 +2,13 @@ import { describe, it, expect } from 'vitest';
 
 /**
  * End-to-End Workflow Tests for Split App
- * 
+ *
  * Tests cover:
  * - Complete user workflows from event creation to expense tracking
  * - Multi-step operations with expense groups
  * - Activity-expense linkage flows
  * - Event lifecycle management
- * 
+ *
  * NOTE: These are integration tests requiring database. Marked with .skip()
  * until CI/CD pipeline is configured.
  */
@@ -16,7 +16,7 @@ import { describe, it, expect } from 'vitest';
 describe.skip('End-to-End Workflows', () => {
   /**
    * Workflow 1: Create Event with Initial Expense
-   * 
+   *
    * User Story: "I want to create a trip event and immediately track an initial expense"
    */
   describe('Create Event with Initial Expense Workflow', () => {
@@ -28,14 +28,14 @@ describe.skip('End-to-End Workflows', () => {
         endDate: '2026-04-22',
         budget: 50000, // $500.00 in cents
       };
-      
+
       const initialExpenseData = {
         description: 'Gas for the trip',
         amount: 7500, // $75.00
         category: 'transport', // Using new category field
         paidBy: 'user-123',
       };
-      
+
       // Expected result
       const result = {
         event: {
@@ -50,7 +50,7 @@ describe.skip('End-to-End Workflows', () => {
           category: initialExpenseData.category,
         },
       };
-      
+
       expect(result.event.id).toBeDefined();
       expect(result.expense.id).toBeDefined();
       expect(result.expense.category).toBe('transport');
@@ -64,7 +64,7 @@ describe.skip('End-to-End Workflows', () => {
         budget: 10000,
         addInitialExpense: false,
       };
-      
+
       const result = {
         event: {
           id: 'event-meeting-002',
@@ -72,7 +72,7 @@ describe.skip('End-to-End Workflows', () => {
         },
         expense: null, // No initial expense
       };
-      
+
       expect(result.event.id).toBeDefined();
       expect(result.expense).toBeNull();
     });
@@ -80,7 +80,7 @@ describe.skip('End-to-End Workflows', () => {
 
   /**
    * Workflow 2: Manage Activities for an Event
-   * 
+   *
    * User Story: "I want to break down my trip into activities and track expenses for each"
    */
   describe('Create and Manage Activities Workflow', () => {
@@ -89,7 +89,7 @@ describe.skip('End-to-End Workflows', () => {
         id: 'event-trip-003',
         name: 'Mountain Retreat',
       };
-      
+
       const activities = [
         {
           id: 'activity-001',
@@ -116,10 +116,10 @@ describe.skip('End-to-End Workflows', () => {
           locationName: 'Lodge café',
         },
       ];
-      
+
       expect(activities).toHaveLength(3);
-      expect(activities.every(a => a.eventId === event.id)).toBe(true);
-      
+      expect(activities.every((a) => a.eventId === event.id)).toBe(true);
+
       // Verify sequence order
       for (let i = 0; i < activities.length - 1; i++) {
         expect(activities[i].sequenceOrder).toBeLessThan(activities[i + 1].sequenceOrder);
@@ -132,7 +132,7 @@ describe.skip('End-to-End Workflows', () => {
         title: 'Dinner',
         eventId: 'event-trip-003',
       };
-      
+
       const expenses = [
         {
           id: 'exp-1',
@@ -149,9 +149,9 @@ describe.skip('End-to-End Workflows', () => {
           amountInCents: 2500, // $25.00
         },
       ];
-      
-      expect(expenses.every(e => e.activityId === activity.id)).toBe(true);
-      
+
+      expect(expenses.every((e) => e.activityId === activity.id)).toBe(true);
+
       const totalExpense = expenses.reduce((sum, e) => sum + e.amountInCents, 0);
       expect(totalExpense).toBe(8500); // $85.00
     });
@@ -163,7 +163,7 @@ describe.skip('End-to-End Workflows', () => {
         eventId: 'event-trip-003',
         expenses: [],
       };
-      
+
       expect(activity.expenses).toHaveLength(0);
     });
 
@@ -173,18 +173,18 @@ describe.skip('End-to-End Workflows', () => {
         title: 'Original Title',
         eventId: 'event-trip-003',
       };
-      
+
       const linkedExpense = {
         id: 'exp-linked-001',
         activityId: originalActivity.id,
         description: 'Activity expense',
       };
-      
+
       const updatedActivity = {
         ...originalActivity,
         title: 'Updated Title',
       };
-      
+
       // Expense should still be linked
       expect(linkedExpense.activityId).toBe(updatedActivity.id);
     });
@@ -192,7 +192,7 @@ describe.skip('End-to-End Workflows', () => {
 
   /**
    * Workflow 3: Standalone Activities (Outside Events)
-   * 
+   *
    * User Story: "I want to track personal activities and expenses separately"
    */
   describe('Standalone Activities Workflow', () => {
@@ -203,7 +203,7 @@ describe.skip('End-to-End Workflows', () => {
         eventId: null,
         sequenceOrder: 0,
       };
-      
+
       expect(activity.eventId).toBeNull();
     });
 
@@ -213,7 +213,7 @@ describe.skip('End-to-End Workflows', () => {
         title: 'Home renovation',
         eventId: null,
       };
-      
+
       const expense = {
         id: 'exp-standalone-001',
         activityId: activity.id,
@@ -221,7 +221,7 @@ describe.skip('End-to-End Workflows', () => {
         category: 'misc',
         amountInCents: 15000, // $150.00
       };
-      
+
       expect(expense.activityId).toBe(activity.id);
     });
 
@@ -231,15 +231,15 @@ describe.skip('End-to-End Workflows', () => {
         { id: 's2', title: 'Side project', eventId: null },
         { id: 's3', title: 'Home maintenance', eventId: null },
       ];
-      
-      const standaloneActivities = activities.filter(a => a.eventId === null);
+
+      const standaloneActivities = activities.filter((a) => a.eventId === null);
       expect(standaloneActivities).toHaveLength(3);
     });
   });
 
   /**
    * Workflow 4: Complete Expense Tracking
-   * 
+   *
    * User Story: "I want to see who paid what and calculate splits"
    */
   describe('Expense Tracking and Splitting Workflow', () => {
@@ -248,7 +248,7 @@ describe.skip('End-to-End Workflows', () => {
         id: 'event-trip-004',
         name: 'Group vacation',
       };
-      
+
       const expenses = [
         {
           id: 'exp-1',
@@ -275,35 +275,43 @@ describe.skip('End-to-End Workflows', () => {
           paidBy: 'user-alice',
         },
       ];
-      
+
       const totalExpenses = expenses.reduce((sum, e) => sum + e.amountInCents, 0);
       expect(totalExpenses).toBe(115000); // $1,150.00
-      
+
       // Calculate per-person totals
       const alicePaid = expenses
-        .filter(e => e.paidBy === 'user-alice')
+        .filter((e) => e.paidBy === 'user-alice')
         .reduce((sum, e) => sum + e.amountInCents, 0);
-      
+
       const bobPaid = expenses
-        .filter(e => e.paidBy === 'user-bob')
+        .filter((e) => e.paidBy === 'user-bob')
         .reduce((sum, e) => sum + e.amountInCents, 0);
-      
+
       expect(alicePaid).toBe(55000); // $550.00
       expect(bobPaid).toBe(60000); // $600.00
     });
 
     it('should support all expense categories', async () => {
-      const categories = ['meal', 'transport', 'accommodation', 'parking', 'entertainment', 'tickets', 'misc'];
-      
+      const categories = [
+        'meal',
+        'transport',
+        'accommodation',
+        'parking',
+        'entertainment',
+        'tickets',
+        'misc',
+      ];
+
       const expenses = categories.map((category, index) => ({
         id: `exp-cat-${index}`,
         category,
         description: `Expense for ${category}`,
         amountInCents: 1000,
       }));
-      
+
       expect(expenses).toHaveLength(7);
-      expect(expenses.map(e => e.category)).toEqual(categories);
+      expect(expenses.map((e) => e.category)).toEqual(categories);
     });
 
     it('should default to misc category if not specified', async () => {
@@ -312,14 +320,14 @@ describe.skip('End-to-End Workflows', () => {
         description: 'Miscellaneous expense',
         category: 'misc', // Default
       };
-      
+
       expect(expense.category).toBe('misc');
     });
   });
 
   /**
    * Workflow 5: Complete Event-Activity-Expense Flow
-   * 
+   *
    * Full scenario: Create event → Add activities → Add expenses → View summary
    */
   describe('Complete Event Flow', () => {
@@ -337,7 +345,7 @@ describe.skip('End-to-End Workflows', () => {
           amountInCents: 5000,
         },
       };
-      
+
       // Step 2: Create activities
       const activities = [
         {
@@ -361,7 +369,7 @@ describe.skip('End-to-End Workflows', () => {
           eventId: event.id,
         },
       ];
-      
+
       // Step 3: Add expenses to activities
       const activityExpenses = [
         {
@@ -381,17 +389,21 @@ describe.skip('End-to-End Workflows', () => {
           paidBy: 'user-456',
         },
       ];
-      
+
       // Step 4: Verify complete structure
       expect(event.id).toBeDefined();
       expect(activities).toHaveLength(3);
-      expect(activities.every(a => a.eventId === event.id)).toBe(true);
-      expect(activityExpenses.every(e => activities.map(a => a.id).includes(e.activityId))).toBe(true);
-      
+      expect(activities.every((a) => a.eventId === event.id)).toBe(true);
+      expect(
+        activityExpenses.every((e) => activities.map((a) => a.id).includes(e.activityId))
+      ).toBe(true);
+
       // Step 5: Calculate total expense
-      const totalExpense = [event.initialExpense, ...activityExpenses]
-        .reduce((sum, e) => sum + e.amountInCents, 0);
-      
+      const totalExpense = [event.initialExpense, ...activityExpenses].reduce(
+        (sum, e) => sum + e.amountInCents,
+        0
+      );
+
       expect(totalExpense).toBe(15000); // $150.00 total
     });
 
@@ -401,7 +413,7 @@ describe.skip('End-to-End Workflows', () => {
         name: 'Original name',
         startDate: '2026-05-10',
       };
-      
+
       const linked = {
         activities: [
           { id: 'a1', eventId: event.id, title: 'Activity 1' },
@@ -412,16 +424,16 @@ describe.skip('End-to-End Workflows', () => {
           { id: 'e2', groupId: 'event-edit-001', description: 'Expense 2' },
         ],
       };
-      
+
       // Update event
       const editedEvent = {
         ...event,
         name: 'Updated name',
       };
-      
+
       // Verify activities and expenses still linked
-      expect(linked.activities.every(a => a.eventId === editedEvent.id)).toBe(true);
-      expect(linked.expenses.every(e => e.groupId === editedEvent.id)).toBe(true);
+      expect(linked.activities.every((a) => a.eventId === editedEvent.id)).toBe(true);
+      expect(linked.expenses.every((e) => e.groupId === editedEvent.id)).toBe(true);
     });
 
     it('should handle event deletion with cascade', async () => {
@@ -434,7 +446,7 @@ describe.skip('End-to-End Workflows', () => {
         { id: 'e1', activityId: 'a1' },
         { id: 'e2', activityId: 'a2' },
       ];
-      
+
       // When event is deleted, all should be removed
       const result = {
         deleted: {
@@ -443,7 +455,7 @@ describe.skip('End-to-End Workflows', () => {
           expenses: expenses.length,
         },
       };
-      
+
       expect(result.deleted.event).toBe(1);
       expect(result.deleted.activities).toBe(2);
       expect(result.deleted.expenses).toBe(2);
@@ -461,12 +473,12 @@ describe.skip('End-to-End Workflows', () => {
         title: 'Orphaned activity',
         eventId: 'deleted-event-001', // Non-existent
       };
-      
+
       const errorResponse = {
         status: 404,
         error: 'Event not found',
       };
-      
+
       expect(errorResponse.status).toBe(404);
     });
 
@@ -476,12 +488,12 @@ describe.skip('End-to-End Workflows', () => {
         activityId: 'deleted-activity-001',
         description: 'Orphaned expense',
       };
-      
+
       const errorResponse = {
         status: 404,
         error: 'Activity not found',
       };
-      
+
       expect(errorResponse.status).toBe(404);
     });
 
@@ -491,7 +503,7 @@ describe.skip('End-to-End Workflows', () => {
         startTime: '2026-05-11T17:00:00',
         endTime: '2026-05-11T09:00:00', // Before start time
       };
-      
+
       const error = invalidActivity.startTime > invalidActivity.endTime;
       expect(error).toBe(true); // Would cause validation error
     });
@@ -502,12 +514,12 @@ describe.skip('End-to-End Workflows', () => {
         description: 'Invalid expense',
         amountInCents: -1000, // Negative
       };
-      
+
       const errorResponse = {
         status: 400,
         error: 'Amount must be positive',
       };
-      
+
       expect(errorResponse.status).toBe(400);
     });
   });

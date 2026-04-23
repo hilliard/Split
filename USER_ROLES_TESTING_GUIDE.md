@@ -94,24 +94,20 @@ curl -X POST http://localhost:3000/api/admin/roles/assign-system-role \
 ### Programmatic Usage (in your code)
 
 ```typescript
-import {
-  assignSystemRole,
-  revokeSystemRole,
-  getUserSystemRoles,
-} from "../../utils/roles.ts";
+import { assignSystemRole, revokeSystemRole, getUserSystemRoles } from '../../utils/roles.ts';
 
 // Assign admin role
-await assignSystemRole(humanId, "admin");
+await assignSystemRole(humanId, 'admin');
 
 // Revoke admin role
-await revokeSystemRole(humanId, "admin");
+await revokeSystemRole(humanId, 'admin');
 
 // Get user's roles
 const result = await getUserSystemRoles(humanId);
 console.log(result.roles); // ['admin', 'user']
 
 // Check if user is admin
-import { isAdmin } from "../../utils/roles.ts";
+import { isAdmin } from '../../utils/roles.ts';
 const isUserAdmin = await isAdmin(humanId);
 ```
 
@@ -152,10 +148,10 @@ import {
   getUserGroupRole,
   canUserEditGroup,
   canUserViewGroup,
-} from "../../utils/roles.ts";
+} from '../../utils/roles.ts';
 
 // Assign group role
-await assignGroupRole(groupId, humanId, "member");
+await assignGroupRole(groupId, humanId, 'member');
 
 // Get user's role in group
 const result = await getUserGroupRole(groupId, humanId);
@@ -186,15 +182,12 @@ const canView = await canUserViewGroup(groupId, humanId);
 
 ```typescript
 // In your API endpoint to list groups
-import { isAdmin } from "../../utils/roles.ts";
+import { isAdmin } from '../../utils/roles.ts';
 
 const showAllGroups = await isAdmin(currentUserId);
 const groups = showAllGroups
   ? await db.select().from(expenseGroups)
-  : await db
-      .select()
-      .from(expenseGroups)
-      .where(eq(expenseGroups.createdBy, currentUserId));
+  : await db.select().from(expenseGroups).where(eq(expenseGroups.createdBy, currentUserId));
 ```
 
 ### Scenario 2: Group Owner Can Manage Members
@@ -213,16 +206,16 @@ const groups = showAllGroups
 **Implementation:**
 
 ```typescript
-import { canUserEditGroup, assignGroupRole } from "../../utils/roles.ts";
+import { canUserEditGroup, assignGroupRole } from '../../utils/roles.ts';
 
 const canEdit = await canUserEditGroup(groupId, currentUserId);
 if (!canEdit) {
-  return new Response(JSON.stringify({ error: "Permission denied" }), {
+  return new Response(JSON.stringify({ error: 'Permission denied' }), {
     status: 403,
   });
 }
 
-await assignGroupRole(groupId, targetUserId, "admin");
+await assignGroupRole(groupId, targetUserId, 'admin');
 ```
 
 ### Scenario 3: Viewer Has Read-Only Access
@@ -242,14 +235,11 @@ await assignGroupRole(groupId, targetUserId, "admin");
 
 ```typescript
 // In event create endpoint
-import { getUserGroupRole } from "../../utils/roles.ts";
+import { getUserGroupRole } from '../../utils/roles.ts';
 
 const userRole = await getUserGroupRole(groupId, currentUserId);
-if (userRole.role === "viewer") {
-  return new Response(
-    JSON.stringify({ error: "Viewers cannot create events" }),
-    { status: 403 },
-  );
+if (userRole.role === 'viewer') {
+  return new Response(JSON.stringify({ error: 'Viewers cannot create events' }), { status: 403 });
 }
 ```
 
@@ -312,29 +302,29 @@ CREATE TABLE group_members (
 
 ```typescript
 // 1. Get non-admin user's session
-const userSession = await getSessionForUser("regular_user");
+const userSession = await getSessionForUser('regular_user');
 
 // 2. Try to call admin-only endpoint
-const response = await fetch("/api/admin/roles/assign-system-role", {
-  method: "POST",
+const response = await fetch('/api/admin/roles/assign-system-role', {
+  method: 'POST',
   headers: { Cookie: `session_id=${userSession}` },
-  body: JSON.stringify({ humanId: "X", role: "admin" }),
+  body: JSON.stringify({ humanId: 'X', role: 'admin' }),
 });
 
 // 3. Expect 403 Forbidden
 expect(response.status).toBe(403);
-expect(response.body.error).toContain("Admin access required");
+expect(response.body.error).toContain('Admin access required');
 ```
 
 ### Pattern 2: Test Role Assignment
 
 ```typescript
 // 1. Assign role
-await assignSystemRole(userId, "admin");
+await assignSystemRole(userId, 'admin');
 
 // 2. Verify assignment
 const roles = await getUserSystemRoles(userId);
-expect(roles.roles).toContain("admin");
+expect(roles.roles).toContain('admin');
 
 // 3. Verify admin can perform admin action
 const isAdminNow = await isAdmin(userId);
@@ -348,14 +338,14 @@ expect(isAdminNow).toBe(true);
 const group = await createGroup(adminUserId);
 
 // 2. Add member as 'viewer'
-await assignGroupRole(group.id, memberUserId, "viewer");
+await assignGroupRole(group.id, memberUserId, 'viewer');
 
 // 3. Test viewer cannot edit
 const canEdit = await canUserEditGroup(group.id, memberUserId);
 expect(canEdit).toBe(false);
 
 // 4. Promote to 'member'
-await assignGroupRole(group.id, memberUserId, "member");
+await assignGroupRole(group.id, memberUserId, 'member');
 
 // 5. Test member can now edit their own events (implementation-specific)
 ```

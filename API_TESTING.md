@@ -16,6 +16,7 @@ This guide covers how to document, test, and use the Invitation System APIs.
 ## API Reference
 
 See **[API.md](./API.md)** for complete endpoint documentation including:
+
 - Request/response examples
 - Error codes and messages
 - Required authentication
@@ -23,6 +24,7 @@ See **[API.md](./API.md)** for complete endpoint documentation including:
 - Data models
 
 **Quick Links:**
+
 - `POST /api/groups/{id}/invite` - Send invitation
 - `POST /api/groups/invitations/accept` - Accept invitation
 - `POST /api/groups/invitations/decline` - Decline invitation
@@ -38,6 +40,7 @@ See **[API.md](./API.md)** for complete endpoint documentation including:
 **Best for:** Interactive testing, exploring responses, debugging
 
 **Features:**
+
 - Visual request builder
 - Auto-save responses
 - Integrated test assertions
@@ -45,12 +48,14 @@ See **[API.md](./API.md)** for complete endpoint documentation including:
 - API monitoring
 
 **Setup:**
+
 1. Import `invitations.postman_collection.json` into Postman
 2. Set up variables (sessionId, groupId, etc.)
 3. Run requests individually or as test suite
 4. View formatted responses
 
 **Steps:**
+
 ```
 1. File > Import
 2. Select "invitations.postman_collection.json"
@@ -60,6 +65,7 @@ See **[API.md](./API.md)** for complete endpoint documentation including:
 ```
 
 **Pre-built Test Cases Included:**
+
 - ✅ Send valid invitation
 - ✅ Reject invalid email
 - ✅ Reject without auth
@@ -75,20 +81,23 @@ See **[API.md](./API.md)** for complete endpoint documentation including:
 **Best for:** CI/CD pipelines, regression testing, code coverage
 
 **Files:**
+
 - Tests: `src/tests/api/invitations.test.ts`
 - Run: `npm run test`
 
 **Features:**
+
 - Fast unit/integration tests
 - Code coverage reports
 - Easy CI/CD integration
 - Test data cleanup
 
 **Example Test:**
+
 ```typescript
 it('should create a pending invitation', async () => {
   const invitationId = uuid();
-  
+
   await db.insert(pendingGroupInvitations).values({
     id: invitationId,
     groupId: testGroup.id,
@@ -96,7 +105,8 @@ it('should create a pending invitation', async () => {
     // ... more fields
   });
 
-  const [invitation] = await db.select()
+  const [invitation] = await db
+    .select()
     .from(pendingGroupInvitations)
     .where(eq(pendingGroupInvitations.id, invitationId));
 
@@ -105,6 +115,7 @@ it('should create a pending invitation', async () => {
 ```
 
 **Run Tests:**
+
 ```bash
 npm run test                    # Run all tests
 npm run test -- --run          # Non-watch mode
@@ -121,6 +132,7 @@ npm run test src/tests/api     # Specific folder
 **Examples:**
 
 **Login and Get Session:**
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
@@ -129,6 +141,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 ```
 
 **Send Invitation:**
+
 ```bash
 curl -X POST http://localhost:3000/api/groups/{groupId}/invite \
   -H "Content-Type: application/json" \
@@ -137,6 +150,7 @@ curl -X POST http://localhost:3000/api/groups/{groupId}/invite \
 ```
 
 **PowerShell Example:**
+
 ```powershell
 # Login
 $response = Invoke-WebRequest -Uri "http://localhost:3000/api/auth/login" `
@@ -186,15 +200,18 @@ npm run test
 ### 3. Create Test Data
 
 Before testing, you need:
+
 - User account (register via UI or API)
 - Group (create via API or UI)
 - Session cookie (from login)
 
 **Via Postman:**
+
 1. Run "Setup" > "1. Login as User A"
 2. Run "Setup" > "2. Create Test Group"
 
 **Via API Directly:**
+
 ```bash
 # Register user
 curl -X POST http://localhost:3000/api/auth/register \
@@ -220,6 +237,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 ### Configure Variables
 
 **Collection Variables:**
+
 ```
 - groupId: UUID of test group
 - invitationId: UUID of test invitation (auto-set)
@@ -228,6 +246,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 ```
 
 **Edit in Postman:**
+
 - Click collection name → Variables tab
 - Update `groupId` with your actual group ID
 - Other variables auto-set by tests
@@ -235,12 +254,14 @@ curl -X POST http://localhost:3000/api/auth/login \
 ### Run Tests
 
 **Individual Request:**
+
 1. Select any request from sidebar
 2. Click "Send"
 3. View response in "Body" tab
 4. Check assertions in "Tests" tab
 
 **Full Collection:**
+
 1. Click "..." next to collection name
 2. Select "Run collection"
 3. Runner opens with all requests
@@ -248,6 +269,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 5. View results and test outputs
 
 **Pre-Test Requirements:**
+
 - Be logged in (sessionId set)
 - Have valid groupId
 - Sufficient permissions
@@ -259,6 +281,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 ### Writing New Tests
 
 **Test Structure:**
+
 ```typescript
 describe('Endpoint Name', () => {
   before(() => {
@@ -277,10 +300,11 @@ describe('Endpoint Name', () => {
 ```
 
 **Example:**
+
 ```typescript
 it('should create pending invitation', async () => {
   const invitationId = uuid();
-  
+
   // Create
   await db.insert(pendingGroupInvitations).values({
     id: invitationId,
@@ -290,7 +314,8 @@ it('should create pending invitation', async () => {
   });
 
   // Verify
-  const [result] = await db.select()
+  const [result] = await db
+    .select()
     .from(pendingGroupInvitations)
     .where(eq(pendingGroupInvitations.id, invitationId));
 
@@ -326,7 +351,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15
@@ -336,18 +361,18 @@ jobs:
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      
+
       - run: npm install
-      
+
       - run: npm run test -- --coverage
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
@@ -357,6 +382,7 @@ jobs:
 ### Pre-commit Hooks
 
 Add to `.husky/pre-commit`:
+
 ```bash
 npm run test -- --run
 ```
@@ -368,24 +394,28 @@ Ensures tests pass before commits.
 ## Best Practices
 
 ### 1. API Documentation
+
 - ✅ Keep API.md updated with endpoint changes
 - ✅ Include request/response examples
 - ✅ Document all error cases
 - ✅ Update when adding new fields
 
 ### 2. Postman Collection
+
 - ✅ Update collection with new endpoints
 - ✅ Add test assertions for validation
 - ✅ Use variables for reusable values
 - ✅ Export and commit to version control
 
 ### 3. Automated Tests
+
 - ✅ Write tests for new endpoints
 - ✅ Test happy paths + error cases
 - ✅ Clean up test data (afterAll)
 - ✅ Keep tests fast and isolated
 
 ### 4. Code Review
+
 - ✅ Require updated API docs
 - ✅ Check new tests added
 - ✅ Verify backward compatibility
@@ -396,6 +426,7 @@ Ensures tests pass before commits.
 ## Troubleshooting
 
 ### Tests Won't Run
+
 ```bash
 # Check test file syntax
 npm run test src/tests/api/invitations.test.ts
@@ -405,6 +436,7 @@ npm run test -- --reporter=verbose
 ```
 
 ### Database Connection Issues
+
 ```bash
 # Verify DATABASE_URL in .env.local
 echo $DATABASE_URL
@@ -414,6 +446,7 @@ node test-db-connection.js
 ```
 
 ### Postman Not Working
+
 - Verify sessionId is set (login first)
 - Check groupId matches actual group
 - Ensure server is running (npm run dev)
@@ -432,13 +465,14 @@ node test-db-connection.js
 
 ## Summary
 
-| Method | Use Case | Effort | Best For |
-|--------|----------|--------|----------|
-| **Postman** | Manual testing | Low | Developers, debugging |
-| **Vitest** | Automated testing | Medium | CI/CD, regression |
-| **cURL/CLI** | Quick testing | Very Low | Scripts, one-offs |
+| Method       | Use Case          | Effort   | Best For              |
+| ------------ | ----------------- | -------- | --------------------- |
+| **Postman**  | Manual testing    | Low      | Developers, debugging |
+| **Vitest**   | Automated testing | Medium   | CI/CD, regression     |
+| **cURL/CLI** | Quick testing     | Very Low | Scripts, one-offs     |
 
 **Recommended Flow:**
+
 1. Use Postman for manual testing during development
 2. Write Vitest tests for critical paths
 3. Run full suite before commits

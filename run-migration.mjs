@@ -14,22 +14,22 @@ async function runMigration() {
   try {
     const migrationFile = process.argv[2] || '003-update-budget-to-cents.sql';
     const migrationPath = resolve(`migrations/${migrationFile}`);
-    
+
     console.log(`📊 Running migration: ${migrationFile}`);
-    
+
     // Read the migration file
     const sql = readFileSync(migrationPath, 'utf-8');
-    
+
     // Split by semicolon to run statements separately
-    const statements = sql.split(';').filter(s => s.trim());
-    
+    const statements = sql.split(';').filter((s) => s.trim());
+
     for (const statement of statements) {
       if (statement.trim()) {
         console.log('Executing:', statement.substring(0, 60) + '...');
         await pool.query(statement);
       }
     }
-    
+
     console.log('✓ Migration completed successfully!');
   } catch (error) {
     console.error('❌ Migration failed:', error);

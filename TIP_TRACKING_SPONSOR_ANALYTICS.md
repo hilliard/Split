@@ -216,7 +216,7 @@ const demographics = await getTipDemographics(eventId);
 demographics.forEach((person) => {
   console.log(
     `${person.name} tipped $${person.totalTipped} ` +
-      `(${person.timesLeftTip} times, avg: $${person.averageTip})`,
+      `(${person.timesLeftTip} times, avg: $${person.averageTip})`
   );
 });
 ```
@@ -227,10 +227,7 @@ demographics.forEach((person) => {
 // Which categories get the most tips?
 const byCategory = await getTipsByCategory(eventId);
 byCategory.forEach((cat) => {
-  console.log(
-    `${cat.category}: $${cat.totalTipped} ` +
-      `(avg $${cat.averageTip} per expense)`,
-  );
+  console.log(`${cat.category}: $${cat.totalTipped} ` + `(avg $${cat.averageTip} per expense)`);
 });
 ```
 

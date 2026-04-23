@@ -12,7 +12,7 @@ async function checkBreakfast() {
 
     console.log('\n📋 Breakfast Expense(s):');
     if (breakfastExpense.length > 0) {
-      breakfastExpense.forEach(exp => {
+      breakfastExpense.forEach((exp) => {
         console.log(`  ID: ${exp.id}`);
         console.log(`  Amount: ${exp.amount} cents = $${(exp.amount / 100).toFixed(2)}`);
         console.log(`  Tip: ${exp.tipAmount}`);
@@ -29,8 +29,10 @@ async function checkBreakfast() {
         .where(eq(expenseSplits.expenseId, breakfastExpense[0].id));
 
       console.log(`\n💔 Splits for Breakfast (${splits.length} total):`);
-      splits.forEach(split => {
-        console.log(`  User ${split.userId}: ${split.amount} cents = $${(split.amount / 100).toFixed(2)}`);
+      splits.forEach((split) => {
+        console.log(
+          `  User ${split.userId}: ${split.amount} cents = $${(split.amount / 100).toFixed(2)}`
+        );
       });
     }
 

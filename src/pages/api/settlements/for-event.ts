@@ -1,6 +1,6 @@
 /**
  * API Route: GET /api/settlements/for-event?eventId=X
- * 
+ *
  * Fetch all settlements (pending and completed) for an event
  * Used for displaying settlement history and status
  */
@@ -21,11 +21,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -44,11 +40,7 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Verify event exists
-    const [eventRecord] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId))
-      .limit(1);
+    const [eventRecord] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     if (!eventRecord) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
@@ -71,10 +63,7 @@ export const GET: APIRoute = async (context) => {
           .from(humans)
           .where(eq(humans.id, settlement.fromUserId));
 
-        const [toUser] = await db
-          .select()
-          .from(humans)
-          .where(eq(humans.id, settlement.toUserId));
+        const [toUser] = await db.select().from(humans).where(eq(humans.id, settlement.toUserId));
 
         return {
           id: settlement.id,

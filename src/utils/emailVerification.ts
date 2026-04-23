@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import { db } from '@/db/index';
-import { emailVerificationTokens, customers } from '@/db/schema';
+import { emailVerificationTokens, customers } from '@/db/human-centric-schema';
 import { eq, and, gt } from 'drizzle-orm';
 
 /**
@@ -39,29 +39,42 @@ export async function validateVerificationToken(
   token: string
 ): Promise<{ valid: boolean; customerId?: string; error?: string }> {
   try {
+    console.log(`🔐 validateVerificationToken: email=${email}, token=${token.substring(0, 16)}...`);
+
     const record = await db
       .select()
       .from(emailVerificationTokens)
       .where(
-        and(
-          eq(emailVerificationTokens.email, email),
-          eq(emailVerificationTokens.token, token),
-          eq(emailVerificationTokens.verifiedAt, null as any)
-        )
+        and(eq(emailVerificationTokens.email, email), eq(emailVerificationTokens.token, token))
       )
       .limit(1);
 
+    console.log(`   Found records: ${record.length}`);
+
     if (record.length === 0) {
+      console.log('   ❌ No matching token found');
       return { valid: false, error: 'Token not found' };
     }
 
     const tokenRecord = record[0];
+    console.log(`   Token record found`);
+    console.log(`     Email: ${tokenRecord.email}`);
+    console.log(`     VerifiedAt: ${tokenRecord.verifiedAt}`);
+    console.log(`     ExpiresAt: ${tokenRecord.expiresAt}`);
+
+    // Check if already verified
+    if (tokenRecord.verifiedAt !== null && tokenRecord.verifiedAt !== undefined) {
+      console.log('   ❌ Token already verified');
+      return { valid: false, error: 'Token already verified' };
+    }
 
     // Check if expired
     if (new Date(tokenRecord.expiresAt) < new Date()) {
+      console.log('   ❌ Token expired');
       return { valid: false, error: 'Token expired' };
     }
 
+    console.log(`   ✅ Token valid, customerId: ${tokenRecord.customerId}`);
     return { valid: true, customerId: tokenRecord.customerId };
   } catch (error) {
     console.error('Error validating token:', error);
@@ -122,18 +135,14 @@ export async function cleanupExpiredTokens(): Promise<number> {
 /**
  * Resend verification email - delete old token and create new one
  */
-export async function resendVerificationToken(
-  customerId: string,
-  email: string
-): Promise<string> {
+export async function resendVerificationToken(customerId: string, email: string): Promise<string> {
   // Delete any existing unverified tokens
   await db
     .delete(emailVerificationTokens)
     .where(
       and(
         eq(emailVerificationTokens.customerId, customerId),
-        eq(emailVerificationTokens.email, email),
-        eq(emailVerificationTokens.verifiedAt, null as any)
+        eq(emailVerificationTokens.email, email)
       )
     );
 

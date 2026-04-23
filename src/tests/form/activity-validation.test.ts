@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 /**
  * Validation Tests for Activity Management
- * 
+ *
  * Tests cover:
  * - Activity creation with required/optional fields
  * - Activity edit validation
@@ -18,7 +18,7 @@ describe('Activity Form Validation', () => {
         locationName: 'Conference room', // optional
         sequenceOrder: 1,
       };
-      
+
       expect(activity.title).toBeDefined();
       expect(activity.title.length).toBeGreaterThan(0);
     });
@@ -29,7 +29,7 @@ describe('Activity Form Validation', () => {
         locationName: undefined, // optional
         sequenceOrder: 2,
       };
-      
+
       expect(activity.title).toBeDefined();
       expect(activity.locationName).toBeUndefined();
     });
@@ -43,7 +43,7 @@ describe('Activity Form Validation', () => {
         sequenceOrder: 1,
         eventId: null, // optional
       };
-      
+
       expect(validActivity.title).toBeDefined();
       expect(validActivity.sequenceOrder).toBeGreaterThanOrEqual(0);
     });
@@ -53,7 +53,7 @@ describe('Activity Form Validation', () => {
     it('should accept valid start and end times', () => {
       const startTime = new Date('2026-04-15T08:00:00');
       const endTime = new Date('2026-04-15T09:00:00');
-      
+
       expect(startTime.getTime()).toBeLessThan(endTime.getTime());
     });
 
@@ -63,7 +63,7 @@ describe('Activity Form Validation', () => {
         startTime: new Date('2026-04-15T08:00:00'),
         endTime: undefined,
       };
-      
+
       expect(activity.startTime).toBeDefined();
       expect(activity.endTime).toBeUndefined();
     });
@@ -74,7 +74,7 @@ describe('Activity Form Validation', () => {
         startTime: undefined,
         endTime: undefined,
       };
-      
+
       // Both can be optional
       expect(activity.startTime).toBeUndefined();
       expect(activity.endTime).toBeUndefined();
@@ -83,7 +83,7 @@ describe('Activity Form Validation', () => {
     it('should parse datetime-local format correctly', () => {
       const dateTimeLocal = '2026-04-15T14:30';
       const date = new Date(dateTimeLocal);
-      
+
       expect(date.getFullYear()).toBe(2026);
       expect(date.getMonth()).toBe(3); // 0-indexed
       expect(date.getDate()).toBe(15);
@@ -93,8 +93,8 @@ describe('Activity Form Validation', () => {
   describe('Sequence Order Validation', () => {
     it('should accept non-negative sequence order', () => {
       const validSequences = [0, 1, 5, 100];
-      
-      validSequences.forEach(seq => {
+
+      validSequences.forEach((seq) => {
         expect(seq).toBeGreaterThanOrEqual(0);
       });
     });
@@ -110,7 +110,7 @@ describe('Activity Form Validation', () => {
         { id: '2', title: 'Second', sequenceOrder: 1 },
         { id: '3', title: 'Third', sequenceOrder: 2 },
       ];
-      
+
       expect(activities).toHaveLength(3);
       expect(activities[0].sequenceOrder).toBeLessThan(activities[1].sequenceOrder);
       expect(activities[1].sequenceOrder).toBeLessThan(activities[2].sequenceOrder);
@@ -124,12 +124,12 @@ describe('Activity Form Validation', () => {
         title: 'Meeting',
         sequenceOrder: 1,
       };
-      
+
       const updatedActivity = {
         ...originalActivity,
         title: 'Updated Meeting', // Changed
       };
-      
+
       expect(updatedActivity.id).toBe(originalActivity.id);
       expect(updatedActivity.sequenceOrder).toBe(originalActivity.sequenceOrder);
       expect(updatedActivity.title).not.toBe(originalActivity.title);
@@ -141,13 +141,13 @@ describe('Activity Form Validation', () => {
         locationName: 'Original location',
         sequenceOrder: 1,
       };
-      
+
       // Update only location
       const updated = {
         ...activity,
         locationName: 'New location',
       };
-      
+
       expect(updated.title).toBe(activity.title);
       expect(updated.sequenceOrder).toBe(activity.sequenceOrder);
       expect(updated.locationName).not.toBe(activity.locationName);
@@ -160,7 +160,7 @@ describe('Activity Form Validation', () => {
         title: 'Event activity',
         eventId: 'event-456',
       };
-      
+
       expect(activity.eventId).toBeDefined();
     });
 
@@ -169,7 +169,7 @@ describe('Activity Form Validation', () => {
         title: 'Standalone activity',
         eventId: null,
       };
-      
+
       expect(activity.eventId).toBeNull();
     });
 
@@ -178,7 +178,7 @@ describe('Activity Form Validation', () => {
         title: 'Independent activity',
         eventId: undefined, // No event
       };
-      
+
       expect(standaloneActivity.eventId).toBeUndefined();
     });
   });
@@ -192,10 +192,18 @@ describe('Activity Form Validation', () => {
         expenseCategory: 'meal',
         expenseAmount: 2500, // cents
       };
-      
+
       expect(activity.addExpense).toBe(true);
       expect(activity.expenseAmount).toBeGreaterThan(0);
-      expect(['meal', 'transport', 'accommodation', 'parking', 'entertainment', 'tickets', 'misc']).toContain(activity.expenseCategory);
+      expect([
+        'meal',
+        'transport',
+        'accommodation',
+        'parking',
+        'entertainment',
+        'tickets',
+        'misc',
+      ]).toContain(activity.expenseCategory);
     });
 
     it('should create activity without expense when toggle disabled', () => {
@@ -205,7 +213,7 @@ describe('Activity Form Validation', () => {
         expenseDescription: undefined,
         expenseAmount: undefined,
       };
-      
+
       expect(activity.addExpense).toBe(false);
       expect(activity.expenseAmount).toBeUndefined();
     });
@@ -215,12 +223,12 @@ describe('Activity Form Validation', () => {
         id: 'activity-789',
         title: 'Activity',
       };
-      
+
       const expense = {
         activityId: activity.id,
         description: 'Activity expense',
       };
-      
+
       expect(expense.activityId).toBe(activity.id);
     });
   });
@@ -232,8 +240,8 @@ describe('Activity Form Validation', () => {
         { id: '2', title: 'Second' },
         { id: '3', title: 'Third' },
       ];
-      
-      const found = activities.find(a => a.id === '2');
+
+      const found = activities.find((a) => a.id === '2');
       expect(found?.title).toBe('Second');
     });
 
@@ -243,8 +251,8 @@ describe('Activity Form Validation', () => {
         { id: '2', title: 'Activity 2', eventId: 'event-1' },
         { id: '3', title: 'Standalone', eventId: null },
       ];
-      
-      const eventActivities = activities.filter(a => a.eventId === 'event-1');
+
+      const eventActivities = activities.filter((a) => a.eventId === 'event-1');
       expect(eventActivities).toHaveLength(2);
     });
 
@@ -254,7 +262,7 @@ describe('Activity Form Validation', () => {
         { id: '3', title: 'Third', sequenceOrder: 2 },
         { id: '2', title: 'Second', sequenceOrder: 1 },
       ];
-      
+
       const sorted = activities.sort((a, b) => a.sequenceOrder - b.sequenceOrder);
       expect(sorted[0].sequenceOrder).toBe(0);
       expect(sorted[1].sequenceOrder).toBe(1);

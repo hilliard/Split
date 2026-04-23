@@ -145,3 +145,52 @@ output.
     "completedSettlements": 0
   }
 }
+
+
+
+{
+  "status": "ok",
+  "totalSettlements": 4,
+  "settlements": [
+    {
+      "id": "2cb7a3d3-a1d7-48d1-b797-0779b28358d4",
+      "event": "Denver Weekend Trip",
+      "from": "Grace Test",
+      "to": "Alice Test",
+      "amount": "$148.50",
+      "status": "pending",
+      "createdAt": "2026-04-21T18:27:32.148Z",
+      "completedAt": null
+    },
+    {
+      "id": "6b30cd7f-1d15-44c3-bdf7-bc6674d31c43",
+      "event": "Denver Weekend Trip",
+      "from": "Frank Test",
+      "to": "Alice Test",
+      "amount": "$98.50",
+      "status": "pending",
+      "createdAt": "2026-04-21T18:27:32.195Z",
+      "completedAt": null
+    },
+    {
+      "id": "a0a4552b-e40e-43d3-ad11-061870ee4c61",
+      "event": "Denver Weekend Trip",
+      "from": "Charlie Test",
+      "to": "Alice Test",
+      "amount": "$4.50",
+      "status": "pending",
+      "createdAt": "2026-04-21T18:27:32.233Z",
+      "completedAt": null
+    },
+    {
+      "id": "d24cee90-83c6-4faf-ac44-464b4ddfb9c2",
+      "event": "Team Lunch",
+      "from": "Charlie Test",
+      "to": "Alice Test",
+      "amount": "$57.50",
+      "status": "pending",
+      "createdAt": "2026-04-21T18:27:32.348Z",
+      "completedAt": null
+    }
+  ]
+}

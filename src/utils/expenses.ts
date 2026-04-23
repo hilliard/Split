@@ -1,6 +1,6 @@
 /**
  * Expense and Payment Utilities
- * 
+ *
  * Functions for calculating costs, splits, balances, and settlements
  */
 
@@ -10,7 +10,7 @@ import { eq } from 'drizzle-orm';
 
 export interface ExpenseRecord {
   id: string;
-  amount: number; // dollars
+  amount: number; // cents
   category: string;
   description?: string;
   paidBy: string;
@@ -20,9 +20,9 @@ export interface ExpenseRecord {
 export interface UserBalance {
   userId: string;
   name: string;
-  paidTotal: number; // amount user paid
-  owesTotal: number; // amount user should pay
-  netBalance: number; // positive = owed money, negative = owes money
+  paidTotal: number; // amount user paid (in cents)
+  owesTotal: number; // amount user should pay (in cents)
+  netBalance: number; // positive = owed money, negative = owes money (in cents)
 }
 
 export interface Settlement {
@@ -30,11 +30,11 @@ export interface Settlement {
   fromName: string;
   to: string;
   toName: string;
-  amount: number;
+  amount: number; // in cents
 }
 
 /**
- * Get total expenses for a user (what they paid)
+ * Get total expenses for a user (what they paid) (in cents)
  */
 export async function getUserTotalPaid(userId: string): Promise<number> {
   try {
@@ -42,7 +42,7 @@ export async function getUserTotalPaid(userId: string): Promise<number> {
       where: (expenses: any) => eq(expenses.paidBy, userId),
     });
 
-    return userExpenses.reduce((sum, exp) => sum + parseFloat(exp.amount as any), 0);
+    return userExpenses.reduce((sum, exp) => sum + exp.amount, 0); // already in cents
   } catch (error) {
     console.error('Error calculating user paid total:', error);
     return 0;
@@ -50,7 +50,7 @@ export async function getUserTotalPaid(userId: string): Promise<number> {
 }
 
 /**
- * Get total amount user owes (based on expense splits)
+ * Get total amount user owes (based on expense splits) (in cents)
  */
 export async function getUserTotalOwes(userId: string): Promise<number> {
   try {
@@ -59,7 +59,7 @@ export async function getUserTotalOwes(userId: string): Promise<number> {
     });
 
     // Amount is stored in cents
-    return userSplits.reduce((sum, split) => sum + (split.amount / 100), 0);
+    return userSplits.reduce((sum, split) => sum + split.amount, 0); // already in cents
   } catch (error) {
     console.error('Error calculating user owes total:', error);
     return 0;
@@ -88,15 +88,15 @@ export async function calculateEventBalances(eventId: string): Promise<UserBalan
     const userPaid: { [userId: string]: number } = {};
     const userOwes: { [userId: string]: number } = {};
 
-    // Calculate paid amounts
+    // Calculate paid amounts (keep as cents)
     for (const expense of eventExpenses) {
       if (!userPaid[expense.paidBy]) {
         userPaid[expense.paidBy] = 0;
       }
-      userPaid[expense.paidBy] += parseFloat(expense.amount as any);
+      userPaid[expense.paidBy] += expense.amount; // already in cents, no conversion needed
     }
 
-    // Calculate owed amounts from splits
+    // Calculate owed amounts from splits (keep as cents)
     for (const expense of eventExpenses) {
       const splits = await db.query.expenseSplits.findMany({
         where: (splits: any) => eq(splits.expenseId, expense.id),
@@ -106,7 +106,7 @@ export async function calculateEventBalances(eventId: string): Promise<UserBalan
         if (!userOwes[split.userId]) {
           userOwes[split.userId] = 0;
         }
-        userOwes[split.userId] += split.amount / 100; // convert cents to dollars
+        userOwes[split.userId] += split.amount; // already in cents, no conversion needed
       }
     }
 
@@ -115,11 +115,7 @@ export async function calculateEventBalances(eventId: string): Promise<UserBalan
     const balances: UserBalance[] = [];
 
     for (const userId of allUserIds) {
-      const [user] = await db
-        .select()
-        .from(humans)
-        .where(eq(humans.id, userId))
-        .limit(1);
+      const [user] = await db.select().from(humans).where(eq(humans.id, userId)).limit(1);
 
       const paid = userPaid[userId] || 0;
       const owes = userOwes[userId] || 0;
@@ -206,11 +202,7 @@ export async function areDebtsSettled(eventId: string): Promise<boolean> {
  */
 export async function getExpenseDetails(expenseId: string) {
   try {
-    const [expense] = await db
-      .select()
-      .from(expenses)
-      .where(eq(expenses.id, expenseId))
-      .limit(1);
+    const [expense] = await db.select().from(expenses).where(eq(expenses.id, expenseId)).limit(1);
 
     if (!expense) {
       return null;
@@ -220,11 +212,7 @@ export async function getExpenseDetails(expenseId: string) {
       where: (splits: any) => eq(splits.expenseId, expenseId),
     });
 
-    const [payer] = await db
-      .select()
-      .from(humans)
-      .where(eq(humans.id, expense.paidBy))
-      .limit(1);
+    const [payer] = await db.select().from(humans).where(eq(humans.id, expense.paidBy)).limit(1);
 
     return {
       id: expense.id,
@@ -260,14 +248,14 @@ export function formatDollars(dollars: number): string {
 /**
  * Calculate suggested tip amounts for a given expense amount
  * Returns common tipping percentages (15%, 18%, 20%) formatted for UI display
- * 
+ *
  * @param amount - Base expense amount in dollars
  * @returns Object with tip suggestions and formatted display text
  */
 export function calculateTipSuggestions(amount: number) {
   const tip15 = amount * 0.15;
   const tip18 = amount * 0.18;
-  const tip20 = amount * 0.20;
+  const tip20 = amount * 0.2;
 
   return {
     // Raw amounts for calculations
@@ -282,9 +270,21 @@ export function calculateTipSuggestions(amount: number) {
 
     // Suggested text for UI
     suggestions: [
-      { percent: 15, amount: parseFloat(tip15.toFixed(2)), display: `${formatDollars(tip15)} (15%)` },
-      { percent: 18, amount: parseFloat(tip18.toFixed(2)), display: `${formatDollars(tip18)} (18%)` },
-      { percent: 20, amount: parseFloat(tip20.toFixed(2)), display: `${formatDollars(tip20)} (20%)` },
+      {
+        percent: 15,
+        amount: parseFloat(tip15.toFixed(2)),
+        display: `${formatDollars(tip15)} (15%)`,
+      },
+      {
+        percent: 18,
+        amount: parseFloat(tip18.toFixed(2)),
+        display: `${formatDollars(tip18)} (18%)`,
+      },
+      {
+        percent: 20,
+        amount: parseFloat(tip20.toFixed(2)),
+        display: `${formatDollars(tip20)} (20%)`,
+      },
     ],
 
     // Quick reference for common case
@@ -297,7 +297,7 @@ export function calculateTipSuggestions(amount: number) {
 }
 
 /**
- * Calculate tip statistics for analytics
+ * Calculate tip statistics for analytics (all amounts in cents)
  */
 export async function getTipStats(eventId: string) {
   try {
@@ -306,7 +306,7 @@ export async function getTipStats(eventId: string) {
     });
 
     const tips = eventExpenses
-      .map((exp) => parseFloat(exp.tipAmount as any))
+      .map((exp) => exp.tipAmount || 0) // tipAmount is already in cents
       .filter((tip) => tip > 0);
 
     if (tips.length === 0) {
@@ -321,12 +321,12 @@ export async function getTipStats(eventId: string) {
       };
     }
 
-    const totalTips = tips.reduce((sum, tip) => sum + tip, 0);
+    const totalTips = tips.reduce((sum, tip) => sum + tip, 0); // in cents
     const totalExpenses = eventExpenses
-      .map((exp) => parseFloat(exp.amount as any) / 100) // Divide by 100 to convert from cents
-      .reduce((sum, amount) => sum + amount, 0);
+      .map((exp) => exp.amount) // already in cents, no conversion needed
+      .reduce((sum, amount) => sum + amount, 0); // in cents
 
-    const averageTip = totalTips / tips.length;
+    const averageTip = totalTips / tips.length; // in cents
     const sortedTips = [...tips].sort((a, b) => a - b);
     const medianTip =
       sortedTips.length % 2 === 0
@@ -336,11 +336,11 @@ export async function getTipStats(eventId: string) {
     const averageTipPercentage = (totalTips / totalExpenses) * 100;
 
     return {
-      totalTips,
-      averageTip,
-      medianTip,
-      minTip: Math.min(...tips),
-      maxTip: Math.max(...tips),
+      totalTips, // in cents
+      averageTip, // in cents
+      medianTip, // in cents
+      minTip: Math.min(...tips), // in cents
+      maxTip: Math.max(...tips), // in cents
       expensesWithTips: tips.length,
       averageTipPercentage,
     };
@@ -377,11 +377,7 @@ export async function getTipDemographics(eventId: string) {
     const demographics: Array<any> = [];
 
     for (const [userId, tipData] of Object.entries(tipsByPayer)) {
-      const [user] = await db
-        .select()
-        .from(humans)
-        .where(eq(humans.id, userId))
-        .limit(1);
+      const [user] = await db.select().from(humans).where(eq(humans.id, userId)).limit(1);
 
       demographics.push({
         userId,
@@ -408,7 +404,9 @@ export async function getTipsByCategory(eventId: string) {
       where: (expenses: any) => eq(expenses.eventId, eventId),
     });
 
-    const tipsByCategory: { [category: string]: { total: number; count: number; average: number } } = {};
+    const tipsByCategory: {
+      [category: string]: { total: number; count: number; average: number };
+    } = {};
 
     for (const expense of eventExpenses) {
       const category = expense.category;

@@ -34,6 +34,7 @@ Send an invitation to a user to join a group.
 | `id` | UUID | The group ID |
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com"
@@ -46,6 +47,7 @@ Send an invitation to a user to join a group.
 | `email` | string | Yes | Valid email format |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -62,18 +64,19 @@ Send an invitation to a user to join a group.
 
 **Error Responses:**
 
-| Status | Error | Reason |
-|--------|-------|--------|
-| 400 | "Invalid email address" | Email format is invalid |
-| 400 | "Group ID required" | Path parameter missing |
-| 401 | "Unauthorized" | No valid session |
-| 401 | "Session expired" | Session cookie expired |
-| 403 | "Not the group creator" | User is not the group owner |
-| 404 | "Group not found" | Group ID doesn't exist |
-| 409 | "Invitation already pending" | Duplicate pending invitation for this email |
-| 500 | "Failed to send invitation" | Server error during creation |
+| Status | Error                        | Reason                                      |
+| ------ | ---------------------------- | ------------------------------------------- |
+| 400    | "Invalid email address"      | Email format is invalid                     |
+| 400    | "Group ID required"          | Path parameter missing                      |
+| 401    | "Unauthorized"               | No valid session                            |
+| 401    | "Session expired"            | Session cookie expired                      |
+| 403    | "Not the group creator"      | User is not the group owner                 |
+| 404    | "Group not found"            | Group ID doesn't exist                      |
+| 409    | "Invitation already pending" | Duplicate pending invitation for this email |
+| 500    | "Failed to send invitation"  | Server error during creation                |
 
 **Example Request (curl):**
+
 ```bash
 curl -X POST http://localhost:3000/api/groups/550e8400-e29b-41d4-a716-446655440001/invite \
   -H "Content-Type: application/json" \
@@ -84,6 +87,7 @@ curl -X POST http://localhost:3000/api/groups/550e8400-e29b-41d4-a716-4466554400
 ```
 
 **Example Request (PowerShell):**
+
 ```powershell
 $body = @{
   email = "friend@example.com"
@@ -110,6 +114,7 @@ Accept a pending invitation and join a group.
 **Method:** `POST`
 
 **Request Body:**
+
 ```json
 {
   "invitationId": "550e8400-e29b-41d4-a716-446655440000"
@@ -122,6 +127,7 @@ Accept a pending invitation and join a group.
 | `invitationId` | string (UUID) | Yes | Valid UUID format |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -137,17 +143,18 @@ Accept a pending invitation and join a group.
 
 **Error Responses:**
 
-| Status | Error | Reason |
-|--------|-------|--------|
-| 400 | "Invalid invitation ID" | UUID format is invalid |
-| 401 | "Unauthorized" | No valid session |
-| 401 | "Session expired" | Session cookie expired |
-| 404 | "Invitation not found" | Invitation ID doesn't exist |
-| 409 | "Invitation already accepted" | Invitation was previously accepted |
-| 410 | "Invitation expired" | 30-day expiration has passed |
-| 500 | "Failed to accept invitation" | Server error during update |
+| Status | Error                         | Reason                             |
+| ------ | ----------------------------- | ---------------------------------- |
+| 400    | "Invalid invitation ID"       | UUID format is invalid             |
+| 401    | "Unauthorized"                | No valid session                   |
+| 401    | "Session expired"             | Session cookie expired             |
+| 404    | "Invitation not found"        | Invitation ID doesn't exist        |
+| 409    | "Invitation already accepted" | Invitation was previously accepted |
+| 410    | "Invitation expired"          | 30-day expiration has passed       |
+| 500    | "Failed to accept invitation" | Server error during update         |
 
 **Example Request (curl):**
+
 ```bash
 curl -X POST http://localhost:3000/api/groups/invitations/accept \
   -H "Content-Type: application/json" \
@@ -158,6 +165,7 @@ curl -X POST http://localhost:3000/api/groups/invitations/accept \
 ```
 
 **Example Request (PowerShell):**
+
 ```powershell
 $body = @{
   invitationId = "550e8400-e29b-41d4-a716-446655440000"
@@ -181,6 +189,7 @@ Decline a pending invitation.
 **Method:** `POST`
 
 **Request Body:**
+
 ```json
 {
   "invitationId": "550e8400-e29b-41d4-a716-446655440000"
@@ -193,6 +202,7 @@ Decline a pending invitation.
 | `invitationId` | string (UUID) | Yes | Valid UUID format |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -202,16 +212,17 @@ Decline a pending invitation.
 
 **Error Responses:**
 
-| Status | Error | Reason |
-|--------|-------|--------|
-| 400 | "Invalid invitation ID" | UUID format is invalid |
-| 401 | "Unauthorized" | No valid session |
-| 401 | "Session expired" | Session cookie expired |
-| 403 | "Unauthorized" | Invitation email doesn't match logged-in user |
-| 404 | "Invitation not found" | Invitation ID doesn't exist |
-| 500 | "Failed to decline invitation" | Server error during update |
+| Status | Error                          | Reason                                        |
+| ------ | ------------------------------ | --------------------------------------------- |
+| 400    | "Invalid invitation ID"        | UUID format is invalid                        |
+| 401    | "Unauthorized"                 | No valid session                              |
+| 401    | "Session expired"              | Session cookie expired                        |
+| 403    | "Unauthorized"                 | Invitation email doesn't match logged-in user |
+| 404    | "Invitation not found"         | Invitation ID doesn't exist                   |
+| 500    | "Failed to decline invitation" | Server error during update                    |
 
 **Example Request (curl):**
+
 ```bash
 curl -X POST http://localhost:3000/api/groups/invitations/decline \
   -H "Content-Type: application/json" \
@@ -234,6 +245,7 @@ Retrieve all pending invitations for the logged-in user.
 **Query Parameters:** None
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -262,20 +274,22 @@ Retrieve all pending invitations for the logged-in user.
 
 **Error Responses:**
 
-| Status | Error | Reason |
-|--------|-------|--------|
-| 401 | "Unauthorized" | No valid session |
-| 401 | "Session expired" | Session cookie expired |
-| 404 | "Customer not found" | User account not found |
-| 500 | "Failed to fetch pending invitations" | Server error |
+| Status | Error                                 | Reason                 |
+| ------ | ------------------------------------- | ---------------------- |
+| 401    | "Unauthorized"                        | No valid session       |
+| 401    | "Session expired"                     | Session cookie expired |
+| 404    | "Customer not found"                  | User account not found |
+| 500    | "Failed to fetch pending invitations" | Server error           |
 
 **Example Request (curl):**
+
 ```bash
 curl -X GET http://localhost:3000/api/dashboard/pending-invitations \
   -b "sessionId=your_session_id"
 ```
 
 **Example Request (PowerShell):**
+
 ```powershell
 Invoke-WebRequest -Uri "http://localhost:3000/api/dashboard/pending-invitations" `
   -Method GET `
@@ -298,6 +312,7 @@ Retrieve members and pending invitations for a specific group.
 | `id` | UUID | The group ID |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -336,16 +351,17 @@ Retrieve members and pending invitations for a specific group.
 
 **Error Responses:**
 
-| Status | Error | Reason |
-|--------|-------|--------|
-| 400 | "Group ID required" | Path parameter missing |
-| 401 | "Unauthorized" | No valid session |
-| 401 | "Session expired" | Session cookie expired |
-| 403 | "Not a member of this group" | User doesn't have access |
-| 404 | "Group not found" | Group ID doesn't exist |
-| 500 | "Failed to fetch group members" | Server error |
+| Status | Error                           | Reason                   |
+| ------ | ------------------------------- | ------------------------ |
+| 400    | "Group ID required"             | Path parameter missing   |
+| 401    | "Unauthorized"                  | No valid session         |
+| 401    | "Session expired"               | Session cookie expired   |
+| 403    | "Not a member of this group"    | User doesn't have access |
+| 404    | "Group not found"               | Group ID doesn't exist   |
+| 500    | "Failed to fetch group members" | Server error             |
 
 **Example Request (curl):**
+
 ```bash
 curl -X GET http://localhost:3000/api/groups/550e8400-e29b-41d4-a716-446655440001/members \
   -b "sessionId=your_session_id"
@@ -374,11 +390,11 @@ curl -X GET http://localhost:3000/api/groups/550e8400-e29b-41d4-a716-44665544000
 
 ```typescript
 {
-  id: string;              // Human UUID
+  id: string; // Human UUID
   firstName: string;
   lastName: string;
   email: string;
-  joinedAt: Date;          // Timestamp when added to group
+  joinedAt: Date; // Timestamp when added to group
 }
 ```
 
@@ -386,9 +402,9 @@ curl -X GET http://localhost:3000/api/groups/550e8400-e29b-41d4-a716-44665544000
 
 ```typescript
 {
-  id: string;              // UUID
+  id: string; // UUID
   name: string;
-  isOwner: boolean;        // True if current user created the group
+  isOwner: boolean; // True if current user created the group
 }
 ```
 
@@ -396,16 +412,16 @@ curl -X GET http://localhost:3000/api/groups/550e8400-e29b-41d4-a716-44665544000
 
 ## Common Status Codes
 
-| Code | Meaning |
-|------|---------|
-| 200 | Success - Response body contains result |
-| 400 | Bad Request - Invalid input or malformed body |
-| 401 | Unauthorized - Missing or invalid session |
-| 403 | Forbidden - User lacks permission |
-| 404 | Not Found - Resource doesn't exist |
-| 409 | Conflict - Resource already exists or state conflict |
-| 410 | Gone - Invitation expired |
-| 500 | Server Error - Unexpected error |
+| Code | Meaning                                              |
+| ---- | ---------------------------------------------------- |
+| 200  | Success - Response body contains result              |
+| 400  | Bad Request - Invalid input or malformed body        |
+| 401  | Unauthorized - Missing or invalid session            |
+| 403  | Forbidden - User lacks permission                    |
+| 404  | Not Found - Resource doesn't exist                   |
+| 409  | Conflict - Resource already exists or state conflict |
+| 410  | Gone - Invitation expired                            |
+| 500  | Server Error - Unexpected error                      |
 
 ---
 
@@ -418,6 +434,7 @@ No rate limiting currently implemented. Use reasonable request frequency.
 ## Testing
 
 All API endpoints can be tested using:
+
 - **Postman Collection**: See `invitations.postman_collection.json`
 - **curl**: Examples provided in each endpoint section
 - **Vitest**: Automated tests in `src/tests/api/invitations.test.ts`

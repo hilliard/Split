@@ -7,7 +7,7 @@ const { Pool } = pg;
 const envPath = resolve('.env.local');
 const envContent = readFileSync(envPath, 'utf-8');
 const envVars: Record<string, string> = {};
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   if (line.trim() && !line.startsWith('#')) {
     const [key, ...valueParts] = line.split('=');
     const value = valueParts.join('=').trim();
@@ -21,16 +21,16 @@ const DATABASE_URL = envVars['DATABASE_URL'];
 
 async function main() {
   const pool = new Pool({ connectionString: DATABASE_URL });
-  
+
   try {
     const client = await pool.connect();
     console.log('✓ Connected to database\n');
-    
+
     // Run the exact login query from the error message
     console.log('🧪 Testing login query...\n');
     console.log('Query: SELECT ... FROM email_history');
     console.log('  WHERE email = grammyhaynes0720@gmail.com AND effective_to IS NULL\n');
-    
+
     const result = await client.query(
       `SELECT 
         "humans"."id", "humans"."first_name", "humans"."last_name", "humans"."dob", 
@@ -47,7 +47,7 @@ async function main() {
       LIMIT 1`,
       ['grammyhaynes0720@gmail.com']
     );
-    
+
     if (result.rows.length === 0) {
       console.log('❌ Query returned no results\n');
     } else {
@@ -60,10 +60,10 @@ async function main() {
       console.log(`  Customer ID: ${row.customers_id}`);
       console.log(`  Username: ${row.username}`);
       console.log(`  Has password hash: ${row.password_hash ? '✅ Yes' : '❌ No'}\n`);
-      
+
       console.log('✅ Login query is ready to use!');
     }
-    
+
     client.release();
     process.exit(0);
   } catch (error) {

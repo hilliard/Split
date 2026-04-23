@@ -19,11 +19,7 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -45,7 +41,7 @@ export const POST: APIRoute = async (context) => {
         createdBy: session.userId,
       })
       .returning();
-    
+
     console.log('✓ Group created:', newGroup.id);
 
     // Add creator as member
@@ -55,13 +51,16 @@ export const POST: APIRoute = async (context) => {
       joinedAt: new Date(),
     });
 
-    return new Response(JSON.stringify({
-      success: true,
-      group: newGroup,
-    }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        group: newGroup,
+      }),
+      {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error creating group:', error);
 
@@ -74,20 +73,23 @@ export const POST: APIRoute = async (context) => {
 
     const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     const errorCode = error instanceof Error && 'code' in error ? (error as any).code : null;
-    
-    console.error('Full error object:', { 
-      message: errorMessage, 
+
+    console.error('Full error object:', {
+      message: errorMessage,
       code: errorCode,
-      name: error instanceof Error ? error.name : 'Unknown'
+      name: error instanceof Error ? error.name : 'Unknown',
     });
 
-    return new Response(JSON.stringify({ 
-      error: 'Failed to create group', 
-      details: errorMessage,
-      code: errorCode
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to create group',
+        details: errorMessage,
+        code: errorCode,
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 };

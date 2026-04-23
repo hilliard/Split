@@ -1,6 +1,6 @@
 /**
  * Authentication & Authorization Middleware
- * 
+ *
  * Utilities for protecting API endpoints based on user roles
  */
 
@@ -52,53 +52,38 @@ export async function getAuthContext(cookies: AstroCookies): Promise<AuthContext
  */
 
 export function unauthorizedResponse(message = 'Unauthorized') {
-  return new Response(
-    JSON.stringify({ error: message }),
-    {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
+  return new Response(JSON.stringify({ error: message }), {
+    status: 401,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 export function forbiddenResponse(message = 'Forbidden') {
-  return new Response(
-    JSON.stringify({ error: message }),
-    {
-      status: 403,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
+  return new Response(JSON.stringify({ error: message }), {
+    status: 403,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 export function badRequestResponse(message: string) {
-  return new Response(
-    JSON.stringify({ error: message }),
-    {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
+  return new Response(JSON.stringify({ error: message }), {
+    status: 400,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 export function errorResponse(message: string, status = 500) {
-  return new Response(
-    JSON.stringify({ error: message }),
-    {
-      status,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 export function successResponse(data: unknown, status = 200) {
-  return new Response(
-    JSON.stringify(data),
-    {
-      status,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 /**
@@ -151,14 +136,16 @@ export async function requireGroupView(cookies: AstroCookies, groupId: string) {
 
 /**
  * Error handling wrapper for API routes
- * 
+ *
  * Usage:
  * export const POST: APIRoute = withAuth(async (req, context, auth) => {
  *   // Your handler code here
  * });
  */
 
-export function withAuth(handler: (req: Request, context: any, auth: AuthContext) => Promise<Response>) {
+export function withAuth(
+  handler: (req: Request, context: any, auth: AuthContext) => Promise<Response>
+) {
   return async (context: any) => {
     try {
       const auth = await getAuthContext(context.cookies);
@@ -182,14 +169,14 @@ export function withAuth(handler: (req: Request, context: any, auth: AuthContext
       }
 
       console.error('API error:', error);
-      return errorResponse(
-        error instanceof Error ? error.message : 'Internal server error'
-      );
+      return errorResponse(error instanceof Error ? error.message : 'Internal server error');
     }
   };
 }
 
-export function withAdminAuth(handler: (req: Request, context: any, auth: AuthContext) => Promise<Response>) {
+export function withAdminAuth(
+  handler: (req: Request, context: any, auth: AuthContext) => Promise<Response>
+) {
   return async (context: any) => {
     try {
       const auth = await getAuthContext(context.cookies);
@@ -204,9 +191,7 @@ export function withAdminAuth(handler: (req: Request, context: any, auth: AuthCo
       return await handler(context.request, context, auth);
     } catch (error) {
       console.error('API error:', error);
-      return errorResponse(
-        error instanceof Error ? error.message : 'Internal server error'
-      );
+      return errorResponse(error instanceof Error ? error.message : 'Internal server error');
     }
   };
 }

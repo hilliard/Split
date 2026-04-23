@@ -1,6 +1,6 @@
 /**
  * Example API Route: GET /api/admin/users
- * 
+ *
  * Lists all users with their roles
  * Only accessible to admins
  */
@@ -43,14 +43,17 @@ export const GET: APIRoute = withAdminAuth(async (req, context, auth) => {
       })
     );
 
-    return new Response(JSON.stringify({
-      success: true,
-      total: usersWithRoles.length,
-      users: usersWithRoles,
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        total: usersWithRoles.length,
+        users: usersWithRoles,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error fetching users:', error);
     return new Response(

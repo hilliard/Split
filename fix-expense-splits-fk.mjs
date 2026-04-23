@@ -13,7 +13,7 @@ async function fixExpenseSplitsFK() {
     console.log('🔍 Finding all expense_splits FKs on user_id');
     console.log('─'.repeat(60));
 
-    // Get all constraints on expense_splits.user_id  
+    // Get all constraints on expense_splits.user_id
     const constraints = await sql`
       SELECT DISTINCT tc.constraint_name
       FROM information_schema.table_constraints AS tc
@@ -25,7 +25,7 @@ async function fixExpenseSplitsFK() {
     `;
 
     console.log(`Found ${constraints.length} FK constraint(s):`);
-    constraints.forEach(c => {
+    constraints.forEach((c) => {
       console.log(`  - ${c.constraint_name}`);
     });
 
@@ -33,7 +33,9 @@ async function fixExpenseSplitsFK() {
     for (const constraint of constraints) {
       console.log(`\n🔨 Dropping ${constraint.constraint_name}...`);
       try {
-        await sql.unsafe(`ALTER TABLE expense_splits DROP CONSTRAINT "${constraint.constraint_name}"`);
+        await sql.unsafe(
+          `ALTER TABLE expense_splits DROP CONSTRAINT "${constraint.constraint_name}"`
+        );
         console.log('   ✓ Dropped');
       } catch (err) {
         console.log(`   ⚠️  Already dropped or error: ${err.message}`);
@@ -62,7 +64,7 @@ async function fixExpenseSplitsFK() {
     `;
 
     console.log('\n✅ Final state:');
-    final.forEach(f => {
+    final.forEach((f) => {
       console.log(`  ${f.constraint_name} -> ${f.referenced_table}`);
     });
 

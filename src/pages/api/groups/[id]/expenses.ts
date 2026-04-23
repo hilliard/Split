@@ -44,12 +44,9 @@ export const GET: APIRoute = async (context) => {
     );
   } catch (error) {
     console.error('Error fetching group expenses:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to fetch expenses' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch expenses' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

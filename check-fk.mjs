@@ -34,13 +34,15 @@ async function checkFK() {
     console.log('\n🔗 Foreign Keys:');
     fks.forEach((fk) => {
       console.log(`  ${fk.constraint_name}:`);
-      console.log(`    ${fk.table_name}.${fk.column_name} -> ${fk.referenced_table}.${fk.referenced_column}`);
+      console.log(
+        `    ${fk.table_name}.${fk.column_name} -> ${fk.referenced_table}.${fk.referenced_column}`
+      );
     });
 
     // Check if the user ID exists
     const userId = '6d916ed5-f539-4a51-9e17-044d81c956d2';
     console.log(`\n👤 Checking if human ${userId} exists...`);
-    
+
     const human = await sql`SELECT id FROM humans WHERE id = ${userId}`;
     console.log(`  ${human.length > 0 ? '✅ EXISTS' : '❌ NOT FOUND'}`);
 

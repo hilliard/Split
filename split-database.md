@@ -869,7 +869,7 @@ Create a dedicated file to handle all authentication requests to Neon. This keep
 
 ```typescript
 // lib/auth.ts
-import { Neon } from "./NeonClient";
+import { Neon } from './NeonClient';
 
 // 1. Sign Up a New User
 export async function signUpUser(email: string, password: string) {
@@ -879,7 +879,7 @@ export async function signUpUser(email: string, password: string) {
   });
 
   if (error) {
-    console.error("Sign up error:", error.message);
+    console.error('Sign up error:', error.message);
     return { success: false, error: error.message };
   }
   return { success: true, data };
@@ -893,7 +893,7 @@ export async function signInUser(email: string, password: string) {
   });
 
   if (error) {
-    console.error("Login error:", error.message);
+    console.error('Login error:', error.message);
     return { success: false, error: error.message };
   }
   return { success: true, data };
@@ -903,7 +903,7 @@ export async function signInUser(email: string, password: string) {
 export async function signOutUser() {
   const { error } = await Neon.auth.signOut();
   if (error) {
-    console.error("Logout error:", error.message);
+    console.error('Logout error:', error.message);
   }
 }
 
@@ -914,7 +914,7 @@ export async function getCurrentUser() {
     error,
   } = await Neon.auth.getUser();
   if (error) {
-    console.error("Get user error:", error.message);
+    console.error('Get user error:', error.message);
     return null;
   }
   return user;
@@ -1122,8 +1122,6 @@ default browser localStorage.)
      localStorage to remember who is logged in. But since Astro generates pages on
      the server before they hit the browser, the server needs a way to know who is
      requesting the page. We solve this using Cookies.
-
-
 
 ## 9. Neon Client & Environment Setup (SSR)
 

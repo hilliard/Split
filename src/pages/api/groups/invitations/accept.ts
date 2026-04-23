@@ -19,11 +19,7 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -52,13 +48,10 @@ export const POST: APIRoute = async (context) => {
 
     // Check if already accepted
     if (invitation.status !== 'pending') {
-      return new Response(
-        JSON.stringify({ error: `Invitation is ${invitation.status}` }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return new Response(JSON.stringify({ error: `Invitation is ${invitation.status}` }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Check if expired
@@ -88,7 +81,7 @@ export const POST: APIRoute = async (context) => {
     // Mark invitation as accepted
     await db
       .update(pendingGroupInvitations)
-      .set({ 
+      .set({
         status: 'accepted',
         acceptedAt: new Date(),
       })
@@ -111,10 +104,13 @@ export const POST: APIRoute = async (context) => {
     console.error('Error accepting invitation:', error);
 
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.issues[0]?.message ?? 'Validation error' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: error.issues[0]?.message ?? 'Validation error' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

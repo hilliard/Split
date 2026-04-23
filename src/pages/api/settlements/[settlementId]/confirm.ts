@@ -1,6 +1,6 @@
 /**
  * API Route: PUT /api/settlements/:settlementId/confirm
- * 
+ *
  * Receiver confirms they received the payment
  * Changes status from 'pending' to 'completed'
  */
@@ -21,11 +21,7 @@ export const PUT: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId))
-      .limit(1);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {

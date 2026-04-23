@@ -21,11 +21,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Verify customer exists and email matches
-    const customer = await db
-      .select()
-      .from(customers)
-      .where(eq(customers.id, customerId))
-      .limit(1);
+    const customer = await db.select().from(customers).where(eq(customers.id, customerId)).limit(1);
 
     if (customer.length === 0 || customer[0].email !== email) {
       return new Response(

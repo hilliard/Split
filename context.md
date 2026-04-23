@@ -335,7 +335,69 @@ username: testuser
 email: test@example.com
 password: password123
 
-
 1. Add tests to cover the app's core behavior and catch regressions, verify the app's main functionality works correctly.
-2. Which library/framework should do you suggest  
+2. Which library/framework should do you suggest
 3. Add some basic tests, explain how things work to me
+
+Windows Environment Considerations
+
+Pipe
+use ; instead of &&
+
+File and Directory Management
+
+ls / dir → Get-ChildItem: Lists files and directories in a location.
+cd → Set-Location: Changes the current working directory.
+pwd → Get-Location: Prints the current working directory.
+mkdir → New-Item -ItemType Directory: Creates a new folder.
+cp → Copy-Item: Copies files or directories.
+mv → Move-Item: Moves or renames files/directories.
+rm → Remove-Item: Deletes files or directories.
+cat → Get-Content: Displays the contents of a file.
+
+Process and System Management
+
+ps → Get-Process: Lists currently running processes.
+kill → Stop-Process: Terminates a running process.
+top / htop → Get-Process | Sort-Object CPU -Descending: There is no exact text-based "top" in native PowerShell, though many users utilize the Windows Task Manager (Ctrl+Shift+Esc) for real-time monitoring.
+clear → Clear-Host: Clears the terminal screen.
+
+Data Processing and Network
+
+grep → Select-String: Searches for patterns in strings or files.
+curl / wget → Invoke-WebRequest: Transfers data from or to a server.
+man → Get-Help: Accesses the manual and help documentation for commands.
+echo → Write-Output: Sends the specified objects to the next command in the pipeline.
+
+Testing the New Features:
+Login as a test user (charlie/frank/grace)
+Go to Dashboard
+Scroll to "Pending Settlements"
+You'll see: Grace → Alice: $148.50, Frank → Alice: $98.50, etc.
+Click "Mark Paid" to confirm you received payment
+Watch it update in real-time
+
+What's Ready for Next:
+
+Fully Implemented & Working ✅:
+
+Settlement System (database + 4 APIs)
+Balance calculations with greedy algorithm
+Username-based authentication
+Event/Activity/Group CRUD
+Expense management with splits
+Settlement confirmation tracking
+Responsive dashboard UI
+
+Before Production 🔴:
+
+Remove/secure debug endpoints (/api/debug/\*)
+Test all user scenarios
+Verify mobile experience (75% of users)
+ARIA compliance check
+Want to test it out with the dev server, or shall we move on to cleaning up those debug endpoints? 🚀
+
+DELETE FROM customers WHERE email = 'anything@resend.dev'
+
+to lint specific files"
+files: ['src/**/*.{ts,tsx,astro}', '*.config.{ts,mjs}', 'your-script.ts']

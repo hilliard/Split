@@ -9,7 +9,7 @@ const envPath = resolve('.env.local');
 const envContent = readFileSync(envPath, 'utf-8');
 const envVars: Record<string, string> = {};
 
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   if (line.trim() && !line.startsWith('#')) {
     const [key, ...valueParts] = line.split('=');
     const value = valueParts.join('=').trim();
@@ -42,8 +42,8 @@ async function applyMigrations() {
     // Split by statement breakpoint and execute
     const statements = migrationSQL
       .split('--> statement-breakpoint')
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
 
     for (const statement of statements) {
       console.log(`Executing: ${statement.substring(0, 50)}...`);

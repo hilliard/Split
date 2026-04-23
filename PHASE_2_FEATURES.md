@@ -112,10 +112,10 @@ const groupExpenses = db
     )`,
   })
   .from(expenses)
-  .innerJoin(humans.as("payer_human"), eq(expenses.paidBy, humans.id))
+  .innerJoin(humans.as('payer_human'), eq(expenses.paidBy, humans.id))
   .leftJoin(customers, eq(humans.id, customers.humanId))
   .leftJoin(expenseSplits, eq(expenses.id, expenseSplits.expenseId))
-  .leftJoin(humans.as("split_human"), eq(expenseSplits.userId, humans.id))
+  .leftJoin(humans.as('split_human'), eq(expenseSplits.userId, humans.id))
   .where(eq(expenses.groupId, groupId))
   .groupBy(expenses.id);
 
@@ -128,8 +128,8 @@ const settlement = db
   })
   .from(expenseSplits)
   .innerJoin(expenses, eq(expenseSplits.expenseId, expenses.id))
-  .innerJoin(humans.as("payer_human"), eq(expenses.paidBy, humans.id))
-  .innerJoin(humans.as("split_human"), eq(expenseSplits.userId, humans.id))
+  .innerJoin(humans.as('payer_human'), eq(expenses.paidBy, humans.id))
+  .innerJoin(humans.as('split_human'), eq(expenseSplits.userId, humans.id))
   .where(eq(expenses.groupId, groupId))
   .groupBy(humans.id);
 ```
@@ -296,11 +296,11 @@ async function requirePermission(permissionName: string) {
 
     const allPermissions =
       hasIt?.rolesAssigned.flatMap((r) =>
-        r.role.permissions.map((rp) => rp.permission.permissionName),
+        r.role.permissions.map((rp) => rp.permission.permissionName)
       ) ?? [];
 
     if (!allPermissions.includes(permissionName)) {
-      throw new Error("Forbidden");
+      throw new Error('Forbidden');
     }
   };
 }
@@ -308,7 +308,7 @@ async function requirePermission(permissionName: string) {
 // Usage in API:
 export const POST: APIRoute = async (context) => {
   // Ensure user is logged in and has permission
-  await requirePermission("events.create")(context);
+  await requirePermission('events.create')(context);
 
   // Now we know they can create events
   const newEvent = await db.insert(events).values({
@@ -444,7 +444,7 @@ async function assignRoles(humanId: string, roleNames: string[]) {
 }
 
 // Example: Make Alice both organizer and admin
-await assignRoles("alice-id", ["organizer", "admin"]);
+await assignRoles('alice-id', ['organizer', 'admin']);
 
 // Example: Get all admins for notification
 const admins = db
@@ -454,9 +454,9 @@ const admins = db
   .innerJoin(humans, eq(humanSiteRoles.humanId, humans.id))
   .leftJoin(
     emailHistory,
-    and(eq(humans.id, emailHistory.humanId), isNull(emailHistory.effectiveTo)),
+    and(eq(humans.id, emailHistory.humanId), isNull(emailHistory.effectiveTo))
   )
-  .where(eq(siteRoles.roleName, "admin"));
+  .where(eq(siteRoles.roleName, 'admin'));
 ```
 
 ### Dynamic Role Adding
@@ -485,11 +485,7 @@ async function addNewRole(roleName: string, permissions: string[]) {
 }
 
 // Usage: Add "accountant" role
-await addNewRole("accountant", [
-  "expenses.view",
-  "expenses.edit",
-  "groups.manage",
-]);
+await addNewRole('accountant', ['expenses.view', 'expenses.edit', 'groups.manage']);
 ```
 
 ---
@@ -522,7 +518,7 @@ const stats = {
     .select({ count: sql`COUNT(*)` })
     .from(humanSiteRoles)
     .innerJoin(siteRoles, eq(humanSiteRoles.siteRoleId, siteRoles.id))
-    .where(eq(siteRoles.roleName, "admin")),
+    .where(eq(siteRoles.roleName, 'admin')),
 };
 
 // List all users with their current emails and roles
@@ -535,18 +531,14 @@ const usersWithDetails = db
   .from(humans)
   .leftJoin(
     emailHistory,
-    and(eq(humans.id, emailHistory.humanId), isNull(emailHistory.effectiveTo)),
+    and(eq(humans.id, emailHistory.humanId), isNull(emailHistory.effectiveTo))
   )
   .leftJoin(humanSiteRoles, eq(humans.id, humanSiteRoles.humanId))
   .leftJoin(siteRoles, eq(humanSiteRoles.siteRoleId, siteRoles.id))
   .groupBy(humans.id, emailHistory.email);
 
 // View recent activity
-const recentActivity = db
-  .select()
-  .from(auditLog)
-  .orderBy(desc(auditLog.createdAt))
-  .limit(100);
+const recentActivity = db.select().from(auditLog).orderBy(desc(auditLog.createdAt)).limit(100);
 ```
 
 ---

@@ -13,14 +13,14 @@ import { v4 as uuid } from 'uuid';
 
 /**
  * API Integration Tests for Invitation System
- * 
+ *
  * Tests cover:
  * - GET /api/dashboard/pending-invitations
  * - POST /api/groups/invitations/decline
  * - GET /api/groups/[id]/members
  * - POST /api/groups/[id]/invite
  * - POST /api/groups/invitations/accept
- * 
+ *
  * Note: These are integration tests that require a running database.
  * For unit testing in CI/CD, consider using mocked database responses.
  */
@@ -36,7 +36,7 @@ describe.skip('Invitation System API', () => {
     // Create test users
     const humanIdA = uuid();
     const customerIdA = uuid();
-    
+
     await db.insert(humans).values({
       id: humanIdA,
       firstName: 'Test',
@@ -141,14 +141,10 @@ describe.skip('Invitation System API', () => {
 
     // Delete customers
     if (testUserA?.customer?.id) {
-      await db
-        .delete(customers)
-        .where(eq(customers.id, testUserA.customer.id));
+      await db.delete(customers).where(eq(customers.id, testUserA.customer.id));
     }
     if (testUserB?.customer?.id) {
-      await db
-        .delete(customers)
-        .where(eq(customers.id, testUserB.customer.id));
+      await db.delete(customers).where(eq(customers.id, testUserB.customer.id));
     }
 
     // Delete humans
@@ -252,12 +248,8 @@ describe.skip('Invitation System API', () => {
       expect(member).toBeDefined();
 
       // Clean up
-      await db
-        .delete(groupMembers)
-        .where(eq(groupMembers.userId, testUserB.human.id));
-      await db
-        .delete(pendingGroupInvitations)
-        .where(eq(pendingGroupInvitations.id, invitationId));
+      await db.delete(groupMembers).where(eq(groupMembers.userId, testUserB.human.id));
+      await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, invitationId));
     });
 
     it('should reject expired invitations', async () => {
@@ -283,9 +275,7 @@ describe.skip('Invitation System API', () => {
       expect(invitation.expiresAt!.getTime()).toBeLessThan(Date.now());
 
       // Clean up
-      await db
-        .delete(pendingGroupInvitations)
-        .where(eq(pendingGroupInvitations.id, invitationId));
+      await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, invitationId));
     });
 
     it('should reject already accepted invitations', async () => {
@@ -312,9 +302,7 @@ describe.skip('Invitation System API', () => {
       expect(invitation.acceptedAt).toBeDefined();
 
       // Clean up
-      await db
-        .delete(pendingGroupInvitations)
-        .where(eq(pendingGroupInvitations.id, invitationId));
+      await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, invitationId));
     });
   });
 
@@ -347,9 +335,7 @@ describe.skip('Invitation System API', () => {
       expect(updatedInv.status).toBe('rejected');
 
       // Clean up
-      await db
-        .delete(pendingGroupInvitations)
-        .where(eq(pendingGroupInvitations.id, invitationId));
+      await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, invitationId));
     });
   });
 
@@ -371,21 +357,14 @@ describe.skip('Invitation System API', () => {
       const invitations = await db
         .select()
         .from(pendingGroupInvitations)
-        .innerJoin(
-          expenseGroups,
-          eq(pendingGroupInvitations.groupId, expenseGroups.id)
-        )
-        .where(
-          eq(pendingGroupInvitations.email, 'testb@example.com')
-        );
+        .innerJoin(expenseGroups, eq(pendingGroupInvitations.groupId, expenseGroups.id))
+        .where(eq(pendingGroupInvitations.email, 'testb@example.com'));
 
       expect(invitations.length).toBeGreaterThan(0);
       expect(invitations[0].pending_group_invitations.status).toBe('pending');
 
       // Clean up
-      await db
-        .delete(pendingGroupInvitations)
-        .where(eq(pendingGroupInvitations.id, invitationId));
+      await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, invitationId));
     });
 
     it('should not return expired invitations', async () => {
@@ -418,20 +397,14 @@ describe.skip('Invitation System API', () => {
       const invitations = await db
         .select()
         .from(pendingGroupInvitations)
-        .where(
-          eq(pendingGroupInvitations.email, 'testb@example.com')
-        );
+        .where(eq(pendingGroupInvitations.email, 'testb@example.com'));
 
       // Should return both (filtering happens in endpoint)
       expect(invitations.length).toBe(2);
 
       // Clean up
-      await db
-        .delete(pendingGroupInvitations)
-        .where(eq(pendingGroupInvitations.id, expiredId));
-      await db
-        .delete(pendingGroupInvitations)
-        .where(eq(pendingGroupInvitations.id, pendingId));
+      await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, expiredId));
+      await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, pendingId));
     });
   });
 
@@ -467,9 +440,7 @@ describe.skip('Invitation System API', () => {
       expect(pending.length).toBeGreaterThan(0);
 
       // Clean up
-      await db
-        .delete(pendingGroupInvitations)
-        .where(eq(pendingGroupInvitations.id, invitationId));
+      await db.delete(pendingGroupInvitations).where(eq(pendingGroupInvitations.id, invitationId));
     });
 
     it('should validate user is member or owner', async () => {

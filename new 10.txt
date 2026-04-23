@@ -1,0 +1,1 @@
+resend emails send --from "GoldTending hilliards@gmail" --to hilliards@gmail --subject "Resend Says Hi!" --text "Sent from my terminal."

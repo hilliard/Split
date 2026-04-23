@@ -10,12 +10,12 @@ const pool = new Pool({
 async function checkEvents() {
   try {
     const result = await pool.query(`SELECT id, owner_id, name FROM events`);
-    
+
     console.log('\n📋 Events in database:\n');
     if (result.rows.length === 0) {
       console.log('(no events found)\n');
     } else {
-      result.rows.forEach(e => {
+      result.rows.forEach((e) => {
         console.log(`Event: ${e.name}`);
         console.log(`  ID: ${e.id}`);
         console.log(`  Owner ID: ${e.owner_id}`);

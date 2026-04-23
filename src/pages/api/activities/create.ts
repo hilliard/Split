@@ -3,6 +3,7 @@ import { db } from '../../../db';
 import { sessions, activities, events } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { broadcastUpdate } from '../events/stream';
 
 const createActivitySchema = z.object({
   eventId: z.string().uuid('Invalid event ID'),
@@ -147,6 +148,13 @@ export const POST: APIRoute = async (context) => {
         sequenceOrder: validatedData.sequenceOrder,
       })
       .returning();
+
+    // Broadcast to all connected clients for this event
+    broadcastUpdate(validatedData.eventId, {
+      type: 'activity_created',
+      activity: newActivity,
+      timestamp: new Date().toISOString(),
+    });
 
     return new Response(JSON.stringify({
       success: true,

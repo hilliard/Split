@@ -2437,16 +2437,18 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
 
           if (data.groups && data.groups.length > 0) {
             groupsList.innerHTML = data.groups
-              .map(
-                (group) => `
+              .map((group) => {
+                const encodedId = btoa(group.id);
+                const encodedName = btoa(group.name);
+                return `
               <button
                 type="button"
                 class="w-full p-4 text-left bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
-                onclick="linkGroupToEvent('${escapeHtml(group.id)}', '${escapeHtml(group.name).replace(/'/g, "\\'")}')">
+                onclick="linkGroupToEventFromBase64('${encodedId}', '${encodedName}')">
                 <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(group.name)}</h3>
               </button>
-            `
-              )
+            `;
+              })
               .join('');
           } else {
             groupsList.innerHTML =
@@ -2457,6 +2459,18 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         groupsList.innerHTML = '<p class="text-red-600 dark:text-red-400">Error loading groups</p>';
       }
     }
+
+    // Helper to decode base64 and call linkGroupToEvent
+    window.linkGroupToEventFromBase64 = async function (encodedId, encodedName) {
+      try {
+        const groupId = atob(encodedId);
+        const groupName = atob(encodedName);
+        await window.linkGroupToEvent(groupId, groupName);
+      } catch (error) {
+        console.error('Error decoding group data:', error);
+        alert('Error processing group selection');
+      }
+    };
 
     window.linkGroupToEvent = async function (groupId, groupName) {
       try {

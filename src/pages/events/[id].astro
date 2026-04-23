@@ -1598,10 +1598,15 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
           currentUserId = data.event?.creatorId;
 
           if (data.group) {
+            const groupName = String(data.group.name || '')
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
             groupInfo.innerHTML = `
               <div class="flex justify-between items-center">
                 <div>
-                  <h3 class="font-semibold text-slate-900 dark:text-white">${data.group.name}</h3>
+                  <h3 class="font-semibold text-slate-900 dark:text-white">${groupName}</h3>
                 </div>
                 <span class="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 px-3 py-1 rounded">
                   ${data.members ? data.members.length : 0} members
@@ -1611,13 +1616,27 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
 
             if (data.members) {
               groupMembers.innerHTML = data.members
-                .map(
-                  (member) =>
-                    `<div class="flex items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                  <span class="text-slate-900 dark:text-white">${member.firstName} ${member.lastName}</span>
-                  ${member.phone ? `<span class="text-xs text-slate-500 ml-auto">${member.phone}</span>` : ''}
-                </div>`
-                )
+                .map((member) => {
+                  const firstName = String(member.firstName || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+                  const lastName = String(member.lastName || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+                  const phone = String(member.phone || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+                  return `<div class="flex items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                  <span class="text-slate-900 dark:text-white">${firstName} ${lastName}</span>
+                  ${phone ? `<span class="text-xs text-slate-500 ml-auto">${phone}</span>` : ''}
+                </div>`;
+                })
                 .join('');
             }
           } else {

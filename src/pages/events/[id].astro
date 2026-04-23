@@ -1330,20 +1330,22 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
     function addActivityAddMetadataField(key = '', value = '') {
       const container = document.getElementById('addActivityMetadataContainer');
       const fieldId = 'add-activity-metadata-' + Date.now() + Math.random();
+      const escapedKey = escapeHtml(key);
+      const escapedValue = escapeHtml(value);
       const fieldHTML = `
         <div class="flex gap-2" id="${fieldId}">
           <input
             type="text"
             name="metadataKey"
             placeholder="Key (e.g., Flight Number)"
-            value="${key}"
+            value="${escapedKey}"
             class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
           />
           <input
             type="text"
             name="metadataValue"
             placeholder="Value (e.g., DL123)"
-            value="${value}"
+            value="${escapedValue}"
             class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
           />
           <button
@@ -1446,20 +1448,22 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
     function addExpenseAddMetadataField(key = '', value = '') {
       const container = document.getElementById('addExpenseMetadataContainer');
       const fieldId = 'add-expense-metadata-' + Date.now() + Math.random();
+      const escapedKey = escapeHtml(key);
+      const escapedValue = escapeHtml(value);
       const fieldHTML = `
         <div class="flex gap-2" id="${fieldId}">
           <input
             type="text"
             name="expenseMetadataKey"
             placeholder="Key (e.g., Confirmation #)"
-            value="${key}"
+            value="${escapedKey}"
             class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
           />
           <input
             type="text"
             name="expenseMetadataValue"
             placeholder="Value (e.g., CONF123)"
-            value="${value}"
+            value="${escapedValue}"
             class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
           />
           <button

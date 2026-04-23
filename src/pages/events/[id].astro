@@ -1690,7 +1690,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     data-tip="${tip}"
                     data-description="${expense.description || ''}"
                     data-category="${expense.category || 'misc'}"
-                    data-metadata='${JSON.stringify(expense.metadata || {})}'
+                    data-metadata="${btoa(JSON.stringify(expense.metadata || {}))}"
                     class="editExpenseBtn text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
                     ✏️ Edit
                   </button>
@@ -1759,7 +1759,9 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
               tip: parseFloat(e.target.dataset.tip),
               description: e.target.dataset.description,
               category: e.target.dataset.category,
-              metadata: e.target.dataset.metadata ? JSON.parse(e.target.dataset.metadata) : {},
+              metadata: e.target.dataset.metadata
+                ? JSON.parse(atob(e.target.dataset.metadata))
+                : {},
             };
             openEditExpenseModal(expense);
           });

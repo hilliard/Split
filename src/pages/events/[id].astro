@@ -2442,8 +2442,8 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
               <button
                 type="button"
                 class="w-full p-4 text-left bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
-                onclick="linkGroupToEvent('${group.id}', '${group.name.replace(/'/g, "\\'")}')">
-                <h3 class="font-semibold text-slate-900 dark:text-white">${group.name}</h3>
+                onclick="linkGroupToEvent('${escapeHtml(group.id)}', '${escapeHtml(group.name).replace(/'/g, "\\'")}')">
+                <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(group.name)}</h3>
               </button>
             `
               )

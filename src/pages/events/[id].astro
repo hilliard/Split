@@ -2767,7 +2767,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
     loadDetailedSummary();
 
     // ===== Server-Sent Events (SSE) Real-time Updates =====
-    function connectToSSE(eventId: string) {
+    function connectToSSE(eventId) {
       const eventSource = new EventSource(`/api/events/stream?eventId=${eventId}`);
 
       eventSource.addEventListener('message', (event) => {

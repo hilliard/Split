@@ -1,125 +1,17 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import Layout from '../../layouts/Layout.astro';
 
 // Check if user is authenticated
-const sessionId = Astro.cookies.get("sessionId")?.value;
+const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
 }
 ---
 
-<Layout title="Dashboard" description="Your Split dashboard">
+<Layout title="Dashboard" description="Your Split dashboard" currentPage="dashboard">
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <!-- Header -->
-    <header
-      class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50"
-    >
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16 gap-4">
-          <a
-            href="/dashboard"
-            class="text-lg sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors flex-shrink-0"
-          >
-            ⚡ Split
-          </a>
-
-          <!-- Desktop Navigation -->
-          <nav class="hidden md:flex items-center gap-1 flex-1 mx-6">
-            <a
-              href="/dashboard"
-              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200"
-            >
-              Dashboard
-            </a>
-            <a
-              href="/events/create"
-              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
-            >
-              Events
-            </a>
-            <a
-              href="/groups/create"
-              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
-            >
-              Groups
-            </a>
-          </nav>
-
-          <!-- Right Side: User Info + Theme Toggle + Mobile Menu + Logout -->
-          <div class="flex items-center gap-2 ml-auto">
-            <!-- User Info - Hidden on mobile, shown on sm+ -->
-            <div class="text-right hidden sm:block min-w-0">
-              <p
-                id="userName"
-                class="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate"
-              >
-                Loading...
-              </p>
-              <p
-                id="userEmail"
-                class="text-xs text-slate-600 dark:text-slate-400 truncate"
-              >
-              </p>
-            </div>
-
-            <!-- Theme toggle -->
-            <button
-              type="button"
-              id="themeToggle"
-              onclick="window.toggleTheme && window.toggleTheme()"
-              class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-lg flex-shrink-0"
-              aria-label="Toggle dark mode"
-            >
-              <span id="themeIcon">☀️</span>
-            </button>
-
-            <!-- Mobile Menu Button -->
-            <button
-              id="mobileMenuBtn"
-              class="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
-              aria-label="Toggle menu"
-            >
-              <span class="text-2xl">☰</span>
-            </button>
-
-            <!-- Logout button -->
-            <button
-              id="logoutBtn"
-              class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold flex-shrink-0 whitespace-nowrap"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-
-        <!-- Mobile Navigation Menu -->
-        <nav id="mobileMenu" class="hidden md:hidden pb-4 space-y-2">
-          <a
-            href="/dashboard"
-            class="block px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200"
-          >
-            Dashboard
-          </a>
-          <a
-            href="/events/create"
-            class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-          >
-            Create Event
-          </a>
-          <a
-            href="/groups/create"
-            class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-          >
-            Create Group
-          </a>
-        </nav>
-      </div>
-    </header>
-
     <!-- Main Content -->
-    <main
-      class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
-    >
+    <main class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       <!-- Top Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <!-- Welcome Card -->
@@ -137,8 +29,7 @@ if (!sessionId) {
           >
           </p>
           <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-            Click the buttons below to create a new event or group and start
-            tracking expenses.
+            Click the buttons below to create a new event or group and start tracking expenses.
           </p>
         </div>
 
@@ -240,9 +131,7 @@ if (!sessionId) {
               >
                 $0
               </p>
-              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                Total Spent
-              </p>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Total Spent</p>
             </div>
           </div>
         </div>
@@ -254,9 +143,7 @@ if (!sessionId) {
           href="/events/create"
           class="block p-5 sm:p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors active:bg-slate-50 dark:active:bg-slate-700 text-left w-full"
         >
-          <h3
-            class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2"
-          >
+          <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">
             Create Event
           </h3>
           <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
@@ -268,9 +155,7 @@ if (!sessionId) {
           href="/groups/create"
           class="block p-5 sm:p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors active:bg-slate-50 dark:active:bg-slate-700"
         >
-          <h3
-            class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2"
-          >
+          <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">
             Create Group
           </h3>
           <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
@@ -281,9 +166,7 @@ if (!sessionId) {
 
       <!-- Pending Invitations Section -->
       <div class="mb-6 sm:mb-8">
-        <h2
-          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
-        >
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
           Pending Invitations
         </h2>
         <div id="invitationsList" class="grid grid-cols-1 gap-4">
@@ -292,9 +175,7 @@ if (!sessionId) {
             id="invitationsEmpty"
             class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
           >
-            <h3
-              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
-            >
+            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
               No pending invitations
             </h3>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
@@ -306,9 +187,7 @@ if (!sessionId) {
 
       <!-- My Groups Section -->
       <div class="mb-6 sm:mb-8">
-        <h2
-          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
-        >
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
           Your Groups
         </h2>
         <div id="groupsList" class="grid grid-cols-1 gap-4">
@@ -317,9 +196,7 @@ if (!sessionId) {
             id="groupsEmpty"
             class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
           >
-            <h3
-              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
-            >
+            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
               No groups yet
             </h3>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
@@ -331,9 +208,7 @@ if (!sessionId) {
 
       <!-- Events Section -->
       <div>
-        <h2
-          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
-        >
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
           Your Events
         </h2>
         <div id="eventsList" class="grid grid-cols-1 gap-4">
@@ -342,9 +217,7 @@ if (!sessionId) {
             id="eventsEmpty"
             class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
           >
-            <h3
-              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
-            >
+            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
               No events yet
             </h3>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
@@ -356,9 +229,7 @@ if (!sessionId) {
 
       <!-- Pending Settlements Section -->
       <div class="mt-6 sm:mt-8">
-        <h2
-          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
-        >
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
           Pending Settlements
         </h2>
         <div id="settlementsList" class="grid grid-cols-1 gap-4">
@@ -367,13 +238,11 @@ if (!sessionId) {
             id="settlementsEmpty"
             class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
           >
-            <h3
-              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
-            >
+            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
               No pending settlements
             </h3>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              All payments are settled up! 🎉
+              No settlements needed right now
             </p>
           </div>
         </div>
@@ -381,9 +250,7 @@ if (!sessionId) {
 
       <!-- Completed Settlements Section -->
       <div class="mt-6 sm:mt-8">
-        <h2
-          class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4"
-        >
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
           Completed Settlements
         </h2>
         <div id="completedSettlementsList" class="grid grid-cols-1 gap-4">
@@ -392,13 +259,11 @@ if (!sessionId) {
             id="completedSettlementsEmpty"
             class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
           >
-            <h3
-              class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2"
-            >
+            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
               No completed settlements yet
             </h3>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              Completed payments will appear here
+              Completed payment records will appear here
             </p>
           </div>
         </div>
@@ -417,10 +282,7 @@ if (!sessionId) {
         <div
           class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center"
         >
-          <h2
-            id="statsListTitle"
-            class="text-xl font-bold text-slate-900 dark:text-white"
-          >
+          <h2 id="statsListTitle" class="text-xl font-bold text-slate-900 dark:text-white">
             Items
           </h2>
           <button
@@ -448,9 +310,7 @@ if (!sessionId) {
         class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-2xl border border-slate-200 dark:border-slate-700 my-8"
       >
         <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
-          <h2
-            class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
-          >
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
             Create New Event
           </h2>
         </div>
@@ -650,9 +510,7 @@ if (!sessionId) {
           </div>
 
           <!-- Action Buttons -->
-          <div
-            class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
-          >
+          <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
             <button
               type="button"
               id="cancelEventBtn"
@@ -684,20 +542,17 @@ if (!sessionId) {
   </div>
 
   <script is:inline>
-    console.log("Dashboard script loaded");
+    console.log('Dashboard script loaded');
 
     // Show toast notification
-    function showToast(
-      message = "Event created successfully!",
-      duration = 3000,
-    ) {
-      const toast = document.getElementById("toast");
-      const toastMessage = document.getElementById("toastMessage");
+    function showToast(message = 'Event created successfully!', duration = 3000) {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
       if (toast && toastMessage) {
         toastMessage.textContent = message;
-        toast.classList.remove("hidden");
+        toast.classList.remove('hidden');
         setTimeout(() => {
-          toast.classList.add("hidden");
+          toast.classList.add('hidden');
         }, duration);
       }
     }
@@ -705,15 +560,15 @@ if (!sessionId) {
     // Load and display events
     async function loadEvents() {
       try {
-        const response = await fetch("/api/events/list");
+        const response = await fetch('/api/events/list');
         if (response.ok) {
           const data = await response.json();
-          console.log("📋 Events from API:", data.events);
-          const eventsList = document.getElementById("eventsList");
-          const eventsEmpty = document.getElementById("eventsEmpty");
+          console.log('📋 Events from API:', data.events);
+          const eventsList = document.getElementById('eventsList');
+          const eventsEmpty = document.getElementById('eventsEmpty');
 
           if (data.events.length === 0) {
-            if (eventsList) eventsList.innerHTML = eventsEmpty?.outerHTML || "";
+            if (eventsList) eventsList.innerHTML = eventsEmpty?.outerHTML || '';
           } else {
             if (eventsList) {
               eventsList.innerHTML = data.events
@@ -721,24 +576,20 @@ if (!sessionId) {
                   try {
                     const startDate = event.startTime || event.startDate;
                     const endDate = event.endTime || event.endDate;
-                    const startStr = startDate
-                      ? new Date(startDate).toLocaleDateString()
-                      : "";
-                    const endStr = endDate
-                      ? new Date(endDate).toLocaleDateString()
-                      : "";
+                    const startStr = startDate ? new Date(startDate).toLocaleDateString() : '';
+                    const endStr = endDate ? new Date(endDate).toLocaleDateString() : '';
 
                     return `
                 <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
                   <div class="flex justify-between items-start mb-3">
                     <div>
                       <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">${escapeHtml(event.title || event.name)}</h3>
-                      ${event.location ? `<p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">📍 ${escapeHtml(event.location)}</p>` : ""}
+                      ${event.location ? `<p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">📍 ${escapeHtml(event.location)}</p>` : ''}
                     </div>
                     <span class="text-xs sm:text-sm font-semibold text-indigo-600 dark:text-indigo-400">${event.currency}</span>
                   </div>
                   
-                  ${event.description ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-3">${escapeHtml(event.description)}</p>` : ""}
+                  ${event.description ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-3">${escapeHtml(event.description)}</p>` : ''}
                   
                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3 text-xs sm:text-sm">
                     ${
@@ -747,7 +598,7 @@ if (!sessionId) {
                       <span class="text-slate-600 dark:text-slate-400">Start</span>
                       <p class="font-medium text-slate-900 dark:text-white">${startStr}</p>
                     </div>`
-                        : ""
+                        : ''
                     }
                     ${
                       endStr
@@ -755,7 +606,7 @@ if (!sessionId) {
                       <span class="text-slate-600 dark:text-slate-400">End</span>
                       <p class="font-medium text-slate-900 dark:text-white">${endStr}</p>
                     </div>`
-                        : ""
+                        : ''
                     }
                     <div>
                       <span class="text-slate-600 dark:text-slate-400">Current Expenses</span>
@@ -767,7 +618,7 @@ if (!sessionId) {
                       <span class="text-slate-600 dark:text-slate-400">Budget</span>
                       <p class="font-medium text-slate-900 dark:text-white">${event.currency} ${parseFloat(event.budget).toFixed(2)}</p>
                     </div>`
-                        : ""
+                        : ''
                     }
                   </div>
                   
@@ -778,21 +629,21 @@ if (!sessionId) {
                 </div>
               `;
                   } catch (e) {
-                    console.error("❌ Error rendering event:", event, e);
-                    return "";
+                    console.error('❌ Error rendering event:', event, e);
+                    return '';
                   }
                 })
-                .join("");
+                .join('');
 
               // Add event listeners to View and Edit buttons
-              document.querySelectorAll(".view-event-btn").forEach((btn) => {
-                btn.addEventListener("click", (e) => {
+              document.querySelectorAll('.view-event-btn').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
                   const eventId = e.target.dataset.eventId;
                   window.location.href = `/events/${eventId}`;
                 });
               });
-              document.querySelectorAll(".edit-event-btn").forEach((btn) => {
-                btn.addEventListener("click", (e) => {
+              document.querySelectorAll('.edit-event-btn').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
                   const eventId = e.target.dataset.eventId;
                   window.location.href = `/events/${eventId}/edit`;
                 });
@@ -801,19 +652,19 @@ if (!sessionId) {
           }
         }
       } catch (error) {
-        console.error("Failed to load events:", error);
+        console.error('Failed to load events:', error);
       }
     }
 
     // Escape HTML to prevent XSS
     function escapeHtml(text) {
-      if (!text) return "";
+      if (!text) return '';
       const map = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
       };
       return text.replace(/[&<>"']/g, (m) => map[m]);
     }
@@ -821,69 +672,61 @@ if (!sessionId) {
     // Load user info
     async function loadUserInfo() {
       try {
-        const response = await fetch("/api/auth/me");
+        const response = await fetch('/api/auth/me');
         if (response.ok) {
           const user = await response.json();
           currentUserId = user.id; // Store user ID for owes calculation
           const username = user.username || user.email;
 
-          console.log("🔧 loadUserInfo called with username:", username);
+          console.log('🔧 loadUserInfo called with username:', username);
 
-          const userName = document.getElementById("userName");
+          const userName = document.getElementById('userName');
           if (userName) {
             userName.textContent = `Welcome ${username}`;
-            console.log("✓ Set header userName to: Welcome " + username);
+            console.log('✓ Set header userName to: Welcome ' + username);
           }
 
-          const userEmail = document.getElementById("userEmail");
+          const userEmail = document.getElementById('userEmail');
           if (userEmail) {
             userEmail.textContent = user.email;
-            console.log("✓ Set header userEmail to:", user.email);
+            console.log('✓ Set header userEmail to:', user.email);
           }
 
-          const welcomeMessage = document.getElementById("welcomeMessage");
-          console.log("🔍 welcomeMessage element:", welcomeMessage);
-          console.log(
-            "🔍 welcomeMessage HTML before:",
-            welcomeMessage?.innerHTML,
-          );
+          const welcomeMessage = document.getElementById('welcomeMessage');
+          console.log('🔍 welcomeMessage element:', welcomeMessage);
+          console.log('🔍 welcomeMessage HTML before:', welcomeMessage?.innerHTML);
 
           if (welcomeMessage) {
             // Use plain text first to test
             welcomeMessage.textContent = `Welcome ${username}!`;
-            console.log(
-              "✓ Set welcomeMessage textContent to: Welcome " + username + "!",
-            );
-            console.log(
-              "🔍 welcomeMessage text after:",
-              welcomeMessage.textContent,
-            );
+            console.log('✓ Set welcomeMessage textContent to: Welcome ' + username + '!');
+            console.log('🔍 welcomeMessage text after:', welcomeMessage.textContent);
           } else {
-            console.error("✗✗✗ welcomeMessage element NOT found!");
+            console.error('✗✗✗ welcomeMessage element NOT found!');
           }
 
-          const welcomeEmail = document.getElementById("welcomeEmail");
+          const welcomeEmail = document.getElementById('welcomeEmail');
           if (welcomeEmail) {
             welcomeEmail.textContent = user.email;
-            console.log("✓ Set welcomeEmail to:", user.email);
+            console.log('✓ Set welcomeEmail to:', user.email);
           }
         }
       } catch (error) {
-        console.error("Failed to load user info:", error);
+        console.error('Failed to load user info:', error);
       }
     }
 
     // Load and display user groups
     async function loadGroups() {
       try {
-        const response = await fetch("/api/groups/list");
+        const response = await fetch('/api/groups/list');
         if (response.ok) {
           const data = await response.json();
-          const groupsList = document.getElementById("groupsList");
-          const groupsEmpty = document.getElementById("groupsEmpty");
+          const groupsList = document.getElementById('groupsList');
+          const groupsEmpty = document.getElementById('groupsEmpty');
 
           if (!data.groups || data.groups.length === 0) {
-            if (groupsList) groupsList.innerHTML = groupsEmpty?.outerHTML || "";
+            if (groupsList) groupsList.innerHTML = groupsEmpty?.outerHTML || '';
           } else {
             if (groupsList) {
               groupsList.innerHTML = data.groups
@@ -918,9 +761,9 @@ if (!sessionId) {
                     <button class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors flex-1 edit-group-btn" data-group-id="${group.id}">Edit</button>
                   </div>
                 </div>
-              `,
+              `
                 )
-                .join("");
+                .join('');
 
               // Load stats for each group
               for (const group of data.groups) {
@@ -928,14 +771,14 @@ if (!sessionId) {
               }
 
               // Add event listeners to View and Edit buttons
-              document.querySelectorAll(".view-group-btn").forEach((btn) => {
-                btn.addEventListener("click", (e) => {
+              document.querySelectorAll('.view-group-btn').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
                   const groupId = e.target.dataset.groupId;
                   window.location.href = `/groups/${groupId}/manage`;
                 });
               });
-              document.querySelectorAll(".edit-group-btn").forEach((btn) => {
-                btn.addEventListener("click", (e) => {
+              document.querySelectorAll('.edit-group-btn').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
                   const groupId = e.target.dataset.groupId;
                   window.location.href = `/groups/${groupId}/edit`;
                 });
@@ -944,16 +787,14 @@ if (!sessionId) {
           }
         }
       } catch (error) {
-        console.error("Failed to load groups:", error);
+        console.error('Failed to load groups:', error);
       }
     }
 
     // Load stats for a specific group
     async function loadGroupStats(groupId) {
       try {
-        const groupCard = document.querySelector(
-          `[data-group-id="${groupId}"]`,
-        );
+        const groupCard = document.querySelector(`[data-group-id="${groupId}"]`);
         if (!groupCard) return;
 
         // Get group details (members)
@@ -963,31 +804,25 @@ if (!sessionId) {
           const memberCount = data.members ? data.members.length : 0;
 
           // Update member count
-          const memberCountEl = groupCard.querySelector(".group-member-count");
+          const memberCountEl = groupCard.querySelector('.group-member-count');
           if (memberCountEl) memberCountEl.textContent = memberCount;
 
           // For now, set expenses and total to 0 since expenses are tied to events
-          const expenseCountEl = groupCard.querySelector(
-            ".group-expense-count",
-          );
-          const totalSpentEl = groupCard.querySelector(".group-total-spent");
+          const expenseCountEl = groupCard.querySelector('.group-expense-count');
+          const totalSpentEl = groupCard.querySelector('.group-total-spent');
 
-          if (expenseCountEl) expenseCountEl.textContent = "0";
-          if (totalSpentEl) totalSpentEl.textContent = "$0.00";
+          if (expenseCountEl) expenseCountEl.textContent = '0';
+          if (totalSpentEl) totalSpentEl.textContent = '$0.00';
         }
       } catch (error) {
         console.error(`Failed to load stats for group ${groupId}:`, error);
         // Fallback - set to 0
-        const groupCard = document.querySelector(
-          `[data-group-id="${groupId}"]`,
-        );
+        const groupCard = document.querySelector(`[data-group-id="${groupId}"]`);
         if (groupCard) {
-          const expenseCountEl = groupCard.querySelector(
-            ".group-expense-count",
-          );
-          const totalSpentEl = groupCard.querySelector(".group-total-spent");
-          if (expenseCountEl) expenseCountEl.textContent = "0";
-          if (totalSpentEl) totalSpentEl.textContent = "$0.00";
+          const expenseCountEl = groupCard.querySelector('.group-expense-count');
+          const totalSpentEl = groupCard.querySelector('.group-total-spent');
+          if (expenseCountEl) expenseCountEl.textContent = '0';
+          if (totalSpentEl) totalSpentEl.textContent = '$0.00';
         }
       }
     }
@@ -996,7 +831,7 @@ if (!sessionId) {
     async function updateStats() {
       try {
         // Get groups
-        const groupsResponse = await fetch("/api/groups/list");
+        const groupsResponse = await fetch('/api/groups/list');
         let groupCount = 0;
         let groupsMap = {}; // Map groupId to group name
         statsData.groups = [];
@@ -1011,14 +846,14 @@ if (!sessionId) {
             groupsMap[group.id] = group.name;
           });
 
-          const statsGroupCount = document.getElementById("statsGroupCount");
+          const statsGroupCount = document.getElementById('statsGroupCount');
           if (statsGroupCount) {
             statsGroupCount.textContent = groupCount;
           }
         }
 
         // Get events
-        const eventsResponse = await fetch("/api/events/list");
+        const eventsResponse = await fetch('/api/events/list');
         let eventCount = 0;
         let totalExpenseCount = 0;
         let totalActivityCount = 0;
@@ -1038,7 +873,7 @@ if (!sessionId) {
             groupName: event.groupId ? groupsMap[event.groupId] : null,
           }));
 
-          const statsEventCount = document.getElementById("statsEventCount");
+          const statsEventCount = document.getElementById('statsEventCount');
           if (statsEventCount) {
             statsEventCount.textContent = eventCount;
           }
@@ -1046,9 +881,7 @@ if (!sessionId) {
           // Fetch expenses and activities for all events
           for (const event of events) {
             try {
-              const expensesResp = await fetch(
-                `/api/expenses/list?eventId=${event.id}`,
-              );
+              const expensesResp = await fetch(`/api/expenses/list?eventId=${event.id}`);
               if (expensesResp.ok) {
                 const expensesData = await expensesResp.json();
                 const expenses = expensesData.expenses || [];
@@ -1059,7 +892,7 @@ if (!sessionId) {
                   statsData.expenses.push({
                     ...expense,
                     tripName: event.name,
-                    currency: event.currency || "USD",
+                    currency: event.currency || 'USD',
                   });
                   totalExpensesAmount += parseFloat(expense.total) || 0;
 
@@ -1069,7 +902,7 @@ if (!sessionId) {
                       id: expense.id,
                       description: expense.description,
                       amount: parseFloat(expense.total) || 0,
-                      currency: event.currency || "USD",
+                      currency: event.currency || 'USD',
                       paidBy: expense.payerName,
                       tripName: event.name,
                     });
@@ -1078,21 +911,16 @@ if (!sessionId) {
               } else {
                 const errorData = await expensesResp.json().catch(() => ({}));
                 console.warn(
-                  `Failed to fetch expenses for event ${event.id}: ${expensesResp.status} ${errorData.error || expensesResp.statusText}`,
+                  `Failed to fetch expenses for event ${event.id}: ${expensesResp.status} ${errorData.error || expensesResp.statusText}`
                 );
               }
             } catch (e) {
-              console.error(
-                `Failed to fetch expenses for event ${event.id}:`,
-                e,
-              );
+              console.error(`Failed to fetch expenses for event ${event.id}:`, e);
             }
 
             // Fetch activities for each event
             try {
-              const activitiesResp = await fetch(
-                `/api/activities/list?eventId=${event.id}`,
-              );
+              const activitiesResp = await fetch(`/api/activities/list?eventId=${event.id}`);
               if (activitiesResp.ok) {
                 const activitiesData = await activitiesResp.json();
                 const activities = activitiesData.activities || [];
@@ -1108,48 +936,40 @@ if (!sessionId) {
               } else {
                 const errorData = await activitiesResp.json().catch(() => ({}));
                 console.warn(
-                  `Failed to fetch activities for event ${event.id}: ${activitiesResp.status} ${errorData.error || activitiesResp.statusText}`,
+                  `Failed to fetch activities for event ${event.id}: ${activitiesResp.status} ${errorData.error || activitiesResp.statusText}`
                 );
               }
             } catch (e) {
-              console.error(
-                `Failed to fetch activities for event ${event.id}:`,
-                e,
-              );
+              console.error(`Failed to fetch activities for event ${event.id}:`, e);
             }
           }
 
-          const statsActivityCount =
-            document.getElementById("statsActivityCount");
+          const statsActivityCount = document.getElementById('statsActivityCount');
           if (statsActivityCount) {
             statsActivityCount.textContent = totalActivityCount;
           }
         }
 
         // Update expense count
-        const statsExpenseCount = document.getElementById("statsExpenseCount");
+        const statsExpenseCount = document.getElementById('statsExpenseCount');
         if (statsExpenseCount) {
           statsExpenseCount.textContent = totalExpenseCount;
         }
 
         // Update total expenses amount
-        const statsTotalExpenses =
-          document.getElementById("statsTotalExpenses");
+        const statsTotalExpenses = document.getElementById('statsTotalExpenses');
         if (statsTotalExpenses) {
           statsTotalExpenses.textContent = `$${totalExpensesAmount.toFixed(2)}`;
         }
 
         // Calculate and update total owes amount
-        const totalOwes = statsData.owes.reduce(
-          (sum, owe) => sum + owe.amount,
-          0,
-        );
-        const statsOwesAmount = document.getElementById("statsOwesAmount");
+        const totalOwes = statsData.owes.reduce((sum, owe) => sum + owe.amount, 0);
+        const statsOwesAmount = document.getElementById('statsOwesAmount');
         if (statsOwesAmount) {
           statsOwesAmount.textContent = `$${totalOwes.toFixed(2)}`;
         }
       } catch (error) {
-        console.error("Failed to update stats:", error);
+        console.error('Failed to update stats:', error);
       }
     }
 
@@ -1165,28 +985,28 @@ if (!sessionId) {
 
     // Show stats list modal
     function showStatsList(type, title) {
-      const modal = document.getElementById("statsListModal");
-      const titleElement = document.getElementById("statsListTitle");
-      const content = document.getElementById("statsListContent");
+      const modal = document.getElementById('statsListModal');
+      const titleElement = document.getElementById('statsListTitle');
+      const content = document.getElementById('statsListContent');
 
       titleElement.textContent = title;
 
       let items = [];
-      let html = "";
+      let html = '';
 
-      if (type === "trips") {
+      if (type === 'trips') {
         items = statsData.trips;
         html = items
           .map(
             (trip) => `
           <a href="/events/${trip.id}" class="block p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
             <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(trip.name)}</h3>
-            <p class="text-sm text-slate-600 dark:text-slate-400">${trip.groupName ? `Group: ${escapeHtml(trip.groupName)}` : "Personal"}</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">${trip.groupName ? `Group: ${escapeHtml(trip.groupName)}` : 'Personal'}</p>
           </a>
-        `,
+        `
           )
-          .join("");
-      } else if (type === "expenses") {
+          .join('');
+      } else if (type === 'expenses') {
         items = statsData.expenses;
         html = items
           .map(
@@ -1196,29 +1016,29 @@ if (!sessionId) {
               <div class="flex-1">
                 <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(exp.description)}</h3>
                 <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(exp.tripName)}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Paid by: ${escapeHtml(exp.payerName || "Unknown")}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Paid by: ${escapeHtml(exp.payerName || 'Unknown')}</p>
               </div>
               <div class="text-right flex-shrink-0">
-                <p class="font-semibold text-green-600 dark:text-green-400">${exp.currency || "USD"} ${parseFloat(exp.total || 0).toFixed(2)}</p>
+                <p class="font-semibold text-green-600 dark:text-green-400">${exp.currency || 'USD'} ${parseFloat(exp.total || 0).toFixed(2)}</p>
               </div>
             </div>
           </div>
-        `,
+        `
           )
-          .join("");
-      } else if (type === "activities") {
+          .join('');
+      } else if (type === 'activities') {
         items = statsData.activities;
         html = items
           .map(
             (act) => `
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(act.title || act.name || "Untitled Activity")}</h3>
+            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(act.title || act.name || 'Untitled Activity')}</h3>
             <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(act.tripName)}</p>
           </div>
-        `,
+        `
           )
-          .join("");
-      } else if (type === "groups") {
+          .join('');
+      } else if (type === 'groups') {
         items = statsData.groups;
         html = items
           .map(
@@ -1227,10 +1047,10 @@ if (!sessionId) {
             <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(grp.name)}</h3>
             <p class="text-sm text-slate-600 dark:text-slate-400">${grp.memberCount || 0} members</p>
           </a>
-        `,
+        `
           )
-          .join("");
-      } else if (type === "owes") {
+          .join('');
+      } else if (type === 'owes') {
         items = statsData.owes;
         html = items
           .map(
@@ -1240,16 +1060,16 @@ if (!sessionId) {
               <div class="flex-1">
                 <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(owe.description)}</h3>
                 <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(owe.tripName)}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Owed to: ${escapeHtml(owe.paidBy || "Unknown")}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Owed to: ${escapeHtml(owe.paidBy || 'Unknown')}</p>
               </div>
               <div class="text-right flex-shrink-0">
                 <p class="font-semibold text-red-600 dark:text-red-400">${owe.currency} ${owe.amount.toFixed(2)}</p>
               </div>
             </div>
           </div>
-        `,
+        `
           )
-          .join("");
+          .join('');
       }
 
       if (items.length === 0) {
@@ -1257,36 +1077,35 @@ if (!sessionId) {
       }
 
       content.innerHTML = html;
-      modal.classList.remove("hidden");
+      modal.classList.remove('hidden');
     }
 
     // Close stats list modal
     function closeStatsList() {
-      const modal = document.getElementById("statsListModal");
-      modal.classList.add("hidden");
+      const modal = document.getElementById('statsListModal');
+      modal.classList.add('hidden');
     }
 
     // Load and display pending invitations
     async function loadPendingInvitations() {
       try {
-        const response = await fetch("/api/dashboard/pending-invitations");
+        const response = await fetch('/api/dashboard/pending-invitations');
 
         // Handle 404 (endpoint not yet available)
         if (response.status === 404) {
           console.warn(
-            "⚠️ Pending invitations endpoint not available. Please restart the dev server.",
+            '⚠️ Pending invitations endpoint not available. Please restart the dev server.'
           );
           return;
         }
 
         if (response.ok) {
           const data = await response.json();
-          const invitationsList = document.getElementById("invitationsList");
-          const invitationsEmpty = document.getElementById("invitationsEmpty");
+          const invitationsList = document.getElementById('invitationsList');
+          const invitationsEmpty = document.getElementById('invitationsEmpty');
 
           if (!data.invitations || data.invitations.length === 0) {
-            if (invitationsList)
-              invitationsList.innerHTML = invitationsEmpty?.outerHTML || "";
+            if (invitationsList) invitationsList.innerHTML = invitationsEmpty?.outerHTML || '';
           } else {
             if (invitationsList) {
               invitationsList.innerHTML = data.invitations
@@ -1318,91 +1137,73 @@ if (!sessionId) {
                     </button>
                   </div>
                 </div>
-              `,
+              `
                 )
-                .join("");
+                .join('');
 
               // Add event listeners to accept/decline buttons
-              document
-                .querySelectorAll(".accept-invitation-btn")
-                .forEach((btn) => {
-                  btn.addEventListener("click", async (e) => {
-                    const invitationId = e.target.dataset.invitationId;
-                    try {
-                      btn.disabled = true;
-                      btn.textContent = "Accepting...";
-                      const response = await fetch(
-                        "/api/groups/invitations/accept",
-                        {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ invitationId }),
-                        },
-                      );
-                      if (response.ok) {
-                        showToast(
-                          "Invitation accepted! You've joined the group.",
-                        );
-                        loadPendingInvitations();
-                      } else {
-                        const error = await response.json();
-                        showToast(
-                          error.error || "Failed to accept invitation",
-                          4000,
-                        );
-                        btn.disabled = false;
-                        btn.textContent = "Accept";
-                      }
-                    } catch (error) {
-                      console.error("Error accepting invitation:", error);
-                      showToast("Error accepting invitation", 4000);
+              document.querySelectorAll('.accept-invitation-btn').forEach((btn) => {
+                btn.addEventListener('click', async (e) => {
+                  const invitationId = e.target.dataset.invitationId;
+                  try {
+                    btn.disabled = true;
+                    btn.textContent = 'Accepting...';
+                    const response = await fetch('/api/groups/invitations/accept', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ invitationId }),
+                    });
+                    if (response.ok) {
+                      showToast("Invitation accepted! You've joined the group.");
+                      loadPendingInvitations();
+                    } else {
+                      const error = await response.json();
+                      showToast(error.error || 'Failed to accept invitation', 4000);
                       btn.disabled = false;
-                      btn.textContent = "Accept";
+                      btn.textContent = 'Accept';
                     }
-                  });
+                  } catch (error) {
+                    console.error('Error accepting invitation:', error);
+                    showToast('Error accepting invitation', 4000);
+                    btn.disabled = false;
+                    btn.textContent = 'Accept';
+                  }
                 });
+              });
 
-              document
-                .querySelectorAll(".decline-invitation-btn")
-                .forEach((btn) => {
-                  btn.addEventListener("click", async (e) => {
-                    const invitationId = e.target.dataset.invitationId;
-                    try {
-                      btn.disabled = true;
-                      btn.textContent = "Declining...";
-                      const response = await fetch(
-                        "/api/groups/invitations/decline",
-                        {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ invitationId }),
-                        },
-                      );
-                      if (response.ok) {
-                        showToast("Invitation declined.");
-                        loadPendingInvitations();
-                      } else {
-                        const error = await response.json();
-                        showToast(
-                          error.error || "Failed to decline invitation",
-                          4000,
-                        );
-                        btn.disabled = false;
-                        btn.textContent = "Decline";
-                      }
-                    } catch (error) {
-                      console.error("Error declining invitation:", error);
-                      showToast("Error declining invitation", 4000);
+              document.querySelectorAll('.decline-invitation-btn').forEach((btn) => {
+                btn.addEventListener('click', async (e) => {
+                  const invitationId = e.target.dataset.invitationId;
+                  try {
+                    btn.disabled = true;
+                    btn.textContent = 'Declining...';
+                    const response = await fetch('/api/groups/invitations/decline', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ invitationId }),
+                    });
+                    if (response.ok) {
+                      showToast('Invitation declined.');
+                      loadPendingInvitations();
+                    } else {
+                      const error = await response.json();
+                      showToast(error.error || 'Failed to decline invitation', 4000);
                       btn.disabled = false;
-                      btn.textContent = "Decline";
+                      btn.textContent = 'Decline';
                     }
-                  });
+                  } catch (error) {
+                    console.error('Error declining invitation:', error);
+                    showToast('Error declining invitation', 4000);
+                    btn.disabled = false;
+                    btn.textContent = 'Decline';
+                  }
                 });
+              });
             }
           }
         }
       } catch (error) {
-        console.error("Failed to load pending invitations:", error);
+        console.error('Failed to load pending invitations:', error);
       }
     }
 
@@ -1410,9 +1211,9 @@ if (!sessionId) {
     async function loadSettlements() {
       try {
         // First, get all user events
-        const eventsResponse = await fetch("/api/events/list");
+        const eventsResponse = await fetch('/api/events/list');
         if (!eventsResponse.ok) {
-          console.warn("Failed to load events for settlements");
+          console.warn('Failed to load events for settlements');
           return;
         }
 
@@ -1424,38 +1225,28 @@ if (!sessionId) {
         let allCompletedSettlements = [];
         for (const event of events) {
           try {
-            const settlementsResp = await fetch(
-              `/api/settlements/for-event?eventId=${event.id}`,
-            );
+            const settlementsResp = await fetch(`/api/settlements/for-event?eventId=${event.id}`);
             if (settlementsResp.ok) {
               const data = await settlementsResp.json();
-              allPendingSettlements = allPendingSettlements.concat(
-                data.pending || [],
-              );
-              allCompletedSettlements = allCompletedSettlements.concat(
-                data.completed || [],
-              );
+              allPendingSettlements = allPendingSettlements.concat(data.pending || []);
+              allCompletedSettlements = allCompletedSettlements.concat(data.completed || []);
             }
           } catch (e) {
-            console.warn(
-              `Failed to load settlements for event ${event.id}:`,
-              e,
-            );
+            console.warn(`Failed to load settlements for event ${event.id}:`, e);
           }
         }
 
         // Display pending settlements
-        const settlementsList = document.getElementById("settlementsList");
-        const settlementsEmpty = document.getElementById("settlementsEmpty");
+        const settlementsList = document.getElementById('settlementsList');
+        const settlementsEmpty = document.getElementById('settlementsEmpty');
 
         // Filter to only show settlements involving current user
         const userPendingSettlements = allPendingSettlements.filter(
-          (s) => s.isCurrentUserPayer || s.isCurrentUserReceiver,
+          (s) => s.isCurrentUserPayer || s.isCurrentUserReceiver
         );
 
         if (!userPendingSettlements || userPendingSettlements.length === 0) {
-          if (settlementsList)
-            settlementsList.innerHTML = settlementsEmpty?.outerHTML || "";
+          if (settlementsList) settlementsList.innerHTML = settlementsEmpty?.outerHTML || '';
         } else {
           if (settlementsList) {
             settlementsList.innerHTML = userPendingSettlements
@@ -1471,7 +1262,7 @@ if (!sessionId) {
                         ${escapeHtml(settlement.fromName)} → ${escapeHtml(settlement.toName)}
                       </h3>
                       <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                        ${settlement.description ? escapeHtml(settlement.description) : "Payment settlement"}
+                        ${settlement.description ? escapeHtml(settlement.description) : 'Payment settlement'}
                       </p>
                     </div>
                     <span class="text-sm font-bold text-amber-600 dark:text-amber-400 flex-shrink-0">
@@ -1481,7 +1272,7 @@ if (!sessionId) {
                   
                   <div class="mb-3 text-xs text-slate-500 dark:text-slate-400">
                     Created ${new Date(settlement.createdAt).toLocaleDateString()}
-                    ${settlement.paymentMethod ? `via ${escapeHtml(settlement.paymentMethod)}` : ""}
+                    ${settlement.paymentMethod ? `via ${escapeHtml(settlement.paymentMethod)}` : ''}
                   </div>
                   
                   <div class="pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
@@ -1502,65 +1293,51 @@ if (!sessionId) {
                 </div>
               `;
               })
-              .join("");
+              .join('');
 
             // Add event listeners to confirm buttons
-            document
-              .querySelectorAll(".confirm-settlement-btn")
-              .forEach((btn) => {
-                btn.addEventListener("click", async (e) => {
-                  const settlementId = e.target.dataset.settlementId;
-                  btn.disabled = true;
-                  btn.textContent = "Confirming...";
+            document.querySelectorAll('.confirm-settlement-btn').forEach((btn) => {
+              btn.addEventListener('click', async (e) => {
+                const settlementId = e.target.dataset.settlementId;
+                btn.disabled = true;
+                btn.textContent = 'Confirming...';
 
-                  try {
-                    const response = await fetch(
-                      `/api/settlements/${settlementId}/confirm`,
-                      { method: "PUT" },
-                    );
-                    if (response.ok) {
-                      showToast("Payment confirmed! 🎉");
-                      loadSettlements();
-                    } else {
-                      const error = await response.json();
-                      showToast(
-                        error.error || "Failed to confirm settlement",
-                        4000,
-                      );
-                      btn.disabled = false;
-                      btn.textContent = "Mark Paid";
-                    }
-                  } catch (error) {
-                    console.error("Error confirming settlement:", error);
-                    showToast("Error confirming settlement", 4000);
+                try {
+                  const response = await fetch(`/api/settlements/${settlementId}/confirm`, {
+                    method: 'PUT',
+                  });
+                  if (response.ok) {
+                    showToast('Payment confirmed! 🎉');
+                    loadSettlements();
+                  } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to confirm settlement', 4000);
                     btn.disabled = false;
-                    btn.textContent = "Mark Paid";
+                    btn.textContent = 'Mark Paid';
                   }
-                });
+                } catch (error) {
+                  console.error('Error confirming settlement:', error);
+                  showToast('Error confirming settlement', 4000);
+                  btn.disabled = false;
+                  btn.textContent = 'Mark Paid';
+                }
               });
+            });
           }
         }
 
         // Display completed settlements
-        const completedSettlementsList = document.getElementById(
-          "completedSettlementsList",
-        );
-        const completedSettlementsEmpty = document.getElementById(
-          "completedSettlementsEmpty",
-        );
+        const completedSettlementsList = document.getElementById('completedSettlementsList');
+        const completedSettlementsEmpty = document.getElementById('completedSettlementsEmpty');
 
         // Filter to only show completed settlements involving current user
         const userCompletedSettlements = allCompletedSettlements.filter(
-          (s) => s.isCurrentUserPayer || s.isCurrentUserReceiver,
+          (s) => s.isCurrentUserPayer || s.isCurrentUserReceiver
         );
 
-        if (
-          !userCompletedSettlements ||
-          userCompletedSettlements.length === 0
-        ) {
+        if (!userCompletedSettlements || userCompletedSettlements.length === 0) {
           if (completedSettlementsList)
-            completedSettlementsList.innerHTML =
-              completedSettlementsEmpty?.outerHTML || "";
+            completedSettlementsList.innerHTML = completedSettlementsEmpty?.outerHTML || '';
         } else {
           if (completedSettlementsList) {
             completedSettlementsList.innerHTML = userCompletedSettlements
@@ -1573,7 +1350,7 @@ if (!sessionId) {
                         ${escapeHtml(settlement.fromName)} → ${escapeHtml(settlement.toName)}
                       </h3>
                       <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                        ${settlement.description ? escapeHtml(settlement.description) : "Payment settlement"}
+                        ${settlement.description ? escapeHtml(settlement.description) : 'Payment settlement'}
                       </p>
                     </div>
                     <span class="text-sm font-bold text-green-600 dark:text-green-400 flex-shrink-0">
@@ -1583,7 +1360,7 @@ if (!sessionId) {
                   
                   <div class="mb-3 text-xs text-slate-500 dark:text-slate-400">
                     Created ${new Date(settlement.createdAt).toLocaleDateString()}
-                    ${settlement.paymentMethod ? `via ${escapeHtml(settlement.paymentMethod)}` : ""}
+                    ${settlement.paymentMethod ? `via ${escapeHtml(settlement.paymentMethod)}` : ''}
                     <br />
                     <span class="text-green-600 dark:text-green-400 font-medium">
                       ✓ Completed ${new Date(settlement.completedAt).toLocaleDateString()}
@@ -1592,11 +1369,11 @@ if (!sessionId) {
                 </div>
               `;
               })
-              .join("");
+              .join('');
           }
         }
       } catch (error) {
-        console.error("Failed to load settlements:", error);
+        console.error('Failed to load settlements:', error);
       }
     }
 
@@ -1604,42 +1381,34 @@ if (!sessionId) {
 
     // Global theme toggle function accessible from HTML onclick
     window.toggleTheme = function () {
-      console.log("🖱️ Theme toggle clicked");
+      console.log('🖱️ Theme toggle clicked');
 
       const html = document.documentElement;
-      const isDark = html.classList.contains("dark");
-      const icon = document.getElementById("themeIcon");
-      const mainDiv = document.querySelector("div.min-h-screen");
+      const isDark = html.classList.contains('dark');
+      const icon = document.getElementById('themeIcon');
+      const mainDiv = document.querySelector('div.min-h-screen');
 
       if (isDark) {
         // Switch to LIGHT mode
-        console.log("→ Switching to light mode");
-        html.classList.remove("dark");
-        document.body.style.setProperty(
-          "background-color",
-          "rgb(255, 255, 255)",
-          "important",
-        );
-        document.body.style.setProperty(
-          "color",
-          "rgb(15, 23, 42)",
-          "important",
-        );
+        console.log('→ Switching to light mode');
+        html.classList.remove('dark');
+        document.body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+        document.body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
 
         // Clear inline styles from main div
         if (mainDiv) {
-          mainDiv.style.backgroundColor = "";
-          mainDiv.style.color = "";
+          mainDiv.style.backgroundColor = '';
+          mainDiv.style.color = '';
         }
 
         // Remove dark mode styles and apply light mode styles
-        let darkStyles = document.getElementById("dynamicDarkStyles");
+        let darkStyles = document.getElementById('dynamicDarkStyles');
         if (darkStyles) darkStyles.remove();
 
         // Inject light mode styles
-        if (!document.getElementById("dynamicLightStyles")) {
-          const style = document.createElement("style");
-          style.id = "dynamicLightStyles";
+        if (!document.getElementById('dynamicLightStyles')) {
+          const style = document.createElement('style');
+          style.id = 'dynamicLightStyles';
           style.textContent = `
             html:not(.dark) header {
               background-color: rgb(255, 255, 255) !important;
@@ -1678,42 +1447,30 @@ if (!sessionId) {
           document.head.appendChild(style);
         }
 
-        localStorage.setItem("theme", "light");
-        console.log("✅ Switched to light mode");
-        if (icon) icon.textContent = "☀️";
+        localStorage.setItem('theme', 'light');
+        console.log('✅ Switched to light mode');
+        if (icon) icon.textContent = '☀️';
       } else {
         // Switch to DARK mode
-        console.log("→ Switching to dark mode");
-        html.classList.add("dark");
-        document.body.style.setProperty(
-          "background-color",
-          "rgb(6, 6, 10)",
-          "important",
-        );
-        document.body.style.setProperty(
-          "color",
-          "rgb(248, 250, 252)",
-          "important",
-        );
+        console.log('→ Switching to dark mode');
+        html.classList.add('dark');
+        document.body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        document.body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
 
         // Set inline styles on main div for dark mode
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(6, 6, 10)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         }
 
         // Remove light mode styles and apply dark mode styles
-        let lightStyles = document.getElementById("dynamicLightStyles");
+        let lightStyles = document.getElementById('dynamicLightStyles');
         if (lightStyles) lightStyles.remove();
 
         // Inject dark mode styles
-        if (!document.getElementById("dynamicDarkStyles")) {
-          const style = document.createElement("style");
-          style.id = "dynamicDarkStyles";
+        if (!document.getElementById('dynamicDarkStyles')) {
+          const style = document.createElement('style');
+          style.id = 'dynamicDarkStyles';
           style.textContent = `
             html.dark header {
               background-color: rgb(15, 23, 42) !important;
@@ -1766,36 +1523,36 @@ if (!sessionId) {
           document.head.appendChild(style);
         }
 
-        localStorage.setItem("theme", "dark");
-        console.log("✅ Switched to dark mode");
-        if (icon) icon.textContent = "🌙";
+        localStorage.setItem('theme', 'dark');
+        console.log('✅ Switched to dark mode');
+        if (icon) icon.textContent = '🌙';
       }
     };
 
     // Setup theme toggle - set initial icon and styles
     function setupThemeToggle() {
-      const btn = document.getElementById("themeToggle");
-      const icon = document.getElementById("themeIcon");
+      const btn = document.getElementById('themeToggle');
+      const icon = document.getElementById('themeIcon');
       const html = document.documentElement;
       const body = document.body;
-      const mainDiv = document.querySelector("div.min-h-screen");
+      const mainDiv = document.querySelector('div.min-h-screen');
 
       if (!btn) {
-        console.error("❌ Theme toggle button not found");
+        console.error('❌ Theme toggle button not found');
         return;
       }
 
-      console.log("✅ Theme toggle setup started");
+      console.log('✅ Theme toggle setup started');
 
       // Update icon to match current theme on initialization
-      const isDark = html.classList.contains("dark");
-      if (icon) icon.textContent = isDark ? "🌙" : "☀️";
+      const isDark = html.classList.contains('dark');
+      if (icon) icon.textContent = isDark ? '🌙' : '☀️';
 
       // Inject CSS styles for current theme (both light and dark)
-      if (isDark && !document.getElementById("dynamicDarkStyles")) {
+      if (isDark && !document.getElementById('dynamicDarkStyles')) {
         // Inject dark mode CSS
-        const darkStyle = document.createElement("style");
-        darkStyle.id = "dynamicDarkStyles";
+        const darkStyle = document.createElement('style');
+        darkStyle.id = 'dynamicDarkStyles';
         darkStyle.textContent = `
           html.dark header {
             background-color: rgb(15, 23, 42) !important;
@@ -1834,10 +1591,10 @@ if (!sessionId) {
           }
         `;
         document.head.appendChild(darkStyle);
-      } else if (!isDark && !document.getElementById("dynamicLightStyles")) {
+      } else if (!isDark && !document.getElementById('dynamicLightStyles')) {
         // Inject light mode CSS
-        const lightStyle = document.createElement("style");
-        lightStyle.id = "dynamicLightStyles";
+        const lightStyle = document.createElement('style');
+        lightStyle.id = 'dynamicLightStyles';
         lightStyle.textContent = `
           html:not(.dark) header {
             background-color: rgb(255, 255, 255) !important;
@@ -1875,45 +1632,29 @@ if (!sessionId) {
 
       // Apply inline styles with setProperty to match current theme
       if (isDark) {
-        html.style.setProperty("color-scheme", "dark", "important");
-        body.style.setProperty(
-          "background-color",
-          "rgb(6, 6, 10)",
-          "important",
-        );
-        body.style.setProperty("color", "rgb(248, 250, 252)", "important");
+        html.style.setProperty('color-scheme', 'dark', 'important');
+        body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(6, 6, 10)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(248, 250, 252)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
         }
       } else {
-        html.style.setProperty("color-scheme", "light", "important");
-        body.style.setProperty(
-          "background-color",
-          "rgb(255, 255, 255)",
-          "important",
-        );
-        body.style.setProperty("color", "rgb(15, 23, 42)", "important");
+        html.style.setProperty('color-scheme', 'light', 'important');
+        body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+        body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
         if (mainDiv) {
-          mainDiv.style.setProperty(
-            "background-color",
-            "rgb(255, 255, 255)",
-            "important",
-          );
-          mainDiv.style.setProperty("color", "rgb(15, 23, 42)", "important");
+          mainDiv.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+          mainDiv.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
         }
       }
 
-      console.log("✅ Theme toggle ready");
+      console.log('✅ Theme toggle ready');
     }
 
     // Initialize dashboard with event listeners
     async function initializeDashboard() {
-      console.log("Initializing dashboard...");
+      console.log('Initializing dashboard...');
 
       try {
         // Load user info first (before other initialization)
@@ -1930,51 +1671,51 @@ if (!sessionId) {
         await loadPendingInvitations();
 
         // Setup theme toggle - with explicit logging
-        console.log("Before setupThemeToggle");
+        console.log('Before setupThemeToggle');
         setupThemeToggle();
-        console.log("After setupThemeToggle");
+        console.log('After setupThemeToggle');
 
         // Logout button
-        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
-          logoutBtn.addEventListener("click", async () => {
+          logoutBtn.addEventListener('click', async () => {
             try {
-              await fetch("/api/auth/logout", { method: "POST" });
-              window.location.href = "/";
+              await fetch('/api/auth/logout', { method: 'POST' });
+              window.location.href = '/';
             } catch (error) {
-              console.error("Logout error:", error);
+              console.error('Logout error:', error);
             }
           });
         }
 
         // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-        const mobileMenu = document.getElementById("mobileMenu");
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
 
         if (mobileMenuBtn && mobileMenu) {
-          mobileMenuBtn.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
+          mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
           });
 
           // Close menu when clicking on a link
-          const links = mobileMenu.querySelectorAll("a");
+          const links = mobileMenu.querySelectorAll('a');
           links.forEach((link) => {
-            link.addEventListener("click", () => {
-              mobileMenu.classList.add("hidden");
+            link.addEventListener('click', () => {
+              mobileMenu.classList.add('hidden');
             });
           });
         }
 
         // Stats List Modal Event Listeners
-        const statsListCloseBtn = document.getElementById("statsListCloseBtn");
-        const statsListModal = document.getElementById("statsListModal");
+        const statsListCloseBtn = document.getElementById('statsListCloseBtn');
+        const statsListModal = document.getElementById('statsListModal');
 
         if (statsListCloseBtn) {
-          statsListCloseBtn.addEventListener("click", closeStatsList);
+          statsListCloseBtn.addEventListener('click', closeStatsList);
         }
 
         if (statsListModal) {
-          statsListModal.addEventListener("click", (e) => {
+          statsListModal.addEventListener('click', (e) => {
             if (e.target === statsListModal) {
               closeStatsList();
             }
@@ -1982,81 +1723,78 @@ if (!sessionId) {
         }
 
         // Stats buttons
-        const statsTripsBtn = document.getElementById("statsTripsBtn");
-        const statsExpensesBtn = document.getElementById("statsExpensesBtn");
-        const statsActivitiesBtn =
-          document.getElementById("statsActivitiesBtn");
-        const statsGroupsBtn = document.getElementById("statsGroupsBtn");
+        const statsTripsBtn = document.getElementById('statsTripsBtn');
+        const statsExpensesBtn = document.getElementById('statsExpensesBtn');
+        const statsActivitiesBtn = document.getElementById('statsActivitiesBtn');
+        const statsGroupsBtn = document.getElementById('statsGroupsBtn');
 
         if (statsTripsBtn) {
-          statsTripsBtn.addEventListener("click", () => {
-            showStatsList("trips", "Trips");
+          statsTripsBtn.addEventListener('click', () => {
+            showStatsList('trips', 'Trips');
           });
         }
 
         if (statsExpensesBtn) {
-          statsExpensesBtn.addEventListener("click", () => {
-            showStatsList("expenses", "Expenses");
+          statsExpensesBtn.addEventListener('click', () => {
+            showStatsList('expenses', 'Expenses');
           });
         }
 
         if (statsActivitiesBtn) {
-          statsActivitiesBtn.addEventListener("click", () => {
-            showStatsList("activities", "Activities");
+          statsActivitiesBtn.addEventListener('click', () => {
+            showStatsList('activities', 'Activities');
           });
         }
 
         if (statsGroupsBtn) {
-          statsGroupsBtn.addEventListener("click", () => {
-            showStatsList("groups", "Groups");
+          statsGroupsBtn.addEventListener('click', () => {
+            showStatsList('groups', 'Groups');
           });
         }
 
-        const statsOwesBtn = document.getElementById("statsOwesBtn");
+        const statsOwesBtn = document.getElementById('statsOwesBtn');
         if (statsOwesBtn) {
-          statsOwesBtn.addEventListener("click", () => {
-            showStatsList("owes", "Amount Owed");
+          statsOwesBtn.addEventListener('click', () => {
+            showStatsList('owes', 'Amount Owed');
           });
         }
 
         // Create Event Form Handler
-        const createEventForm = document.getElementById("createEventForm");
-        const createEventModal = document.getElementById("createEventModal");
-        const eventError = document.getElementById("eventError");
+        const createEventForm = document.getElementById('createEventForm');
+        const createEventModal = document.getElementById('createEventModal');
+        const eventError = document.getElementById('eventError');
 
-        console.log("🔍 Form elements found:", {
+        console.log('🔍 Form elements found:', {
           form: !!createEventForm,
           modal: !!createEventModal,
           error: !!eventError,
         });
 
         if (createEventForm) {
-          console.log("📝 Attaching form submit listener");
-          createEventForm.addEventListener("submit", async (e) => {
+          console.log('📝 Attaching form submit listener');
+          createEventForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            console.log("📝 Form submitted!");
+            console.log('📝 Form submitted!');
 
             // Get form fields - handle both old and new field names
             const titleInput =
-              document.getElementById("eventTitle") ||
-              document.getElementById("eventName");
-            const descriptionInput =
-              document.getElementById("eventDescription");
+              document.getElementById('eventTitle') || document.getElementById('eventName');
+            const descriptionInput = document.getElementById('eventDescription');
             const startDateTimeInput =
-              document.getElementById("eventStartDateTime") ||
-              document.getElementById("eventStartDate");
+              document.getElementById('eventStartDateTime') ||
+              document.getElementById('eventStartDate');
             const endDateTimeInput =
-              document.getElementById("eventEndDateTime") ||
-              document.getElementById("eventEndDate");
-            const typeSelect = document.getElementById("eventType");
-            const timezoneSelect = document.getElementById("eventTimezone");
-            const currencySelect = document.getElementById("eventCurrency");
-            const budgetInput = document.getElementById("eventBudget");
-            const locationInput = document.getElementById("eventLocation");
-            const isVirtualCheckbox = document.getElementById("eventIsVirtual");
-            const isPublicCheckbox = document.getElementById("eventIsPublic");
+              document.getElementById('eventEndDateTime') ||
+              document.getElementById('eventEndDate');
+            const typeSelect = document.getElementById('eventType');
+            const timezoneSelect = document.getElementById('eventTimezone');
+            const currencySelect = document.getElementById('eventCurrency');
+            const budgetInput = document.getElementById('eventBudget');
+            const locationInput = document.getElementById('eventLocation');
+            const isVirtualCheckbox = document.getElementById('eventIsVirtual');
+            const isPublicCheckbox = document.getElementById('eventIsPublic');
 
-            console.log("🔍 Input elements found:", {
+            console.log('🔍 Input elements found:', {
               title: !!titleInput,
               description: !!descriptionInput,
               startDateTime: !!startDateTimeInput,
@@ -2071,19 +1809,19 @@ if (!sessionId) {
             });
 
             // Get values with proper handling for datetime-local vs date inputs
-            const title = titleInput?.value?.trim() || "";
-            const description = descriptionInput?.value?.trim() || "";
-            const startDateTime = startDateTimeInput?.value?.trim() || "";
-            const endDateTime = endDateTimeInput?.value?.trim() || "";
-            const type = typeSelect?.value || "general";
-            const timezone = timezoneSelect?.value || "UTC";
-            const currency = currencySelect?.value || "USD";
-            const budget = budgetInput?.value?.trim() || "";
-            const location = locationInput?.value?.trim() || "";
+            const title = titleInput?.value?.trim() || '';
+            const description = descriptionInput?.value?.trim() || '';
+            const startDateTime = startDateTimeInput?.value?.trim() || '';
+            const endDateTime = endDateTimeInput?.value?.trim() || '';
+            const type = typeSelect?.value || 'general';
+            const timezone = timezoneSelect?.value || 'UTC';
+            const currency = currencySelect?.value || 'USD';
+            const budget = budgetInput?.value?.trim() || '';
+            const location = locationInput?.value?.trim() || '';
             const isVirtual = isVirtualCheckbox?.checked || false;
             const isPublic = isPublicCheckbox?.checked !== false;
 
-            console.log("📝 Form values collected:", {
+            console.log('📝 Form values collected:', {
               title,
               description,
               startDateTime,
@@ -2098,8 +1836,8 @@ if (!sessionId) {
             });
 
             if (eventError) {
-              eventError.textContent = "";
-              eventError.classList.add("hidden");
+              eventError.textContent = '';
+              eventError.classList.add('hidden');
             }
 
             try {
@@ -2107,25 +1845,25 @@ if (!sessionId) {
               let startTime = startDateTime;
               let endTime = endDateTime;
 
-              if (startDateTime && startDateTime.includes("T")) {
+              if (startDateTime && startDateTime.includes('T')) {
                 // datetime-local format, convert to ISO
                 startTime = new Date(startDateTime).toISOString();
               } else if (startDateTime) {
                 // date format, convert to ISO at start of day
-                startTime = new Date(startDateTime + "T00:00:00").toISOString();
+                startTime = new Date(startDateTime + 'T00:00:00').toISOString();
               }
 
-              if (endDateTime && endDateTime.includes("T")) {
+              if (endDateTime && endDateTime.includes('T')) {
                 endTime = new Date(endDateTime).toISOString();
               } else if (endDateTime) {
-                endTime = new Date(endDateTime + "T23:59:59").toISOString();
+                endTime = new Date(endDateTime + 'T23:59:59').toISOString();
               }
 
-              console.log("📦 Converted times:", { startTime, endTime });
+              console.log('📦 Converted times:', { startTime, endTime });
 
-              const response = await fetch("/api/events/create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+              const response = await fetch('/api/events/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   name: title,
                   title,
@@ -2147,57 +1885,57 @@ if (!sessionId) {
               const data = await response.json();
 
               if (!response.ok) {
-                const errorMsg = data.error || "Failed to create event";
-                console.error("Event creation error:", errorMsg);
+                const errorMsg = data.error || 'Failed to create event';
+                console.error('Event creation error:', errorMsg);
                 if (eventError) {
                   eventError.textContent = errorMsg;
-                  eventError.classList.remove("hidden");
+                  eventError.classList.remove('hidden');
                 }
               } else {
-                console.log("✓ Event created:", data.event.id);
+                console.log('✓ Event created:', data.event.id);
                 createEventForm.reset();
                 if (createEventModal) {
-                  createEventModal.classList.add("hidden");
+                  createEventModal.classList.add('hidden');
                 }
-                showToast("Event created successfully!");
+                showToast('Event created successfully!');
                 await loadEvents();
                 // Redirect to event detail page
                 window.location.href = `/events/${data.event.id}`;
               }
             } catch (error) {
-              console.error("Network error:", error);
+              console.error('Network error:', error);
               if (eventError) {
-                eventError.textContent = "An error occurred. Please try again.";
-                eventError.classList.remove("hidden");
+                eventError.textContent = 'An error occurred. Please try again.';
+                eventError.classList.remove('hidden');
               }
             }
           });
         }
 
         // Create Event Modal Button - Show/Hide
-        const createEventBtn = document.getElementById("createEventBtn");
-        const cancelEventBtn = document.getElementById("cancelEventBtn");
+        const createEventBtn = document.getElementById('createEventBtn');
+        const cancelEventBtn = document.getElementById('cancelEventBtn');
 
         if (createEventBtn && createEventModal) {
-          createEventBtn.addEventListener("click", () => {
-            createEventModal.classList.remove("hidden");
+          createEventBtn.addEventListener('click', () => {
+            createEventModal.classList.remove('hidden');
           });
         }
 
         if (cancelEventBtn && createEventModal) {
-          cancelEventBtn.addEventListener("click", () => {
-            createEventModal.classList.add("hidden");
+          cancelEventBtn.addEventListener('click', () => {
+            createEventModal.classList.add('hidden');
           });
         }
       } catch (error) {
-        console.error("Dashboard initialization error:", error);
+        console.error('Dashboard initialization error:', error);
       }
     }
 
     // Always wait for DOM to be fully ready
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initializeDashboard);
-    } else if (document.readyState === "interactive") {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeDashboard);
+    } else if (document.readyState === 'interactive') {
       // Interactive means DOM is ready but styles/images still loading
       // Safe to initialize
       initializeDashboard();

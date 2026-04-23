@@ -1703,9 +1703,19 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                 if (!expense.metadata || Object.keys(expense.metadata).length === 0) return '';
                 let metadataHtml = '';
                 for (const [k, v] of Object.entries(expense.metadata)) {
-                  metadataHtml += `<p class='text-xs text-slate-700 dark:text-slate-300'>📋 <strong>${k}:</strong> ${v}</p>`;
+                  const escapedK = String(k)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+                  const escapedV = String(v)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+                  metadataHtml += `<p class="text-xs text-slate-700 dark:text-slate-300">📋 <strong>${escapedK}:</strong> ${escapedV}</p>`;
                 }
-                return `<div class='mt-2 pt-2 border-t border-green-200 dark:border-green-700 space-y-1'>${metadataHtml}</div>`;
+                return `<div class="mt-2 pt-2 border-t border-green-200 dark:border-green-700 space-y-1">${metadataHtml}</div>`;
               })()}
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">🕐 ${createdDate}</p>
             </div>`;

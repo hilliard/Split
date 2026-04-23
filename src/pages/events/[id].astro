@@ -1551,20 +1551,22 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
       const container = document.getElementById('editExpenseMetadataContainer');
       if (!container) return;
       const fieldId = 'edit-expense-metadata-' + Date.now() + Math.random();
+      const escapedKey = escapeHtml(key);
+      const escapedValue = escapeHtml(value);
       const fieldHTML = `
         <div class="flex gap-2" id="${fieldId}">
           <input
             type="text"
             name="editExpenseMetadataKey"
             placeholder="Key (e.g., Confirmation #)"
-            value="${key}"
+            value="${escapedKey}"
             class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
           />
           <input
             type="text"
             name="editExpenseMetadataValue"
             placeholder="Value (e.g., CONF123)"
-            value="${value}"
+            value="${escapedValue}"
             class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
           />
           <button

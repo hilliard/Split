@@ -8,7 +8,7 @@ import {
   humans,
   activities,
 } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export const GET: APIRoute = async ({ params, cookies, url }) => {
   try {
@@ -48,7 +48,21 @@ export const GET: APIRoute = async ({ params, cookies, url }) => {
       });
     }
 
-    if (event.creatorId !== session.userId) {
+    // Check authorization: user is creator OR member of the group
+    const isCreator = event.creatorId === session.userId;
+    const isGroupMember = event.groupId
+      ? (
+          await db
+            .select()
+            .from(groupMembers)
+            .where(
+              and(eq(groupMembers.userId, session.userId), eq(groupMembers.groupId, event.groupId))
+            )
+            .limit(1)
+        ).length > 0
+      : false;
+
+    if (!isCreator && !isGroupMember) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },

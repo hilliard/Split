@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Astro generated types
+.astro/
+
+# Environment files (injected at runtime by Railway)
+.env
+.env.*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+
+# Editor/IDE
+.idea/
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore

@@ -13,6 +13,8 @@ if (!session) {
   Astro.cookies.delete('sessionId', { path: '/' });
   return Astro.redirect('/auth/login');
 }
+
+const errorParam = Astro.url.searchParams.get('error');
 ---
 
 <Layout title="Dashboard" description="Your Split dashboard" currentPage="dashboard">
@@ -35,6 +37,20 @@ if (!session) {
       class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
       data-user-id={session.userId}
     >
+      {errorParam === 'unauthorized_edit' && (
+        <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
+          <div class="text-red-500 dark:text-red-400 mt-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Access Denied</h3>
+            <p class="mt-1 text-sm text-red-700 dark:text-red-300">You do not have permission to edit this event. Only the event creator can make changes.</p>
+          </div>
+        </div>
+      )}
+
       <!-- Top Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <!-- Welcome Card -->

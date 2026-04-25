@@ -108,6 +108,18 @@ Includes fields for:
 - Return Arrival
 - Return Seat
 
+### 🚗 Car Rental Template
+
+Includes fields for:
+
+- Rental Company
+- Reservation #
+- Vehicle Type
+- Pick Up Location
+- Pick Up Time
+- Drop Off Location
+- Drop Off Time
+
 ### 🏨 Hotel Template
 
 Includes fields for:

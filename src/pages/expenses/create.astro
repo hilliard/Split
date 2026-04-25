@@ -248,6 +248,7 @@ const preselectEventId = Astro.url.searchParams.get('eventId') || '';
                   <option value="flight">✈️ One-Way Flight</option>
                   <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
                   <option value="hotel">🏨 Hotel</option>
+                    <option value="car_rental">🚗 Car Rental</option>
                   <option value="dinner">🍽️ Restaurant/Dinner</option>
                   <option value="tourist">🎫 Tourist Activity</option>
                 </select>
@@ -357,12 +358,33 @@ const preselectEventId = Astro.url.searchParams.get('eventId') || '';
           "Arrival Time": "",
           "Seat Number": ""
         },
+        roundtrip_flight: {
+          "Airline Company": "",
+          "Confirmation Number": "",
+          "Outbound Flight #": "",
+          "Outbound Take Off": "",
+          "Outbound Arrival": "",
+          "Outbound Seat": "",
+          "Return Flight #": "",
+          "Return Take Off": "",
+          "Return Arrival": "",
+          "Return Seat": ""
+        },
         hotel: {
           "Hotel Name": "",
           "Address": "",
           "Check-in Date": "",
           "Check-out Date": "",
           "Confirmation Code": ""
+        },
+        car_rental: {
+          "Rental Company": "",
+          "Reservation #": "",
+          "Vehicle Type": "",
+          "Pick Up Location": "",
+          "Pick Up Time": "",
+          "Drop Off Location": "",
+          "Drop Off Time": ""
         },
         dinner: {
           "Restaurant Name": "",

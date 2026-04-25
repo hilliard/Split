@@ -487,6 +487,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     <option value="flight">✈️ One-Way Flight</option>
                     <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
                     <option value="hotel">🏨 Hotel</option>
+                    <option value="car_rental">🚗 Car Rental</option>
                     <option value="restaurant">🍽️ Restaurant/Dinner</option>
                     <option value="tourist">🎫 Tourist Activity</option>
                   </select>
@@ -671,6 +672,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     <option value="flight">✈️ One-Way Flight</option>
                     <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
                     <option value="hotel">🏨 Hotel</option>
+                    <option value="car_rental">🚗 Car Rental</option>
                     <option value="restaurant">🍽️ Restaurant</option>
                     <option value="tourist">🎭 Tourist</option>
                   </select>
@@ -910,6 +912,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     <option value="flight">✈️ One-Way Flight</option>
                     <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
                     <option value="hotel">🏨 Hotel</option>
+                    <option value="car_rental">🚗 Car Rental</option>
                     <option value="restaurant">🍽️ Restaurant</option>
                     <option value="tourist">🎭 Tourist</option>
                   </select>
@@ -1427,6 +1430,15 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Parking', ''],
         ['Contact Number', ''],
       ],
+      car_rental: [
+        ['Rental Company', ''],
+        ['Reservation #', ''],
+        ['Vehicle Type', ''],
+        ['Pick Up Location', ''],
+        ['Pick Up Time', ''],
+        ['Drop Off Location', ''],
+        ['Drop Off Time', ''],
+      ],
       restaurant: [
         ['Restaurant Name', ''],
         ['Address', ''],
@@ -1551,6 +1563,15 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Room Type', ''],
         ['Check-in Date', ''],
         ['Check-out Date', ''],
+      ],
+      car_rental: [
+        ['Rental Company', ''],
+        ['Reservation #', ''],
+        ['Vehicle Type', ''],
+        ['Pick Up Location', ''],
+        ['Pick Up Time', ''],
+        ['Drop Off Location', ''],
+        ['Drop Off Time', ''],
       ],
       restaurant: [
         ['Reservation Name', ''],

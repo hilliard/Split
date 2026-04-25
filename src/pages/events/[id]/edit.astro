@@ -1,14 +1,20 @@
 ---
+import { getSession } from '../../../utils/session';
 import Layout from "../../../layouts/Layout.astro";
-import Header from "../../../components/Header.astro";
 import { db } from "../../../db";
 import { events, sessions, groupMembers } from "../../../db/schema";
 import { eq, and } from "drizzle-orm";
 
 // Check if user is authenticated
-const sessionId = Astro.cookies.get("sessionId")?.value;
+const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
+}
+
+const session = await getSession(sessionId);
+if (!session) {
+  Astro.cookies.delete('sessionId', { path: '/' });
+  return Astro.redirect('/auth/login');
 }
 
 // Get event ID from URL
@@ -20,15 +26,7 @@ if (!id) {
 }
 
 // Get session and verify user
-const [session] = await db
-  .select()
-  .from(sessions)
-  .where(eq(sessions.id, sessionId))
-  .limit(1);
 
-if (!session || new Date(session.expiresAt) < new Date()) {
-  return Astro.redirect("/auth/login");
-}
 
 // Get userId from session
 const userId = session.userId;
@@ -67,8 +65,6 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
 
 <Layout title={`Edit ${event.title}`} description="Edit event details">
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <Header title={event.title} currentPage="dashboard" />
-
     <!-- Page Title -->
     <div
       class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
@@ -334,6 +330,51 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             >
               Event Details (Location, Venue, Contact, etc.)
             </label>
+            <!-- Template Selector -->
+            <div class="mb-4 flex gap-2 items-end">
+              <div class="flex-1">
+                <label
+                  for="templateSelect"
+                  class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                >
+                  Quick Templates
+                </label>
+                <select
+                  id="templateSelect"
+                  class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+                >
+                  <option value="">-- Select a template --</option>
+                  <option value="wedding">💍 Wedding</option>
+                  <option value="dinner">🍽️ Company Team Dinner</option>
+                  <option value="conference">🎤 Conference</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                id="applyTemplateBtn"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm whitespace-nowrap"
+              >
+                Apply Template
+              </button>
+            </div>
+
+            <!-- Template Selector -->
+            <div class="mb-4 flex gap-2 items-end">
+              <div class="flex-1">
+                <label for="templateSelect" class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  Quick Templates
+                </label>
+                <select id="templateSelect" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm">
+                  <option value="">-- Select a template --</option>
+                  <option value="wedding">💍 Wedding</option>
+                  <option value="dinner">🍽️ Company Team Dinner</option>
+                  <option value="conference">🎤 Conference</option>
+                </select>
+              </div>
+              <button type="button" id="applyTemplateBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm whitespace-nowrap">
+                Apply Template
+              </button>
+            </div>
             <div id="metadataContainer" class="space-y-3">
               <!-- Dynamic metadata fields will be added here -->
             </div>
@@ -433,6 +474,8 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             >
               <option value="meal">Meal / Food</option>
               <option value="transport">Transport</option>
+              <option value="flight">Flight</option>
+              <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
               <option value="accommodation">Accommodation</option>
               <option value="parking">Parking</option>
               <option value="entertainment">Entertainment</option>
@@ -516,7 +559,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
       // Close modal when clicking outside
       if (addEventExpenseModal) {
         addEventExpenseModal.addEventListener("click", (e) => {
-          if (e.target === addEventExpenseModal) {
+          if (false && e.target === addEventExpenseModal) {
             addEventExpenseModal.classList.add("hidden");
             addEventExpenseForm.reset();
             expenseError.classList.add("hidden");
@@ -1021,6 +1064,100 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
           </div>
         `;
         container.insertAdjacentHTML("beforeend", fieldHTML);
+      }
+
+      // Event Template Logic
+      const eventTemplates = {
+        wedding: {
+          "Venue": "",
+          "Address": "",
+          "Contact": "",
+          "Phone": "",
+          "Capacity": "",
+          "Dress Code": "",
+          "Menu Selection Due": ""
+        },
+        dinner: {
+          "Restaurant": "",
+          "Address": "",
+          "Reservation Name": "",
+          "Party Size": "",
+          "Budget Per Person": "",
+          "Time": "",
+          "Dietary Restrictions": ""
+        },
+        conference: {
+          "Venue": "",
+          "Address": "",
+          "Contact": "",
+          "Phone": "",
+          "Capacity": "",
+          "Parking": "",
+          "WiFi Password": ""
+        }
+      };
+
+      const applyTemplateBtn = document.getElementById("applyTemplateBtn");
+      if (applyTemplateBtn) {
+        applyTemplateBtn.addEventListener("click", () => {
+          const templateSelect = document.getElementById("templateSelect");
+          const selectedTemplate = templateSelect.value;
+          
+          if (selectedTemplate && eventTemplates[selectedTemplate]) {
+            const template = eventTemplates[selectedTemplate];
+            Object.keys(template).forEach(key => {
+              addMetadataField(key, "");
+            });
+            templateSelect.value = "";
+          }
+        });
+      }
+
+      // Event Template Logic
+      const eventTemplates = {
+        wedding: {
+          "Venue": "",
+          "Address": "",
+          "Contact": "",
+          "Phone": "",
+          "Capacity": "",
+          "Dress Code": "",
+          "Menu Selection Due": ""
+        },
+        dinner: {
+          "Restaurant": "",
+          "Address": "",
+          "Reservation Name": "",
+          "Party Size": "",
+          "Budget Per Person": "",
+          "Time": "",
+          "Dietary Restrictions": ""
+        },
+        conference: {
+          "Venue": "",
+          "Address": "",
+          "Contact": "",
+          "Phone": "",
+          "Capacity": "",
+          "Parking": "",
+          "WiFi Password": ""
+        }
+      };
+
+      const applyTemplateBtn = document.getElementById("applyTemplateBtn");
+      if (applyTemplateBtn) {
+        applyTemplateBtn.addEventListener("click", () => {
+          const templateSelect = document.getElementById("templateSelect");
+          const selectedTemplate = templateSelect.value;
+          
+          if (selectedTemplate && eventTemplates[selectedTemplate]) {
+            const template = eventTemplates[selectedTemplate];
+            Object.keys(template).forEach(key => {
+              addMetadataField(key, "");
+            });
+            templateSelect.value = "";
+          }
+        });
       }
 
       const addMetadataFieldBtn = document.getElementById(

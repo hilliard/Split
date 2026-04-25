@@ -35,8 +35,13 @@ async function applyMigrations() {
     await client.connect();
     console.log('Connected to database');
 
-    // Read migration file
-    const migrationPath = resolve('src/db/migrations/0000_init.sql');
+    // MODIFIED: Grab the file path from the command line, 
+    // or default to the init file if nothing is provided.
+    
+    const targetFile = process.argv[2] || 'src/db/migrations/0000_init.sql';
+    const migrationPath = resolve(targetFile);
+    
+    console.log(`Loading migration file: ${targetFile}`);
     const migrationSQL = readFileSync(migrationPath, 'utf-8');
 
     // Split by statement breakpoint and execute

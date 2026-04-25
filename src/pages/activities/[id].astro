@@ -1,4 +1,5 @@
 ---
+import { getSession } from '../../utils/session';
 import Layout from '../../layouts/Layout.astro';
 import { db } from '../../db';
 import { events, sessions, activities } from '../../db/schema';
@@ -10,12 +11,14 @@ if (!sessionId) {
   return Astro.redirect('/auth/login');
 }
 
-// Get session and verify user
-const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
-
-if (!session || new Date(session.expiresAt) < new Date()) {
+const session = await getSession(sessionId);
+if (!session) {
+  Astro.cookies.delete('sessionId', { path: '/' });
   return Astro.redirect('/auth/login');
 }
+
+// Get session and verify user
+
 
 // Get activity ID from URL
 const { id } = Astro.params;
@@ -204,7 +207,8 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
                   class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
                 >
                   <option value="">-- Select a template --</option>
-                  <option value="flight">✈️ Flight</option>
+                  <option value="flight">✈️ One-Way Flight</option>
+                  <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
                   <option value="hotel">🏨 Hotel</option>
                   <option value="restaurant">🍽️ Restaurant/Dinner</option>
                   <option value="tourist">🎫 Tourist Activity</option>
@@ -316,6 +320,8 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
           >
             <option value="meal">Meal / Food</option>
             <option value="transport">Transport</option>
+            <option value="flight">Flight</option>
+            <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
             <option value="accommodation">Accommodation</option>
             <option value="parking">Parking</option>
             <option value="entertainment">Entertainment</option>
@@ -409,7 +415,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
 
     // Close modal on outside click
     addExpenseModal.addEventListener('click', (e) => {
-      if (e.target === addExpenseModal) {
+      if (false && e.target === addExpenseModal) {
         addExpenseModal.classList.add('hidden');
         addExpenseForm.reset();
         expenseError.classList.add('hidden');
@@ -455,8 +461,9 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             groupId: groupId,
+            eventId: eventId,
             activityId: activityId,
-            description: formData.get('description') || null,
+            description: formData.get('description') || undefined,
             category: formData.get('category') || 'misc',
             amount: Math.round(amount * 100),
             paidBy: userId,
@@ -525,15 +532,24 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
     // Template definitions
     const templates = {
       flight: [
+        ['Airline Company', ''],
         ['Flight Number', ''],
-        ['Airline', ''],
-        ['Departure Time', ''],
+        ['Confirmation Number', ''],
+        ['Take Off Time', ''],
         ['Arrival Time', ''],
-        ['Departure Airport', ''],
-        ['Arrival Airport', ''],
-        ['Gate', ''],
-        ['Seat', ''],
-        ['Confirmation Code', ''],
+        ['Seat Number', ''],
+      ],
+      roundtrip_flight: [
+        ['Airline Company', ''],
+        ['Confirmation Number', ''],
+        ['Outbound Flight #', ''],
+        ['Outbound Take Off', ''],
+        ['Outbound Arrival', ''],
+        ['Outbound Seat', ''],
+        ['Return Flight #', ''],
+        ['Return Take Off', ''],
+        ['Return Arrival', ''],
+        ['Return Seat', ''],
       ],
       hotel: [
         ['Hotel Name', ''],

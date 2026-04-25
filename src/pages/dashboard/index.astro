@@ -1,17 +1,40 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { getSession } from '../../utils/session';
 
 // Check if user is authenticated
 const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
   return Astro.redirect('/auth/login');
 }
+
+const session = await getSession(sessionId);
+if (!session) {
+  Astro.cookies.delete('sessionId', { path: '/' });
+  return Astro.redirect('/auth/login');
+}
 ---
 
 <Layout title="Dashboard" description="Your Split dashboard" currentPage="dashboard">
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+    <!-- Sub-header -->
+    <nav
+      class="bg-slate-100 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 sticky top-16 z-40"
+    >
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="flex gap-2 h-12 items-center overflow-x-auto">
+          <span class="text-slate-700 dark:text-slate-300 text-sm font-medium whitespace-nowrap">
+            Dashboard
+          </span>
+        </div>
+      </div>
+    </nav>
+
     <!-- Main Content -->
-    <main class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <main
+      class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
+      data-user-id={session.userId}
+    >
       <!-- Top Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <!-- Welcome Card -->
@@ -135,6 +158,22 @@ if (!sessionId) {
             </div>
           </div>
         </div>
+        <script type="module">
+          window.addEventListener('DOMContentLoaded', () => {
+            const mainEl = document.querySelector('main[data-user-id]');
+            const currentUserId = mainEl?.dataset?.userId;
+            if (currentUserId) {
+              fetch(`/api/expenses/user-total?userId=${currentUserId}`)
+                .then((r) => r.json())
+                .then((data) => {
+                  const dollars = (data.totalCents / 100).toFixed(2);
+                  const el = document.getElementById('statsTotalExpenses');
+                  if (el) el.textContent = `$${dollars}`;
+                })
+                .catch((err) => console.error('Failed to load total spent', err));
+            }
+          });
+        </script>
       </div>
 
       <!-- Action Buttons -->
@@ -857,6 +896,7 @@ if (!sessionId) {
         let eventCount = 0;
         let totalExpenseCount = 0;
         let totalActivityCount = 0;
+        let standaloneActivityCount = 0;
         let totalExpensesAmount = 0;
         statsData.trips = [];
         statsData.expenses = [];
@@ -897,15 +937,18 @@ if (!sessionId) {
                   totalExpensesAmount += parseFloat(expense.total) || 0;
 
                   // Track owes: if current user didn't pay for this expense, they owe money
-                  if (expense.paidBy !== currentUserId) {
-                    statsData.owes.push({
-                      id: expense.id,
-                      description: expense.description,
-                      amount: parseFloat(expense.total) || 0,
-                      currency: event.currency || 'USD',
-                      paidBy: expense.payerName,
-                      tripName: event.name,
-                    });
+                  if (expense.paidBy !== currentUserId && expense.splits) {
+                    const mySplit = expense.splits.find(s => s.userId === currentUserId);
+                    if (mySplit) {
+                      statsData.owes.push({
+                        id: expense.id,
+                        description: expense.description,
+                        amount: parseFloat(mySplit.amountDollars) || 0,
+                        currency: event.currency || 'USD',
+                        paidBy: expense.payerName,
+                        tripName: event.name,
+                      });
+                    }
                   }
                 });
               } else {
@@ -920,7 +963,9 @@ if (!sessionId) {
 
             // Fetch activities for each event
             try {
-              const activitiesResp = await fetch(`/api/activities/list?eventId=${event.id}`);
+              const activitiesResp = await fetch(`/api/activities/list?eventId=${event.id}`, {
+                credentials: 'same-origin',
+              });
               if (activitiesResp.ok) {
                 const activitiesData = await activitiesResp.json();
                 const activities = activitiesData.activities || [];
@@ -944,6 +989,33 @@ if (!sessionId) {
             }
           }
 
+          // Fetch standalone activities and add to totalActivityCount
+          try {
+            const standaloneResp = await fetch('/api/activities/list?standalone=1', {
+              credentials: 'same-origin',
+            });
+            if (standaloneResp.ok) {
+              const standaloneData = await standaloneResp.json();
+              const standaloneActivities = standaloneData.activities || [];
+              standaloneActivityCount = standaloneActivities.length;
+              totalActivityCount += standaloneActivityCount;
+              // Add standalone activities to statsData.activities with tripName 'Standalone'
+              standaloneActivities.forEach((activity) => {
+                statsData.activities.push({
+                  ...activity,
+                  tripName: 'Standalone',
+                });
+              });
+            } else {
+              const errorData = await standaloneResp.json().catch(() => ({}));
+              console.warn(
+                `Failed to fetch standalone activities: ${standaloneResp.status} ${errorData.error || standaloneResp.statusText}`
+              );
+            }
+          } catch (e) {
+            console.error('Failed to fetch standalone activities:', e);
+          }
+
           const statsActivityCount = document.getElementById('statsActivityCount');
           if (statsActivityCount) {
             statsActivityCount.textContent = totalActivityCount;
@@ -956,11 +1028,7 @@ if (!sessionId) {
           statsExpenseCount.textContent = totalExpenseCount;
         }
 
-        // Update total expenses amount
-        const statsTotalExpenses = document.getElementById('statsTotalExpenses');
-        if (statsTotalExpenses) {
-          statsTotalExpenses.textContent = `$${totalExpensesAmount.toFixed(2)}`;
-        }
+        // (Total Spent is now handled by the user-total fetch at the top of the file)
 
         // Calculate and update total owes amount
         const totalOwes = statsData.owes.reduce((sum, owe) => sum + owe.amount, 0);
@@ -1029,14 +1097,18 @@ if (!sessionId) {
       } else if (type === 'activities') {
         items = statsData.activities;
         html = items
-          .map(
-            (act) => `
-          <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(act.title || act.name || 'Untitled Activity')}</h3>
-            <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(act.tripName)}</p>
-          </div>
-        `
-          )
+          .map((act) => {
+            // Show 'Standalone' if eventId is null or tripName is missing
+            const tripLabel =
+              act.tripName ||
+              (act.eventId === null || act.eventId === undefined ? 'Standalone' : '');
+            return `
+                <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                  <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(act.title || act.name || 'Untitled Activity')}</h3>
+                  <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(tripLabel)}</p>
+                </div>
+              `;
+          })
           .join('');
       } else if (type === 'groups') {
         items = statsData.groups;
@@ -1716,7 +1788,7 @@ if (!sessionId) {
 
         if (statsListModal) {
           statsListModal.addEventListener('click', (e) => {
-            if (e.target === statsListModal) {
+            if (false && e.target === statsListModal) {
               closeStatsList();
             }
           });

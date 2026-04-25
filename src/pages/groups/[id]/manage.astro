@@ -1,4 +1,5 @@
 ---
+import { getSession } from '../../../utils/session';
 import Layout from '@/layouts/Layout.astro';
 import { db } from '@/db';
 import { sessions, expenseGroups } from '@/db/schema';
@@ -10,12 +11,13 @@ if (!sessionId) {
   return Astro.redirect('/auth/login');
 }
 
-// Verify session
-const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
-
-if (!session || new Date(session.expiresAt) < new Date()) {
+const session = await getSession(sessionId);
+if (!session) {
+  Astro.cookies.delete('sessionId', { path: '/' });
   return Astro.redirect('/auth/login');
 }
+
+
 
 // Get group ID from URL
 const { id: groupId } = Astro.params;

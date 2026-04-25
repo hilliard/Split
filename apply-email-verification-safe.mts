@@ -63,10 +63,11 @@ try {
     try {
       await db.execute(sql.raw(statement));
       console.log('✓ Success\n');
-    } catch (error) {
-      if (error.message.includes('already exists') || error.message.includes('duplicate')) {
+} catch (err) {
+  const error = err as any;
+  if (error?.message?.includes('already exists') || error?.message?.includes('duplicate')) {
         console.log('⊘ Skipped (already exists)\n');
-      } else {
+  } else {
         throw error;
       }
     }
@@ -74,8 +75,9 @@ try {
 
   console.log('✅ Email verification schema applied successfully!');
   process.exit(0);
-} catch (error) {
-  console.error('\n❌ Migration failed:', error.message);
-  if (error.detail) console.error('Detail:', error.detail);
+} catch (err) {
+  const error = err as any;
+  console.error('\n❌ Migration failed:', error?.message ?? 'Unknown error');
+  if (error?.detail) console.error('Detail:', error.detail);
   process.exit(1);
 }

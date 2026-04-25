@@ -21,7 +21,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
+    const [session] = (await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1)) as any;
 
     if (!session || new Date(session.expiresAt) < new Date()) {
       return new Response(JSON.stringify({ error: 'Session expired' }), {
@@ -63,32 +63,32 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Get settlements
-    const userSettlements = await db
+    const userSettlements: any = await (db
       .select()
       .from(settlements)
       .where(whereCondition)
-      .orderBy((s) => [s.createdAt]);
+      .orderBy((s) => [s.createdAt])) as any;
 
     // Enrich with user names and event info
     const enriched = await Promise.all(
-      userSettlements.map(async (settlement) => {
-        const [fromUser] = await db
+      userSettlements.map(async (settlement: any) => {
+        const [fromUser] = (await db
           .select()
           .from(humans)
           .where(eq(humans.id, settlement.fromUserId))
-          .limit(1);
+          .limit(1)) as any;
 
-        const [toUser] = await db
+        const [toUser] = (await db
           .select()
           .from(humans)
           .where(eq(humans.id, settlement.toUserId))
-          .limit(1);
+          .limit(1)) as any;
 
-        const [event] = await db
+        const [event] = (await db
           .select()
           .from(events)
           .where(eq(events.id, settlement.eventId))
-          .limit(1);
+          .limit(1)) as any;
 
         return {
           id: settlement.id,

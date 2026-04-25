@@ -52,7 +52,7 @@ export const PUT: APIRoute = async (context) => {
     const { firstName, lastName, email } = parseResult.data;
 
     // Verify target user exists
-    const [targetUser] = await db.select().from(humans).where(eq(humans.id, targetUserId));
+    const [targetUser] = (await db.select().from(humans).where(eq(humans.id, targetUserId))) as any;
 
     if (!targetUser) {
       return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
@@ -60,42 +60,42 @@ export const PUT: APIRoute = async (context) => {
 
     // Update first name and last name if provided
     if (firstName !== undefined || lastName !== undefined) {
-      await db
+      await (db
         .update(humans)
         .set({
-          firstName: firstName !== undefined ? firstName : targetUser.firstName,
-          lastName: lastName !== undefined ? lastName : targetUser.lastName,
+          firstName: firstName !== undefined ? firstName : (targetUser as any).firstName,
+          lastName: lastName !== undefined ? lastName : (targetUser as any).lastName,
           updatedAt: new Date(),
         })
-        .where(eq(humans.id, targetUserId));
+        .where(eq(humans.id, targetUserId)) as any);
     }
 
     // Update email if provided
-    if (email !== undefined && email !== targetUser.email) {
+    const currentEmail = (targetUser as any).email;
+    if (email !== undefined && email !== currentEmail) {
       // Get current email history entry
-      const [currentEmailHistory] = await db
+      const [currentEmailHistory] = (await db
         .select()
         .from(emailHistory)
         .where(eq(emailHistory.humanId, targetUserId))
-        .orderBy(emailHistory.effectiveFrom);
+        .orderBy(emailHistory.effectiveFrom)) as any;
 
       if (currentEmailHistory) {
         // End current email entry
-        await db
+        await (db
           .update(emailHistory)
           .set({
             effectiveTo: new Date(),
           })
-          .where(eq(emailHistory.id, currentEmailHistory.id));
+          .where(eq(emailHistory.id, (currentEmailHistory as any).id)) as any);
       }
 
       // Create new email history entry
-      await db.insert(emailHistory).values({
+      await (db.insert(emailHistory).values({
         humanId: targetUserId,
         email: email,
         effectiveFrom: new Date(),
-        verificationStatus: 'pending',
-      });
+      }) as any);
     }
 
     return new Response(JSON.stringify({ message: 'User info updated successfully' }), {

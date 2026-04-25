@@ -127,7 +127,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Update activity
-    const [updatedActivity] = await db
+    const [updatedActivity] = (await db
       .update(activities)
       .set({
         title: validatedData.title || undefined,
@@ -139,7 +139,7 @@ export const POST: APIRoute = async (context) => {
         metadata: validatedData.metadata || undefined,
       })
       .where(eq(activities.id, validatedData.activityId))
-      .returning();
+      .returning()) as any;
 
     return new Response(
       JSON.stringify({

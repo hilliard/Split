@@ -30,7 +30,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { dollarsToCents, calculateSplitPerPerson, centsToDollars } from '../../../utils/currency';
 
 const createExpenseSchema = z.object({
-  eventId: z.string().uuid('Invalid event ID'), // Changed from groupId to eventId
+  eventId: z.string().uuid('Invalid event ID').optional(),
+  groupId: z.string().uuid('Invalid group ID').optional(),
   amount: z.number().positive('Amount must be greater than 0'),
   tipAmount: z.number().nonnegative('Tip must be 0 or greater').default(0),
   description: z.string().max(500).default(''),
@@ -39,6 +40,9 @@ const createExpenseSchema = z.object({
   activityId: z.string().uuid('Invalid activity ID').optional(),
   splitAmong: z.array(z.string().uuid()).optional(),
   metadata: z.any().optional(),
+}).refine(data => data.eventId || data.groupId, {
+  message: "Either eventId or groupId must be provided",
+  path: ["eventId"],
 });
 
 export const POST: APIRoute = async (context) => {
@@ -61,45 +65,83 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    // Parse and validate
-    let data;
-    try {
-      data = await context.request.json();
-      console.log('📦 Raw request body:', JSON.stringify(data, null, 2));
-    } catch (parseError) {
-      return new Response(JSON.stringify({ error: 'Invalid request body' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    // Parse body
+    const body = await context.request.json();
+    console.log('📦 Create Expense Request Body:', JSON.stringify(body, null, 2));
+
+    // Convert string inputs to numbers if they come from forms
+    if (typeof body.amount === 'string') body.amount = parseFloat(body.amount);
+    if (typeof body.tipAmount === 'string') body.tipAmount = parseFloat(body.tipAmount);
+
+    // Validate request body
+    const validationResult = createExpenseSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('❌ Schema Validation Failed:', validationResult.error.format());
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid request data',
+          details: validationResult.error.format(),
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
-    const validatedData = createExpenseSchema.parse(data);
+    const validatedData = validationResult.data;
 
-    console.log('📝 Validated expense data:', {
+    console.log('✅ Validated Expense Data:', {
       eventId: validatedData.eventId,
+      groupId: validatedData.groupId,
       amount: validatedData.amount,
       description: validatedData.description,
       paidBy: validatedData.paidBy,
     });
 
-    // Verify event exists
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, validatedData.eventId))
-      .limit(1);
+    let groupId = validatedData.groupId;
 
-    if (!event) {
-      return new Response(JSON.stringify({ error: 'Event not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    // If eventId is provided, get the group from the event
+    if (validatedData.eventId) {
+      const [event] = await db
+        .select()
+        .from(events)
+        .where(eq(events.id, validatedData.eventId))
+        .limit(1);
+
+      if (!event) {
+        return new Response(JSON.stringify({ error: 'Event not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (!event.groupId) {
+        // Auto-create a group for this event
+        const newGroupId = uuidv4();
+        await db.insert(expenseGroups).values({
+          id: newGroupId,
+          createdBy: session.userId,
+          name: `${event.title} Expenses`,
+        });
+
+        // Add creator as the first member of the new group
+        await db.insert(groupMembers).values({
+          groupId: newGroupId,
+          userId: session.userId,
+        });
+
+        // Link group to event
+        await db.update(events).set({ groupId: newGroupId }).where(eq(events.id, event.id));
+        
+        event.groupId = newGroupId;
+      }
+      
+      groupId = event.groupId;
     }
 
-    // Get the group from the event
-    const groupId = event.groupId;
     if (!groupId) {
-      return new Response(JSON.stringify({ error: 'Event is not linked to a group' }), {
+      return new Response(JSON.stringify({ error: 'Group ID is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -112,7 +154,7 @@ export const POST: APIRoute = async (context) => {
         const members = await db
           .select()
           .from(groupMembers)
-          .where(eq(groupMembers.groupId, groupId)); // Use groupId from event
+          .where(eq(groupMembers.groupId, groupId));
 
         if (members && members.length > 0) {
           splitAmong = members.map((m) => m.userId);
@@ -178,9 +220,9 @@ export const POST: APIRoute = async (context) => {
       });
 
       // Verify all required fields are present
-      if (!insertValues.id || !insertValues.eventId || typeof insertValues.amount === 'undefined') {
+      if (!insertValues.id || typeof insertValues.amount === 'undefined') {
         throw new Error(
-          `Missing required fields: id=${insertValues.id}, eventId=${insertValues.eventId}, amount=${insertValues.amount}`
+          `Missing required fields: id=${insertValues.id}, amount=${insertValues.amount}`
         );
       }
 

@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 // Validation schema for event creation
-const createEventSchema = z.object({
+export const createEventSchema = z.object({
   title: z
     .string()
     .min(1, 'Event title is required')
@@ -22,7 +22,7 @@ const createEventSchema = z.object({
   isVirtual: z.boolean().default(false),
   isPublic: z.boolean().default(true),
   currency: z.string().length(3).default('USD'), // ISO 4217 code
-  budget: z.string().optional().nullable(),
+  budget: z.string().optional(),
   metadata: z.record(z.unknown()).optional(),
 });
 
@@ -93,7 +93,7 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const validatedData = createEventSchema.parse(mappedData);
+    const validatedData = (createEventSchema as any).parse(mappedData) as any;
 
     // Validate datetime range if both provided
     if (validatedData.startTime && validatedData.endTime) {
@@ -116,7 +116,7 @@ export const POST: APIRoute = async (context) => {
     });
 
     // CREATE THE EVENT
-    const [newEvent] = await db
+    const [newEvent] = (await db
       .insert(events)
       .values({
         creatorId: session.userId,
@@ -135,7 +135,7 @@ export const POST: APIRoute = async (context) => {
           ? Math.round(parseFloat(validatedData.budget) * 100)
           : null,
       })
-      .returning();
+      .returning()) as any;
 
     console.log('✓ Event created:', newEvent.id);
 
@@ -166,8 +166,9 @@ export const POST: APIRoute = async (context) => {
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const details = error.flatten();
       return new Response(
-        JSON.stringify({ error: error.errors[0]?.message || 'Validation failed' }),
+        JSON.stringify({ error: 'Validation failed', details }),
         {
           status: 400,
           headers: { 'Content-Type': 'application/json' },

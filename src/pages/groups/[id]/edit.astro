@@ -1,26 +1,24 @@
 ---
+import { getSession } from '../../../utils/session';
 import Layout from "../../../layouts/Layout.astro";
-import Header from "../../../components/Header.astro";
 import { db } from "../../../db";
 import { sessions, expenseGroups, groupMembers } from "../../../db/schema";
 import { eq, and } from "drizzle-orm";
 
 // Check if user is authenticated
-const sessionId = Astro.cookies.get("sessionId")?.value;
+const sessionId = Astro.cookies.get('sessionId')?.value;
 if (!sessionId) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect('/auth/login');
+}
+
+const session = await getSession(sessionId);
+if (!session) {
+  Astro.cookies.delete('sessionId', { path: '/' });
+  return Astro.redirect('/auth/login');
 }
 
 // Verify session
-const [session] = await db
-  .select()
-  .from(sessions)
-  .where(eq(sessions.id, sessionId))
-  .limit(1);
 
-if (!session || new Date(session.expiresAt) < new Date()) {
-  return Astro.redirect("/auth/login");
-}
 
 // Get group ID from URL
 const { id: groupId } = Astro.params;
@@ -57,8 +55,6 @@ if (!member) {
 
 <Layout title="Edit Group" description="Edit your group settings">
   <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
-    <Header title={group.name} currentPage="dashboard" />
-
     <!-- Page Title -->
     <div
       class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"

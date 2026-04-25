@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { sessions, activities, events } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { sessions, activities, events, groupMembers } from '../../../db/schema';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { broadcastUpdate } from '../events/stream';
 
-const createActivitySchema = z.object({
-  eventId: z.string().uuid('Invalid event ID'),
+export const createActivitySchema = z.object({
+  eventId: z.string().uuid('Invalid event ID').optional().nullable().default(null),
   title: z.string().min(1, 'Activity title is required').max(255),
   startTime: z
     .union([
@@ -31,6 +31,7 @@ const createActivitySchema = z.object({
     .optional()
     .transform((v) => (v === null || v === '' ? undefined : v)),
   sequenceOrder: z.number().int().nonnegative().default(0),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export const POST: APIRoute = async (context) => {
@@ -67,28 +68,47 @@ export const POST: APIRoute = async (context) => {
 
     const validatedData = createActivitySchema.parse(data);
 
-    // Verify event exists and user owns it
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, validatedData.eventId))
-      .limit(1);
 
-    if (!event) {
-      return new Response(JSON.stringify({ error: 'Event not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (event.creatorId !== session.userId) {
-      return new Response(
-        JSON.stringify({ error: 'You do not have permission to add activities to this event' }),
-        {
-          status: 403,
+    // If eventId is provided, verify event exists and user is creator or group member
+    let event = null;
+    if (validatedData.eventId) {
+      const [foundEvent] = await db
+        .select()
+        .from(events)
+        .where(eq(events.id, validatedData.eventId))
+        .limit(1);
+      event = foundEvent;
+      if (!event) {
+        return new Response(JSON.stringify({ error: 'Event not found' }), {
+          status: 404,
           headers: { 'Content-Type': 'application/json' },
-        }
-      );
+        });
+      }
+      // Check if user is creator or group member
+      let isCreator = event.creatorId === session.userId;
+      let isGroupMember = false;
+      if (event.groupId) {
+        const groupMember = await db
+          .select()
+          .from(groupMembers)
+          .where(
+            and(
+              eq(groupMembers.userId, session.userId),
+              eq(groupMembers.groupId, event.groupId)
+            )
+          )
+          .limit(1);
+        isGroupMember = groupMember.length > 0;
+      }
+      if (!isCreator && !isGroupMember) {
+        return new Response(
+          JSON.stringify({ error: 'You do not have permission to add activities to this event' }),
+          {
+            status: 403,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
     }
 
     // Validate datetime range if both provided
@@ -161,15 +181,20 @@ export const POST: APIRoute = async (context) => {
         endTime: endDate,
         locationName: validatedData.locationName || null,
         sequenceOrder: validatedData.sequenceOrder,
+        metadata: validatedData.metadata || {},
+        // 👇 ADD THIS LINE 👇
+        createdBy: session.userId,
       })
       .returning();
 
-    // Broadcast to all connected clients for this event
-    broadcastUpdate(validatedData.eventId, {
+    // Broadcast to all connected clients for this event (if we have a valid eventId)
+    if (validatedData.eventId) {
+      broadcastUpdate(validatedData.eventId, {
       type: 'activity_created',
       activity: newActivity,
       timestamp: new Date().toISOString(),
-    });
+      });
+    }
 
     return new Response(
       JSON.stringify({
@@ -188,9 +213,10 @@ export const POST: APIRoute = async (context) => {
     console.error('Detailed error:', errorMessage);
 
     if (error instanceof z.ZodError) {
-      console.error('Validation errors:', error.errors);
+      const details = error.flatten();
+      console.error('Validation errors:', details);
       return new Response(
-        JSON.stringify({ error: 'Validation failed', details: error.flatten() }),
+        JSON.stringify({ error: 'Validation failed', details }),
         {
           status: 400,
           headers: { 'Content-Type': 'application/json' },

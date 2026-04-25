@@ -218,4 +218,10 @@ const { title, description = 'Split - Expense Tracking Made Simple', currentPage
   * {
     @apply antialiased;
   }
+
+  /* Hide default browser password toggle icons */
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
 </style>

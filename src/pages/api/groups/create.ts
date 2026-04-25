@@ -65,7 +65,8 @@ export const POST: APIRoute = async (context) => {
     console.error('Error creating group:', error);
 
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.errors[0].message }), {
+      const details = error.flatten();
+      return new Response(JSON.stringify({ error: 'Validation failed', details }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

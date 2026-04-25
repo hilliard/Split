@@ -1,8 +1,9 @@
 ---
+import { getSession } from '../../utils/session';
 import Layout from '../../layouts/Layout.astro';
 import { db } from '../../db';
-import { sessions, activities } from '../../db/schema';
-import { eq, isNull } from 'drizzle-orm';
+import { activities } from '../../db/schema';
+import { isNull } from 'drizzle-orm';
 
 // Check if user is authenticated
 const sessionId = Astro.cookies.get('sessionId')?.value;
@@ -10,10 +11,9 @@ if (!sessionId) {
   return Astro.redirect('/auth/login');
 }
 
-// Get session and verify user
-const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
-
-if (!session || new Date(session.expiresAt) < new Date()) {
+const session = await getSession(sessionId);
+if (!session) {
+  Astro.cookies.delete('sessionId', { path: '/' });
   return Astro.redirect('/auth/login');
 }
 
@@ -209,6 +209,8 @@ const userId = session.userId;
               >
                 <option value="meal">Meal / Food</option>
                 <option value="transport">Transport</option>
+                <option value="flight">Flight</option>
+                <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
                 <option value="accommodation">Accommodation</option>
                 <option value="parking">Parking</option>
                 <option value="entertainment">Entertainment</option>
@@ -484,6 +486,8 @@ const userId = session.userId;
           >
             <option value="meal">Meal / Food</option>
             <option value="transport">Transport</option>
+            <option value="flight">Flight</option>
+            <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
             <option value="accommodation">Accommodation</option>
             <option value="parking">Parking</option>
             <option value="entertainment">Entertainment</option>
@@ -636,11 +640,11 @@ const userId = session.userId;
 
     // Close modals when clicking outside
     editActivityModal.addEventListener('click', (e) => {
-      if (e.target === editActivityModal) closeEditModal();
+      if (false && e.target === editActivityModal) closeEditModal();
     });
 
     addExpenseModal.addEventListener('click', (e) => {
-      if (e.target === addExpenseModal) closeExpenseModal();
+      if (false && e.target === addExpenseModal) closeExpenseModal();
     });
 
     // Add activity
@@ -865,7 +869,7 @@ const userId = session.userId;
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             groupId,
-            activityId: formData.get('activityId'),
+            activityId: formData.get('activityId') || undefined,
             description: formData.get('description'),
             category: formData.get('category') || 'misc',
             amount: Math.round(amount * 100),

@@ -24,20 +24,39 @@ export const GET: APIRoute = async (context) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+    // Support standalone activities (no eventId)
+    const standalone = context.url.searchParams.get('standalone');
+    if (standalone === '1') {
+      // Only allow user to see their own standalone activities
+      // Find the user's id (humanId)
+      const userId = session.userId;
+      // Filter activities by eventId=null AND created by this user
+      const activitiesList: any = await (db
+        .select()
+        .from(activities)
+        .where(and(eq(activities.eventId, null), eq(activities.createdBy, userId)))
+      ) as any;
+      return new Response(
+        JSON.stringify({ activities: activitiesList }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Get eventId from query parameters
-    const eventId = context.url.searchParams.get('eventId');
-
-    if (!eventId) {
+    const eventIdRaw = context.url.searchParams.get('eventId');
+    if (!eventIdRaw) {
       return new Response(JSON.stringify({ error: 'Event ID is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
-
+    const eventIdStr = String(eventIdRaw);
     // Verify event exists and user has access
-    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
-
+    const [event] = (await db
+      .select()
+      .from(events)
+      .where(eq(events.id, eventIdStr))
+      .limit(1)) as any;
     if (!event) {
       return new Response(JSON.stringify({ error: 'Event not found' }), {
         status: 404,
@@ -50,42 +69,34 @@ export const GET: APIRoute = async (context) => {
     let isGroupMember = false;
 
     if (event.groupId) {
-      const [membership] = await db
+      const [membership] = (await db
         .select()
         .from(groupMembers)
         .where(
           and(eq(groupMembers.userId, session.userId), eq(groupMembers.groupId, event.groupId))
         )
-        .limit(1);
+        .limit(1)) as any;
       isGroupMember = !!membership;
     }
 
     if (!isCreator && !isGroupMember) {
-      return new Response(
-        JSON.stringify({ error: 'You do not have permission to view activities for this event' }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    // Get all activities for the event
-    const eventActivities = await db
+    // Get activities for the event
+    const activitiesList: any = await (db
       .select()
       .from(activities)
-      .where(eq(activities.eventId, eventId));
+      .where(eq(activities.eventId, eventIdStr))) as any;
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        activities: eventActivities,
-      }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
+      JSON.stringify({ activities: activitiesList }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
+    // Fallthrough: handled above with explicit response for event activities
   } catch (error) {
     console.error('Error listing activities:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

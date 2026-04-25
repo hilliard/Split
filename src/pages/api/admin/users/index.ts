@@ -14,14 +14,7 @@ import { withAdminAuth } from '../../../../utils/auth-middleware.ts';
 export const GET: APIRoute = withAdminAuth(async (req, context, auth) => {
   try {
     // Get all users with their system roles
-    const allUsers = await db.query.humans.findMany({
-      with: {
-        sessions: {
-          limit: 1,
-          orderBy: (sessions, { desc }) => [desc(sessions.expiresAt)],
-        },
-      },
-    });
+    const allUsers = await db.query.humans.findMany({});
 
     // Enrich with role information
     const usersWithRoles = await Promise.all(

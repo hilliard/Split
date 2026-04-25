@@ -36,6 +36,13 @@
       "when": 1776801600000,
       "tag": "0004_add_email_verification",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1777057519420,
+      "tag": "0005_pale_pyro",
+      "breakpoints": true
     }
   ]
 }

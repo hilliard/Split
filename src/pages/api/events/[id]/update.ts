@@ -4,20 +4,13 @@ import { events, sessions } from '@/db/schema';
 import { canUserEditEvent } from '@/db/authorization';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { updateEventSchema } from '@/db/schema';
 
-const updateEventSchema = z.object({
-  title: z.string().min(1, 'Event title is required').max(255).optional(),
-  description: z.string().max(2000).optional().nullable(),
-  type: z.string().max(50).optional(),
-  status: z.string().max(50).optional(),
-  startTime: z.string().optional(),
-  endTime: z.string().optional().nullable(),
-  timezone: z.string().max(50).optional(),
-  isVirtual: z.boolean().optional(),
-  isPublic: z.boolean().optional(),
-  currency: z.string().length(3).optional(),
-  budget: z.string().optional().nullable(),
-});
+// Canonical updateEventSchema is imported from the canonical schema
+// to keep schema definitions unified across routes.
+
+/* Removed local schema in favor of canonical one. */
+ 
 
 export const PUT: APIRoute = async (context) => {
   try {
@@ -72,7 +65,7 @@ export const PUT: APIRoute = async (context) => {
 
     // Parse and validate request
     const data = await context.request.json();
-    const validatedData = updateEventSchema.parse(data);
+    const validatedData = (updateEventSchema as any).parse(data);
 
     // Build update object with only provided fields
     const updateData: any = {};
@@ -97,11 +90,11 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Update event
-    const [updatedEvent] = await db
+    const [updatedEvent] = (await db
       .update(events)
       .set(updateData)
       .where(eq(events.id, eventId))
-      .returning();
+      .returning()) as any;
 
     return new Response(
       JSON.stringify({
@@ -117,7 +110,8 @@ export const PUT: APIRoute = async (context) => {
     console.error('Error updating event:', error);
 
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.errors[0].message }), {
+      const details = error.flatten();
+      return new Response(JSON.stringify({ error: 'Validation failed', details }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

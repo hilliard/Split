@@ -1,4 +1,5 @@
 ---
+import { getSession } from '../../utils/session';
 import Layout from '../../layouts/Layout.astro';
 import { db } from '../../db';
 import { events, sessions, activities } from '../../db/schema';
@@ -10,12 +11,14 @@ if (!sessionId) {
   return Astro.redirect('/auth/login');
 }
 
-// Get session and verify user
-const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
-
-if (!session || new Date(session.expiresAt) < new Date()) {
+const session = await getSession(sessionId);
+if (!session) {
+  Astro.cookies.delete('sessionId', { path: '/' });
   return Astro.redirect('/auth/login');
 }
+
+// Get session and verify user
+
 
 // Get event ID from query parameters
 const eventId = Astro.url.searchParams.get('eventId');
@@ -140,6 +143,54 @@ const userId = session.userId;
             </div>
           </div>
 
+          <!-- Details/Metadata Section -->
+          <div>
+            <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
+              Details (Flight #, Address, Attendees, etc.)
+            </label>
+
+            <!-- Template Selector -->
+            <div class="mb-4 flex gap-2 items-end">
+              <div class="flex-1">
+                <label
+                  for="addActivityTemplateSelect"
+                  class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                >
+                  Quick Templates
+                </label>
+                <select
+                  id="addActivityTemplateSelect"
+                  class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+                >
+                  <option value="">-- Select a template --</option>
+                  <option value="flight">✈️ One-Way Flight</option>
+                  <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
+                  <option value="hotel">🏨 Hotel</option>
+                  <option value="restaurant">🍽️ Restaurant/Dinner</option>
+                  <option value="tourist">🎫 Tourist Activity</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                id="addActivityApplyTemplateBtn"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm whitespace-nowrap"
+              >
+                Apply Template
+              </button>
+            </div>
+
+            <div id="addActivityMetadataContainer" class="space-y-3">
+              <!-- Dynamic metadata fields will be added here -->
+            </div>
+            <button
+              type="button"
+              id="addActivityAddMetadataFieldBtn"
+              class="mt-3 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+            >
+              + Add Detail
+            </button>
+          </div>
+
           <!-- Add Expense Toggle -->
           <div
             class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 border-2 border-green-400 dark:border-emerald-600 rounded-lg"
@@ -213,6 +264,8 @@ const userId = session.userId;
               >
                 <option value="meal">Meal / Food</option>
                 <option value="transport">Transport</option>
+                <option value="flight">Flight</option>
+                <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
                 <option value="accommodation">Accommodation</option>
                 <option value="parking">Parking</option>
                 <option value="entertainment">Entertainment</option>
@@ -349,6 +402,15 @@ const userId = session.userId;
                             ` - ${new Date(activity.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
                         </p>
                       )}
+                      {activity.metadata && Object.keys(activity.metadata).length > 0 && (
+                        <div class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                          {Object.entries(activity.metadata).map(([key, value]) => (
+                            <div class="inline-block bg-slate-100 dark:bg-slate-700 rounded px-2 py-1 mr-2 mb-1">
+                              <span class="font-medium">{key}:</span> {String(value)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div class="flex gap-2 ml-4">
                       <button
@@ -405,6 +467,134 @@ const userId = session.userId;
       });
     }
 
+    // Add Activity Metadata functions
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function addActivityAddMetadataField(key = '', value = '') {
+      const container = document.getElementById('addActivityMetadataContainer');
+      const fieldId = 'add-activity-metadata-' + Date.now() + Math.random();
+      const escapedKey = escapeHtml(key);
+      const escapedValue = escapeHtml(value);
+      const fieldHTML = `
+        <div class="flex gap-2" id="${fieldId}">
+          <input
+            type="text"
+            name="metadataKey"
+            placeholder="Key (e.g., Flight Number)"
+            value="${escapedKey}"
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+          />
+          <input
+            type="text"
+            name="metadataValue"
+            placeholder="Value (e.g., DL123)"
+            value="${escapedValue}"
+            class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+          />
+          <button
+            type="button"
+            onclick="document.getElementById('${fieldId}').remove()"
+            class="px-3 py-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors text-sm font-medium"
+          >
+            ✕
+          </button>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', fieldHTML);
+    }
+
+    const addActivityTemplates = {
+      flight: [
+        ['Airline Company', ''],
+        ['Flight Number', ''],
+        ['Confirmation Number', ''],
+        ['Take Off Time', ''],
+        ['Arrival Time', ''],
+        ['Seat Number', ''],
+      ],
+      roundtrip_flight: [
+        ['Airline Company', ''],
+        ['Confirmation Number', ''],
+        ['Outbound Flight #', ''],
+        ['Outbound Take Off', ''],
+        ['Outbound Arrival', ''],
+        ['Outbound Seat', ''],
+        ['Return Flight #', ''],
+        ['Return Take Off', ''],
+        ['Return Arrival', ''],
+        ['Return Seat', ''],
+      ],
+      hotel: [
+        ['Hotel Name', ''],
+        ['Address', ''],
+        ['Check-in Date', ''],
+        ['Check-out Date', ''],
+        ['Confirmation Code', ''],
+        ['Room Type', ''],
+        ['Parking', ''],
+        ['Contact Number', ''],
+      ],
+      restaurant: [
+        ['Restaurant Name', ''],
+        ['Address', ''],
+        ['Reservation Time', ''],
+        ['Party Size', ''],
+        ['Reservation Name', ''],
+        ['Phone Number', ''],
+        ['Cuisine Type', ''],
+        ['Special Requests', ''],
+        ['Dietary Restrictions', ''],
+      ],
+      tourist: [
+        ['Location/Attraction', ''],
+        ['Address', ''],
+        ['Activity Duration', ''],
+        ['Meeting Point', ''],
+        ['Suggested Time', ''],
+        ['Entrance Fee', ''],
+        ['What to Bring', ''],
+        ['Contact Number', ''],
+      ],
+    };
+
+    function applyAddActivityTemplate(templateType) {
+      if (!templateType || !addActivityTemplates[templateType]) return;
+
+      const container = document.getElementById('addActivityMetadataContainer');
+      container.innerHTML = '';
+
+      addActivityTemplates[templateType].forEach(([key, value]) => {
+        addActivityAddMetadataField(key, value);
+      });
+    }
+
+    const addActivityTemplateSelect = document.getElementById('addActivityTemplateSelect');
+    const addActivityApplyTemplateBtn = document.getElementById('addActivityApplyTemplateBtn');
+    const addActivityAddMetadataFieldBtn = document.getElementById('addActivityAddMetadataFieldBtn');
+
+    if (addActivityApplyTemplateBtn) {
+      addActivityApplyTemplateBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const selectedTemplate = addActivityTemplateSelect.value;
+        applyAddActivityTemplate(selectedTemplate);
+      });
+    }
+
+    if (addActivityAddMetadataFieldBtn) {
+      addActivityAddMetadataFieldBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        addActivityAddMetadataField();
+      });
+    }
+
     // Add activity
     const addActivityForm = document.getElementById('addActivityForm');
     addActivityForm.addEventListener('submit', async (e) => {
@@ -418,6 +608,13 @@ const userId = session.userId;
         startTime: formData.get('startTime') || null,
         endTime: formData.get('endTime') || null,
         sequenceOrder: 0,
+        metadata: (() => {
+          const m = {};
+          const keys = formData.getAll('metadataKey');
+          const values = formData.getAll('metadataValue');
+          keys.forEach((k, i) => { if (k?.trim()) m[k.trim()] = values[i]?.trim(); });
+          return Object.keys(m).length > 0 ? m : {};
+        })(),
       };
 
       try {
@@ -463,8 +660,9 @@ const userId = session.userId;
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 groupId: groupId,
+                eventId: eventId,
                 activityId: activityId,
-                description: formData.get('expenseDescription') || null,
+                description: formData.get('expenseDescription') || undefined,
                 category: formData.get('expenseCategory') || 'misc',
                 amount: Math.round(expenseAmount * 100),
                 paidBy: userId,

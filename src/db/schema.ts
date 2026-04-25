@@ -1,16 +1,25 @@
+import { z } from 'zod';
 import {
   pgTable,
-  text,
-  timestamp,
+  index,
   uuid,
   varchar,
-  integer,
-  index,
-  boolean,
-  json,
   date,
+  timestamp,
+  foreignKey,
+  unique,
+  integer,
+  json,
+  text,
+  boolean,
+  pgView,
+  numeric,
+  doublePrecision,
+  bigint,
+  interval,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
 // ============================================================
 // HUMAN-CENTRIC SCHEMA TABLES
@@ -113,7 +122,7 @@ export const activities = pgTable(
   'activities',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    eventId: uuid('event_id').references(() => events.id, { onDelete: 'cascade' }), // Made nullable to allow activities without events
+    eventId: uuid('event_id').references(() => events.id, { onDelete: 'cascade' }), // allow nulls (no NOT NULL specified)
     title: varchar('title', { length: 255 }).notNull(),
     startTime: timestamp('start_time', { withTimezone: true }),
     endTime: timestamp('end_time', { withTimezone: true }),
@@ -123,6 +132,9 @@ export const activities = pgTable(
       .$type<Record<string, unknown>>()
       .default({} as any),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdBy: uuid('created_by')
+      .notNull()
+      .references(() => humans.id),
   },
   (table) => ({
     eventIdx: index('idx_activities_event_id').on(table.eventId),
@@ -311,6 +323,45 @@ export const emailVerificationTokens = pgTable(
     expiresAtIdx: index('email_tokens_expires_at_idx').on(table.expiresAt),
   })
 );
+
+// Email history - track emails sent to humans
+export const emailHistory = pgTable(
+  'email_history',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    humanId: uuid('human_id').notNull().references(() => humans.id),
+    email: varchar('email', { length: 255 }).notNull(),
+    effectiveFrom: timestamp('effective_from', { withTimezone: true }).defaultNow().notNull(),
+    effectiveTo: timestamp('effective_to', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    humanIdx: index('email_history_human_idx').on(table.humanId),
+    emailIdx: index('email_history_email_idx').on(table.email),
+  })
+);
+
+export const emailHistoryRelations = relations(emailHistory, ({ one }) => ({
+  human: one(humans, {
+    fields: [emailHistory.humanId],
+    references: [humans.id],
+  }),
+}));
+
+// Canonical update event schema (end-to-end validated shape for event updates)
+export const updateEventSchema = z.object({
+  title: z.string().min(1, 'Event title is required').max(255).optional(),
+  description: z.string().max(2000).optional().nullable(),
+  type: z.string().max(50).optional(),
+  status: z.string().max(50).optional(),
+  startTime: z.string().optional(),
+  endTime: z.string().optional().nullable(),
+  timezone: z.string().max(50).optional(),
+  isVirtual: z.boolean().optional(),
+  isPublic: z.boolean().optional(),
+  currency: z.string().length(3).optional(),
+  budget: z.string().optional().nullable(),
+});
 
 // Relations
 export const humansRelations = relations(humans, ({ many }) => ({
@@ -540,3 +591,135 @@ export const groupRolePermissionsRelations = relations(groupRolePermissions, ({ 
     references: [permissions.id],
   }),
 }));
+
+// add the views and stored procedures here as needed in the future 
+export const expenseSummaryForAnalysis = pgView('expense_summary_for_analysis', {
+  expenseId: uuid('expense_id'),
+  eventId: uuid('event_id'),
+  activityId: uuid('activity_id'),
+  groupId: uuid('group_id'),
+  amountDollars: numeric('amount_dollars'),
+  tipDollars: numeric('tip_dollars'),
+  totalDollars: numeric('total_dollars'),
+  category: varchar({ length: 50 }),
+  description: varchar({ length: 255 }),
+  payerId: uuid('payer_id'),
+  payerUsername: varchar('payer_username', { length: 255 }),
+  payerDisplayName: text('payer_display_name'),
+  expenseDate: date('expense_date'),
+  expenseYear: doublePrecision('expense_year'),
+  expenseMonth: doublePrecision('expense_month'),
+  expenseWeek: doublePrecision('expense_week'),
+  monthYear: text('month_year'),
+  createdAt: timestamp('created_at', { mode: 'string' }),
+}).as(
+  sql`SELECT e.id AS expense_id, e.event_id, e.activity_id, e.group_id, round(e.amount::numeric / 100.0, 2) AS amount_dollars, round(e.tip_amount::numeric / 100.0, 2) AS tip_dollars, round((e.amount + e.tip_amount)::numeric / 100.0, 2) AS total_dollars, e.category, e.description, e.paid_by AS payer_id, c_payer.username AS payer_username, (h_payer.first_name::text || ' '::text) || h_payer.last_name::text AS payer_display_name, e.created_at::date AS expense_date, date_part('year'::text, e.created_at) AS expense_year, date_part('month'::text, e.created_at) AS expense_month, date_part('week'::text, e.created_at) AS expense_week, to_char(e.created_at, 'YYYY-MM'::text) AS month_year, e.created_at FROM expenses e LEFT JOIN humans h_payer ON e.paid_by = h_payer.id LEFT JOIN customers c_payer ON h_payer.id = c_payer.human_id ORDER BY e.created_at DESC`
+);
+
+export const expenseSplitsForAnalysis = pgView('expense_splits_for_analysis', {
+  splitId: uuid('split_id'),
+  expenseId: uuid('expense_id'),
+  userId: uuid('user_id'),
+  userUsername: varchar('user_username', { length: 255 }),
+  userDisplayName: text('user_display_name'),
+  splitDollars: numeric('split_dollars'),
+  paidByUserId: uuid('paid_by_user_id'),
+  payerUsername: varchar('payer_username', { length: 255 }),
+  payerDisplayName: text('payer_display_name'),
+  amountOwedDollars: numeric('amount_owed_dollars'),
+}).as(
+  sql`SELECT es.id AS split_id, es.expense_id, es.user_id, c_user.username AS user_username, (h_user.first_name::text || ' '::text) || h_user.last_name::text AS user_display_name, round(es.amount::numeric / 100.0, 2) AS split_dollars, e.paid_by AS paid_by_user_id, c_payer.username AS payer_username, (h_payer.first_name::text || ' '::text) || h_payer.last_name::text AS payer_display_name, round(es.amount::numeric / 100.0, 2) AS amount_owed_dollars FROM expense_splits es JOIN expenses e ON es.expense_id = e.id LEFT JOIN humans h_user ON es.user_id = h_user.id LEFT JOIN customers c_user ON h_user.id = c_user.human_id LEFT JOIN humans h_payer ON e.paid_by = h_payer.id LEFT JOIN customers c_payer ON h_payer.id = c_payer.human_id ORDER BY es.id DESC`
+);
+
+export const dailySpendingTrendForAnalysis = pgView('daily_spending_trend_for_analysis', {
+  expenseDate: date('expense_date'),
+  year: integer(),
+  month: integer(),
+  week: integer(),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  expenseCount: bigint('expense_count', { mode: 'number' }),
+  subtotalDollars: numeric('subtotal_dollars'),
+  totalTipsDollars: numeric('total_tips_dollars'),
+  dailyTotalDollars: numeric('daily_total_dollars'),
+  avgExpenseDollars: numeric('avg_expense_dollars'),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  uniquePayers: bigint('unique_payers', { mode: 'number' }),
+}).as(
+  sql`SELECT created_at::date AS expense_date, date_part('year'::text, created_at)::integer AS year, date_part('month'::text, created_at)::integer AS month, date_part('week'::text, created_at)::integer AS week, count(*) AS expense_count, round(sum(amount)::numeric / 100.0, 2) AS subtotal_dollars, round(sum(tip_amount)::numeric / 100.0, 2) AS total_tips_dollars, round(sum(amount + tip_amount)::numeric / 100.0, 2) AS daily_total_dollars, round(avg(amount + tip_amount) / 100.0, 2) AS avg_expense_dollars, count(DISTINCT paid_by) AS unique_payers FROM expenses e GROUP BY (created_at::date), (date_part('year'::text, created_at)), (date_part('month'::text, created_at)), (date_part('week'::text, created_at)) ORDER BY (created_at::date) DESC`
+);
+
+export const categorySpendingForAnalysis = pgView('category_spending_for_analysis', {
+  category: varchar({ length: 50 }),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  expenseCount: bigint('expense_count', { mode: 'number' }),
+  subtotalDollars: numeric('subtotal_dollars'),
+  totalTipsDollars: numeric('total_tips_dollars'),
+  totalDollars: numeric('total_dollars'),
+  avgExpenseDollars: numeric('avg_expense_dollars'),
+  maxExpenseDollars: numeric('max_expense_dollars'),
+  minExpenseDollars: numeric('min_expense_dollars'),
+}).as(
+  sql`SELECT category, count(*) AS expense_count, round(sum(amount)::numeric / 100.0, 2) AS subtotal_dollars, round(sum(tip_amount)::numeric / 100.0, 2) AS total_tips_dollars, round(sum(amount + tip_amount)::numeric / 100.0, 2) AS total_dollars, round(avg(amount + tip_amount) / 100.0, 2) AS avg_expense_dollars, round(max(amount)::numeric / 100.0, 2) AS max_expense_dollars, round(min(amount)::numeric / 100.0, 2) AS min_expense_dollars FROM expenses e WHERE category IS NOT NULL GROUP BY category ORDER BY (round(sum(amount + tip_amount)::numeric / 100.0, 2)) DESC`
+);
+
+export const groupSpendingForAnalysis = pgView('group_spending_for_analysis', {
+  groupId: uuid('group_id'),
+  groupName: varchar('group_name', { length: 255 }),
+  groupCreatedDate: date('group_created_date'),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  totalExpenses: bigint('total_expenses', { mode: 'number' }),
+  totalGroupSpendingDollars: numeric('total_group_spending_dollars'),
+  avgExpenseDollars: numeric('avg_expense_dollars'),
+  firstExpenseDate: date('first_expense_date'),
+  lastExpenseDate: date('last_expense_date'),
+}).as(
+  sql`SELECT eg.id AS group_id, eg.name AS group_name, eg.created_at::date AS group_created_date, count(DISTINCT e.id) AS total_expenses, round(sum(e.amount + e.tip_amount)::numeric / 100.0, 2) AS total_group_spending_dollars, round(avg(e.amount + e.tip_amount) / 100.0, 2) AS avg_expense_dollars, min(e.created_at)::date AS first_expense_date, max(e.created_at)::date AS last_expense_date FROM expense_groups eg LEFT JOIN expenses e ON eg.id = e.group_id GROUP BY eg.id, eg.name, eg.created_at ORDER BY (round(sum(e.amount + e.tip_amount)::numeric / 100.0, 2)) DESC`
+);
+
+export const userPayerSummaryForAnalysis = pgView('user_payer_summary_for_analysis', {
+  userId: uuid('user_id'),
+  username: varchar({ length: 255 }),
+  firstName: varchar('first_name', { length: 255 }),
+  lastName: varchar('last_name', { length: 255 }),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  expensesCreated: bigint('expenses_created', { mode: 'number' }),
+  totalPaidDollars: numeric('total_paid_dollars'),
+  avgExpenseDollars: numeric('avg_expense_dollars'),
+  totalTipsPaidDollars: numeric('total_tips_paid_dollars'),
+  firstExpenseDate: date('first_expense_date'),
+  lastExpenseDate: date('last_expense_date'),
+}).as(
+  sql`SELECT h.id AS user_id, c.username, h.first_name, h.last_name, count(DISTINCT e.id) AS expenses_created, round(sum(e.amount + e.tip_amount)::numeric / 100.0, 2) AS total_paid_dollars, round(avg(e.amount + e.tip_amount) / 100.0, 2) AS avg_expense_dollars, round(sum(e.tip_amount)::numeric / 100.0, 2) AS total_tips_paid_dollars, min(e.created_at)::date AS first_expense_date, max(e.created_at)::date AS last_expense_date FROM humans h LEFT JOIN customers c ON h.id = c.human_id LEFT JOIN expenses e ON h.id = e.paid_by WHERE e.id IS NOT NULL GROUP BY h.id, c.username, h.first_name, h.last_name ORDER BY (round(sum(e.amount + e.tip_amount)::numeric / 100.0, 2)) DESC`
+);
+
+export const userParticipantSummaryForAnalysis = pgView('user_participant_summary_for_analysis', {
+  userId: uuid('user_id'),
+  username: varchar({ length: 255 }),
+  firstName: varchar('first_name', { length: 255 }),
+  lastName: varchar('last_name', { length: 255 }),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  expensesInvolvedIn: bigint('expenses_involved_in', { mode: 'number' }),
+  totalOwedDollars: numeric('total_owed_dollars'),
+  avgSplitDollars: numeric('avg_split_dollars'),
+}).as(
+  sql`SELECT h.id AS user_id, c.username, h.first_name, h.last_name, count(DISTINCT es.expense_id) AS expenses_involved_in, round(sum(es.amount)::numeric / 100.0, 2) AS total_owed_dollars, round(avg(es.amount) / 100.0, 2) AS avg_split_dollars FROM humans h LEFT JOIN customers c ON h.id = c.human_id LEFT JOIN expense_splits es ON h.id = es.user_id WHERE es.id IS NOT NULL GROUP BY h.id, c.username, h.first_name, h.last_name ORDER BY (round(sum(es.amount)::numeric / 100.0, 2)) DESC`
+);
+
+export const eventsSummaryForAnalysis = pgView('events_summary_for_analysis', {
+  eventId: uuid('event_id'),
+  eventName: varchar('event_name', { length: 255 }),
+  eventType: varchar('event_type', { length: 50 }),
+  status: varchar({ length: 50 }),
+  currency: varchar({ length: 3 }),
+  startDate: date('start_date'),
+  endDate: date('end_date'),
+  durationDays: interval('duration_days'),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  totalExpenses: bigint('total_expenses', { mode: 'number' }),
+  totalSpendingDollars: numeric('total_spending_dollars'),
+  avgExpenseDollars: numeric('avg_expense_dollars'),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  uniquePayers: bigint('unique_payers', { mode: 'number' }),
+}).as(
+  sql`SELECT ev.id AS event_id, ev.title AS event_name, ev.type AS event_type, ev.status, ev.currency, ev.start_time::date AS start_date, ev.end_time::date AS end_date, ev.end_time - ev.start_time AS duration_days, count(DISTINCT e.id) AS total_expenses, round(sum(e.amount + e.tip_amount)::numeric / 100.0, 2) AS total_spending_dollars, round(avg(e.amount + e.tip_amount) / 100.0, 2) AS avg_expense_dollars, count(DISTINCT e.paid_by) AS unique_payers FROM events ev LEFT JOIN expenses e ON ev.id = e.event_id GROUP BY ev.id, ev.title, ev.type, ev.status, ev.currency, ev.start_time, ev.end_time ORDER BY ev.created_at DESC`
+);

@@ -82,14 +82,31 @@ The exported itinerary is perfect for:
 
 The app includes 4 pre-built templates to save time when adding common activity types:
 
-### ✈️ Flight Template
+### ✈️ One-Way Flight Template
 
 Includes fields for:
 
-- Flight Number, Airline, Gate, Seat
-- Departure & Arrival Times
-- Departure & Arrival Airports
-- Confirmation Code
+- Airline Company
+- Flight Number
+- Confirmation Number
+- Take Off Time
+- Arrival Time
+- Seat Number
+
+### 🔄 Round-Trip Flight Template
+
+Includes fields for:
+
+- Airline Company
+- Confirmation Number
+- Outbound Flight #
+- Outbound Take Off
+- Outbound Arrival
+- Outbound Seat
+- Return Flight #
+- Return Take Off
+- Return Arrival
+- Return Seat
 
 ### 🏨 Hotel Template
 

@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { groupMembers, sessions, expenseGroups } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 
 const addMemberSchema = z.object({
@@ -61,10 +61,15 @@ export const POST: APIRoute = async (context) => {
     const [existingMember] = await db
       .select()
       .from(groupMembers)
-      .where(eq(groupMembers.groupId, validatedData.groupId))
+      .where(
+        and(
+          eq(groupMembers.groupId, validatedData.groupId),
+          eq(groupMembers.userId, validatedData.userId)
+        )
+      )
       .limit(1);
 
-    if (existingMember && existingMember.userId === validatedData.userId) {
+    if (existingMember) {
       return new Response(JSON.stringify({ error: 'User is already a member of this group' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },

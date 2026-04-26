@@ -68,15 +68,33 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    // Add user to group
-    const [membership] = await db
-      .insert(groupMembers)
-      .values({
-        groupId: invitation.groupId,
-        userId: session.userId,
-        joinedAt: new Date(),
-      })
-      .returning();
+    // Check if user is already a member
+    const [existingMember] = await db
+      .select()
+      .from(groupMembers)
+      .where(
+        and(
+          eq(groupMembers.groupId, invitation.groupId),
+          eq(groupMembers.userId, session.userId)
+        )
+      )
+      .limit(1);
+
+    let membership = existingMember;
+
+    if (!existingMember) {
+      // Add user to group
+      const [newMembership] = await db
+        .insert(groupMembers)
+        .values({
+          groupId: invitation.groupId,
+          userId: session.userId,
+          joinedAt: new Date(),
+        })
+        .returning();
+      membership = newMembership;
+    }
+
 
     // Mark invitation as accepted
     await db

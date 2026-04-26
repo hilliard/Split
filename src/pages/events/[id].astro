@@ -1407,6 +1407,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Take Off Time', ''],
         ['Arrival Time', ''],
         ['Seat Number', ''],
+        ['Phone #', ''],
       ],
       roundtrip_flight: [
         ['Airline Company', ''],
@@ -1419,6 +1420,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Return Take Off', ''],
         ['Return Arrival', ''],
         ['Return Seat', ''],
+        ['Phone #', ''],
       ],
       hotel: [
         ['Hotel Name', ''],
@@ -1428,7 +1430,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Confirmation Code', ''],
         ['Room Type', ''],
         ['Parking', ''],
-        ['Contact Number', ''],
+        ['Phone #', ''],
       ],
       car_rental: [
         ['Rental Company', ''],
@@ -1438,6 +1440,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Pick Up Time', ''],
         ['Drop Off Location', ''],
         ['Drop Off Time', ''],
+        ['Phone #', ''],
       ],
       restaurant: [
         ['Restaurant Name', ''],
@@ -1445,7 +1448,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Reservation Time', ''],
         ['Party Size', ''],
         ['Reservation Name', ''],
-        ['Phone Number', ''],
+        ['Phone #', ''],
         ['Cuisine Type', ''],
         ['Special Requests', ''],
         ['Dietary Restrictions', ''],
@@ -1458,7 +1461,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Suggested Time', ''],
         ['Entrance Fee', ''],
         ['What to Bring', ''],
-        ['Contact Number', ''],
+        ['Phone #', ''],
       ],
     };
 
@@ -1543,6 +1546,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Take Off Time', ''],
         ['Arrival Time', ''],
         ['Seat Number', ''],
+        ['Phone #', ''],
       ],
       roundtrip_flight: [
         ['Airline Company', ''],
@@ -1555,6 +1559,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Return Take Off', ''],
         ['Return Arrival', ''],
         ['Return Seat', ''],
+        ['Phone #', ''],
       ],
       hotel: [
         ['Confirmation Number', ''],
@@ -1563,6 +1568,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Room Type', ''],
         ['Check-in Date', ''],
         ['Check-out Date', ''],
+        ['Phone #', ''],
       ],
       car_rental: [
         ['Rental Company', ''],
@@ -1572,6 +1578,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Pick Up Time', ''],
         ['Drop Off Location', ''],
         ['Drop Off Time', ''],
+        ['Phone #', ''],
       ],
       restaurant: [
         ['Reservation Name', ''],
@@ -1579,12 +1586,14 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
         ['Restaurant Name', ''],
         ['Party Size', ''],
         ['Reservation Time', ''],
+        ['Phone #', ''],
       ],
       tourist: [
         ['Attraction Name', ''],
         ['Ticket Number', ''],
         ['Group Size', ''],
         ['Activity Time', ''],
+        ['Phone #', ''],
       ],
     };
 
@@ -1849,11 +1858,19 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;');
-                  const escapedV = String(v)
+                  let escapedV = String(v)
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;');
+                  
+                  // Auto-link phone numbers and URLs
+                  if (k.toLowerCase().includes('phone') || /^[+\d\s.-]{7,}$/.test(v)) {
+                    escapedV = `<a href="tel:${v.replace(/[^\d+]/g, '')}" class="text-indigo-600 dark:text-indigo-400 hover:underline">${escapedV}</a>`;
+                  } else if (v.startsWith('http://') || v.startsWith('https://')) {
+                    escapedV = `<a href="${escapedV}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 hover:underline">${escapedV}</a>`;
+                  }
+                  
                   metadataHtml += `<p class="text-xs text-slate-700 dark:text-slate-300">📋 <strong>${escapedK}:</strong> ${escapedV}</p>`;
                 }
                 return `<div class="mt-2 pt-2 border-t border-green-200 dark:border-green-700 space-y-1">${metadataHtml}</div>`;
@@ -1895,11 +1912,19 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;');
-                  const escapedV = String(v)
+                  let escapedV = String(v)
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;');
+                  
+                  // Auto-link phone numbers and URLs
+                  if (k.toLowerCase().includes('phone') || /^[+\d\s.-]{7,}$/.test(v)) {
+                    escapedV = `<a href="tel:${v.replace(/[^\d+]/g, '')}" class="text-indigo-600 dark:text-indigo-400 hover:underline">${escapedV}</a>`;
+                  } else if (v.startsWith('http://') || v.startsWith('https://')) {
+                    escapedV = `<a href="${escapedV}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 hover:underline">${escapedV}</a>`;
+                  }
+                  
                   metadataHtml += `<p class="text-xs text-slate-700 dark:text-slate-300">📋 <strong>${escapedK}:</strong> ${escapedV}</p>`;
                 }
                 return `<div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-600 space-y-1">${metadataHtml}</div>`;

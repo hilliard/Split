@@ -10,6 +10,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "start": "node ./dist/server/entry.mjs",
     "astro": "astro",
     "db:push": "drizzle-kit push",
     "db:local:generate": "dotenv -e .env.local -- npm run db:generate",

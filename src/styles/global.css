@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@custom-variant dark (&:is(.dark *));
 
 /* Mobile-first enhancements */
 @media (max-width: 640px) {

@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 const { Pool } = pg;
 import * as oldSchema from './schema';
-import * as newSchema from './human-centric-schema';
+import * as newSchema from './schema';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 

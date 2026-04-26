@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { sessions } from '../../../db/schema';
-import { humans } from '../../../db/human-centric-schema';
+import { humans } from '../../../db/schema';
 import { eq, ilike, or } from 'drizzle-orm';
 
 export const GET: APIRoute = async ({ cookies, url }) => {

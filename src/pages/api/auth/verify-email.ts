@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { validateVerificationToken, markTokenAsVerified } from '@/utils/emailVerification';
 import { db } from '@/db/index';
-import { customers } from '@/db/human-centric-schema';
+import { customers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export const GET: APIRoute = async ({ url, cookies }) => {

@@ -67,12 +67,12 @@ export async function sendGroupInvitationEmail(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.warn('⚠️  RESEND_API_KEY not set - email send skipped (dev mode)');
-      console.info('📧 Dev Mode Email:', {
-        type: 'Group Invitation',
-        to: data.recipientEmail,
-        subject: `${data.senderName} invited you to ${data.groupName} on Split`,
-      });
+      console.log(`
+📧 Dev Mode Email Skipped:
+   To: ${data.recipientEmail}
+   Subject: ${data.senderName} invited you to ${data.groupName} on Split
+   🔗 CLICK HERE TO ACCEPT: ${data.acceptUrl}
+`);
       return { success: true };
     }
 
@@ -149,12 +149,12 @@ export async function sendVerificationEmail(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.warn('⚠️  RESEND_API_KEY not set - email send skipped (dev mode)');
-      console.info('📧 Dev Mode Email:', {
-        type: 'Email Verification',
-        to: data.recipientEmail,
-        subject: 'Verify your Split account',
-      });
+      console.log(`
+📧 Dev Mode Email Skipped:
+   To: ${data.recipientEmail}
+   Subject: Verify your Split account
+   🔗 CLICK HERE TO VERIFY: ${data.verificationUrl}
+`);
       return { success: true };
     }
 
@@ -213,6 +213,88 @@ export async function sendVerificationEmail(
     return { success: true };
   } catch (error) {
     console.error('❌ Error sending verification email:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+export interface PasswordResetEmailData {
+  recipientEmail: string;
+  firstName?: string;
+  resetUrl: string;
+}
+
+export async function sendPasswordResetEmail(
+  data: PasswordResetEmailData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.log(`
+📧 Dev Mode Email Skipped:
+   To: ${data.recipientEmail}
+   Subject: Reset your Split password
+   🔗 CLICK HERE TO RESET: ${data.resetUrl}
+`);
+      return { success: true };
+    }
+
+    const resend = getResendClient();
+    const effectiveRecipient = getEffectiveRecipient(data.recipientEmail);
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4f46e5;">Reset your password</h2>
+        
+        <p>Hi${data.firstName ? ` ${data.firstName}` : ''},</p>
+        
+        <p>We received a request to reset your password for your Split account.</p>
+        
+        <div style="margin: 30px 0;">
+          <a href="${data.resetUrl}" 
+             style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+            Reset Password
+          </a>
+        </div>
+        
+        <p style="color: #666; font-size: 14px;">
+          Or copy this link: <code style="background: #f3f4f6; padding: 2px 6px; word-break: break-all;">${data.resetUrl}</code>
+        </p>
+        
+        <p style="color: #999; font-size: 12px; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+          This password reset link expires in 1 hour. If you didn't request a password reset, you can safely ignore this email.
+        </p>
+      </div>
+    `;
+
+    const result = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+      to: effectiveRecipient,
+      subject: 'Reset your Split password',
+      html: htmlContent,
+    });
+
+    if (result.error) {
+      console.error(
+        '❌ Password reset email failed:',
+        getEmailLog('Password Reset', data.recipientEmail, 'Reset your Split password')
+      );
+      return { success: false, error: result.error.message };
+    }
+
+    console.log(
+      '✅ Password reset email sent:',
+      getEmailLog(
+        'Password Reset',
+        data.recipientEmail,
+        'Reset your Split password',
+        result.data?.id
+      )
+    );
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error sending password reset email:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

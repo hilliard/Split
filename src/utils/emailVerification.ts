@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import { db } from '@/db/index';
-import { emailVerificationTokens, customers } from '@/db/human-centric-schema';
+import { emailVerificationTokens, customers } from '@/db/schema';
 import { eq, and, gt } from 'drizzle-orm';
 
 /**

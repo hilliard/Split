@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { getSession } from '../../../utils/session';
 import { db } from '../../../db';
 import { pendingGroupInvitations, expenseGroups } from '../../../db/schema';
-import { customers, humans } from '../../../db/human-centric-schema';
+import { customers, humans } from '../../../db/schema';
 import { eq, and, gt } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {

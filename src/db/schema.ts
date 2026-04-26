@@ -488,6 +488,15 @@ export const systemRoles = pgTable('system_roles', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Site roles - updated app-level (admin, customer, organizer)
+export const siteRoles = pgTable('site_roles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  roleName: varchar('role_name', { length: 100 }).notNull().unique(),
+  description: text('description'),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Group roles - group-level (owner, admin, member, viewer)
 export const groupRoles = pgTable('group_roles', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -528,6 +537,47 @@ export const humanSystemRoles = pgTable(
   (table) => ({
     humanIdx: index('idx_human_system_roles_human_id').on(table.humanId),
     roleIdx: index('idx_human_system_roles_role_id').on(table.systemRoleId),
+  })
+);
+
+// Human site roles - maps humans to site roles
+export const humanSiteRoles = pgTable(
+  'human_site_roles',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    humanId: uuid('human_id')
+      .notNull()
+      .references(() => humans.id, { onDelete: 'cascade' }),
+    siteRoleId: uuid('site_role_id')
+      .notNull()
+      .references(() => siteRoles.id, { onDelete: 'cascade' }),
+    assignedAt: timestamp('assigned_at').defaultNow().notNull(),
+    assignedBy: uuid('assigned_by').references(() => humans.id, { onDelete: 'set null' }),
+  },
+  (table) => ({
+    humanIdx: index('human_site_roles_human_idx').on(table.humanId),
+    roleIdx: index('human_site_roles_role_idx').on(table.siteRoleId),
+    uniqueIdx: unique('human_site_roles_unique').on(table.humanId, table.siteRoleId),
+  })
+);
+
+// Site role permissions - maps site roles to permissions
+export const siteRolePermissions = pgTable(
+  'site_role_permissions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    siteRoleId: uuid('site_role_id')
+      .notNull()
+      .references(() => siteRoles.id, { onDelete: 'cascade' }),
+    permissionId: uuid('permission_id')
+      .notNull()
+      .references(() => permissions.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    roleIdx: index('site_role_permissions_role_idx').on(table.siteRoleId),
+    permIdx: index('site_role_permissions_perm_idx').on(table.permissionId),
+    uniqueIdx: unique('site_role_permissions_unique').on(table.siteRoleId, table.permissionId),
   })
 );
 
@@ -723,3 +773,59 @@ export const eventsSummaryForAnalysis = pgView('events_summary_for_analysis', {
 }).as(
   sql`SELECT ev.id AS event_id, ev.title AS event_name, ev.type AS event_type, ev.status, ev.currency, ev.start_time::date AS start_date, ev.end_time::date AS end_date, ev.end_time - ev.start_time AS duration_days, count(DISTINCT e.id) AS total_expenses, round(sum(e.amount + e.tip_amount)::numeric / 100.0, 2) AS total_spending_dollars, round(avg(e.amount + e.tip_amount) / 100.0, 2) AS avg_expense_dollars, count(DISTINCT e.paid_by) AS unique_payers FROM events ev LEFT JOIN expenses e ON ev.id = e.event_id GROUP BY ev.id, ev.title, ev.type, ev.status, ev.currency, ev.start_time, ev.end_time ORDER BY ev.created_at DESC`
 );
+
+// 9. PAYERS TABLE
+export const payers = pgTable('payers', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  humanId: uuid('human_id').notNull().references(() => humans.id, { onDelete: 'cascade' }),
+  username: varchar('username', { length: 255 }).notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  humanIdx: index('payers_human_idx').on(table.humanId),
+}));
+
+// 9. PAYEES TABLE
+export const payees = pgTable('payees', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  humanId: uuid('human_id').notNull().references(() => humans.id, { onDelete: 'cascade' }),
+  username: varchar('username', { length: 255 }).notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  humanIdx: index('payees_human_idx').on(table.humanId),
+}));
+
+export const payersRelations = relations(payers, ({ one }) => ({
+  human: one(humans, { fields: [payers.humanId], references: [humans.id] }),
+}));
+
+export const payeesRelations = relations(payees, ({ one }) => ({
+  human: one(humans, { fields: [payees.humanId], references: [humans.id] }),
+}));
+
+// Password reset tokens - for forgot password workflow
+export const passwordResetTokens = pgTable(
+  'password_reset_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    customerId: uuid('customer_id')
+      .notNull()
+      .references(() => customers.id, { onDelete: 'cascade' }),
+    email: varchar('email', { length: 255 }).notNull(),
+    token: text('token').notNull().unique(),
+    expiresAt: timestamp('expires_at').notNull(),
+    usedAt: timestamp('used_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    customerIdx: index('pwd_reset_tokens_customer_idx').on(table.customerId),
+    emailIdx: index('pwd_reset_tokens_email_idx').on(table.email),
+    tokenIdx: index('pwd_reset_tokens_token_idx').on(table.token),
+  })
+);
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+  customer: one(customers, {
+    fields: [passwordResetTokens.customerId],
+    references: [customers.id],
+  }),
+}));

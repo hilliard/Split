@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
-import { customers } from '../../../db/human-centric-schema';
+import { customers } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import { getHumanByUsername } from '../../../db/queries';
 import { verifyPassword, createSession } from '../../../utils';

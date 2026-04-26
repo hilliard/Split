@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { db } from '@/db';
 import { humans, humanSystemRoles, systemRoles, customers } from '@/db/schema';
-import { emailHistory } from '@/db/human-centric-schema';
+import { emailHistory } from '@/db/schema';
 import { getSession } from '@/utils/session';
 import { isSystemAdmin } from '@/db/authorization';
 import { eq, isNull, and } from 'drizzle-orm';

@@ -13,7 +13,7 @@ import {
   permissions,
   humanSiteRoles,
   siteRolePermissions,
-} from './human-centric-schema';
+} from './schema';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 
 // ============================================================

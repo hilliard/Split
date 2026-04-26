@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getSession } from '../../../utils/session';
 import { db } from '../../../db';
-import { humans, customers } from '../../../db/human-centric-schema';
+import { humans, customers } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {

@@ -41,13 +41,13 @@ export const POST: APIRoute = async (context) => {
 
     // Parse request body
     const body = await context.request.json();
-    const { eventId, fromUserId, toUserId, amountCents, paymentMethod, description } = body;
+    const { eventId, groupId, fromUserId, toUserId, amountCents, paymentMethod, description } = body;
 
     // Validation
-    if (!eventId || !fromUserId || !toUserId || !amountCents) {
+    if ((!eventId && !groupId) || !fromUserId || !toUserId || !amountCents) {
       return new Response(
         JSON.stringify({
-          error: 'Missing required fields: eventId, fromUserId, toUserId, amountCents',
+          error: 'Missing required fields: (eventId or groupId), fromUserId, toUserId, amountCents',
         }),
         {
           status: 400,
@@ -76,14 +76,16 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    // Verify event exists
-    const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
+    // Verify event exists if provided
+    if (eventId) {
+      const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
-    if (!event) {
-      return new Response(JSON.stringify({ error: 'Event not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      if (!event) {
+        return new Response(JSON.stringify({ error: 'Event not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // Verify both users exist
@@ -99,18 +101,20 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Check if settlement already exists for this pair
-    const [existing] = await db
+    const existingQuery = db
       .select()
       .from(settlements)
       .where(
         and(
-          eq(settlements.eventId, eventId),
+          eventId ? eq(settlements.eventId, eventId) : eq(settlements.groupId, groupId),
           eq(settlements.fromUserId, fromUserId),
           eq(settlements.toUserId, toUserId),
           eq(settlements.status, 'pending')
         )
       )
       .limit(1);
+    
+    const [existing] = await existingQuery;
 
     if (existing) {
       return new Response(
@@ -126,16 +130,19 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Create settlement
+    const now = new Date();
     const [settlement] = await db
       .insert(settlements)
       .values({
-        eventId,
+        eventId: eventId || null,
+        groupId: groupId || null,
         fromUserId,
         toUserId,
         amount: amountCents,
         paymentMethod: paymentMethod || null,
         description: description || '',
-        status: 'pending',
+        status: 'completed', // Auto-completed for now since we lack a receiver-confirmation UI
+        completedAt: now,
       })
       .returning();
 

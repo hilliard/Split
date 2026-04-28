@@ -260,7 +260,6 @@ export const settlements = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     eventId: uuid('event_id')
-      .notNull()
       .references(() => events.id, { onDelete: 'cascade' }),
     groupId: uuid('group_id').references(() => expenseGroups.id, { onDelete: 'set null' }),
     fromUserId: uuid('from_user_id')

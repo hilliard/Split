@@ -89,6 +89,30 @@ export async function calculateGroupBalances(groupId: string): Promise<Balance[]
 
     console.log('📈 User balances after splits:', userBalances);
 
+    // Apply completed settlements to adjust the actual balances
+    const groupSettlements = await db
+      .select()
+      .from(settlements)
+      .where(
+        and(
+          eq(settlements.groupId, groupId),
+          eq(settlements.status, 'completed')
+        )
+      );
+
+    for (const settlement of groupSettlements) {
+      // The payer (fromUserId) gave money, so their balance goes UP (they are owed more / owe less)
+      if (userBalances[settlement.fromUserId] !== undefined) {
+        userBalances[settlement.fromUserId] += settlement.amount;
+      }
+      // The receiver (toUserId) got money, so their balance goes DOWN (they owe more / are owed less)
+      if (userBalances[settlement.toUserId] !== undefined) {
+        userBalances[settlement.toUserId] -= settlement.amount;
+      }
+    }
+
+    console.log('✅ User balances after settlements:', userBalances);
+
     // Get user names
     const userIds = Object.keys(userBalances);
     const userDetails = await db
@@ -180,6 +204,28 @@ export async function getUserGroupBalance(
       .filter((s) => !userExpenseIds.has(s.expenseId))
       .reduce((sum, split) => sum + split.amount, 0);
 
+    // Apply settlements
+    const userSettlements = await db
+      .select()
+      .from(settlements)
+      .where(
+        and(
+          eq(settlements.groupId, groupId),
+          eq(settlements.status, 'completed')
+        )
+      );
+
+    let settlementAdjustment = 0;
+    for (const settlement of userSettlements) {
+      if (settlement.fromUserId === userId) {
+        // User paid someone -> balance goes up
+        settlementAdjustment += settlement.amount;
+      } else if (settlement.toUserId === userId) {
+        // User received money -> balance goes down
+        settlementAdjustment -= settlement.amount;
+      }
+    }
+
     const user = await db.select().from(humans).where(eq(humans.id, userId)).limit(1);
 
     return {
@@ -187,7 +233,7 @@ export async function getUserGroupBalance(
       userName: user[0] ? `${user[0].firstName} ${user[0].lastName}`.trim() : 'Unknown',
       totalPaid,
       totalOwed: amountOwed,
-      netBalance: totalPaid - amountOwed,
+      netBalance: totalPaid - amountOwed + settlementAdjustment,
     };
   } catch (error) {
     console.error('Error calculating user group balance:', error);

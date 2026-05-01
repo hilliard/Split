@@ -1,6 +1,6 @@
 import { db } from '@/db';
-import { expenses, expenseSplits, groupMembers, humans } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { expenses, expenseSplits, groupMembers, humans, settlements } from '@/db/schema';
+import { eq, and, inArray } from 'drizzle-orm';
 
 /**
  * Balance Calculator for Expense Settlement
@@ -56,7 +56,7 @@ export async function calculateGroupBalances(groupId: string): Promise<Balance[]
     const splits = await db
       .select()
       .from(expenseSplits)
-      .where(expenseSplits.expenseId.inArray(groupExpenses.map((e) => e.id)));
+      .where(inArray(expenseSplits.expenseId, groupExpenses.map((e) => e.id)));
 
     console.log('📊 Expense splits found:', splits.length);
     splits.forEach((split, idx) => {
@@ -118,7 +118,7 @@ export async function calculateGroupBalances(groupId: string): Promise<Balance[]
     const userDetails = await db
       .select({ id: humans.id, firstName: humans.firstName, lastName: humans.lastName })
       .from(humans)
-      .where(humans.id.inArray(userIds));
+      .where(inArray(humans.id, userIds));
 
     const userMap = new Map(
       userDetails.map((u) => [u.id, `${u.firstName} ${u.lastName}`.trim() || 'Unknown'])

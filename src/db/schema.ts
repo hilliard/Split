@@ -6,7 +6,7 @@ import {
   varchar,
   date,
   timestamp,
-  foreignKey,
+
   unique,
   integer,
   json,

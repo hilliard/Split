@@ -140,10 +140,16 @@ export const GET: APIRoute = async (context) => {
       }
 
       // Account for completed settlements
+      // A settlement might be tied to the event directly, or to the group (from dashboard)
       const completedSettlements = await db
         .select()
         .from(settlements)
-        .where(and(eq(settlements.eventId, eventId), eq(settlements.status, 'completed')));
+        .where(
+          and(
+            event.groupId ? eq(settlements.groupId, event.groupId) : eq(settlements.eventId, eventId),
+            eq(settlements.status, 'completed')
+          )
+        );
 
       // Apply settlement adjustments to balances
       for (const settlement of completedSettlements) {

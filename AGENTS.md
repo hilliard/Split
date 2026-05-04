@@ -7,7 +7,7 @@ This file provides essential guidance for AI coding agents working in the Split 
 - **Database Environments:**
   - Local development uses a local Postgres database (`split_local`).
   - Remote deployment uses Neon (remote Postgres) with a different database (`split`).
-  - Two environment files: `.env.local` (local), `.env.neon` (Neon remote).
+  - Two environment files: `.env.local` (local), `.env.production` (Neon remote).
   - Use the provided npm scripts to switch and operate safely between environments.
 
 - **Migrations:**

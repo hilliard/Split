@@ -10,8 +10,8 @@ Generate migration files: npm run db:local:generate (Runs drizzle-kit generate u
 Apply to local DB: npm run db:local:push (Runs drizzle-kit push using .env.local)
 2. Remote/Neon Deployment Only push migrations to Neon when you are ready to deploy or sync the remote database:
 
-Generate migration files (if needed remotely): npm run db:neon:generate (Uses .env.neon)
-Apply to remote Neon DB: npm run db:neon:push (Runs drizzle-kit push using .env.neon)
+Generate migration files (if needed remotely): npm run db:neon:generate (Uses .env.production)
+Apply to remote Neon DB: npm run db:neon:push (Runs drizzle-kit push using .env.production)
 WARNING
 
 According to your project's rules, never run destructive migrations against Neon unless deploying. Always generate and verify them locally first.

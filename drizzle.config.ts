@@ -2,23 +2,31 @@ import type { Config } from 'drizzle-kit';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-// Manually load .env.local for Windows 11 compatibility
-const envPath = resolve('.env.local');
-const envContent = readFileSync(envPath, 'utf-8');
-const envVars: Record<string, string> = {};
+let databaseUrl = process.env.DATABASE_URL;
 
-envContent.split('\n').forEach((line) => {
-  if (line.trim() && !line.startsWith('#')) {
-    const [key, ...valueParts] = line.split('=');
-    const value = valueParts.join('=').trim();
-    if (key && value) {
-      process.env[key.trim()] = value.replace(/^["']|["']$/g, '');
-      envVars[key.trim()] = value;
-    }
+if (!databaseUrl) {
+  // Manually load .env.local for Windows 11 compatibility
+  try {
+    const envPath = resolve('.env.local');
+    const envContent = readFileSync(envPath, 'utf-8');
+    const envVars: Record<string, string> = {};
+
+    envContent.split('\n').forEach((line) => {
+      if (line.trim() && !line.startsWith('#')) {
+        const [key, ...valueParts] = line.split('=');
+        const value = valueParts.join('=').trim();
+        if (key && value) {
+          process.env[key.trim()] = value.replace(/^["']|["']$/g, '');
+          envVars[key.trim()] = value;
+        }
+      }
+    });
+    
+    databaseUrl = process.env.DATABASE_URL || envVars['DATABASE_URL'];
+  } catch (e) {
+    // Ignore if file doesn't exist
   }
-});
-
-const databaseUrl = process.env.DATABASE_URL || envVars['DATABASE_URL'];
+}
 
 if (!databaseUrl) {
   throw new Error(

@@ -17,7 +17,7 @@ Dokploy is a fantastic, newer project, but Coolify (specifically v4) is currentl
 How to get started:
 Rent a cheap Ubuntu VPS (Hetzner, DigitalOcean, or Linode). A $5–$7/month box with 2GB of RAM is plenty for an Astro app and the Coolify control panel.
 SSH into that server once and run the one-line Coolify installation script.
-Open the Coolify dashboard in your browser, connect your GitHub account, select the Split repository, paste in your .env.neon variables, and hit Deploy.
+Open the Coolify dashboard in your browser, connect your GitHub account, select the Split repository, paste in your .env.production variables, and hit Deploy.
 
 
 Yes, absolutely! That is actually the primary superpower of self-hosting with Coolify.

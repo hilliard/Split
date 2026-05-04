@@ -39,4 +39,4 @@ split-ideas.md
 /blob-report/
 /playwright/.auth/
  .env.local
- .env.neon
+ .env.production

@@ -5,7 +5,7 @@ This project supports developing locally against a local Postgres database and p
 What’s in this repo
 - Two environment files:
   - .env.local (local Postgres connection)
-- .env.neon (Neon remote connection)
+- .env.production (Neon remote connection)
 - Two-env scripts (added to package.json):
 - db:local:generate
 - db:local:push
@@ -58,7 +58,7 @@ Switching between environments (two-env workflow)
   npm run db:local:generate
   npm run db:local:push
   npm run health:db:local
-- Neon: use .env.neon for DATABASE_URL, then run Neon commands:
+- Neon: use .env.production for DATABASE_URL, then run Neon commands:
   npm run db:neon:generate
   npm run db:neon:push
   npm run health:db:neon
@@ -66,7 +66,7 @@ Switching between environments (two-env workflow)
 Environment file contents (for reference only)
 - .env.local
   DATABASE_URL=postgresql://localuser:localpass@localhost:5432/split_local?sslmode=disable
-- .env.neon
+- .env.production
   DATABASE_URL=postgresql://neon_user:neon_pass@neon-host:5432/split?sslmode=require
 
 Sanitized health output

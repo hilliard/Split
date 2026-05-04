@@ -25,7 +25,7 @@ const userGroups = await db
   })
   .from(groupMembers)
   .innerJoin(expenseGroups, eq(groupMembers.groupId, expenseGroups.id))
-  .where(eq(groupMembers.userId, session.humanId));
+  .where(eq(groupMembers.userId, session.userId));
 
 ---
 

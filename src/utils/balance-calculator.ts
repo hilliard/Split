@@ -74,7 +74,7 @@ export async function calculateGroupBalances(groupId: string): Promise<Balance[]
     // Add amounts paid by each user
     for (const expense of groupExpenses) {
       if (userBalances[expense.paidBy] !== undefined) {
-        userBalances[expense.paidBy] += expense.amount;
+        userBalances[expense.paidBy] += expense.amount + (expense.tipAmount || 0);
       }
     }
 
@@ -194,7 +194,7 @@ export async function getUserGroupBalance(
       .from(expenses)
       .where(and(eq(expenses.groupId, groupId), eq(expenses.paidBy, userId)));
 
-    const totalPaid = paidExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const totalPaid = paidExpenses.reduce((sum, exp) => sum + exp.amount + (exp.tipAmount || 0), 0);
 
     // Get splits they owe
     const splits = await db.select().from(expenseSplits).where(eq(expenseSplits.userId, userId));

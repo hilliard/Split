@@ -155,7 +155,7 @@ const userGroups = await db
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {userGroups.map((group) => (
               <a 
-                href={`/groups/${group.id}`}
+                href={`/groups/${group.id}/manage`}
                 class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors flex items-center justify-between group-card"
               >
                 <div class="font-medium text-slate-900 dark:text-white truncate pr-4">{group.name}</div>

@@ -1,8 +1,8 @@
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 
-// Load .env.production
-dotenv.config({ path: resolve('.env.production') });
+// Load .env.local
+dotenv.config({ path: resolve('.env.local') });
 
 import postgres from 'postgres';
 

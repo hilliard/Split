@@ -2232,10 +2232,10 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             metadata,
           });
 
-          const startDate = formData.get('startDate') as string;
-          const startTime = formData.get('startTime') as string;
-          const endDate = formData.get('endDate') as string;
-          const endTime = formData.get('endTime') as string;
+          const startDate = formData.get('startDate');
+          const startTime = formData.get('startTime');
+          const endDate = formData.get('endDate');
+          const endTime = formData.get('endTime');
 
           const startInput = (startDate && startTime) ? new Date(`${startDate}T${startTime}`).toISOString() : null;
           const endInput = (endDate && endTime) ? new Date(`${endDate}T${endTime}`).toISOString() : null;

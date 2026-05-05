@@ -1,6 +1,6 @@
+import { eq, and, asc } from 'drizzle-orm';
 import { db } from '../../../db';
-import { events, activities, sessions } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { events, activities, sessions, groupMembers } from '../../../db/schema';
 import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
@@ -33,7 +33,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response(JSON.stringify({ error: 'Event not found' }), { status: 404 });
     }
 
-    if (event.creatorId !== session.userId) {
+    let isCreator = event.creatorId === session.userId;
+    let isGroupMember = false;
+    if (event.groupId) {
+      const groupMember = await db
+        .select()
+        .from(groupMembers)
+        .where(
+          and(
+            eq(groupMembers.userId, session.userId),
+            eq(groupMembers.groupId, event.groupId)
+          )
+        )
+        .limit(1);
+      isGroupMember = groupMember.length > 0;
+    }
+
+    if (!isCreator && !isGroupMember) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 403 });
     }
 
@@ -42,7 +58,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .select()
       .from(activities)
       .where(eq(activities.eventId, eventId))
-      .orderBy(activities.sequenceOrder);
+      .orderBy(asc(activities.sequenceOrder), asc(activities.startTime));
 
     // Generate itinerary content
     let content = '';

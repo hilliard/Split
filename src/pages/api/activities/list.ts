@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { activities, sessions, events, groupMembers } from '../../../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, asc } from 'drizzle-orm';
 
 export const GET: APIRoute = async (context) => {
   try {
@@ -35,6 +35,7 @@ export const GET: APIRoute = async (context) => {
         .select()
         .from(activities)
         .where(and(eq(activities.eventId, null), eq(activities.createdBy, userId)))
+        .orderBy(asc(activities.startTime), asc(activities.sequenceOrder))
       ) as any;
       return new Response(
         JSON.stringify({ activities: activitiesList }),
@@ -90,7 +91,8 @@ export const GET: APIRoute = async (context) => {
     const activitiesList: any = await (db
       .select()
       .from(activities)
-      .where(eq(activities.eventId, eventIdStr))) as any;
+      .where(eq(activities.eventId, eventIdStr))
+      .orderBy(asc(activities.startTime), asc(activities.sequenceOrder))) as any;
 
     return new Response(
       JSON.stringify({ activities: activitiesList }),

@@ -1307,7 +1307,8 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
     const deleteBtn = document.getElementById('deleteBtn');
     if (deleteBtn) {
       deleteBtn.addEventListener('click', async () => {
-        if (confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+        const isConfirmed = await window.customConfirm('Are you sure you want to delete this event? This action cannot be undone.', 'Delete Event');
+        if (isConfirmed) {
           try {
             const response = await fetch(`/api/events/${eventId}`, {
               method: 'DELETE',
@@ -2018,9 +2019,8 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
     if (deleteEditExpenseBtn) {
       deleteEditExpenseBtn.addEventListener('click', async () => {
         const expenseId = document.getElementById('editExpenseId').value;
-        if (
-          confirm('Are you sure you want to delete this expense? This action cannot be undone.')
-        ) {
+        const isConfirmed = await window.customConfirm('Are you sure you want to delete this expense? This action cannot be undone.', 'Delete Expense');
+        if (isConfirmed) {
           try {
             const response = await fetch(`/api/expenses/delete?expenseId=${expenseId}`, {
               method: 'DELETE',

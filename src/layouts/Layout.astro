@@ -210,7 +210,50 @@ const { title, description = 'Split - Expense Tracking Made Simple', currentPage
           });
         }
       });
+
+      // Global Custom Confirmation Modal
+      window.customConfirm = function(message, title = "Confirm Action") {
+        return new Promise((resolve) => {
+          const modal = document.getElementById('globalConfirmModal');
+          const titleEl = document.getElementById('globalConfirmTitle');
+          const msgEl = document.getElementById('globalConfirmMessage');
+          const confirmBtn = document.getElementById('globalConfirmBtn');
+          const cancelBtn = document.getElementById('globalCancelBtn');
+          
+          if (titleEl) titleEl.textContent = title;
+          if (msgEl) msgEl.textContent = message;
+          if (modal) modal.classList.remove('hidden');
+          
+          const cleanup = () => {
+            if (modal) modal.classList.add('hidden');
+            confirmBtn.removeEventListener('click', onConfirm);
+            cancelBtn.removeEventListener('click', onCancel);
+          };
+          
+          const onConfirm = () => { cleanup(); resolve(true); };
+          const onCancel = () => { cleanup(); resolve(false); };
+          
+          if (confirmBtn) confirmBtn.addEventListener('click', onConfirm);
+          if (cancelBtn) cancelBtn.addEventListener('click', onCancel);
+        });
+      };
     </script>
+
+    <!-- Global Confirmation Modal -->
+    <div id="globalConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-sm border border-slate-200 dark:border-slate-700">
+        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+          <h2 id="globalConfirmTitle" class="text-lg font-bold text-red-600 dark:text-red-400">Confirm Action</h2>
+        </div>
+        <div class="p-5 sm:p-6">
+          <p id="globalConfirmMessage" class="text-slate-700 dark:text-slate-300"></p>
+        </div>
+        <div class="flex gap-3 justify-end p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-b-lg">
+          <button type="button" id="globalCancelBtn" class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm">Cancel</button>
+          <button type="button" id="globalConfirmBtn" class="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors font-medium text-sm">Confirm</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
 

@@ -300,7 +300,8 @@ const members = await db
     // Expose settleUp to global window so the inline onclick works
     window.settleUp = async function(toUserId, toUserName, amountCents) {
       const amountDollars = (amountCents / 100).toFixed(2);
-      if (!confirm(`Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`)) {
+      const isConfirmed = await window.customConfirm(`Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`, 'Record Payment');
+      if (!isConfirmed) {
         return;
       }
       

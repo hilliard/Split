@@ -145,7 +145,8 @@ async function submitEditForm(e) {
 }
 
 async function deleteUser(userId) {
-  if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+  const isConfirmed = await window.customConfirm('Are you sure you want to delete this user? This action cannot be undone.', 'Delete User');
+  if (!isConfirmed) {
     return;
   }
 

@@ -249,7 +249,8 @@ if (!group) {
           document.querySelectorAll('.delete-invitation-btn').forEach((btn) => {
             btn.addEventListener('click', async (e) => {
               const email = btn.dataset.email;
-              if (!confirm(`Delete invitation for ${email}?`)) {
+              const isConfirmed = await window.customConfirm(`Delete invitation for ${email}?`, 'Delete Invitation');
+              if (!isConfirmed) {
                 return;
               }
 

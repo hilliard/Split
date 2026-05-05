@@ -531,7 +531,8 @@ const grandTotalCents = totalAmountCents + totalTipsCents;
   }
 
   async function deleteExpense(expenseId) {
-    if (!confirm('Are you sure you want to delete this expense?')) {
+    const isConfirmed = await window.customConfirm('Are you sure you want to delete this expense?', 'Delete Expense');
+    if (!isConfirmed) {
       return;
     }
 

@@ -271,19 +271,13 @@ if (!member) {
       document
         .getElementById("deleteGroupBtn")
         .addEventListener("click", async () => {
-          if (
-            !confirm(
-              "Are you sure you want to delete this group? This action cannot be undone.",
-            )
-          ) {
+          const isConfirmed = await window.customConfirm("Are you sure you want to delete this group? This action cannot be undone.", "Delete Group");
+          if (!isConfirmed) {
             return;
           }
 
-          if (
-            !confirm(
-              "This will delete ALL members, events, and expenses. Are you absolutely sure?",
-            )
-          ) {
+          const isAbsoluteConfirmed = await window.customConfirm("This will delete ALL members, events, and expenses. Are you absolutely sure?", "Danger: Permanent Deletion");
+          if (!isAbsoluteConfirmed) {
             return;
           }
 

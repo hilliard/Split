@@ -618,7 +618,7 @@ const errorParam = Astro.url.searchParams.get('error');
         
         <div class="p-5 sm:p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-900">
           <div class="mb-4">
-            <label class="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border-2 border-indigo-500 rounded-lg cursor-pointer transition-colors shadow-sm">
+            <label id="selectAllExpensesLabel" class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500">
               <input type="checkbox" id="selectAllExpensesCheckbox" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" checked />
               <div class="flex-1">
                 <span class="block font-semibold text-slate-900 dark:text-white">Pay Full Amount</span>
@@ -1586,17 +1586,44 @@ const errorParam = Astro.url.searchParams.get('error');
             };
 
             function updateSelectedTotal() {
+              const selectAllLabel = document.getElementById('selectAllExpensesLabel');
+              
               if (selectAllCheckbox.checked) {
+                // Style 'Pay Full Amount' as selected
+                selectAllLabel.className = 'flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
+                
                 selectedTotalEl.textContent = `$${(currentSettleState.fullAmountCents / 100).toFixed(2)}`;
                 confirmBtn.disabled = false;
                 confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                // Style all individual items as unselected
+                expensesList.querySelectorAll('.expense-checkbox').forEach(cb => {
+                  const label = cb.closest('.expense-label');
+                  if (label) {
+                    label.className = 'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60';
+                  }
+                });
                 return;
+              } else {
+                // Style 'Pay Full Amount' as unselected
+                selectAllLabel.className = 'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
               }
 
-              const checkboxes = expensesList.querySelectorAll('.expense-checkbox:checked');
+              const checkboxes = expensesList.querySelectorAll('.expense-checkbox');
               let totalCents = 0;
+              
               checkboxes.forEach(cb => {
-                totalCents += parseInt(cb.value);
+                const label = cb.closest('.expense-label');
+                if (cb.checked) {
+                  totalCents += parseInt(cb.value);
+                  if (label) {
+                    label.className = 'expense-label flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
+                  }
+                } else {
+                  if (label) {
+                    label.className = 'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
+                  }
+                }
               });
 
               selectedTotalEl.textContent = `$${(totalCents / 100).toFixed(2)}`;
@@ -1708,7 +1735,7 @@ const errorParam = Astro.url.searchParams.get('error');
                   selectAllCheckbox.checked = true;
                   
                   expensesList.innerHTML = specificOwes.map(owe => `
-                    <label class="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
+                    <label class="expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60">
                       <div class="pt-0.5">
                         <input type="checkbox" value="${owe.amountCents}" data-desc="${escapeHtml(owe.description)}" class="expense-checkbox w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" disabled checked />
                       </div>

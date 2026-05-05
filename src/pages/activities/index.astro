@@ -707,16 +707,10 @@ const userId = session.userId;
             }
           } catch (error) {
             console.error('Expense creation error:', error);
-            if (typeof window.showToast === 'function') {
-              window.showToast('Activity created but error creating expense');
-            } else {
-              alert('Activity created but error creating expense');
-            }
+            showToast('Activity created but error creating expense');
           }
         } else {
-          if (typeof window.showToast === 'function') {
-            window.showToast('Activity created successfully!');
-          }
+          showToast('Activity created successfully!');
         }
 
         // Reload page to show new activity after brief delay for toast to be seen

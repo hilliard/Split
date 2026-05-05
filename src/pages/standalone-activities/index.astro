@@ -734,30 +734,16 @@ const userId = session.userId;
             });
 
             if (expenseResponse.ok) {
-              if (typeof window.showToast === 'function') {
-                window.showToast(`Activity '${activityTitle}' created! ✓ Expense of $${expenseAmount.toFixed(2)} added.`);
-              } else {
-                alert(`Activity '${activityTitle}' created! ✓ Expense of $${expenseAmount.toFixed(2)} added.`);
-              }
+              showToast(`Activity '${activityTitle}' created! ✓ Expense of $${expenseAmount.toFixed(2)} added.`);
             } else {
-              if (typeof window.showToast === 'function') {
-                window.showToast(`Activity '${activityTitle}' created! Note: Expense creation had an issue.`);
-              } else {
-                alert(`Activity '${activityTitle}' created! Note: Expense creation had an issue.`);
-              }
+              showToast(`Activity '${activityTitle}' created! Note: Expense creation had an issue.`);
             }
           } catch (error) {
             console.error('Error creating expense:', error);
-            if (typeof window.showToast === 'function') {
-              window.showToast(`Activity '${activityTitle}' created! Note: Expense creation had an issue.`);
-            } else {
-              alert(`Activity '${activityTitle}' created! Note: Expense creation had an issue.`);
-            }
+            showToast(`Activity '${activityTitle}' created! Note: Expense creation had an issue.`);
           }
         } else {
-          if (typeof window.showToast === 'function') {
-            window.showToast(`Activity '${activityTitle}' created successfully!`);
-          }
+          showToast(`Activity '${activityTitle}' created successfully!`);
         }
 
         // Reload page to show new activity
@@ -856,9 +842,7 @@ const userId = session.userId;
           return;
         }
 
-        if (typeof window.showToast === 'function') {
-          window.showToast('Activity updated successfully!');
-        }
+        showToast('Activity updated successfully!');
         
         // Reload page after delay
         setTimeout(() => {
@@ -893,9 +877,7 @@ const userId = session.userId;
             return;
           }
 
-          if (typeof window.showToast === 'function') {
-            window.showToast('Activity deleted successfully!');
-          }
+          showToast('Activity deleted successfully!');
           // Reload page after a delay to let toast be seen
           setTimeout(() => {
             window.location.reload();

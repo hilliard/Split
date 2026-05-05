@@ -151,7 +151,7 @@ export const POST: APIRoute = async (context) => {
         endTime: validatedData.endTime ? new Date(validatedData.endTime) : undefined,
         locationName:
           validatedData.locationName !== undefined ? validatedData.locationName : undefined,
-        sequenceOrder: validatedData.sequenceOrder || undefined,
+        sequenceOrder: validatedData.sequenceOrder !== undefined ? validatedData.sequenceOrder : undefined,
         metadata: validatedData.metadata || undefined,
       })
       .where(eq(activities.id, validatedData.activityId))

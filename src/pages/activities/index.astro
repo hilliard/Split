@@ -2,8 +2,8 @@
 import { getSession } from '../../utils/session';
 import Layout from '../../layouts/Layout.astro';
 import { db } from '../../db';
-import { events, sessions, activities } from '../../db/schema';
-import { eq } from 'drizzle-orm';
+import { events, sessions, activities, groupMembers } from '../../db/schema';
+import { eq, and, asc } from 'drizzle-orm';
 
 // Check if user is authenticated
 const sessionId = Astro.cookies.get('sessionId')?.value;
@@ -30,12 +30,30 @@ if (!eventId) {
 // Get event and verify ownership
 const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
 
-if (!event || event.creatorId !== session.userId) {
+if (!event) {
+  return Astro.redirect('/dashboard');
+}
+
+const isCreator = event.creatorId === session.userId;
+let isGroupMember = false;
+
+if (event.groupId) {
+  const [membership] = await db
+    .select()
+    .from(groupMembers)
+    .where(
+      and(eq(groupMembers.userId, session.userId), eq(groupMembers.groupId, event.groupId))
+    )
+    .limit(1);
+  isGroupMember = !!membership;
+}
+
+if (!isCreator && !isGroupMember) {
   return Astro.redirect('/dashboard');
 }
 
 // Get all activities for this event
-const eventActivities = await db.select().from(activities).where(eq(activities.eventId, eventId));
+const eventActivities = await db.select().from(activities).where(eq(activities.eventId, eventId)).orderBy(asc(activities.sequenceOrder), asc(activities.startTime));
 
 // Get userId from session
 const userId = session.userId;

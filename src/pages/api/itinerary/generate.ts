@@ -352,7 +352,7 @@ function generateHtmlItinerary(event: any, eventActivities: any[]): string {
   // Footer
   html += `<div class="footer">
             <p>Generated on ${new Date().toLocaleString()}</p>
-            <p>Expense Split - Trip Coordination App</p>
+            <p>Expense Split - Trip Coordination App by GoldTending Technologies LLC</p>
         </div>
     </div>
 </body>

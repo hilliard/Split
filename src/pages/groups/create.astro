@@ -18,6 +18,8 @@ if (!session) {
 }
 
 // Fetch user's current groups
+console.log('Fetching groups for user:', session.userId);
+
 const userGroups = await db
   .select({
     id: expenseGroups.id,
@@ -26,6 +28,8 @@ const userGroups = await db
   .from(groupMembers)
   .innerJoin(expenseGroups, eq(groupMembers.groupId, expenseGroups.id))
   .where(eq(groupMembers.userId, session.userId));
+
+console.log('User groups found:', userGroups);
 
 ---
 

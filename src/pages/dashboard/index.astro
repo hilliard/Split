@@ -596,6 +596,67 @@ const errorParam = Astro.url.searchParams.get('error');
       </div>
     </div>
 
+    <!-- Settlement Selection Modal -->
+    <div
+      id="settlementSelectionModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-lg border border-slate-200 dark:border-slate-700 my-8 overflow-hidden flex flex-col max-h-[90vh]"
+      >
+        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10 flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white" id="settlementSelectionTitle">Settle Up</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1" id="settlementSelectionSubtitle">Select which items to pay off</p>
+          </div>
+          <button type="button" id="closeSettlementSelectionBtn" class="text-slate-400 hover:text-slate-500">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div class="p-5 sm:p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-900">
+          <div class="mb-4">
+            <label class="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border-2 border-indigo-500 rounded-lg cursor-pointer transition-colors shadow-sm">
+              <input type="checkbox" id="selectAllExpensesCheckbox" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" checked />
+              <div class="flex-1">
+                <span class="block font-semibold text-slate-900 dark:text-white">Pay Full Amount</span>
+                <span class="block text-sm text-slate-500" id="settlementFullAmountText">$0.00</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="relative py-2">
+            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+              <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+            </div>
+            <div class="relative flex justify-center">
+              <span class="bg-slate-50 dark:bg-slate-900 px-2 text-sm text-gray-500">or select specific items</span>
+            </div>
+          </div>
+
+          <div id="settlementExpensesList" class="space-y-2 mt-4">
+            <!-- Expenses will be populated here -->
+          </div>
+        </div>
+
+        <div class="p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0 z-10 flex flex-col gap-4">
+          <div class="flex justify-between items-center text-lg font-bold">
+            <span class="text-slate-900 dark:text-white">Selected Total:</span>
+            <span class="text-indigo-600 dark:text-indigo-400" id="settlementSelectedTotal">$0.00</span>
+          </div>
+          <button
+            type="button"
+            id="confirmSettlementSelectionBtn"
+            class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-base flex justify-center items-center gap-2"
+          >
+            💸 Record Payment
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Settlement Confirm Modal -->
     <div
       id="settleConfirmModal"
@@ -1506,6 +1567,121 @@ const errorParam = Astro.url.searchParams.get('error');
               })
               .join('');
 
+            // Settlement Selection Modal Logic
+            const selectionModal = document.getElementById('settlementSelectionModal');
+            const closeSelectionBtn = document.getElementById('closeSettlementSelectionBtn');
+            const selectAllCheckbox = document.getElementById('selectAllExpensesCheckbox');
+            const expensesList = document.getElementById('settlementExpensesList');
+            const selectedTotalEl = document.getElementById('settlementSelectedTotal');
+            const fullAmountText = document.getElementById('settlementFullAmountText');
+            const titleEl = document.getElementById('settlementSelectionTitle');
+            const confirmBtn = document.getElementById('confirmSettlementSelectionBtn');
+
+            let currentSettleState = {
+              toUserId: null,
+              toUserName: null,
+              groupId: null,
+              fullAmountCents: 0,
+              specificOwes: []
+            };
+
+            function updateSelectedTotal() {
+              if (selectAllCheckbox.checked) {
+                selectedTotalEl.textContent = `$${(currentSettleState.fullAmountCents / 100).toFixed(2)}`;
+                confirmBtn.disabled = false;
+                confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                return;
+              }
+
+              const checkboxes = expensesList.querySelectorAll('.expense-checkbox:checked');
+              let totalCents = 0;
+              checkboxes.forEach(cb => {
+                totalCents += parseInt(cb.value);
+              });
+
+              selectedTotalEl.textContent = `$${(totalCents / 100).toFixed(2)}`;
+              
+              if (totalCents === 0) {
+                confirmBtn.disabled = true;
+                confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+              } else {
+                confirmBtn.disabled = false;
+                confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+              }
+            }
+
+            if (closeSelectionBtn) {
+              closeSelectionBtn.addEventListener('click', () => {
+                selectionModal.classList.add('hidden');
+              });
+            }
+
+            if (selectAllCheckbox) {
+              selectAllCheckbox.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                expensesList.querySelectorAll('.expense-checkbox').forEach(cb => {
+                  cb.disabled = isChecked;
+                  if (isChecked) cb.checked = true;
+                });
+                updateSelectedTotal();
+              });
+            }
+
+            if (confirmBtn) {
+              confirmBtn.addEventListener('click', async () => {
+                let amountCents = 0;
+                let description = '';
+
+                if (selectAllCheckbox.checked) {
+                  amountCents = currentSettleState.fullAmountCents;
+                  description = 'Settled via Split Dashboard (Full Amount)';
+                } else {
+                  const checkedBoxes = Array.from(expensesList.querySelectorAll('.expense-checkbox:checked'));
+                  if (checkedBoxes.length === 0) return;
+                  
+                  amountCents = checkedBoxes.reduce((sum, cb) => sum + parseInt(cb.value), 0);
+                  const names = checkedBoxes.map(cb => cb.dataset.desc);
+                  
+                  // Truncate description if it gets too long
+                  description = `Settled: ${names.join(', ')}`;
+                  if (description.length > 200) {
+                    description = description.substring(0, 197) + '...';
+                  }
+                }
+
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<span class="animate-spin mr-2">⏳</span> Processing...';
+
+                try {
+                  const response = await fetch('/api/settlements/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      groupId: currentSettleState.groupId,
+                      fromUserId: currentUserId,
+                      toUserId: currentSettleState.toUserId,
+                      amountCents,
+                      description
+                    })
+                  });
+                  if (response.ok) {
+                    showToast('Settlement recorded successfully! 🎉');
+                    setTimeout(() => window.location.reload(), 2000);
+                  } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to record settlement', 4000);
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '💸 Record Payment';
+                  }
+                } catch (error) {
+                  console.error('Error recording settlement:', error);
+                  showToast('Error recording settlement', 4000);
+                  confirmBtn.disabled = false;
+                  confirmBtn.innerHTML = '💸 Record Payment';
+                }
+              });
+            }
+
             // Add event listeners to Settle Up buttons
             document.querySelectorAll('.settle-up-btn').forEach((btn) => {
               btn.addEventListener('click', async (e) => {
@@ -1516,40 +1692,78 @@ const errorParam = Astro.url.searchParams.get('error');
                 const groupId = target.dataset.groupId;
                 const amountDollars = (amountCents / 100).toFixed(2);
                 
-                const isConfirmed = await customConfirm(`Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`);
-                if (!isConfirmed) {
-                  return;
-                }
-                
-                target.disabled = true;
-                target.textContent = 'Processing...';
+                // Find specific expenses owed to this user in this group
+                const specificOwes = statsData.owes.filter(owe => 
+                  owe.groupId === groupId && owe.paidById === toUserId
+                );
 
-                try {
-                  const response = await fetch('/api/settlements/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      groupId,
-                      fromUserId: currentUserId,
-                      toUserId,
-                      amountCents,
-                      description: 'Settled via Split Dashboard'
-                    })
+                if (specificOwes.length > 0 && selectionModal) {
+                  // Show Selection Modal
+                  currentSettleState = { toUserId, toUserName, groupId, fullAmountCents: amountCents, specificOwes };
+                  
+                  titleEl.textContent = `Settle Up with ${toUserName}`;
+                  fullAmountText.textContent = `$${amountDollars}`;
+                  
+                  // Reset checkboxes
+                  selectAllCheckbox.checked = true;
+                  
+                  expensesList.innerHTML = specificOwes.map(owe => `
+                    <label class="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
+                      <div class="pt-0.5">
+                        <input type="checkbox" value="${owe.amountCents}" data-desc="${escapeHtml(owe.description)}" class="expense-checkbox w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" disabled checked />
+                      </div>
+                      <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                          <span class="block font-medium text-slate-900 dark:text-white">${escapeHtml(owe.description)}</span>
+                          <span class="block font-semibold text-slate-900 dark:text-white">$${(owe.amountCents / 100).toFixed(2)}</span>
+                        </div>
+                        <span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(owe.tripName)}</span>
+                      </div>
+                    </label>
+                  `).join('');
+
+                  expensesList.querySelectorAll('.expense-checkbox').forEach(cb => {
+                    cb.addEventListener('change', updateSelectedTotal);
                   });
-                  if (response.ok) {
-                    showToast('Settlement recorded successfully! 🎉');
-                    loadSettlements();
-                  } else {
-                    const error = await response.json();
-                    showToast(error.error || 'Failed to record settlement', 4000);
+
+                  updateSelectedTotal();
+                  confirmBtn.innerHTML = '💸 Record Payment';
+                  selectionModal.classList.remove('hidden');
+                } else {
+                  // Fallback: simple confirmation
+                  const isConfirmed = await customConfirm(`Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`);
+                  if (!isConfirmed) return;
+                  
+                  target.disabled = true;
+                  target.textContent = 'Processing...';
+
+                  try {
+                    const response = await fetch('/api/settlements/create', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        groupId,
+                        fromUserId: currentUserId,
+                        toUserId,
+                        amountCents,
+                        description: 'Settled via Split Dashboard'
+                      })
+                    });
+                    if (response.ok) {
+                      showToast('Settlement recorded successfully! 🎉');
+                      setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                      const error = await response.json();
+                      showToast(error.error || 'Failed to record settlement', 4000);
+                      target.disabled = false;
+                      target.textContent = 'Settle Up';
+                    }
+                  } catch (error) {
+                    console.error('Error recording settlement:', error);
+                    showToast('Error recording settlement', 4000);
                     target.disabled = false;
                     target.textContent = 'Settle Up';
                   }
-                } catch (error) {
-                  console.error('Error recording settlement:', error);
-                  showToast('Error recording settlement', 4000);
-                  target.disabled = false;
-                  target.textContent = 'Settle Up';
                 }
               });
             });

@@ -35,7 +35,7 @@ export const GET: APIRoute = async (context) => {
         .select()
         .from(activities)
         .where(and(eq(activities.eventId, null), eq(activities.createdBy, userId)))
-        .orderBy(asc(activities.startTime), asc(activities.sequenceOrder))
+        .orderBy(asc(activities.sequenceOrder), asc(activities.startTime))
       ) as any;
       return new Response(
         JSON.stringify({ activities: activitiesList }),
@@ -92,7 +92,7 @@ export const GET: APIRoute = async (context) => {
       .select()
       .from(activities)
       .where(eq(activities.eventId, eventIdStr))
-      .orderBy(asc(activities.startTime), asc(activities.sequenceOrder))) as any;
+      .orderBy(asc(activities.sequenceOrder), asc(activities.startTime))) as any;
 
     return new Response(
       JSON.stringify({ activities: activitiesList }),

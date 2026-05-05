@@ -55,10 +55,20 @@ export const GET: APIRoute = async ({ cookies, url }) => {
         .innerJoin(humans, eq(groupMembers.userId, humans.id))
         .where(eq(groupMembers.groupId, groupId));
 
+      // Filter out duplicate members in case of bad data
+      const uniqueMembers = members.reduce((acc, current) => {
+        const x = acc.find(item => item.userId === current.userId);
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, [] as typeof members);
+
       return new Response(
         JSON.stringify({
           group,
-          members,
+          members: uniqueMembers,
         }),
         {
           status: 200,

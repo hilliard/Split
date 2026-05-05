@@ -114,32 +114,42 @@ const userId = session.userId;
           <!-- Time Range -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label
-                for="startTime"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
+              <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
                 Start Time (Optional)
               </label>
-              <input
-                type="datetime-local"
-                id="startTime"
-                name="startTime"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              />
+              <div class="flex gap-2">
+                <input
+                  type="date"
+                  id="activityStartDate"
+                  name="startDate"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                />
+                <input
+                  type="time"
+                  id="activityStartTime"
+                  name="startTime"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                />
+              </div>
             </div>
             <div>
-              <label
-                for="endTime"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
+              <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
                 End Time (Optional)
               </label>
-              <input
-                type="datetime-local"
-                id="endTime"
-                name="endTime"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              />
+              <div class="flex gap-2">
+                <input
+                  type="date"
+                  id="activityEndDate"
+                  name="endDate"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                />
+                <input
+                  type="time"
+                  id="activityEndTime"
+                  name="endTime"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                />
+              </div>
             </div>
           </div>
 
@@ -611,12 +621,20 @@ const userId = session.userId;
       e.preventDefault();
 
       const formData = new FormData(addActivityForm);
+      const startDate = formData.get('startDate');
+      const startTime = formData.get('startTime');
+      const endDate = formData.get('endDate');
+      const endTime = formData.get('endTime');
+
+      const startInput = (startDate && startTime) ? new Date(`${startDate}T${startTime}`).toISOString() : null;
+      const endInput = (endDate && endTime) ? new Date(`${endDate}T${endTime}`).toISOString() : null;
+
       const data = {
         eventId,
         title: formData.get('title'),
         locationName: formData.get('locationName') || null,
-        startTime: formData.get('startTime') || null,
-        endTime: formData.get('endTime') || null,
+        startTime: startInput,
+        endTime: endInput,
         sequenceOrder: 0,
         metadata: (() => {
           const m = {};
@@ -689,12 +707,22 @@ const userId = session.userId;
             }
           } catch (error) {
             console.error('Expense creation error:', error);
-            showToast('Activity created but error creating expense');
+            if (typeof window.showToast === 'function') {
+              window.showToast('Activity created but error creating expense');
+            } else {
+              alert('Activity created but error creating expense');
+            }
+          }
+        } else {
+          if (typeof window.showToast === 'function') {
+            window.showToast('Activity created successfully!');
           }
         }
 
-        // Reload page to show new activity
-        window.location.reload();
+        // Reload page to show new activity after brief delay for toast to be seen
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } catch (error) {
         alert('Error: ' + error.message);
       }

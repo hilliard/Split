@@ -1812,8 +1812,8 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
       // Load both activities and expenses, then render them together
       try {
         const [activitiesResponse, expensesResponse] = await Promise.all([
-          fetch(`/api/activities/list?eventId=${eventId}`),
-          fetch(`/api/expenses/list?eventId=${eventId}`),
+          fetch(`/api/activities/list?eventId=${eventId}`, { cache: 'no-store' }),
+          fetch(`/api/expenses/list?eventId=${eventId}`, { cache: 'no-store' }),
         ]);
 
         const activitiesData = await activitiesResponse.json();
@@ -2310,6 +2310,9 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             loadDetailedSummary(); // Update detailed summary
 
             console.log('✅ Activity submission complete!');
+            if (typeof window.showToast === 'function') {
+              window.showToast('Activity added successfully!');
+            }
           }
         } catch (error) {
           console.error('❌ Catch block error:', error);

@@ -722,7 +722,7 @@ const userId = session.userId;
         // Reload page to show new activity after brief delay for toast to be seen
         setTimeout(() => {
           window.location.reload();
-        }, 1000);
+        }, 3000);
       } catch (error) {
         alert('Error: ' + error.message);
       }
@@ -772,7 +772,7 @@ const userId = session.userId;
           showToast('Activity deleted successfully!');
           setTimeout(() => {
             window.location.reload();
-          }, 1000);
+          }, 3000);
         } catch (error) {
           alert('Error: ' + error.message);
         }

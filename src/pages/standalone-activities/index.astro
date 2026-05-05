@@ -763,7 +763,7 @@ const userId = session.userId;
         // Reload page to show new activity
         setTimeout(() => {
           window.location.reload();
-        }, 1000);
+        }, 3000);
       } catch (error) {
         activityError.textContent = error instanceof Error ? error.message : 'An error occurred';
         activityError.classList.remove('hidden');
@@ -856,8 +856,14 @@ const userId = session.userId;
           return;
         }
 
-        // Reload page
-        window.location.reload();
+        if (typeof window.showToast === 'function') {
+          window.showToast('Activity updated successfully!');
+        }
+        
+        // Reload page after delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
       } catch (error) {
         editActivityError.textContent = 'An error occurred';
         editActivityError.classList.remove('hidden');
@@ -887,8 +893,13 @@ const userId = session.userId;
             return;
           }
 
-          // Reload page
-          window.location.reload();
+          if (typeof window.showToast === 'function') {
+            window.showToast('Activity deleted successfully!');
+          }
+          // Reload page after a delay to let toast be seen
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
         } catch (error) {
           alert(error instanceof Error ? error.message : 'An error occurred');
         }

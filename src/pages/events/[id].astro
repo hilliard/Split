@@ -435,32 +435,42 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label
-                  for="activityStartTime"
-                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-                >
-                  Start Time (Optional)
+                <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
+                  Start Date & Time (Optional)
                 </label>
-                <input
-                  type="datetime-local"
-                  id="activityStartTime"
-                  name="startTime"
-                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-                />
+                <div class="flex gap-2">
+                  <input
+                    type="date"
+                    id="activityStartDate"
+                    name="startDate"
+                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                  />
+                  <input
+                    type="time"
+                    id="activityStartTime"
+                    name="startTime"
+                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                  />
+                </div>
               </div>
               <div>
-                <label
-                  for="activityEndTime"
-                  class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-                >
-                  End Time (Optional)
+                <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
+                  End Date & Time (Optional)
                 </label>
-                <input
-                  type="datetime-local"
-                  id="activityEndTime"
-                  name="endTime"
-                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-                />
+                <div class="flex gap-2">
+                  <input
+                    type="date"
+                    id="activityEndDate"
+                    name="endDate"
+                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                  />
+                  <input
+                    type="time"
+                    id="activityEndTime"
+                    name="endTime"
+                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                  />
+                </div>
               </div>
             </div>
 
@@ -2222,6 +2232,14 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             metadata,
           });
 
+          const startDate = formData.get('startDate') as string;
+          const startTime = formData.get('startTime') as string;
+          const endDate = formData.get('endDate') as string;
+          const endTime = formData.get('endTime') as string;
+
+          const startInput = (startDate && startTime) ? new Date(`${startDate}T${startTime}`).toISOString() : null;
+          const endInput = (endDate && endTime) ? new Date(`${endDate}T${endTime}`).toISOString() : null;
+
           const response = await fetch('/api/activities/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2229,8 +2247,8 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
               eventId: eventId,
               title: formData.get('title'),
               locationName: formData.get('locationName') || null,
-              startTime: formData.get('startTime') || null,
-              endTime: formData.get('endTime') || null,
+              startTime: startInput,
+              endTime: endInput,
               sequenceOrder: 0,
               metadata: Object.keys(metadata).length > 0 ? metadata : {},
             }),

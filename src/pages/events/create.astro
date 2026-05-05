@@ -253,6 +253,72 @@ if (!session) {
             ></textarea>
           </div>
 
+          <!-- Group Selection / Creation (Top-Level) -->
+          <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div>
+              <label
+                for="expenseGroupSelect"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                Associate Event with Group (Optional)
+              </label>
+              <div class="flex gap-2 flex-col sm:flex-row">
+                <select
+                  id="expenseGroupSelect"
+                  name="groupId"
+                  class="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+                >
+                  <option value="">-- No Group (Personal Event) --</option>
+                </select>
+                <button
+                  type="button"
+                  id="createNewGroupBtn"
+                  class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium whitespace-nowrap"
+                >
+                  + New Group
+                </button>
+              </div>
+            </div>
+
+            <!-- Create New Group Form (Hidden) -->
+            <div
+              id="createNewGroupForm"
+              class="hidden mt-3 p-3 bg-white dark:bg-slate-600 rounded-lg border border-indigo-300 dark:border-slate-500 space-y-3"
+            >
+              <label
+                for="newGroupName"
+                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+              >
+                New Group Name
+              </label>
+              <input
+                type="text"
+                id="newGroupName"
+                name="newGroupName"
+                placeholder="e.g., Houston Trip Friends"
+                class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+              />
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  id="createGroupConfirmBtn"
+                  class="flex-1 px-3 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded transition-colors font-medium text-sm"
+                >
+                  Create Group
+                </button>
+                <button
+                  type="button"
+                  id="createGroupCancelBtn"
+                  class="flex-1 px-3 py-2 bg-slate-300 dark:bg-slate-500 text-slate-900 dark:text-white hover:bg-slate-400 dark:hover:bg-slate-600 rounded transition-colors font-medium text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+              <div id="groupCreationError" class="text-sm text-red-600 dark:text-red-400 hidden">
+              </div>
+            </div>
+          </div>
+
           <!-- Add Initial Expense Toggle -->
           <div
             class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 border-2 border-green-400 dark:border-emerald-600 rounded-lg"
@@ -285,7 +351,7 @@ if (!session) {
                   ○ Add Initial Expense
                 </p>
                 <p class="text-xs text-green-700 dark:text-green-300">
-                  Add an expense for this event (requires a group)
+                  Quickly log your first expense for this event
                 </p>
               </div>
             </label>
@@ -296,69 +362,6 @@ if (!session) {
             id="initialExpenseFieldsContainer"
             class="hidden space-y-4 p-4 bg-green-50 dark:bg-slate-700 rounded-lg border border-green-200 dark:border-slate-600"
           >
-            <!-- Group Selection / Creation -->
-            <div>
-              <label
-                for="expenseGroupSelect"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                Select or Create Group <span class="text-red-500">*</span>
-              </label>
-              <div class="flex gap-2 flex-col sm:flex-row">
-                <select
-                  id="expenseGroupSelect"
-                  name="expenseGroupId"
-                  class="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
-                >
-                  <option value="">-- Select Existing Group --</option>
-                </select>
-                <button
-                  type="button"
-                  id="createNewGroupBtn"
-                  class="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors font-medium whitespace-nowrap"
-                >
-                  + New Group
-                </button>
-              </div>
-            </div>
-
-            <!-- Create New Group Form (Hidden) -->
-            <div
-              id="createNewGroupForm"
-              class="hidden p-3 bg-white dark:bg-slate-600 rounded-lg border border-green-300 dark:border-slate-500 space-y-3"
-            >
-              <label
-                for="newGroupName"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                New Group Name
-              </label>
-              <input
-                type="text"
-                id="newGroupName"
-                name="newGroupName"
-                placeholder="e.g., Houston Trip Friends"
-                class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-base"
-              />
-              <div class="flex gap-2">
-                <button
-                  type="button"
-                  id="createGroupConfirmBtn"
-                  class="flex-1 px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded transition-colors font-medium text-sm"
-                >
-                  Create Group
-                </button>
-                <button
-                  type="button"
-                  id="createGroupCancelBtn"
-                  class="flex-1 px-3 py-2 bg-slate-300 dark:bg-slate-500 text-slate-900 dark:text-white hover:bg-slate-400 dark:hover:bg-slate-600 rounded transition-colors font-medium text-sm"
-                >
-                  Cancel
-                </button>
-              </div>
-              <div id="groupCreationError" class="text-sm text-red-600 dark:text-red-400 hidden">
-              </div>
-            </div>
 
             <!-- Expense Fields -->
             <div>
@@ -800,13 +803,11 @@ if (!session) {
       updateExpenseToggleState();
       addInitialExpenseCheckbox.addEventListener('change', async () => {
         updateExpenseToggleState();
-
-        // If checked, fetch groups
-        if (addInitialExpenseCheckbox.checked) {
-          await loadUserGroups();
-        }
       });
     }
+
+    // Always fetch groups on page load
+    loadUserGroups();
 
     // Load user's groups
     async function loadUserGroups() {
@@ -819,7 +820,7 @@ if (!session) {
         ) as HTMLSelectElement | null;
         if (groupSelect && data.groups && data.groups.length > 0) {
           // Clear existing options except the default
-          groupSelect.innerHTML = '<option value="">-- Select Existing Group --</option>';
+          groupSelect.innerHTML = '<option value="">-- No Group (Personal Event) --</option>';
 
           data.groups.forEach((group: any) => {
             const option = document.createElement('option');
@@ -976,7 +977,7 @@ if (!session) {
         ).trim();
         const expenseAmount =
           parseFloat((formData.get('initialExpenseAmount') as string) ?? '0') || 0;
-        const expenseGroupId = (formData.get('expenseGroupId') as string) ?? '';
+        const eventGroupId = (formData.get('groupId') as string) ?? '';
 
         // DEBUG: Log form submission state
         console.log('🚀 Form Submission Started:', {
@@ -1000,17 +1001,18 @@ if (!session) {
           isPublic: formData.get('isPublic') === 'on',
           currency: formData.get('currency'),
           budget: formData.get('budget') || undefined,
-          // Include groupId if expense is being added
-          ...(shouldAddExpense && expenseGroupId ? { groupId: expenseGroupId } : {}),
+          groupId: formData.get('groupId') || undefined,
         };
 
         try {
           // Validate expense fields if expense is enabled
           if (shouldAddExpense) {
             console.log('🔍 Expense validation triggered');
-            if (!expenseGroupId) {
+            const eventGroupId = formData.get('groupId') as string;
+            
+            if (!eventGroupId) {
               if (eventError) {
-                eventError.textContent = 'Please select or create a group for the expense';
+                eventError.textContent = 'Please select or create a group if you want to add an initial expense';
                 eventError.classList.remove('hidden');
               }
               return;
@@ -1065,7 +1067,7 @@ if (!session) {
               console.log('🟢 INSIDE expense creation block');
               try {
                 console.log('📝 Creating expense:', {
-                  groupId: expenseGroupId,
+                  groupId: eventGroupId,
                   amount: expenseAmount,
                   description: expenseDescription,
                 });
@@ -1090,7 +1092,7 @@ if (!session) {
                 console.log('✅ Got user ID:', userId);
 
                 const expenseData = {
-                  eventId: eventId, // Changed from groupId to eventId - expenses are linked to events, not groups
+                  eventId: eventId, // expenses are linked to events
                   amount: expenseAmount,
                   description: expenseDescription,
                   paidBy: userId,
@@ -1099,7 +1101,7 @@ if (!session) {
                 console.log('📤 Expense details:', {
                   description: expenseDescription,
                   amount: expenseAmount,
-                  groupId: expenseGroupId,
+                  groupId: eventGroupId,
                   paidBy: userId,
                   descriptionTrimmed: (expenseDescription ?? '').trim(),
                   amountIsNumber: typeof expenseAmount === 'number',

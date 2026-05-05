@@ -1823,6 +1823,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
 
         // Add expenses first (at the top)
         if (expensesData.success && expensesData.expenses && expensesData.expenses.length > 0) {
+          html += `<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 mt-2">Expenses (${expensesData.expenses.length})</h2><div class="space-y-4">`;
           html += expensesData.expenses
             .map((expense) => {
               const amount = expense.amount.toFixed(2);
@@ -1890,10 +1891,12 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             </div>`;
             })
             .join('');
+          html += `</div>`;
         }
 
         // Add activities (below expenses)
         if (activitiesData.activities && activitiesData.activities.length > 0) {
+          html += `<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 ${html ? 'mt-8' : 'mt-2'}">Activities (${activitiesData.activities.length})</h2><div class="space-y-4">`;
           html += activitiesData.activities
             .map((activity) => {
               const escapedTitle = escapeHtml(activity.title);
@@ -1943,6 +1946,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             </div>`;
             })
             .join('');
+          html += `</div>`;
         }
 
         // If nothing, show empty message

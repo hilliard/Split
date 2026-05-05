@@ -177,6 +177,9 @@ export const POST: APIRoute = async (context) => {
         }
       );
     }
+    
+    // Deduplicate user IDs to prevent calculating splits incorrectly if UI sends duplicates
+    splitAmong = [...new Set(splitAmong)];
 
     // Convert dollars to cents for storage and calculation
     const amountInCents = dollarsToCents(validatedData.amount);

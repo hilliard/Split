@@ -96,13 +96,14 @@ export const PUT: APIRoute = async (context) => {
       }));
     } else if (validatedData.splitAmong && validatedData.splitAmong.length > 0) {
       // Equal split among specified users
+      const uniqueSplitAmong = [...new Set(validatedData.splitAmong)];
       const totalAmount =
         expense.amount +
         (expense.tipAmount ? Math.round(parseFloat(expense.tipAmount as any) * 100) : 0);
-      const perPersonAmount = Math.floor(totalAmount / validatedData.splitAmong.length);
-      const remainder = totalAmount % validatedData.splitAmong.length;
+      const perPersonAmount = Math.floor(totalAmount / uniqueSplitAmong.length);
+      const remainder = totalAmount % uniqueSplitAmong.length;
 
-      newSplits = validatedData.splitAmong.map((userId, index) => ({
+      newSplits = uniqueSplitAmong.map((userId, index) => ({
         id: crypto.randomUUID(),
         expenseId: validatedData.expenseId,
         userId,

@@ -19,7 +19,6 @@ if (!session) {
 
 // Get session and verify user
 
-
 // Get activity ID from URL
 const { id } = Astro.params;
 
@@ -53,9 +52,7 @@ if (event.groupId) {
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(
-      and(eq(groupMembers.userId, session.userId), eq(groupMembers.groupId, event.groupId))
-    )
+    .where(and(eq(groupMembers.userId, session.userId), eq(groupMembers.groupId, event.groupId)))
     .limit(1);
   isGroupMember = !!membership;
 }
@@ -231,7 +228,7 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
                   <option value="flight">✈️ One-Way Flight</option>
                   <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
                   <option value="hotel">🏨 Hotel</option>
-                    <option value="car_rental">🚗 Car Rental</option>
+                  <option value="car_rental">🚗 Car Rental</option>
                   <option value="restaurant">🍽️ Restaurant/Dinner</option>
                   <option value="tourist">🎫 Tourist Activity</option>
                 </select>
@@ -731,7 +728,9 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
 
           if (!response.ok) {
             const error = await response.json();
-            alert('Error: ' + (error.error?.message || error.error || 'Failed to delete activity'));
+            showToast(
+              'Error: ' + (error.error?.message || error.error || 'Failed to delete activity')
+            );
             return;
           }
 
@@ -741,23 +740,42 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
             window.location.href = `/activities/index?eventId=${eventId}`;
           }, 1500);
         } catch (error) {
-          alert('Error: ' + error.message);
+          showToast('Error: ' + error.message);
         }
       });
     }
   </script>
   <!-- Delete Activity Confirmation Modal -->
-  <div id="deleteActivityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-sm border border-slate-200 dark:border-slate-700">
+  <div
+    id="deleteActivityModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-sm border border-slate-200 dark:border-slate-700"
+    >
       <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
         <h2 class="text-lg font-bold text-red-600 dark:text-red-400">Delete Activity</h2>
       </div>
       <div class="p-5 sm:p-6">
-        <p class="text-slate-700 dark:text-slate-300">Are you sure you want to delete this activity? This action cannot be undone.</p>
+        <p class="text-slate-700 dark:text-slate-300">
+          Are you sure you want to delete this activity? This action cannot be undone.
+        </p>
       </div>
-      <div class="flex gap-3 justify-end p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-b-lg">
-        <button type="button" id="cancelDeleteActivityBtn" class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm">Cancel</button>
-        <button type="button" id="confirmDeleteActivityBtn" class="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors font-medium text-sm">Delete</button>
+      <div
+        class="flex gap-3 justify-end p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-b-lg"
+      >
+        <button
+          type="button"
+          id="cancelDeleteActivityBtn"
+          class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+          >Cancel</button
+        >
+        <button
+          type="button"
+          id="confirmDeleteActivityBtn"
+          class="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors font-medium text-sm"
+          >Delete</button
+        >
       </div>
     </div>
   </div>

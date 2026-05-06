@@ -39,6 +39,7 @@ export default [
       'migrate-*.ts',
       'migrate-*.mjs',
       'populate-*.ts',
+      'validation-*.ts',
       'run-*.mjs',
       'run-*.ts',
       'seed-*.mjs',

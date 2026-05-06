@@ -734,9 +734,13 @@ const userId = session.userId;
             });
 
             if (expenseResponse.ok) {
-              showToast(`Activity '${activityTitle}' created! ✓ Expense of $${expenseAmount.toFixed(2)} added.`);
+              showToast(
+                `Activity '${activityTitle}' created! ✓ Expense of $${expenseAmount.toFixed(2)} added.`
+              );
             } else {
-              showToast(`Activity '${activityTitle}' created! Note: Expense creation had an issue.`);
+              showToast(
+                `Activity '${activityTitle}' created! Note: Expense creation had an issue.`
+              );
             }
           } catch (error) {
             console.error('Error creating expense:', error);
@@ -765,7 +769,7 @@ const userId = session.userId;
           // Fetch activity details
           const response = await fetch(`/api/activities/${activityId}`);
           if (!response.ok) {
-            alert('Failed to load activity details');
+            showToast('Failed to load activity details');
             return;
           }
 
@@ -798,7 +802,7 @@ const userId = session.userId;
           editActivityModal.classList.remove('hidden');
         } catch (error) {
           console.error('Error loading activity:', error);
-          alert('Failed to load activity');
+          showToast('Failed to load activity');
         }
       });
     });
@@ -815,8 +819,9 @@ const userId = session.userId;
       const endDate = formData.get('endDate');
       const endTime = formData.get('endTime');
 
-      const startInput = (startDate && startTime) ? new Date(`${startDate}T${startTime}`).toISOString() : null;
-      const endInput = (endDate && endTime) ? new Date(`${endDate}T${endTime}`).toISOString() : null;
+      const startInput =
+        startDate && startTime ? new Date(`${startDate}T${startTime}`).toISOString() : null;
+      const endInput = endDate && endTime ? new Date(`${endDate}T${endTime}`).toISOString() : null;
 
       const data = {
         activityId,
@@ -843,7 +848,7 @@ const userId = session.userId;
         }
 
         showToast('Activity updated successfully!');
-        
+
         // Reload page after delay
         setTimeout(() => {
           window.location.reload();
@@ -859,7 +864,10 @@ const userId = session.userId;
       btn.addEventListener('click', async () => {
         const activityId = btn.dataset.activityId;
 
-        const isConfirmed = await window.customConfirm('Are you sure you want to delete this activity? This cannot be undone.', 'Delete Activity');
+        const isConfirmed = await window.customConfirm(
+          'Are you sure you want to delete this activity? This cannot be undone.',
+          'Delete Activity'
+        );
         if (!isConfirmed) {
           return;
         }
@@ -873,7 +881,7 @@ const userId = session.userId;
 
           if (!response.ok) {
             const error = await response.json();
-            alert(error.error || error.error?.message || 'Failed to delete activity');
+            showToast(error.error || error.error?.message || 'Failed to delete activity');
             return;
           }
 
@@ -883,7 +891,7 @@ const userId = session.userId;
             window.location.reload();
           }, 3000);
         } catch (error) {
-          alert(error instanceof Error ? error.message : 'An error occurred');
+          showToast(error instanceof Error ? error.message : 'An error occurred');
         }
       });
     });

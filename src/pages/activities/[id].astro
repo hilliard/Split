@@ -38,6 +38,9 @@ if (!activity) {
 }
 
 // Get event and verify ownership
+if (!activity.eventId) {
+  return Astro.redirect('/dashboard');
+}
 const [event] = await db.select().from(events).where(eq(events.id, activity.eventId)).limit(1);
 
 if (!event) {

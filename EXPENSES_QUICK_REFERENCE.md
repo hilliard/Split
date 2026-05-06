@@ -381,3 +381,6 @@ curl -X DELETE "http://localhost:3000/api/expenses/delete?expenseId=exp-001" \
 6. **Venmo/PayPal Integration** - Send payment links
 7. **Tax Export** - Generate reports for tax/accounting
 8. **Currency Conversion** - Multi-currency support
+
+
+curl "http://localhost:4322/api/expenses/user-total?userId=afc527e4-bd37-4b0a-8f15-a9bb4d046f51"

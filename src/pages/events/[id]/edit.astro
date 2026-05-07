@@ -118,16 +118,15 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : '';
               <select
                 id="eventType"
                 name="type"
-                value={event.type}
                 class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
               >
-                <option value="general">General</option>
-                <option value="concert">Concert</option>
-                <option value="dinner">Formal Dinner</option>
-                <option value="sports">Sports</option>
-                <option value="movie">Movie</option>
-                <option value="trip">Trip</option>
-                <option value="wedding">Wedding</option>
+                <option value="general" selected={event.type === 'general'}>General</option>
+                <option value="concert" selected={event.type === 'concert'}>Concert</option>
+                <option value="dinner" selected={event.type === 'dinner'}>Formal Dinner</option>
+                <option value="sports" selected={event.type === 'sports'}>Sports</option>
+                <option value="movie" selected={event.type === 'movie'}>Movie</option>
+                <option value="trip" selected={event.type === 'trip'}>Trip</option>
+                <option value="wedding" selected={event.type === 'wedding'}>Wedding</option>
               </select>
             </div>
             <div>
@@ -140,17 +139,20 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : '';
               <select
                 id="eventCurrency"
                 name="currency"
-                value={event.currency}
                 class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
               >
-                <option value="USD">USD - US Dollar</option>
-                <option value="EUR">EUR - Euro</option>
-                <option value="GBP">GBP - British Pound</option>
-                <option value="CAD">CAD - Canadian Dollar</option>
-                <option value="AUD">AUD - Australian Dollar</option>
-                <option value="JPY">JPY - Japanese Yen</option>
-                <option value="MXN">MXN - Mexican Peso</option>
-                <option value="INR">INR - Indian Rupee</option>
+                <option value="USD" selected={event.currency === 'USD'}>USD - US Dollar</option>
+                <option value="EUR" selected={event.currency === 'EUR'}>EUR - Euro</option>
+                <option value="GBP" selected={event.currency === 'GBP'}>GBP - British Pound</option>
+                <option value="CAD" selected={event.currency === 'CAD'}
+                  >CAD - Canadian Dollar</option
+                >
+                <option value="AUD" selected={event.currency === 'AUD'}
+                  >AUD - Australian Dollar</option
+                >
+                <option value="JPY" selected={event.currency === 'JPY'}>JPY - Japanese Yen</option>
+                <option value="MXN" selected={event.currency === 'MXN'}>MXN - Mexican Peso</option>
+                <option value="INR" selected={event.currency === 'INR'}>INR - Indian Rupee</option>
               </select>
             </div>
           </div>

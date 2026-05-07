@@ -49,6 +49,8 @@ if (!isCreator && !isGroupMember) {
   return Astro.redirect('/dashboard');
 }
 
+const eventTimezone = event.timezone || 'UTC';
+
 // Get all activities for this event
 const eventActivities = await db
   .select()
@@ -423,13 +425,18 @@ const userId = session.userId;
                         <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
                           🕐{' '}
                           {new Date(activity.startTime).toLocaleString('en-US', {
+                            timeZone: eventTimezone,
                             month: 'short',
                             day: 'numeric',
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
                           {activity.endTime &&
-                            ` - ${new Date(activity.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
+                            ` - ${new Date(activity.endTime).toLocaleTimeString('en-US', {
+                              timeZone: eventTimezone,
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}`}
                         </p>
                       )}
                       {activity.metadata && Object.keys(activity.metadata).length > 0 && (

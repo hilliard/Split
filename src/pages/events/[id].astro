@@ -92,7 +92,10 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
     </nav>
 
     <!-- Main Content -->
-    <main data-user-id={session.userId} class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <main
+      data-user-id={session.userId}
+      class="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
+    >
       <!-- Event Header Card -->
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 mb-6"
@@ -888,139 +891,139 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
               <select
                 id="editExpenseCategory"
                 class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-                <option value="food">Food</option>
-                <option value="transport">Transport</option>
-                <option value="flight">Flight</option>
-                <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
-                <option value="accommodation">Accommodation</option>
-                <option value="activities">Activities</option>
-                <option value="entertainment">Entertainment</option>
-                <option value="misc">Miscellaneous</option>
-              </select>
-            </div>
-
-            <!-- Details/Metadata Section -->
-            <div>
-              <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                Details (Confirmation #, Reference, Notes, etc.) - Optional
-              </label>
-
-              <!-- Template Selector -->
-              <div class="mb-4 flex gap-2 items-end">
-                <div class="flex-1">
-                  <label
-                    for="editExpenseTemplateSelect"
-                    class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
-                  >
-                    Template:
-                  </label>
-                  <select
-                    id="editExpenseTemplateSelect"
-                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                  >
-                    <option value="">— None —</option>
-                    <option value="flight">✈️ One-Way Flight</option>
-                    <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
-                    <option value="hotel">🏨 Hotel</option>
-                    <option value="car_rental">🚗 Car Rental</option>
-                    <option value="restaurant">🍽️ Restaurant</option>
-                    <option value="tourist">🎭 Tourist</option>
-                  </select>
-                </div>
-                <button
-                  type="button"
-                  id="editExpenseApplyTemplateBtn"
-                  class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors font-medium text-sm"
-                >
-                  Apply
-                </button>
-              </div>
-
-              <!-- Metadata Fields Container -->
-              <div
-                id="editExpenseMetadataContainer"
-                class="space-y-2 mb-3 border border-slate-300 dark:border-slate-600 rounded-lg p-3 bg-slate-50 dark:bg-slate-700 min-h-12"
+                <option
+                value="food">Food</select
               >
-              </div>
-
-              <!-- Add Field Button -->
-              <button
-                type="button"
-                id="editExpenseAddMetadataFieldBtn"
-                class="text-sm text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-100 font-medium"
-              >
-                + Add Detail
-              </button>
-            </div>
-
-            <div
-              id="editExpenseError"
-              class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
-            >
-            </div>
-
-            <div
-              class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
-            >
-              <button
-                type="button"
-                id="cancelEditExpenseBtn"
-                class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                id="deleteEditExpenseBtn"
-                class="px-4 py-2 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 rounded-lg transition-colors font-medium text-sm"
-              >
-                Delete
-              </button>
-              <button
-                type="submit"
-                class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium text-sm"
-              >
-                Update
-              </button>
+              <option value="transport">Transport</option>
+              <option value="flight">Flight</option>
+              <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
+              <option value="accommodation">Accommodation</option>
+              <option value="activities">Activities</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="misc">Miscellaneous</option>
             </div>
           </form>
+
+          <!-- Details/Metadata Section -->
+          <div>
+            <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
+              Details (Confirmation #, Reference, Notes, etc.) - Optional
+            </label>
+
+            <!-- Template Selector -->
+            <div class="mb-4 flex gap-2 items-end">
+              <div class="flex-1">
+                <label
+                  for="editExpenseTemplateSelect"
+                  class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+                >
+                  Template:
+                </label>
+                <select
+                  id="editExpenseTemplateSelect"
+                  class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                >
+                  <option value="">— None —</option>
+                  <option value="flight">✈️ One-Way Flight</option>
+                  <option value="roundtrip_flight">🔄 Round-Trip Flight</option>
+                  <option value="hotel">🏨 Hotel</option>
+                  <option value="car_rental">🚗 Car Rental</option>
+                  <option value="restaurant">🍽️ Restaurant</option>
+                  <option value="tourist">🎭 Tourist</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                id="editExpenseApplyTemplateBtn"
+                class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors font-medium text-sm"
+              >
+                Apply
+              </button>
+            </div>
+
+            <!-- Metadata Fields Container -->
+            <div
+              id="editExpenseMetadataContainer"
+              class="space-y-2 mb-3 border border-slate-300 dark:border-slate-600 rounded-lg p-3 bg-slate-50 dark:bg-slate-700 min-h-12"
+            >
+            </div>
+
+            <!-- Add Field Button -->
+            <button
+              type="button"
+              id="editExpenseAddMetadataFieldBtn"
+              class="text-sm text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-100 font-medium"
+            >
+              + Add Detail
+            </button>
+          </div>
+
+          <div
+            id="editExpenseError"
+            class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
+          >
+          </div>
+
+          <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
+            <button
+              type="button"
+              id="cancelEditExpenseBtn"
+              class="px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              id="deleteEditExpenseBtn"
+              class="px-4 py-2 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 rounded-lg transition-colors font-medium text-sm"
+            >
+              Delete
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium text-sm"
+            >
+              Update
+            </button>
+          </div>
         </div>
       </div>
     </main>
   </div>
+</Layout>
 
-  <script define:vars={{ eventId: id }}>
-    // Global theme toggle function accessible from HTML onclick
-    window.toggleTheme = function () {
-      console.log('🖱️ Theme toggle clicked');
+<script define:vars={{ eventId: id, eventTimezone: event.timezone || 'UTC' }}>
+  // Global theme toggle function accessible from HTML onclick
+  window.toggleTheme = function () {
+    console.log('🖱️ Theme toggle clicked');
 
-      const html = document.documentElement;
-      const isDark = html.classList.contains('dark');
-      const icon = document.getElementById('themeIcon');
-      const mainDiv = document.querySelector('div.min-h-screen');
+    const html = document.documentElement;
+    const isDark = html.classList.contains('dark');
+    const icon = document.getElementById('themeIcon');
+    const mainDiv = document.querySelector('div.min-h-screen');
 
-      if (isDark) {
-        // Switch to LIGHT mode
-        console.log('→ Switching to light mode');
-        html.classList.remove('dark');
-        document.body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
-        document.body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
+    if (isDark) {
+      // Switch to LIGHT mode
+      console.log('→ Switching to light mode');
+      html.classList.remove('dark');
+      document.body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+      document.body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
 
-        // Clear inline styles from main div
-        if (mainDiv) {
-          mainDiv.style.backgroundColor = '';
-          mainDiv.style.color = '';
-        }
+      // Clear inline styles from main div
+      if (mainDiv) {
+        mainDiv.style.backgroundColor = '';
+        mainDiv.style.color = '';
+      }
 
-        // Remove dark mode styles and apply light mode styles
-        let darkStyles = document.getElementById('dynamicDarkStyles');
-        if (darkStyles) darkStyles.remove();
+      // Remove dark mode styles and apply light mode styles
+      let darkStyles = document.getElementById('dynamicDarkStyles');
+      if (darkStyles) darkStyles.remove();
 
-        // Inject light mode styles
-        if (!document.getElementById('dynamicLightStyles')) {
-          const style = document.createElement('style');
-          style.id = 'dynamicLightStyles';
-          style.textContent = `
+      // Inject light mode styles
+      if (!document.getElementById('dynamicLightStyles')) {
+        const style = document.createElement('style');
+        style.id = 'dynamicLightStyles';
+        style.textContent = `
             html:not(.dark) header {
               background-color: rgb(255, 255, 255) !important;
               border-color: rgb(226, 232, 240) !important;
@@ -1064,34 +1067,34 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
               color: rgb(67, 56, 202) !important;
             }
           `;
-          document.head.appendChild(style);
-        }
+        document.head.appendChild(style);
+      }
 
-        localStorage.setItem('theme', 'light');
-        console.log('✅ Switched to light mode');
-        if (icon) icon.textContent = '☀️';
-      } else {
-        // Switch to DARK mode
-        console.log('→ Switching to dark mode');
-        html.classList.add('dark');
-        document.body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
-        document.body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
+      localStorage.setItem('theme', 'light');
+      console.log('✅ Switched to light mode');
+      if (icon) icon.textContent = '☀️';
+    } else {
+      // Switch to DARK mode
+      console.log('→ Switching to dark mode');
+      html.classList.add('dark');
+      document.body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+      document.body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
 
-        // Set inline styles on main div for dark mode
-        if (mainDiv) {
-          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
-          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
-        }
+      // Set inline styles on main div for dark mode
+      if (mainDiv) {
+        mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
+      }
 
-        // Remove light mode styles and apply dark mode styles
-        let lightStyles = document.getElementById('dynamicLightStyles');
-        if (lightStyles) lightStyles.remove();
+      // Remove light mode styles and apply dark mode styles
+      let lightStyles = document.getElementById('dynamicLightStyles');
+      if (lightStyles) lightStyles.remove();
 
-        // Inject dark mode styles
-        if (!document.getElementById('dynamicDarkStyles')) {
-          const style = document.createElement('style');
-          style.id = 'dynamicDarkStyles';
-          style.textContent = `
+      // Inject dark mode styles
+      if (!document.getElementById('dynamicDarkStyles')) {
+        const style = document.createElement('style');
+        style.id = 'dynamicDarkStyles';
+        style.textContent = `
             html.dark header {
               background-color: rgb(15, 23, 42) !important;
               border-color: rgb(51, 65, 85) !important;
@@ -1140,40 +1143,40 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
               border-color: rgb(51, 65, 85) !important;
             }
           `;
-          document.head.appendChild(style);
-        }
-
-        localStorage.setItem('theme', 'dark');
-        console.log('✅ Switched to dark mode');
-        if (icon) icon.textContent = '🌙';
-      }
-    };
-
-    // Setup theme toggle on page load
-    function setupThemeToggle() {
-      const btn = document.getElementById('themeToggle');
-      const icon = document.getElementById('themeIcon');
-      const html = document.documentElement;
-      const body = document.body;
-      const mainDiv = document.querySelector('div.min-h-screen');
-
-      if (!btn) {
-        console.error('❌ Theme toggle button not found');
-        return;
+        document.head.appendChild(style);
       }
 
-      console.log('✅ Theme toggle setup started');
+      localStorage.setItem('theme', 'dark');
+      console.log('✅ Switched to dark mode');
+      if (icon) icon.textContent = '🌙';
+    }
+  };
 
-      // Update icon to match current theme on initialization
-      const isDark = html.classList.contains('dark');
-      if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+  // Setup theme toggle on page load
+  function setupThemeToggle() {
+    const btn = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    const body = document.body;
+    const mainDiv = document.querySelector('div.min-h-screen');
 
-      // Inject CSS styles for current theme (both light and dark)
-      if (isDark && !document.getElementById('dynamicDarkStyles')) {
-        // Inject dark mode CSS
-        const darkStyle = document.createElement('style');
-        darkStyle.id = 'dynamicDarkStyles';
-        darkStyle.textContent = `
+    if (!btn) {
+      console.error('❌ Theme toggle button not found');
+      return;
+    }
+
+    console.log('✅ Theme toggle setup started');
+
+    // Update icon to match current theme on initialization
+    const isDark = html.classList.contains('dark');
+    if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+
+    // Inject CSS styles for current theme (both light and dark)
+    if (isDark && !document.getElementById('dynamicDarkStyles')) {
+      // Inject dark mode CSS
+      const darkStyle = document.createElement('style');
+      darkStyle.id = 'dynamicDarkStyles';
+      darkStyle.textContent = `
           html.dark header {
             background-color: rgb(15, 23, 42) !important;
             border-color: rgb(51, 65, 85) !important;
@@ -1222,12 +1225,12 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             border-color: rgb(51, 65, 85) !important;
           }
         `;
-        document.head.appendChild(darkStyle);
-      } else if (!isDark && !document.getElementById('dynamicLightStyles')) {
-        // Inject light mode CSS
-        const lightStyle = document.createElement('style');
-        lightStyle.id = 'dynamicLightStyles';
-        lightStyle.textContent = `
+      document.head.appendChild(darkStyle);
+    } else if (!isDark && !document.getElementById('dynamicLightStyles')) {
+      // Inject light mode CSS
+      const lightStyle = document.createElement('style');
+      lightStyle.id = 'dynamicLightStyles';
+      lightStyle.textContent = `
           html:not(.dark) header {
             background-color: rgb(255, 255, 255) !important;
             border-color: rgb(226, 232, 240) !important;
@@ -1271,117 +1274,118 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
             color: rgb(67, 56, 202) !important;
           }
         `;
-        document.head.appendChild(lightStyle);
-      }
-
-      // Apply inline styles with setProperty to match current theme
-      if (isDark) {
-        html.style.setProperty('color-scheme', 'dark', 'important');
-        body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
-        body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
-        if (mainDiv) {
-          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
-          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
-        }
-      } else {
-        html.style.setProperty('color-scheme', 'light', 'important');
-        body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
-        body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
-        if (mainDiv) {
-          mainDiv.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
-          mainDiv.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
-        }
-      }
-
-      console.log('✅ Theme toggle ready');
+      document.head.appendChild(lightStyle);
     }
 
-    // Initialize theme on page load (wait for DOM to be fully ready)
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', setupThemeToggle);
+    // Apply inline styles with setProperty to match current theme
+    if (isDark) {
+      html.style.setProperty('color-scheme', 'dark', 'important');
+      body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+      body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
+      if (mainDiv) {
+        mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
+      }
     } else {
-      setTimeout(setupThemeToggle, 0);
+      html.style.setProperty('color-scheme', 'light', 'important');
+      body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+      body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
+      if (mainDiv) {
+        mainDiv.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+        mainDiv.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
+      }
     }
 
-    // Delete event handler
-    const deleteBtn = document.getElementById('deleteBtn');
-    if (deleteBtn) {
-      deleteBtn.addEventListener('click', async () => {
-        const isConfirmed = await window.customConfirm('Are you sure you want to delete this event? This action cannot be undone.', 'Delete Event');
-        if (isConfirmed) {
-          try {
-            const response = await fetch(`/api/events/${eventId}`, {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' },
-            });
+    console.log('✅ Theme toggle ready');
+  }
 
-            if (response.ok) {
-              window.location.href = '/dashboard';
-            } else {
-              alert('Failed to delete event');
-            }
-          } catch (error) {
-            alert('Error deleting event: ' + error.message);
-          }
-        }
-      });
-    }
+  // Initialize theme on page load (wait for DOM to be fully ready)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupThemeToggle);
+  } else {
+    setTimeout(setupThemeToggle, 0);
+  }
 
-    // Export itinerary handler
-    const exportItineraryBtn = document.getElementById('exportItineraryBtn');
-    if (exportItineraryBtn) {
-      exportItineraryBtn.addEventListener('click', async () => {
+  // Delete event handler
+  const deleteBtn = document.getElementById('deleteBtn');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+      const isConfirmed = await window.customConfirm(
+        'Are you sure you want to delete this event? This action cannot be undone.',
+        'Delete Event'
+      );
+      if (isConfirmed) {
         try {
-          const response = await fetch('/api/itinerary/generate', {
-            method: 'POST',
+          const response = await fetch(`/api/events/${eventId}`, {
+            method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              eventId: eventId,
-              format: 'html',
-            }),
           });
 
           if (response.ok) {
-            // Create blob and download
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download =
-              response.headers
-                .get('content-disposition')
-                ?.split('filename=')[1]
-                ?.replace(/"/g, '') || 'itinerary.html';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            window.location.href = '/dashboard';
           } else {
-            alert('Failed to generate itinerary');
+            alert('Failed to delete event');
           }
         } catch (error) {
-          alert('Error generating itinerary: ' + error.message);
+          alert('Error deleting event: ' + error.message);
         }
-      });
-    }
+      }
+    });
+  }
 
-    // Load group and activities
-    console.log('Event ID:', eventId);
-    const groupInfo = document.getElementById('groupInfo');
-    const groupMembers = document.getElementById('groupMembers');
-    const activitiesList = document.getElementById('activitiesList');
-    const addActivityBtn = document.getElementById('addActivityBtn');
-    const addActivityModal = document.getElementById('addActivityModal');
-    const cancelActivityBtn = document.getElementById('cancelActivityBtn');
-    const addActivityForm = document.getElementById('addActivityForm');
+  // Export itinerary handler
+  const exportItineraryBtn = document.getElementById('exportItineraryBtn');
+  if (exportItineraryBtn) {
+    exportItineraryBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/itinerary/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventId: eventId,
+            format: 'html',
+          }),
+        });
 
-    // Add Activity Metadata functions
-    function addActivityAddMetadataField(key = '', value = '') {
-      const container = document.getElementById('addActivityMetadataContainer');
-      const fieldId = 'add-activity-metadata-' + Date.now() + Math.random();
-      const escapedKey = escapeHtml(key);
-      const escapedValue = escapeHtml(value);
-      const fieldHTML = `
+        if (response.ok) {
+          // Create blob and download
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download =
+            response.headers.get('content-disposition')?.split('filename=')[1]?.replace(/"/g, '') ||
+            'itinerary.html';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        } else {
+          alert('Failed to generate itinerary');
+        }
+      } catch (error) {
+        alert('Error generating itinerary: ' + error.message);
+      }
+    });
+  }
+
+  // Load group and activities
+  console.log('Event ID:', eventId);
+  const groupInfo = document.getElementById('groupInfo');
+  const groupMembers = document.getElementById('groupMembers');
+  const activitiesList = document.getElementById('activitiesList');
+  const addActivityBtn = document.getElementById('addActivityBtn');
+  const addActivityModal = document.getElementById('addActivityModal');
+  const cancelActivityBtn = document.getElementById('cancelActivityBtn');
+  const addActivityForm = document.getElementById('addActivityForm');
+
+  // Add Activity Metadata functions
+  function addActivityAddMetadataField(key = '', value = '') {
+    const container = document.getElementById('addActivityMetadataContainer');
+    const fieldId = 'add-activity-metadata-' + Date.now() + Math.random();
+    const escapedKey = escapeHtml(key);
+    const escapedValue = escapeHtml(value);
+    const fieldHTML = `
         <div class="flex gap-2" id="${fieldId}">
           <input
             type="text"
@@ -1406,121 +1410,119 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
           </button>
         </div>
       `;
-      container.insertAdjacentHTML('beforeend', fieldHTML);
-    }
+    container.insertAdjacentHTML('beforeend', fieldHTML);
+  }
 
-    // Activity Template definitions
-    const addActivityTemplates = {
-      flight: [
-        ['Airline Company', ''],
-        ['Flight Number', ''],
-        ['Confirmation Number', ''],
-        ['Take Off Time', ''],
-        ['Arrival Time', ''],
-        ['Seat Number', ''],
-        ['Phone #', ''],
-      ],
-      roundtrip_flight: [
-        ['Airline Company', ''],
-        ['Confirmation Number', ''],
-        ['Outbound Flight #', ''],
-        ['Outbound Take Off', ''],
-        ['Outbound Arrival', ''],
-        ['Outbound Seat', ''],
-        ['Return Flight #', ''],
-        ['Return Take Off', ''],
-        ['Return Arrival', ''],
-        ['Return Seat', ''],
-        ['Phone #', ''],
-      ],
-      hotel: [
-        ['Hotel Name', ''],
-        ['Address', ''],
-        ['Check-in Date', ''],
-        ['Check-out Date', ''],
-        ['Confirmation Code', ''],
-        ['Room Type', ''],
-        ['Parking', ''],
-        ['Phone #', ''],
-      ],
-      car_rental: [
-        ['Rental Company', ''],
-        ['Reservation #', ''],
-        ['Vehicle Type', ''],
-        ['Pick Up Location', ''],
-        ['Pick Up Time', ''],
-        ['Drop Off Location', ''],
-        ['Drop Off Time', ''],
-        ['Phone #', ''],
-      ],
-      restaurant: [
-        ['Restaurant Name', ''],
-        ['Address', ''],
-        ['Reservation Time', ''],
-        ['Party Size', ''],
-        ['Reservation Name', ''],
-        ['Phone #', ''],
-        ['Cuisine Type', ''],
-        ['Special Requests', ''],
-        ['Dietary Restrictions', ''],
-      ],
-      tourist: [
-        ['Location/Attraction', ''],
-        ['Address', ''],
-        ['Activity Duration', ''],
-        ['Meeting Point', ''],
-        ['Suggested Time', ''],
-        ['Entrance Fee', ''],
-        ['What to Bring', ''],
-        ['Phone #', ''],
-      ],
-    };
+  // Activity Template definitions
+  const addActivityTemplates = {
+    flight: [
+      ['Airline Company', ''],
+      ['Flight Number', ''],
+      ['Confirmation Number', ''],
+      ['Take Off Time', ''],
+      ['Arrival Time', ''],
+      ['Seat Number', ''],
+      ['Phone #', ''],
+    ],
+    roundtrip_flight: [
+      ['Airline Company', ''],
+      ['Confirmation Number', ''],
+      ['Outbound Flight #', ''],
+      ['Outbound Take Off', ''],
+      ['Outbound Arrival', ''],
+      ['Outbound Seat', ''],
+      ['Return Flight #', ''],
+      ['Return Take Off', ''],
+      ['Return Arrival', ''],
+      ['Return Seat', ''],
+      ['Phone #', ''],
+    ],
+    hotel: [
+      ['Hotel Name', ''],
+      ['Address', ''],
+      ['Check-in Date', ''],
+      ['Check-out Date', ''],
+      ['Confirmation Code', ''],
+      ['Room Type', ''],
+      ['Parking', ''],
+      ['Phone #', ''],
+    ],
+    car_rental: [
+      ['Rental Company', ''],
+      ['Reservation #', ''],
+      ['Vehicle Type', ''],
+      ['Pick Up Location', ''],
+      ['Pick Up Time', ''],
+      ['Drop Off Location', ''],
+      ['Drop Off Time', ''],
+      ['Phone #', ''],
+    ],
+    restaurant: [
+      ['Restaurant Name', ''],
+      ['Address', ''],
+      ['Reservation Time', ''],
+      ['Party Size', ''],
+      ['Reservation Name', ''],
+      ['Phone #', ''],
+      ['Cuisine Type', ''],
+      ['Special Requests', ''],
+      ['Dietary Restrictions', ''],
+    ],
+    tourist: [
+      ['Location/Attraction', ''],
+      ['Address', ''],
+      ['Activity Duration', ''],
+      ['Meeting Point', ''],
+      ['Suggested Time', ''],
+      ['Entrance Fee', ''],
+      ['What to Bring', ''],
+      ['Phone #', ''],
+    ],
+  };
 
-    // Apply template
-    function applyAddActivityTemplate(templateType) {
-      if (!templateType || !addActivityTemplates[templateType]) return;
+  // Apply template
+  function applyAddActivityTemplate(templateType) {
+    if (!templateType || !addActivityTemplates[templateType]) return;
 
-      const container = document.getElementById('addActivityMetadataContainer');
-      container.innerHTML = '';
+    const container = document.getElementById('addActivityMetadataContainer');
+    container.innerHTML = '';
 
-      addActivityTemplates[templateType].forEach(([key, value]) => {
-        addActivityAddMetadataField(key, value);
-      });
+    addActivityTemplates[templateType].forEach(([key, value]) => {
+      addActivityAddMetadataField(key, value);
+    });
 
-      // Show toast
-      const templateName = templateType.charAt(0).toUpperCase() + templateType.slice(1);
-      console.log(`✅ ${templateName} template applied!`);
-    }
+    // Show toast
+    const templateName = templateType.charAt(0).toUpperCase() + templateType.slice(1);
+    console.log(`✅ ${templateName} template applied!`);
+  }
 
-    // Template selector event listener
-    const addActivityTemplateSelect = document.getElementById('addActivityTemplateSelect');
-    const addActivityApplyTemplateBtn = document.getElementById('addActivityApplyTemplateBtn');
-    const addActivityAddMetadataFieldBtn = document.getElementById(
-      'addActivityAddMetadataFieldBtn'
-    );
+  // Template selector event listener
+  const addActivityTemplateSelect = document.getElementById('addActivityTemplateSelect');
+  const addActivityApplyTemplateBtn = document.getElementById('addActivityApplyTemplateBtn');
+  const addActivityAddMetadataFieldBtn = document.getElementById('addActivityAddMetadataFieldBtn');
 
-    if (addActivityApplyTemplateBtn) {
-      addActivityApplyTemplateBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const selectedTemplate = addActivityTemplateSelect.value;
-        applyAddActivityTemplate(selectedTemplate);
-      });
-    }
+  if (addActivityApplyTemplateBtn) {
+    addActivityApplyTemplateBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const selectedTemplate = addActivityTemplateSelect.value;
+      applyAddActivityTemplate(selectedTemplate);
+    });
+  }
 
-    if (addActivityAddMetadataFieldBtn) {
-      addActivityAddMetadataFieldBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        addActivityAddMetadataField();
-      });
-    }
+  if (addActivityAddMetadataFieldBtn) {
+    addActivityAddMetadataFieldBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      addActivityAddMetadataField();
+    });
+  }
 
-    // Add Expense Metadata functions
-    function addExpenseAddMetadataField(key = '', value = '') {
-      const container = document.getElementById('addExpenseMetadataContainer');
-      const fieldId = 'add-expense-metadata-' + Date.now() + Math.random();
-      const escapedKey = escapeHtml(key);
-      const escapedValue = escapeHtml(value);
-      const fieldHTML = `
+  // Add Expense Metadata functions
+  function addExpenseAddMetadataField(key = '', value = '') {
+    const container = document.getElementById('addExpenseMetadataContainer');
+    const fieldId = 'add-expense-metadata-' + Date.now() + Math.random();
+    const escapedKey = escapeHtml(key);
+    const escapedValue = escapeHtml(value);
+    const fieldHTML = `
         <div class="flex gap-2" id="${fieldId}">
           <input
             type="text"
@@ -1545,112 +1547,112 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
           </button>
         </div>
       `;
-      container.insertAdjacentHTML('beforeend', fieldHTML);
-    }
+    container.insertAdjacentHTML('beforeend', fieldHTML);
+  }
 
-    // Expense Template definitions
-    const addExpenseTemplates = {
-      flight: [
-        ['Airline Company', ''],
-        ['Flight Number', ''],
-        ['Confirmation Number', ''],
-        ['Take Off Time', ''],
-        ['Arrival Time', ''],
-        ['Seat Number', ''],
-        ['Phone #', ''],
-      ],
-      roundtrip_flight: [
-        ['Airline Company', ''],
-        ['Confirmation Number', ''],
-        ['Outbound Flight #', ''],
-        ['Outbound Take Off', ''],
-        ['Outbound Arrival', ''],
-        ['Outbound Seat', ''],
-        ['Return Flight #', ''],
-        ['Return Take Off', ''],
-        ['Return Arrival', ''],
-        ['Return Seat', ''],
-        ['Phone #', ''],
-      ],
-      hotel: [
-        ['Confirmation Number', ''],
-        ['Reservation Name', ''],
-        ['Hotel Name', ''],
-        ['Room Type', ''],
-        ['Check-in Date', ''],
-        ['Check-out Date', ''],
-        ['Phone #', ''],
-      ],
-      car_rental: [
-        ['Rental Company', ''],
-        ['Reservation #', ''],
-        ['Vehicle Type', ''],
-        ['Pick Up Location', ''],
-        ['Pick Up Time', ''],
-        ['Drop Off Location', ''],
-        ['Drop Off Time', ''],
-        ['Phone #', ''],
-      ],
-      restaurant: [
-        ['Reservation Name', ''],
-        ['Confirmation Code', ''],
-        ['Restaurant Name', ''],
-        ['Party Size', ''],
-        ['Reservation Time', ''],
-        ['Phone #', ''],
-      ],
-      tourist: [
-        ['Attraction Name', ''],
-        ['Ticket Number', ''],
-        ['Group Size', ''],
-        ['Activity Time', ''],
-        ['Phone #', ''],
-      ],
-    };
+  // Expense Template definitions
+  const addExpenseTemplates = {
+    flight: [
+      ['Airline Company', ''],
+      ['Flight Number', ''],
+      ['Confirmation Number', ''],
+      ['Take Off Time', ''],
+      ['Arrival Time', ''],
+      ['Seat Number', ''],
+      ['Phone #', ''],
+    ],
+    roundtrip_flight: [
+      ['Airline Company', ''],
+      ['Confirmation Number', ''],
+      ['Outbound Flight #', ''],
+      ['Outbound Take Off', ''],
+      ['Outbound Arrival', ''],
+      ['Outbound Seat', ''],
+      ['Return Flight #', ''],
+      ['Return Take Off', ''],
+      ['Return Arrival', ''],
+      ['Return Seat', ''],
+      ['Phone #', ''],
+    ],
+    hotel: [
+      ['Confirmation Number', ''],
+      ['Reservation Name', ''],
+      ['Hotel Name', ''],
+      ['Room Type', ''],
+      ['Check-in Date', ''],
+      ['Check-out Date', ''],
+      ['Phone #', ''],
+    ],
+    car_rental: [
+      ['Rental Company', ''],
+      ['Reservation #', ''],
+      ['Vehicle Type', ''],
+      ['Pick Up Location', ''],
+      ['Pick Up Time', ''],
+      ['Drop Off Location', ''],
+      ['Drop Off Time', ''],
+      ['Phone #', ''],
+    ],
+    restaurant: [
+      ['Reservation Name', ''],
+      ['Confirmation Code', ''],
+      ['Restaurant Name', ''],
+      ['Party Size', ''],
+      ['Reservation Time', ''],
+      ['Phone #', ''],
+    ],
+    tourist: [
+      ['Attraction Name', ''],
+      ['Ticket Number', ''],
+      ['Group Size', ''],
+      ['Activity Time', ''],
+      ['Phone #', ''],
+    ],
+  };
 
-    // Apply expense template
-    function applyAddExpenseTemplate(templateType) {
-      if (!templateType || !addExpenseTemplates[templateType]) return;
+  // Apply expense template
+  function applyAddExpenseTemplate(templateType) {
+    if (!templateType || !addExpenseTemplates[templateType]) return;
 
-      const container = document.getElementById('addExpenseMetadataContainer');
-      container.innerHTML = '';
+    const container = document.getElementById('addExpenseMetadataContainer');
+    container.innerHTML = '';
 
-      addExpenseTemplates[templateType].forEach(([key, value]) => {
-        addExpenseAddMetadataField(key, value);
-      });
+    addExpenseTemplates[templateType].forEach(([key, value]) => {
+      addExpenseAddMetadataField(key, value);
+    });
 
-      const templateName = templateType.charAt(0).toUpperCase() + templateType.slice(1);
-      console.log(`✅ ${templateName} expense template applied!`);
-    }
+    const templateName = templateType.charAt(0).toUpperCase() + templateType.slice(1);
+    console.log(`✅ ${templateName} expense template applied!`);
+  }
 
-    // Template selector event listener for expenses
-    const addExpenseTemplateSelect = document.getElementById('addExpenseTemplateSelect');
-    const addExpenseApplyTemplateBtn = document.getElementById('addExpenseApplyTemplateBtn');
-    const addExpenseAddMetadataFieldBtn = document.getElementById('addExpenseAddMetadataFieldBtn');
+  // Template selector event listener for expenses
+  const addExpenseTemplateSelect = document.getElementById('addExpenseTemplateSelect');
+  const addExpenseApplyTemplateBtn = document.getElementById('addExpenseApplyTemplateBtn');
+  const addExpenseAddMetadataFieldBtn = document.getElementById('addExpenseAddMetadataFieldBtn');
 
-    if (addExpenseApplyTemplateBtn) {
-      addExpenseApplyTemplateBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const selectedTemplate = addExpenseTemplateSelect.value;
-        applyAddExpenseTemplate(selectedTemplate);
-      });
-    }
+  if (addExpenseApplyTemplateBtn) {
+    addExpenseApplyTemplateBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const selectedTemplate = addExpenseTemplateSelect.value;
+      applyAddExpenseTemplate(selectedTemplate);
+    });
+  }
 
-    if (addExpenseAddMetadataFieldBtn) {
-      addExpenseAddMetadataFieldBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        addExpenseAddMetadataField();
-      });
-    }
+  if (addExpenseAddMetadataFieldBtn) {
+    addExpenseAddMetadataFieldBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      addExpenseAddMetadataField();
+    });
+  }
 
-    // Add Edit Expense Metadata functions
-    function addEditExpenseMetadataField(key = '', value = '') {
-      const container = document.getElementById('editExpenseMetadataContainer');
-      if (!container) return;
-      const fieldId = 'edit-expense-metadata-' + Date.now() + Math.random();
-      const escapedKey = escapeHtml(key);
-      const escapedValue = escapeHtml(value);
-      const fieldHTML = `
+  // Add Edit Expense Metadata functions
+  function addEditExpenseMetadataField(key = '', value = '') {
+    const container = document.getElementById('editExpenseMetadataContainer');
+    if (!container) return;
+    const fieldId = 'edit-expense-metadata-' + Date.now() + Math.random();
+    const escapedKey = escapeHtml(key);
+    const escapedValue = escapeHtml(value);
+    const fieldHTML = `
         <div class="flex gap-2" id="${fieldId}">
           <input
             type="text"
@@ -1675,63 +1677,61 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
           </button>
         </div>
       `;
-      container.insertAdjacentHTML('beforeend', fieldHTML);
-    }
+    container.insertAdjacentHTML('beforeend', fieldHTML);
+  }
 
-    // Add field button for edit expense metadata
-    const editExpenseAddMetadataFieldBtn = document.getElementById(
-      'editExpenseAddMetadataFieldBtn'
-    );
-    if (editExpenseAddMetadataFieldBtn) {
-      editExpenseAddMetadataFieldBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        addEditExpenseMetadataField();
-      });
-    }
+  // Add field button for edit expense metadata
+  const editExpenseAddMetadataFieldBtn = document.getElementById('editExpenseAddMetadataFieldBtn');
+  if (editExpenseAddMetadataFieldBtn) {
+    editExpenseAddMetadataFieldBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      addEditExpenseMetadataField();
+    });
+  }
 
-    // Apply Edit Expense template
-    function applyEditExpenseTemplate(templateType) {
-      if (!templateType || !addExpenseTemplates[templateType]) return;
+  // Apply Edit Expense template
+  function applyEditExpenseTemplate(templateType) {
+    if (!templateType || !addExpenseTemplates[templateType]) return;
 
-      const container = document.getElementById('editExpenseMetadataContainer');
-      if (container) container.innerHTML = '';
+    const container = document.getElementById('editExpenseMetadataContainer');
+    if (container) container.innerHTML = '';
 
-      addExpenseTemplates[templateType].forEach(([key, value]) => {
-        addEditExpenseMetadataField(key, value);
-      });
+    addExpenseTemplates[templateType].forEach(([key, value]) => {
+      addEditExpenseMetadataField(key, value);
+    });
 
-      console.log(`✅ ${templateType} edit expense template applied!`);
-    }
+    console.log(`✅ ${templateType} edit expense template applied!`);
+  }
 
-    const editExpenseTemplateSelect = document.getElementById('editExpenseTemplateSelect');
-    const editExpenseApplyTemplateBtn = document.getElementById('editExpenseApplyTemplateBtn');
+  const editExpenseTemplateSelect = document.getElementById('editExpenseTemplateSelect');
+  const editExpenseApplyTemplateBtn = document.getElementById('editExpenseApplyTemplateBtn');
 
-    if (editExpenseApplyTemplateBtn) {
-      editExpenseApplyTemplateBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (editExpenseTemplateSelect) {
-          applyEditExpenseTemplate(editExpenseTemplateSelect.value);
-        }
-      });
-    }
+  if (editExpenseApplyTemplateBtn) {
+    editExpenseApplyTemplateBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (editExpenseTemplateSelect) {
+        applyEditExpenseTemplate(editExpenseTemplateSelect.value);
+      }
+    });
+  }
 
-    let currentGroupId = null;
-    let currentUserId = document.querySelector('main')?.dataset.userId;
+  let currentGroupId = null;
+  let currentUserId = document.querySelector('main')?.dataset.userId;
 
-    async function loadGroupInfo() {
-      try {
-        const response = await fetch(`/api/events/${eventId}?includeGroup=true`);
-        if (response.ok) {
-          const data = await response.json();
-          currentGroupId = data.event?.groupId;
+  async function loadGroupInfo() {
+    try {
+      const response = await fetch(`/api/events/${eventId}?includeGroup=true`);
+      if (response.ok) {
+        const data = await response.json();
+        currentGroupId = data.event?.groupId;
 
-          if (data.group) {
-            const groupName = String(data.group.name || '')
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-            groupInfo.innerHTML = `
+        if (data.group) {
+          const groupName = String(data.group.name || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+          groupInfo.innerHTML = `
               <div class="flex justify-between items-center">
                 <div>
                   <h3 class="font-semibold text-slate-900 dark:text-white">${groupName}</h3>
@@ -1742,33 +1742,33 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
               </div>
             `;
 
-            if (data.members) {
-              groupMembers.innerHTML = data.members
-                .map((member) => {
-                  const firstName = String(member.firstName || '')
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
-                  const lastName = String(member.lastName || '')
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
-                  const phone = String(member.phone || '')
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
-                  return `<div class="flex items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+          if (data.members) {
+            groupMembers.innerHTML = data.members
+              .map((member) => {
+                const firstName = String(member.firstName || '')
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;');
+                const lastName = String(member.lastName || '')
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;');
+                const phone = String(member.phone || '')
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;');
+                return `<div class="flex items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
                   <span class="text-slate-900 dark:text-white">${firstName} ${lastName}</span>
                   ${phone ? `<span class="text-xs text-slate-500 ml-auto">${phone}</span>` : ''}
                 </div>`;
-                })
-                .join('');
-            }
-          } else {
-            groupInfo.innerHTML = `
+              })
+              .join('');
+          }
+        } else {
+          groupInfo.innerHTML = `
               <div class="space-y-3">
                 <p class="text-slate-600 dark:text-slate-400">No group assigned to this event.</p>
                 <div class="flex gap-2">
@@ -1781,65 +1781,89 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                 </div>
               </div>
             `;
-            // Attach event listener to the newly created button
-            const selectExistingGroupBtn = document.getElementById('selectExistingGroupBtn');
-            if (selectExistingGroupBtn) {
-              selectExistingGroupBtn.addEventListener('click', async () => {
-                selectGroupModal.classList.remove('hidden');
-                await loadUserGroups();
-              });
-            }
+          // Attach event listener to the newly created button
+          const selectExistingGroupBtn = document.getElementById('selectExistingGroupBtn');
+          if (selectExistingGroupBtn) {
+            selectExistingGroupBtn.addEventListener('click', async () => {
+              selectGroupModal.classList.remove('hidden');
+              await loadUserGroups();
+            });
           }
         }
-      } catch (error) {
-        groupInfo.innerHTML =
-          '<p class="text-red-600 dark:text-red-400">Error loading group info</p>';
       }
+    } catch (error) {
+      groupInfo.innerHTML =
+        '<p class="text-red-600 dark:text-red-400">Error loading group info</p>';
     }
+  }
 
-    // Helper function to escape HTML special characters
-    function escapeHtml(text) {
-      if (!text) return '';
-      return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
+  // Helper function to escape HTML special characters
+  function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
-    async function loadContent() {
-      // Load both activities and expenses, then render them together
-      try {
-        const [activitiesResponse, expensesResponse] = await Promise.all([
-          fetch(`/api/activities/list?eventId=${eventId}`, { cache: 'no-store' }),
-          fetch(`/api/expenses/list?eventId=${eventId}`, { cache: 'no-store' }),
-        ]);
+  function formatEventDateTime(value) {
+    if (!value) return null;
+    const date = new Date(value);
 
-        const activitiesData = await activitiesResponse.json();
-        const expensesData = await expensesResponse.json();
+    return date.toLocaleString('en-US', {
+      timeZone: eventTimezone,
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
 
-        let html = '';
+  function formatEventTime(value) {
+    if (!value) return null;
+    const date = new Date(value);
 
-        // Add expenses first (at the top)
-        if (expensesData.success && expensesData.expenses && expensesData.expenses.length > 0) {
-          html += `<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 mt-2">Expenses (${expensesData.expenses.length})</h2><div class="space-y-4">`;
-          html += expensesData.expenses
-            .map((expense) => {
-              const amount = expense.amount.toFixed(2);
-              const tip = expense.tipAmount ? parseFloat(expense.tipAmount).toFixed(2) : '0.00';
-              const total = (expense.amount + parseFloat(expense.tipAmount || 0)).toFixed(2);
-              const createdDate = new Date(expense.createdAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              });
-              const escapedDescription = escapeHtml(expense.description || 'Untitled Expense');
-              const escapedPayerName = escapeHtml(expense.payerName || 'Unknown');
-              const escapedCategory = escapeHtml(expense.category || 'misc');
+    return date.toLocaleTimeString('en-US', {
+      timeZone: eventTimezone,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
 
-              return `<div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
+  async function loadContent() {
+    // Load both activities and expenses, then render them together
+    try {
+      const [activitiesResponse, expensesResponse] = await Promise.all([
+        fetch(`/api/activities/list?eventId=${eventId}`, { cache: 'no-store' }),
+        fetch(`/api/expenses/list?eventId=${eventId}`, { cache: 'no-store' }),
+      ]);
+
+      const activitiesData = await activitiesResponse.json();
+      const expensesData = await expensesResponse.json();
+
+      let html = '';
+
+      // Add expenses first (at the top)
+      if (expensesData.success && expensesData.expenses && expensesData.expenses.length > 0) {
+        html += `<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 mt-2">Expenses (${expensesData.expenses.length})</h2><div class="space-y-4">`;
+        html += expensesData.expenses
+          .map((expense) => {
+            const amount = expense.amount.toFixed(2);
+            const tip = expense.tipAmount ? parseFloat(expense.tipAmount).toFixed(2) : '0.00';
+            const total = (expense.amount + parseFloat(expense.tipAmount || 0)).toFixed(2);
+            const createdDate = new Date(expense.createdAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            });
+            const escapedDescription = escapeHtml(expense.description || 'Untitled Expense');
+            const escapedPayerName = escapeHtml(expense.payerName || 'Unknown');
+            const escapedCategory = escapeHtml(expense.category || 'misc');
+
+            return `<div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
               <div class="flex justify-between items-start mb-2">
                 <h3 class="font-semibold text-slate-900 dark:text-white">${escapedDescription}</h3>
                 <div class="flex gap-2 items-center">
@@ -1875,48 +1899,43 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;');
-                  
+
                   // Auto-link phone numbers and URLs
                   if (k.toLowerCase().includes('phone') || /^[+\d\s.-]{7,}$/.test(v)) {
                     escapedV = `<a href="tel:${v.replace(/[^\d+]/g, '')}" class="text-indigo-600 dark:text-indigo-400 hover:underline">${escapedV}</a>`;
                   } else if (v.startsWith('http://') || v.startsWith('https://')) {
                     escapedV = `<a href="${escapedV}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 hover:underline">${escapedV}</a>`;
                   }
-                  
+
                   metadataHtml += `<p class="text-xs text-slate-700 dark:text-slate-300">📋 <strong>${escapedK}:</strong> ${escapedV}</p>`;
                 }
                 return `<div class="mt-2 pt-2 border-t border-green-200 dark:border-green-700 space-y-1">${metadataHtml}</div>`;
               })()}
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">🕐 ${createdDate}</p>
             </div>`;
-            })
-            .join('');
-          html += `</div>`;
-        }
+          })
+          .join('');
+        html += `</div>`;
+      }
 
-        // Add activities (below expenses)
-        if (activitiesData.activities && activitiesData.activities.length > 0) {
-          html += `<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 ${html ? 'mt-8' : 'mt-2'}">Activities (${activitiesData.activities.length})</h2><div class="space-y-4">`;
-          html += activitiesData.activities
-            .map((activity) => {
-              const escapedTitle = escapeHtml(activity.title);
-              const escapedLocationName = escapeHtml(activity.locationName);
-              const startTime = activity.startTime
-                ? new Date(activity.startTime).toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                : null;
+      // Add activities (below expenses)
+      if (activitiesData.activities && activitiesData.activities.length > 0) {
+        html += `<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 ${html ? 'mt-8' : 'mt-2'}">Activities (${activitiesData.activities.length})</h2><div class="space-y-4">`;
+        html += activitiesData.activities
+          .map((activity) => {
+            const escapedTitle = escapeHtml(activity.title);
+            const escapedLocationName = escapeHtml(activity.locationName);
+            const startTime = formatEventDateTime(activity.startTime);
+            const endTime = formatEventTime(activity.endTime);
+            const timeRange = startTime ? `${startTime}${endTime ? ` - ${endTime}` : ''}` : null;
 
-              return `<div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+            return `<div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
               <div class="flex justify-between items-start mb-2">
                 <h3 class="font-semibold text-slate-900 dark:text-white">${escapedTitle}</h3>
                 <a href="/activities/${activity.id}" class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800">Edit</a>
               </div>
               ${activity.locationName ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-1">📍 ${escapedLocationName}</p>` : ''}
-              ${startTime ? `<p class="text-xs text-slate-500 dark:text-slate-400">🕐 ${startTime}</p>` : ''}
+              ${timeRange ? `<p class="text-xs text-slate-500 dark:text-slate-400">🕐 ${timeRange}</p>` : ''}
               ${(() => {
                 if (!activity.metadata || Object.keys(activity.metadata).length === 0) return '';
                 let metadataHtml = '';
@@ -1931,657 +1950,660 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;');
-                  
+
                   // Auto-link phone numbers and URLs
                   if (k.toLowerCase().includes('phone') || /^[+\d\s.-]{7,}$/.test(v)) {
                     escapedV = `<a href="tel:${v.replace(/[^\d+]/g, '')}" class="text-indigo-600 dark:text-indigo-400 hover:underline">${escapedV}</a>`;
                   } else if (v.startsWith('http://') || v.startsWith('https://')) {
                     escapedV = `<a href="${escapedV}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 hover:underline">${escapedV}</a>`;
                   }
-                  
+
                   metadataHtml += `<p class="text-xs text-slate-700 dark:text-slate-300">📋 <strong>${escapedK}:</strong> ${escapedV}</p>`;
                 }
                 return `<div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-600 space-y-1">${metadataHtml}</div>`;
               })()}
             </div>`;
-            })
-            .join('');
-          html += `</div>`;
-        }
+          })
+          .join('');
+        html += `</div>`;
+      }
 
-        // If nothing, show empty message
-        if (!html) {
-          html = `
+      // If nothing, show empty message
+      if (!html) {
+        html = `
             <div class="text-center py-8">
               <p class="text-slate-600 dark:text-slate-400">No activities or expenses yet. Click "+ Add Activity" or "💰 Add Expense" to create one!</p>
             </div>
           `;
-        }
+      }
 
-        // Set the combined HTML once
-        activitiesList.innerHTML = html;
+      // Set the combined HTML once
+      activitiesList.innerHTML = html;
 
-        // Attach edit handlers to expense buttons
-        document.querySelectorAll('.editExpenseBtn').forEach((btn) => {
-          btn.addEventListener('click', (e) => {
-            const expense = {
-              id: e.target.dataset.expenseId,
-              amount: parseFloat(e.target.dataset.amount),
-              tip: parseFloat(e.target.dataset.tip),
-              description: e.target.dataset.description,
-              category: e.target.dataset.category,
-              metadata: e.target.dataset.metadata
-                ? JSON.parse(atob(e.target.dataset.metadata))
-                : {},
-            };
-            openEditExpenseModal(expense);
+      // Attach edit handlers to expense buttons
+      document.querySelectorAll('.editExpenseBtn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const expense = {
+            id: e.target.dataset.expenseId,
+            amount: parseFloat(e.target.dataset.amount),
+            tip: parseFloat(e.target.dataset.tip),
+            description: e.target.dataset.description,
+            category: e.target.dataset.category,
+            metadata: e.target.dataset.metadata ? JSON.parse(atob(e.target.dataset.metadata)) : {},
+          };
+          openEditExpenseModal(expense);
+        });
+      });
+    } catch (error) {
+      console.error('Error loading content:', error);
+      activitiesList.innerHTML =
+        '<p class="text-red-600 dark:text-red-400">Error loading activities and expenses</p>';
+    }
+  }
+
+  function openEditExpenseModal(expense) {
+    const modal = document.getElementById('editExpenseModal');
+    document.getElementById('editExpenseId').value = expense.id;
+    document.getElementById('editExpenseAmount').value = expense.amount;
+    document.getElementById('editExpenseTip').value = expense.tip;
+    document.getElementById('editExpenseDescription').value = expense.description;
+    document.getElementById('editExpenseCategory').value = expense.category;
+
+    // Load and display metadata
+    const metadataContainer = document.getElementById('editExpenseMetadataContainer');
+    if (metadataContainer && expense.metadata) {
+      metadataContainer.innerHTML = '';
+      Object.entries(expense.metadata).forEach(([key, value]) => {
+        addEditExpenseMetadataField(key, value);
+      });
+    }
+
+    modal.classList.remove('hidden');
+    // Update tip suggestion when modal opens
+    updateEditExpenseTipSuggestion();
+  }
+
+  // Edit Expense Modal Handlers
+  const editExpenseModal = document.getElementById('editExpenseModal');
+  const editExpenseForm = document.getElementById('editExpenseForm');
+  const cancelEditExpenseBtn = document.getElementById('cancelEditExpenseBtn');
+  const deleteEditExpenseBtn = document.getElementById('deleteEditExpenseBtn');
+
+  if (cancelEditExpenseBtn) {
+    cancelEditExpenseBtn.addEventListener('click', () => {
+      editExpenseModal.classList.add('hidden');
+      editExpenseForm.reset();
+    });
+  }
+
+  // Delete expense
+  if (deleteEditExpenseBtn) {
+    deleteEditExpenseBtn.addEventListener('click', async () => {
+      const expenseId = document.getElementById('editExpenseId').value;
+      const isConfirmed = await window.customConfirm(
+        'Are you sure you want to delete this expense? This action cannot be undone.',
+        'Delete Expense'
+      );
+      if (isConfirmed) {
+        try {
+          const response = await fetch(`/api/expenses/delete?expenseId=${expenseId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
           });
-        });
-      } catch (error) {
-        console.error('Error loading content:', error);
-        activitiesList.innerHTML =
-          '<p class="text-red-600 dark:text-red-400">Error loading activities and expenses</p>';
-      }
-    }
 
-    function openEditExpenseModal(expense) {
-      const modal = document.getElementById('editExpenseModal');
-      document.getElementById('editExpenseId').value = expense.id;
-      document.getElementById('editExpenseAmount').value = expense.amount;
-      document.getElementById('editExpenseTip').value = expense.tip;
-      document.getElementById('editExpenseDescription').value = expense.description;
-      document.getElementById('editExpenseCategory').value = expense.category;
-
-      // Load and display metadata
-      const metadataContainer = document.getElementById('editExpenseMetadataContainer');
-      if (metadataContainer && expense.metadata) {
-        metadataContainer.innerHTML = '';
-        Object.entries(expense.metadata).forEach(([key, value]) => {
-          addEditExpenseMetadataField(key, value);
-        });
-      }
-
-      modal.classList.remove('hidden');
-      // Update tip suggestion when modal opens
-      updateEditExpenseTipSuggestion();
-    }
-
-    // Edit Expense Modal Handlers
-    const editExpenseModal = document.getElementById('editExpenseModal');
-    const editExpenseForm = document.getElementById('editExpenseForm');
-    const cancelEditExpenseBtn = document.getElementById('cancelEditExpenseBtn');
-    const deleteEditExpenseBtn = document.getElementById('deleteEditExpenseBtn');
-
-    if (cancelEditExpenseBtn) {
-      cancelEditExpenseBtn.addEventListener('click', () => {
-        editExpenseModal.classList.add('hidden');
-        editExpenseForm.reset();
-      });
-    }
-
-// Delete expense
-    if (deleteEditExpenseBtn) {
-      deleteEditExpenseBtn.addEventListener('click', async () => {
-        const expenseId = document.getElementById('editExpenseId').value;
-        const isConfirmed = await window.customConfirm('Are you sure you want to delete this expense? This action cannot be undone.', 'Delete Expense');
-        if (isConfirmed) {
-          try {
-            const response = await fetch(`/api/expenses/delete?expenseId=${expenseId}`, {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' },
-            });
-
-            if (response.ok) {
-              editExpenseModal.classList.add('hidden');
-              loadContent();
-              updateTripTotal(); // Update trip total
-              loadBreakdown(); // Update breakdown
-              loadDetailedSummary(); // Update detailed summary
-              showToast('Expense deleted successfully');
-            } else {
-              const error = await response.json();
-              alert('Failed to delete expense: ' + (error.error || 'Unknown error'));
-            }
-          } catch (error) {
-            alert('Error deleting expense: ' + error.message);
+          if (response.ok) {
+            editExpenseModal.classList.add('hidden');
+            loadContent();
+            updateTripTotal(); // Update trip total
+            loadBreakdown(); // Update breakdown
+            loadDetailedSummary(); // Update detailed summary
+            showToast('Expense deleted successfully');
+          } else {
+            const error = await response.json();
+            alert('Failed to delete expense: ' + (error.error || 'Unknown error'));
           }
+        } catch (error) {
+          alert('Error deleting expense: ' + error.message);
         }
-      });
-    }
-
-    // Calculate tip suggestion for edit expense
-    const editExpenseTipBtn = document.getElementById('editExpenseTipBtn');
-    const editExpenseAmountInput = document.getElementById('editExpenseAmount');
-    const editExpenseTipInput = document.getElementById('editExpenseTip');
-    const editExpenseTipSuggest = document.getElementById('editExpenseTipSuggest');
-
-    // Update tip suggestion when amount changes
-    function updateEditExpenseTipSuggestion() {
-      if (!editExpenseAmountInput) return;
-      const amount = parseFloat(editExpenseAmountInput.value) || 0;
-      if (amount > 0) {
-        const tip20 = parseFloat((amount * 0.2).toFixed(2));
-        editExpenseTipSuggest.textContent = `Suggested 20% tip: $${tip20.toFixed(2)}`;
-      } else {
-        editExpenseTipSuggest.textContent = '';
       }
+    });
+  }
+
+  // Calculate tip suggestion for edit expense
+  const editExpenseTipBtn = document.getElementById('editExpenseTipBtn');
+  const editExpenseAmountInput = document.getElementById('editExpenseAmount');
+  const editExpenseTipInput = document.getElementById('editExpenseTip');
+  const editExpenseTipSuggest = document.getElementById('editExpenseTipSuggest');
+
+  // Update tip suggestion when amount changes
+  function updateEditExpenseTipSuggestion() {
+    if (!editExpenseAmountInput) return;
+    const amount = parseFloat(editExpenseAmountInput.value) || 0;
+    if (amount > 0) {
+      const tip20 = parseFloat((amount * 0.2).toFixed(2));
+      editExpenseTipSuggest.textContent = `Suggested 20% tip: $${tip20.toFixed(2)}`;
+    } else {
+      editExpenseTipSuggest.textContent = '';
     }
+  }
 
-    if (editExpenseAmountInput) {
-      editExpenseAmountInput.addEventListener('input', updateEditExpenseTipSuggestion);
-    }
+  if (editExpenseAmountInput) {
+    editExpenseAmountInput.addEventListener('input', updateEditExpenseTipSuggestion);
+  }
 
-    if (editExpenseTipBtn) {
-      editExpenseTipBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const amount = parseFloat(editExpenseAmountInput.value) || 0;
-        const tip20 = parseFloat((amount * 0.2).toFixed(2));
-        editExpenseTipInput.value = tip20;
-      });
-    }
+  if (editExpenseTipBtn) {
+    editExpenseTipBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const amount = parseFloat(editExpenseAmountInput.value) || 0;
+      const tip20 = parseFloat((amount * 0.2).toFixed(2));
+      editExpenseTipInput.value = tip20;
+    });
+  }
 
-    // Update expense
-    if (editExpenseForm) {
-      editExpenseForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+  // Update expense
+  if (editExpenseForm) {
+    editExpenseForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-        const expenseId = document.getElementById('editExpenseId').value;
-        const amount = parseFloat(document.getElementById('editExpenseAmount').value);
-        const tipAmount = parseFloat(document.getElementById('editExpenseTip').value);
-        const description = document.getElementById('editExpenseDescription').value;
-        const category = document.getElementById('editExpenseCategory').value;
-        const editExpenseError = document.getElementById('editExpenseError');
+      const expenseId = document.getElementById('editExpenseId').value;
+      const amount = parseFloat(document.getElementById('editExpenseAmount').value);
+      const tipAmount = parseFloat(document.getElementById('editExpenseTip').value);
+      const description = document.getElementById('editExpenseDescription').value;
+      const category = document.getElementById('editExpenseCategory').value;
+      const editExpenseError = document.getElementById('editExpenseError');
 
-        if (!expenseId || !amount || isNaN(amount)) {
-          editExpenseError.textContent = 'Please fill in all required fields correctly.';
-          editExpenseError.classList.remove('hidden');
-          return;
+      if (!expenseId || !amount || isNaN(amount)) {
+        editExpenseError.textContent = 'Please fill in all required fields correctly.';
+        editExpenseError.classList.remove('hidden');
+        return;
+      }
+
+      // Collect metadata
+      const metadata = {};
+      const metadataKeys = document.querySelectorAll('input[name="editExpenseMetadataKey"]');
+      const metadataValues = document.querySelectorAll('input[name="editExpenseMetadataValue"]');
+
+      for (let i = 0; i < metadataKeys.length; i++) {
+        const key = metadataKeys[i].value.trim();
+        const value = metadataValues[i].value.trim();
+        if (key && value) {
+          metadata[key] = value;
         }
+      }
 
-        // Collect metadata
+      try {
+        const response = await fetch('/api/expenses/update', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            expenseId,
+            amount,
+            tipAmount,
+            description,
+            category,
+            metadata: Object.keys(metadata).length > 0 ? metadata : {},
+          }),
+        });
+
+        if (response.ok) {
+          editExpenseModal.classList.add('hidden');
+          editExpenseForm.reset();
+          loadContent();
+          updateTripTotal(); // Update trip total
+          loadBreakdown(); // Update breakdown
+          loadDetailedSummary(); // Update detailed summary
+          showToast('Expense updated successfully');
+        } else {
+          const error = await response.json();
+          editExpenseError.textContent =
+            'Failed to update expense: ' + (error.error || 'Unknown error');
+          editExpenseError.classList.remove('hidden');
+        }
+      } catch (error) {
+        editExpenseError.textContent = 'Error updating expense: ' + error.message;
+        editExpenseError.classList.remove('hidden');
+      }
+    });
+  }
+
+  // Load initial data
+  loadGroupInfo();
+  loadContent();
+
+  // Expense toggle for Add Activity
+  const expenseCheckbox = document.getElementById('addExpenseWithActivity');
+  const toggleSwitch = document.getElementById('toggleExpenseSwitch');
+  const toggleThumb = document.getElementById('toggleExpenseThumb');
+  const toggleLabel = document.getElementById('toggleExpenseLabel');
+  const expenseFieldsContainer = document.getElementById('expenseFieldsContainer');
+
+  function updateExpenseToggleState() {
+    if (expenseCheckbox.checked) {
+      toggleSwitch.classList.replace('bg-gray-300', 'bg-green-500');
+      toggleThumb.classList.add('translate-x-6');
+      toggleLabel.textContent = '✓ Add Expense';
+      expenseFieldsContainer.classList.remove('hidden');
+    } else {
+      toggleSwitch.classList.replace('bg-green-500', 'bg-gray-300');
+      toggleThumb.classList.remove('translate-x-6');
+      toggleLabel.textContent = '○ Add Expense';
+      expenseFieldsContainer.classList.add('hidden');
+    }
+  }
+
+  if (expenseCheckbox) {
+    expenseCheckbox.addEventListener('change', updateExpenseToggleState);
+  }
+  if (toggleSwitch) {
+    toggleSwitch.addEventListener('click', () => {
+      expenseCheckbox.checked = !expenseCheckbox.checked;
+      updateExpenseToggleState();
+    });
+  }
+
+  // Activity modal handlers
+  if (addActivityBtn) {
+    addActivityBtn.addEventListener('click', () => {
+      addActivityForm.reset(); // Clear form when opening
+      addActivityModal.classList.remove('hidden');
+      document.getElementById('activityTitle').focus();
+    });
+  }
+
+  if (cancelActivityBtn) {
+    cancelActivityBtn.addEventListener('click', () => {
+      addActivityModal.classList.add('hidden');
+      addActivityForm.reset();
+    });
+  }
+
+  // Submit activity form
+  if (addActivityForm) {
+    addActivityForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      console.log('✅ Add Activity form submitted');
+
+      const formData = new FormData(addActivityForm);
+      const activityError = document.getElementById('activityError');
+      const submitBtn = addActivityForm.querySelector('button[type="submit"]');
+
+      if (activityError) {
+        activityError.textContent = '';
+        activityError.classList.add('hidden');
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        // Collect metadata fields
         const metadata = {};
-        const metadataKeys = document.querySelectorAll('input[name="editExpenseMetadataKey"]');
-        const metadataValues = document.querySelectorAll('input[name="editExpenseMetadataValue"]');
+        const metadataKeys = formData.getAll('metadataKey');
+        const metadataValues = formData.getAll('metadataValue');
 
         for (let i = 0; i < metadataKeys.length; i++) {
-          const key = metadataKeys[i].value.trim();
-          const value = metadataValues[i].value.trim();
+          const key = metadataKeys[i]?.trim();
+          const value = metadataValues[i]?.trim();
           if (key && value) {
             metadata[key] = value;
           }
         }
 
-        try {
-          const response = await fetch('/api/expenses/update', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              expenseId,
-              amount,
-              tipAmount,
-              description,
-              category,
-              metadata: Object.keys(metadata).length > 0 ? metadata : {},
-            }),
-          });
-
-          if (response.ok) {
-            editExpenseModal.classList.add('hidden');
-            editExpenseForm.reset();
-            loadContent();
-            updateTripTotal(); // Update trip total
-            loadBreakdown(); // Update breakdown
-            loadDetailedSummary(); // Update detailed summary
-            showToast('Expense updated successfully');
-          } else {
-            const error = await response.json();
-            editExpenseError.textContent =
-              'Failed to update expense: ' + (error.error || 'Unknown error');
-            editExpenseError.classList.remove('hidden');
-          }
-        } catch (error) {
-          editExpenseError.textContent = 'Error updating expense: ' + error.message;
-          editExpenseError.classList.remove('hidden');
-        }
-      });
-    }
-
-    // Load initial data
-    loadGroupInfo();
-    loadContent();
-
-    // Expense toggle for Add Activity
-    const expenseCheckbox = document.getElementById('addExpenseWithActivity');
-    const toggleSwitch = document.getElementById('toggleExpenseSwitch');
-    const toggleThumb = document.getElementById('toggleExpenseThumb');
-    const toggleLabel = document.getElementById('toggleExpenseLabel');
-    const expenseFieldsContainer = document.getElementById('expenseFieldsContainer');
-
-    function updateExpenseToggleState() {
-      if (expenseCheckbox.checked) {
-        toggleSwitch.classList.replace('bg-gray-300', 'bg-green-500');
-        toggleThumb.classList.add('translate-x-6');
-        toggleLabel.textContent = '✓ Add Expense';
-        expenseFieldsContainer.classList.remove('hidden');
-      } else {
-        toggleSwitch.classList.replace('bg-green-500', 'bg-gray-300');
-        toggleThumb.classList.remove('translate-x-6');
-        toggleLabel.textContent = '○ Add Expense';
-        expenseFieldsContainer.classList.add('hidden');
-      }
-    }
-
-    if (expenseCheckbox) {
-      expenseCheckbox.addEventListener('change', updateExpenseToggleState);
-    }
-    if (toggleSwitch) {
-      toggleSwitch.addEventListener('click', () => {
-        expenseCheckbox.checked = !expenseCheckbox.checked;
-        updateExpenseToggleState();
-      });
-    }
-
-    // Activity modal handlers
-    if (addActivityBtn) {
-      addActivityBtn.addEventListener('click', () => {
-        addActivityForm.reset(); // Clear form when opening
-        addActivityModal.classList.remove('hidden');
-        document.getElementById('activityTitle').focus();
-      });
-    }
-
-    if (cancelActivityBtn) {
-      cancelActivityBtn.addEventListener('click', () => {
-        addActivityModal.classList.add('hidden');
-        addActivityForm.reset();
-      });
-    }
-
-    // Submit activity form
-    if (addActivityForm) {
-      addActivityForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        console.log('✅ Add Activity form submitted');
-
-        const formData = new FormData(addActivityForm);
-        const activityError = document.getElementById('activityError');
-        const submitBtn = addActivityForm.querySelector('button[type="submit"]');
-
-        if (activityError) {
-          activityError.textContent = '';
-          activityError.classList.add('hidden');
-        }
-
-        if (submitBtn) submitBtn.disabled = true;
-
-        try {
-          // Collect metadata fields
-          const metadata = {};
-          const metadataKeys = formData.getAll('metadataKey');
-          const metadataValues = formData.getAll('metadataValue');
-
-          for (let i = 0; i < metadataKeys.length; i++) {
-            const key = metadataKeys[i]?.trim();
-            const value = metadataValues[i]?.trim();
-            if (key && value) {
-              metadata[key] = value;
-            }
-          }
-
-          console.log('📤 Sending activity creation request:', {
-            eventId,
-            title: formData.get('title'),
-            locationName: formData.get('locationName'),
-            metadata,
-          });
-
-          const startDate = formData.get('startDate');
-          const startTime = formData.get('startTime');
-          const endDate = formData.get('endDate');
-          const endTime = formData.get('endTime');
-
-          const startInput = (startDate && startTime) ? new Date(`${startDate}T${startTime}`).toISOString() : null;
-          const endInput = (endDate && endTime) ? new Date(`${endDate}T${endTime}`).toISOString() : null;
-
-          const response = await fetch('/api/activities/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              eventId: eventId,
-              title: formData.get('title'),
-              locationName: formData.get('locationName') || null,
-              startTime: startInput,
-              endTime: endInput,
-              sequenceOrder: 0,
-              metadata: Object.keys(metadata).length > 0 ? metadata : {},
-            }),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            console.error('❌ Activity creation failed:', data.error);
-            if (activityError) {
-              activityError.textContent =
-                data.error?.message || data.error || 'Failed to create activity';
-              activityError.classList.remove('hidden');
-            }
-          } else {
-            console.log('✅ Activity created successfully:', data.activity);
-            const newActivityId = data.activity.id;
-            const activityTitle = formData.get('title');
-
-            // Handle expense if checkbox is checked
-            const addExpenseCheckbox = document.getElementById('addExpenseWithActivity');
-            if (addExpenseCheckbox && addExpenseCheckbox.checked) {
-              const expenseAmount = parseFloat(formData.get('expenseAmount')) || 0;
-
-              if (expenseAmount > 0) {
-                try {
-                  const expenseResponse = await fetch('/api/expenses/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      groupId: currentGroupId,
-                      eventId: eventId,
-                      activityId: newActivityId,
-                      amount: expenseAmount,
-                      description: formData.get('expenseDescription') || activityTitle,
-                      category: formData.get('expenseCategory') || 'misc',
-                      paidBy: currentUserId,
-                    }),
-                  });
-
-                  if (!expenseResponse.ok) {
-                    console.error('Failed to create expense');
-                  }
-                } catch (error) {
-                  console.error('Error creating expense:', error);
-                }
-              }
-            }
-
-            console.log('🔄 Closing modal and refreshing content...');
-            addActivityModal.classList.add('hidden');
-
-            console.log('📊 Calling loadContent...');
-            loadContent(); // Refresh activities and expenses list
-
-            console.log('💰 Updating totals...');
-            updateTripTotal(); // Update trip total
-            loadBreakdown(); // Update breakdown
-            loadDetailedSummary(); // Update detailed summary
-
-            console.log('✅ Activity submission complete!');
-            showToast('Activity added successfully!');
-          }
-        } catch (error) {
-          console.error('❌ Catch block error:', error);
-          if (activityError) {
-            activityError.textContent = 'An error occurred. Please try again.';
-            activityError.classList.remove('hidden');
-          }
-        } finally {
-          console.log('🏁 Finally block - disabling submit button');
-          if (submitBtn) submitBtn.disabled = false;
-        }
-      });
-    }
-
-    // Helper function to get selected split members
-    function getSelectedSplitMembers() {
-      const checkboxes = document.querySelectorAll(
-        '#splitAmongContainer input[type="checkbox"]:checked'
-      );
-      const selectedIds = Array.from(checkboxes).map((cb) => cb.dataset.userId);
-      return selectedIds.length > 0 ? selectedIds : [currentUserId]; // Default to current user if none selected
-    }
-
-    // Function to update split calculation display
-    function updateSplitCalculation() {
-      const amountInput = document.getElementById('directExpenseAmount');
-      const tipInput = document.getElementById('directExpenseTip');
-      const amount = parseFloat(amountInput?.value || '0');
-      const tip = parseFloat(tipInput?.value || '0');
-      const total = amount + tip;
-
-      const selectedMembers = document.querySelectorAll(
-        '#splitAmongContainer input[type="checkbox"]:checked'
-      );
-      const splitCount = selectedMembers.length || 1;
-      const splitPerPerson = (total / splitCount).toFixed(2);
-
-      const splitPerPersonEl = document.getElementById('splitPerPerson');
-      if (splitPerPersonEl) {
-        splitPerPersonEl.textContent = `$${splitPerPerson}`;
-      }
-    }
-
-    // Function to load and render group members
-    async function loadGroupMembers() {
-      try {
-        const response = await fetch(`/api/groups/list?id=${currentGroupId}`);
-        if (!response.ok) {
-          console.error('Failed to fetch group:', response.status);
-          return;
-        }
-
-        const data = await response.json();
-        const members = data.members || [];
-        const container = document.getElementById('splitAmongContainer');
-
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        if (members.length === 0) {
-          container.innerHTML =
-            '<p class="text-xs text-slate-500 dark:text-slate-400">No members found</p>';
-          return;
-        }
-
-        // Create checkboxes for each member
-        members.forEach((member) => {
-          const div = document.createElement('div');
-          div.className = 'flex items-center';
-
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.id = `split_${member.userId}`;
-          checkbox.dataset.userId = member.userId;
-          checkbox.className = 'w-4 h-4 text-blue-600 rounded cursor-pointer';
-          checkbox.checked = true; // Default all checked
-          checkbox.addEventListener('change', updateSplitCalculation);
-
-          const label = document.createElement('label');
-          label.htmlFor = `split_${member.userId}`;
-          label.className = 'ml-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer';
-          label.textContent = `${member.firstName} ${member.lastName}`;
-
-          div.appendChild(checkbox);
-          div.appendChild(label);
-          container.appendChild(div);
+        console.log('📤 Sending activity creation request:', {
+          eventId,
+          title: formData.get('title'),
+          locationName: formData.get('locationName'),
+          metadata,
         });
 
-        // Update calculation after loading members
-        updateSplitCalculation();
-      } catch (error) {
-        console.error('Failed to load group members:', error);
-      }
-    }
+        const startDate = formData.get('startDate');
+        const startTime = formData.get('startTime');
+        const endDate = formData.get('endDate');
+        const endTime = formData.get('endTime');
 
-    // Direct Expense Modal Handlers
-    const addExpenseBtn = document.getElementById('addExpenseBtn');
-    const addExpenseModal = document.getElementById('addExpenseModal');
-    const cancelDirectExpenseBtn = document.getElementById('cancelDirectExpenseBtn');
-    const addDirectExpenseForm = document.getElementById('addDirectExpenseForm');
-    const directExpenseAmountInput = document.getElementById('directExpenseAmount');
-    const directExpenseTipInput = document.getElementById('directExpenseTip');
-    const directExpenseTipBtn = document.getElementById('directExpenseTipBtn');
-    const directExpenseTipSuggest = document.getElementById('directExpenseTipSuggest');
+        const startInput =
+          startDate && startTime ? new Date(`${startDate}T${startTime}`).toISOString() : null;
+        const endInput =
+          endDate && endTime ? new Date(`${endDate}T${endTime}`).toISOString() : null;
 
-    // Update tip suggestion when amount changes
-    function updateDirectExpenseTipSuggestion() {
-      if (!directExpenseAmountInput) return;
-      const amount = parseFloat(directExpenseAmountInput.value) || 0;
-      if (amount > 0) {
-        const tip20 = parseFloat((amount * 0.2).toFixed(2));
-        directExpenseTipSuggest.textContent = `Suggested 20% tip: $${tip20.toFixed(2)}`;
-      } else {
-        directExpenseTipSuggest.textContent = '';
-      }
-      // Update split calculation when amount changes
-      updateSplitCalculation();
-    }
+        const response = await fetch('/api/activities/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventId: eventId,
+            title: formData.get('title'),
+            locationName: formData.get('locationName') || null,
+            startTime: startInput,
+            endTime: endInput,
+            sequenceOrder: 0,
+            metadata: Object.keys(metadata).length > 0 ? metadata : {},
+          }),
+        });
 
-    if (directExpenseAmountInput) {
-      directExpenseAmountInput.addEventListener('input', updateDirectExpenseTipSuggestion);
-    }
+        const data = await response.json();
 
-    // Update split calculation when tip changes
-    if (directExpenseTipInput) {
-      directExpenseTipInput.addEventListener('input', updateSplitCalculation);
-    }
+        if (!response.ok) {
+          console.error('❌ Activity creation failed:', data.error);
+          if (activityError) {
+            activityError.textContent =
+              data.error?.message || data.error || 'Failed to create activity';
+            activityError.classList.remove('hidden');
+          }
+        } else {
+          console.log('✅ Activity created successfully:', data.activity);
+          const newActivityId = data.activity.id;
+          const activityTitle = formData.get('title');
 
-    // 20% tip button handler
-    if (directExpenseTipBtn) {
-      directExpenseTipBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const amount = parseFloat(directExpenseAmountInput.value) || 0;
-        const tip20 = parseFloat((amount * 0.2).toFixed(2));
-        directExpenseTipInput.value = tip20;
-      });
-    }
+          // Handle expense if checkbox is checked
+          const addExpenseCheckbox = document.getElementById('addExpenseWithActivity');
+          if (addExpenseCheckbox && addExpenseCheckbox.checked) {
+            const expenseAmount = parseFloat(formData.get('expenseAmount')) || 0;
 
-    if (addExpenseBtn) {
-      addExpenseBtn.addEventListener('click', () => {
-        addExpenseModal.classList.remove('hidden');
-        document.getElementById('directExpenseDescription').focus();
-        // Reset tip suggestion
-        directExpenseTipSuggest.textContent = '';
-        // Load group members for split selection
-        loadGroupMembers();
-      });
-    }
+            if (expenseAmount > 0) {
+              try {
+                const expenseResponse = await fetch('/api/expenses/create', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    groupId: currentGroupId,
+                    eventId: eventId,
+                    activityId: newActivityId,
+                    amount: expenseAmount,
+                    description: formData.get('expenseDescription') || activityTitle,
+                    category: formData.get('expenseCategory') || 'misc',
+                    paidBy: currentUserId,
+                  }),
+                });
 
-    if (cancelDirectExpenseBtn) {
-      cancelDirectExpenseBtn.addEventListener('click', () => {
-        addExpenseModal.classList.add('hidden');
-        addDirectExpenseForm.reset();
-      });
-    }
+                if (!expenseResponse.ok) {
+                  console.error('Failed to create expense');
+                }
+              } catch (error) {
+                console.error('Error creating expense:', error);
+              }
+            }
+          }
 
-// Submit direct expense form
-    if (addDirectExpenseForm) {
-      addDirectExpenseForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+          console.log('🔄 Closing modal and refreshing content...');
+          addActivityModal.classList.add('hidden');
 
-        const formData = new FormData(addDirectExpenseForm);
-        const directExpenseError = document.getElementById('directExpenseError');
-        const submitBtn = addDirectExpenseForm.querySelector('button[type="submit"]');
+          console.log('📊 Calling loadContent...');
+          loadContent(); // Refresh activities and expenses list
 
-        if (directExpenseError) {
-          directExpenseError.textContent = '';
-          directExpenseError.classList.add('hidden');
+          console.log('💰 Updating totals...');
+          updateTripTotal(); // Update trip total
+          loadBreakdown(); // Update breakdown
+          loadDetailedSummary(); // Update detailed summary
+
+          console.log('✅ Activity submission complete!');
+          showToast('Activity added successfully!');
         }
+      } catch (error) {
+        console.error('❌ Catch block error:', error);
+        if (activityError) {
+          activityError.textContent = 'An error occurred. Please try again.';
+          activityError.classList.remove('hidden');
+        }
+      } finally {
+        console.log('🏁 Finally block - disabling submit button');
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
 
-        if (submitBtn) submitBtn.disabled = true;
+  // Helper function to get selected split members
+  function getSelectedSplitMembers() {
+    const checkboxes = document.querySelectorAll(
+      '#splitAmongContainer input[type="checkbox"]:checked'
+    );
+    const selectedIds = Array.from(checkboxes).map((cb) => cb.dataset.userId);
+    return selectedIds.length > 0 ? selectedIds : [currentUserId]; // Default to current user if none selected
+  }
 
-        try {
-          const description = formData.get('description') || 'Expense';
-          const amount = parseFloat(formData.get('amount')) || 0;
-          const tip = parseFloat(formData.get('tip')) || 0;
-          const category = formData.get('category') || 'misc';
+  // Function to update split calculation display
+  function updateSplitCalculation() {
+    const amountInput = document.getElementById('directExpenseAmount');
+    const tipInput = document.getElementById('directExpenseTip');
+    const amount = parseFloat(amountInput?.value || '0');
+    const tip = parseFloat(tipInput?.value || '0');
+    const total = amount + tip;
 
-          if (!amount || isNaN(amount) || amount <= 0) {
-            if (directExpenseError) {
-              directExpenseError.textContent = 'Please enter a valid amount.';
-              directExpenseError.classList.remove('hidden');
-            }
-            return;
-          }
+    const selectedMembers = document.querySelectorAll(
+      '#splitAmongContainer input[type="checkbox"]:checked'
+    );
+    const splitCount = selectedMembers.length || 1;
+    const splitPerPerson = (total / splitCount).toFixed(2);
 
-          // Collect expense metadata
-          const metadata = {};
-          const metadataKeys = formData.getAll('expenseMetadataKey');
-          const metadataValues = formData.getAll('expenseMetadataValue');
+    const splitPerPersonEl = document.getElementById('splitPerPerson');
+    if (splitPerPersonEl) {
+      splitPerPersonEl.textContent = `$${splitPerPerson}`;
+    }
+  }
 
-          for (let i = 0; i < metadataKeys.length; i++) {
-            const key = metadataKeys[i]?.trim();
-            const value = metadataValues[i]?.trim();
-            if (key && value) {
-              metadata[key] = value;
-            }
-          }
+  // Function to load and render group members
+  async function loadGroupMembers() {
+    try {
+      const response = await fetch(`/api/groups/list?id=${currentGroupId}`);
+      if (!response.ok) {
+        console.error('Failed to fetch group:', response.status);
+        return;
+      }
 
-          const response = await fetch('/api/expenses/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              groupId: currentGroupId,
-              eventId: eventId,
-              amount: amount, // Already in dollars, API will convert to cents
-              tipAmount: tip, // Already in dollars, API will convert to cents
-              description,
-              category,
-              paidBy: currentUserId,
-              splitAmong: getSelectedSplitMembers(), // Include who to split among
-              metadata: Object.keys(metadata).length > 0 ? metadata : {},
-            }),
-          });
+      const data = await response.json();
+      const members = data.members || [];
+      const container = document.getElementById('splitAmongContainer');
 
-          const data = await response.json();
+      if (!container) return;
 
-          if (!response.ok) {
-            if (directExpenseError) {
-              directExpenseError.textContent =
-                data.error?.message || data.error || 'Failed to create expense';
-              directExpenseError.classList.remove('hidden');
-            }
-          } else {
-            addExpenseModal.classList.add('hidden');
-            addDirectExpenseForm.reset();
-            loadContent(); // Refresh activities and expenses list
-            updateTripTotal(); // Update trip total
-            loadBreakdown(); // Update breakdown
-            loadDetailedSummary(); // Update detailed summary
-            showToast('✅ Expense added successfully!');
-          }
-        } catch (error) {
+      container.innerHTML = '';
+
+      if (members.length === 0) {
+        container.innerHTML =
+          '<p class="text-xs text-slate-500 dark:text-slate-400">No members found</p>';
+        return;
+      }
+
+      // Create checkboxes for each member
+      members.forEach((member) => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `split_${member.userId}`;
+        checkbox.dataset.userId = member.userId;
+        checkbox.className = 'w-4 h-4 text-blue-600 rounded cursor-pointer';
+        checkbox.checked = true; // Default all checked
+        checkbox.addEventListener('change', updateSplitCalculation);
+
+        const label = document.createElement('label');
+        label.htmlFor = `split_${member.userId}`;
+        label.className = 'ml-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer';
+        label.textContent = `${member.firstName} ${member.lastName}`;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        container.appendChild(div);
+      });
+
+      // Update calculation after loading members
+      updateSplitCalculation();
+    } catch (error) {
+      console.error('Failed to load group members:', error);
+    }
+  }
+
+  // Direct Expense Modal Handlers
+  const addExpenseBtn = document.getElementById('addExpenseBtn');
+  const addExpenseModal = document.getElementById('addExpenseModal');
+  const cancelDirectExpenseBtn = document.getElementById('cancelDirectExpenseBtn');
+  const addDirectExpenseForm = document.getElementById('addDirectExpenseForm');
+  const directExpenseAmountInput = document.getElementById('directExpenseAmount');
+  const directExpenseTipInput = document.getElementById('directExpenseTip');
+  const directExpenseTipBtn = document.getElementById('directExpenseTipBtn');
+  const directExpenseTipSuggest = document.getElementById('directExpenseTipSuggest');
+
+  // Update tip suggestion when amount changes
+  function updateDirectExpenseTipSuggestion() {
+    if (!directExpenseAmountInput) return;
+    const amount = parseFloat(directExpenseAmountInput.value) || 0;
+    if (amount > 0) {
+      const tip20 = parseFloat((amount * 0.2).toFixed(2));
+      directExpenseTipSuggest.textContent = `Suggested 20% tip: $${tip20.toFixed(2)}`;
+    } else {
+      directExpenseTipSuggest.textContent = '';
+    }
+    // Update split calculation when amount changes
+    updateSplitCalculation();
+  }
+
+  if (directExpenseAmountInput) {
+    directExpenseAmountInput.addEventListener('input', updateDirectExpenseTipSuggestion);
+  }
+
+  // Update split calculation when tip changes
+  if (directExpenseTipInput) {
+    directExpenseTipInput.addEventListener('input', updateSplitCalculation);
+  }
+
+  // 20% tip button handler
+  if (directExpenseTipBtn) {
+    directExpenseTipBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const amount = parseFloat(directExpenseAmountInput.value) || 0;
+      const tip20 = parseFloat((amount * 0.2).toFixed(2));
+      directExpenseTipInput.value = tip20;
+    });
+  }
+
+  if (addExpenseBtn) {
+    addExpenseBtn.addEventListener('click', () => {
+      addExpenseModal.classList.remove('hidden');
+      document.getElementById('directExpenseDescription').focus();
+      // Reset tip suggestion
+      directExpenseTipSuggest.textContent = '';
+      // Load group members for split selection
+      loadGroupMembers();
+    });
+  }
+
+  if (cancelDirectExpenseBtn) {
+    cancelDirectExpenseBtn.addEventListener('click', () => {
+      addExpenseModal.classList.add('hidden');
+      addDirectExpenseForm.reset();
+    });
+  }
+
+  // Submit direct expense form
+  if (addDirectExpenseForm) {
+    addDirectExpenseForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(addDirectExpenseForm);
+      const directExpenseError = document.getElementById('directExpenseError');
+      const submitBtn = addDirectExpenseForm.querySelector('button[type="submit"]');
+
+      if (directExpenseError) {
+        directExpenseError.textContent = '';
+        directExpenseError.classList.add('hidden');
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const description = formData.get('description') || 'Expense';
+        const amount = parseFloat(formData.get('amount')) || 0;
+        const tip = parseFloat(formData.get('tip')) || 0;
+        const category = formData.get('category') || 'misc';
+
+        if (!amount || isNaN(amount) || amount <= 0) {
           if (directExpenseError) {
-            directExpenseError.textContent = 'An error occurred. Please try again.';
+            directExpenseError.textContent = 'Please enter a valid amount.';
             directExpenseError.classList.remove('hidden');
           }
-        } finally {
-          if (submitBtn) submitBtn.disabled = false;
+          return;
         }
-      });
-    }
 
-    // Group linking handlers
-    const selectGroupModal = document.getElementById('selectGroupModal');
-    const cancelSelectGroupBtn = document.getElementById('cancelSelectGroupBtn');
-    const groupsList = document.getElementById('groupsList');
+        // Collect expense metadata
+        const metadata = {};
+        const metadataKeys = formData.getAll('expenseMetadataKey');
+        const metadataValues = formData.getAll('expenseMetadataValue');
 
-    if (cancelSelectGroupBtn) {
-      cancelSelectGroupBtn.addEventListener('click', () => {
-        selectGroupModal.classList.add('hidden');
-      });
-    }
+        for (let i = 0; i < metadataKeys.length; i++) {
+          const key = metadataKeys[i]?.trim();
+          const value = metadataValues[i]?.trim();
+          if (key && value) {
+            metadata[key] = value;
+          }
+        }
 
-async function loadUserGroups() {
-      try {
-        const response = await fetch('/api/groups/my-groups');
-        if (response.ok) {
-          const data = await response.json();
+        const response = await fetch('/api/expenses/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            groupId: currentGroupId,
+            eventId: eventId,
+            amount: amount, // Already in dollars, API will convert to cents
+            tipAmount: tip, // Already in dollars, API will convert to cents
+            description,
+            category,
+            paidBy: currentUserId,
+            splitAmong: getSelectedSplitMembers(), // Include who to split among
+            metadata: Object.keys(metadata).length > 0 ? metadata : {},
+          }),
+        });
 
-          if (data.groups && data.groups.length > 0) {
-            groupsList.innerHTML = data.groups
-              .map((group) => {
-                const encodedId = btoa(group.id);
-                const encodedName = btoa(group.name);
-                return `
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (directExpenseError) {
+            directExpenseError.textContent =
+              data.error?.message || data.error || 'Failed to create expense';
+            directExpenseError.classList.remove('hidden');
+          }
+        } else {
+          addExpenseModal.classList.add('hidden');
+          addDirectExpenseForm.reset();
+          loadContent(); // Refresh activities and expenses list
+          updateTripTotal(); // Update trip total
+          loadBreakdown(); // Update breakdown
+          loadDetailedSummary(); // Update detailed summary
+          showToast('✅ Expense added successfully!');
+        }
+      } catch (error) {
+        if (directExpenseError) {
+          directExpenseError.textContent = 'An error occurred. Please try again.';
+          directExpenseError.classList.remove('hidden');
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // Group linking handlers
+  const selectGroupModal = document.getElementById('selectGroupModal');
+  const cancelSelectGroupBtn = document.getElementById('cancelSelectGroupBtn');
+  const groupsList = document.getElementById('groupsList');
+
+  if (cancelSelectGroupBtn) {
+    cancelSelectGroupBtn.addEventListener('click', () => {
+      selectGroupModal.classList.add('hidden');
+    });
+  }
+
+  async function loadUserGroups() {
+    try {
+      const response = await fetch('/api/groups/my-groups');
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.groups && data.groups.length > 0) {
+          groupsList.innerHTML = data.groups
+            .map((group) => {
+              const encodedId = btoa(group.id);
+              const encodedName = btoa(group.name);
+              return `
               <button
                 type="button"
                 class="w-full p-4 text-left bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
@@ -2589,141 +2611,141 @@ async function loadUserGroups() {
                 <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(group.name)}</h3>
               </button>
             `;
-              })
-              .join('');
-          } else {
-            groupsList.innerHTML =
-              '<p class="text-slate-600 dark:text-slate-400">No groups found. Create one first!</p>';
-          }
-        }
-      } catch (error) {
-        groupsList.innerHTML = '<p class="text-red-600 dark:text-red-400">Error loading groups</p>';
-      }
-    }
-
-    // Helper to decode base64 and call linkGroupToEvent
-    window.linkGroupToEventFromBase64 = async function (encodedId, encodedName) {
-      try {
-        const groupId = atob(encodedId);
-        const groupName = atob(encodedName);
-        await window.linkGroupToEvent(groupId, groupName);
-      } catch (error) {
-        console.error('Error decoding group data:', error);
-        alert('Error processing group selection');
-      }
-    };
-
-    window.linkGroupToEvent = async function (groupId, groupName) {
-      try {
-        const response = await fetch(`/api/events/${eventId}/link-group`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ groupId }),
-        });
-
-        if (response.ok) {
-          showToast(`✅ Event linked to group "${groupName}"`);
-          selectGroupModal.classList.add('hidden');
-          loadGroupInfo(); // Refresh group info
+            })
+            .join('');
         } else {
-          const error = await response.json();
-          alert('Error: ' + (error.error || 'Failed to link group'));
+          groupsList.innerHTML =
+            '<p class="text-slate-600 dark:text-slate-400">No groups found. Create one first!</p>';
         }
-      } catch (error) {
-        alert('Error linking group: ' + error.message);
       }
-    };
-
-    // Load trip total cost
-    async function updateTripTotal() {
-      try {
-        const response = await fetch(`/api/expenses/list?eventId=${eventId}`);
-        if (response.ok) {
-          const data = await response.json();
-          const expenses = data.expenses || [];
-          let totalCost = 0;
-
-          console.log(`✅ Found ${expenses.length} expenses`);
-          console.log('Expenses:', expenses);
-
-          expenses.forEach((expense) => {
-            const amount = parseFloat(expense.amount) || 0;
-            const tip = parseFloat(expense.tipAmount) || 0;
-            const expenseTotal = amount + tip;
-            console.log(
-              `  Expense: $${amount.toFixed(2)} + $${tip.toFixed(2)} tip = $${expenseTotal.toFixed(2)}`
-            );
-            totalCost += expenseTotal;
-          });
-
-          console.log(`Total cost: $${totalCost.toFixed(2)}`);
-
-          const tripTotalCostEl = document.getElementById('tripTotalCost');
-          if (tripTotalCostEl) {
-            // Get currency from the page or default to USD
-            const currencySpan = document.querySelector('[data-currency]');
-            const currency = currencySpan?.getAttribute('data-currency') || 'USD';
-            tripTotalCostEl.textContent = `${currency} $${totalCost.toFixed(2)}`;
-          }
-        }
-      } catch (error) {
-        console.error('Failed to update trip total:', error);
-      }
+    } catch (error) {
+      groupsList.innerHTML = '<p class="text-red-600 dark:text-red-400">Error loading groups</p>';
     }
+  }
 
-    // Load and display detailed trip summary
-    async function loadDetailedSummary() {
-      try {
-        // Get all expenses
-        const expensesResponse = await fetch(`/api/expenses/list?eventId=${eventId}`);
-        if (!expensesResponse.ok) {
-          return;
-        }
+  // Helper to decode base64 and call linkGroupToEvent
+  window.linkGroupToEventFromBase64 = async function (encodedId, encodedName) {
+    try {
+      const groupId = atob(encodedId);
+      const groupName = atob(encodedName);
+      await window.linkGroupToEvent(groupId, groupName);
+    } catch (error) {
+      console.error('Error decoding group data:', error);
+      alert('Error processing group selection');
+    }
+  };
 
-        const expensesData = await expensesResponse.json();
-        const expenses = expensesData.expenses || [];
+  window.linkGroupToEvent = async function (groupId, groupName) {
+    try {
+      const response = await fetch(`/api/events/${eventId}/link-group`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ groupId }),
+      });
 
-        // Get balances/settlements
-        const balancesResponse = await fetch(`/api/expenses/balances?eventId=${eventId}`);
-        if (!balancesResponse.ok) {
-          return;
-        }
+      if (response.ok) {
+        showToast(`✅ Event linked to group "${groupName}"`);
+        selectGroupModal.classList.add('hidden');
+        loadGroupInfo(); // Refresh group info
+      } else {
+        const error = await response.json();
+        alert('Error: ' + (error.error || 'Failed to link group'));
+      }
+    } catch (error) {
+      alert('Error linking group: ' + error.message);
+    }
+  };
 
-        const balancesData = await balancesResponse.json();
-        const settlements = balancesData.settlements || [];
+  // Load trip total cost
+  async function updateTripTotal() {
+    try {
+      const response = await fetch(`/api/expenses/list?eventId=${eventId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const expenses = data.expenses || [];
+        let totalCost = 0;
 
-        // Calculate individual balances
-        const personBalances = {};
+        console.log(`✅ Found ${expenses.length} expenses`);
+        console.log('Expenses:', expenses);
+
         expenses.forEach((expense) => {
-          // Add to payer
-          if (!personBalances[expense.payerName]) {
-            personBalances[expense.payerName] = { paid: 0, owed: 0 };
-          }
-          personBalances[expense.payerName].paid += expense.total;
-
-          // Add to those who owe
-          if (expense.splits) {
-            expense.splits.forEach((split) => {
-              const splitPerson = Object.values(balancesData.members || {}).find(
-                (m) => m.id === split.userId
-              );
-              if (splitPerson) {
-                const personName = splitPerson.name;
-                if (!personBalances[personName]) {
-                  personBalances[personName] = { paid: 0, owed: 0 };
-                }
-                personBalances[personName].owed += parseFloat(split.amountDollars);
-              }
-            });
-          }
+          const amount = parseFloat(expense.amount) || 0;
+          const tip = parseFloat(expense.tipAmount) || 0;
+          const expenseTotal = amount + tip;
+          console.log(
+            `  Expense: $${amount.toFixed(2)} + $${tip.toFixed(2)} tip = $${expenseTotal.toFixed(2)}`
+          );
+          totalCost += expenseTotal;
         });
 
-        // Display individual balances
-        const balancesEl = document.getElementById('individualBalances');
-        if (balancesEl) {
-          balancesEl.innerHTML = Object.entries(personBalances)
-            .map(
-              ([name, balance]) => `
+        console.log(`Total cost: $${totalCost.toFixed(2)}`);
+
+        const tripTotalCostEl = document.getElementById('tripTotalCost');
+        if (tripTotalCostEl) {
+          // Get currency from the page or default to USD
+          const currencySpan = document.querySelector('[data-currency]');
+          const currency = currencySpan?.getAttribute('data-currency') || 'USD';
+          tripTotalCostEl.textContent = `${currency} $${totalCost.toFixed(2)}`;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update trip total:', error);
+    }
+  }
+
+  // Load and display detailed trip summary
+  async function loadDetailedSummary() {
+    try {
+      // Get all expenses
+      const expensesResponse = await fetch(`/api/expenses/list?eventId=${eventId}`);
+      if (!expensesResponse.ok) {
+        return;
+      }
+
+      const expensesData = await expensesResponse.json();
+      const expenses = expensesData.expenses || [];
+
+      // Get balances/settlements
+      const balancesResponse = await fetch(`/api/expenses/balances?eventId=${eventId}`);
+      if (!balancesResponse.ok) {
+        return;
+      }
+
+      const balancesData = await balancesResponse.json();
+      const settlements = balancesData.settlements || [];
+
+      // Calculate individual balances
+      const personBalances = {};
+      expenses.forEach((expense) => {
+        // Add to payer
+        if (!personBalances[expense.payerName]) {
+          personBalances[expense.payerName] = { paid: 0, owed: 0 };
+        }
+        personBalances[expense.payerName].paid += expense.total;
+
+        // Add to those who owe
+        if (expense.splits) {
+          expense.splits.forEach((split) => {
+            const splitPerson = Object.values(balancesData.members || {}).find(
+              (m) => m.id === split.userId
+            );
+            if (splitPerson) {
+              const personName = splitPerson.name;
+              if (!personBalances[personName]) {
+                personBalances[personName] = { paid: 0, owed: 0 };
+              }
+              personBalances[personName].owed += parseFloat(split.amountDollars);
+            }
+          });
+        }
+      });
+
+      // Display individual balances
+      const balancesEl = document.getElementById('individualBalances');
+      if (balancesEl) {
+        balancesEl.innerHTML = Object.entries(personBalances)
+          .map(
+            ([name, balance]) => `
             <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
               <p class="font-semibold text-slate-900 dark:text-white mb-3">${escapeHtml(name)}</p>
               <div class="space-y-2 text-sm">
@@ -2744,26 +2766,26 @@ async function loadUserGroups() {
               </div>
             </div>
           `
-            )
-            .join('');
+          )
+          .join('');
+      }
+
+      // Group expenses by category
+      const expensesByCtg = {};
+      expenses.forEach((expense) => {
+        const category = expense.category || 'Miscellaneous';
+        if (!expensesByCtg[category]) {
+          expensesByCtg[category] = [];
         }
+        expensesByCtg[category].push(expense);
+      });
 
-        // Group expenses by category
-        const expensesByCtg = {};
-        expenses.forEach((expense) => {
-          const category = expense.category || 'Miscellaneous';
-          if (!expensesByCtg[category]) {
-            expensesByCtg[category] = [];
-          }
-          expensesByCtg[category].push(expense);
-        });
-
-        // Display expenses by category
-        const categoryEl = document.getElementById('expensesByCategory');
-        if (categoryEl) {
-          categoryEl.innerHTML = Object.entries(expensesByCtg)
-            .map(
-              ([category, categoryExpenses]) => `
+      // Display expenses by category
+      const categoryEl = document.getElementById('expensesByCategory');
+      if (categoryEl) {
+        categoryEl.innerHTML = Object.entries(expensesByCtg)
+          .map(
+            ([category, categoryExpenses]) => `
             <div>
               <h4 class="font-semibold text-slate-900 dark:text-white mb-3 capitalize">${escapeHtml(category)}</h4>
               <div class="space-y-2">
@@ -2797,24 +2819,24 @@ async function loadUserGroups() {
               </div>
             </div>
           `
-            )
-            .join('');
-        }
+          )
+          .join('');
+      }
 
-        // Display settlement summary
-        const settlementEl = document.getElementById('settlementSummary');
-        if (settlementEl) {
-          if (settlements.length === 0) {
-            settlementEl.innerHTML = `
+      // Display settlement summary
+      const settlementEl = document.getElementById('settlementSummary');
+      if (settlementEl) {
+        if (settlements.length === 0) {
+          settlementEl.innerHTML = `
               <div class="text-center p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                 <p class="text-green-700 dark:text-green-300 font-semibold">✅ All settled up!</p>
                 <p class="text-sm text-green-600 dark:text-green-400">No one owes anyone money.</p>
               </div>
             `;
-          } else {
-            settlementEl.innerHTML = settlements
-              .map(
-                (s) => `
+        } else {
+          settlementEl.innerHTML = settlements
+            .map(
+              (s) => `
               <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <p class="font-semibold text-slate-900 dark:text-white">
                   <span class="text-amber-700 dark:text-amber-300">${s.fromName}</span>
@@ -2826,34 +2848,34 @@ async function loadUserGroups() {
                 </p>
               </div>
             `
-              )
-              .join('');
-          }
+            )
+            .join('');
         }
-      } catch (error) {
-        console.error('Failed to load detailed summary:', error);
       }
+    } catch (error) {
+      console.error('Failed to load detailed summary:', error);
     }
+  }
 
-    // Load and display trip breakdown
-    async function loadBreakdown() {
-      try {
-        const breakdownEl = document.getElementById('breakdownContent');
-        if (!breakdownEl) return;
+  // Load and display trip breakdown
+  async function loadBreakdown() {
+    try {
+      const breakdownEl = document.getElementById('breakdownContent');
+      if (!breakdownEl) return;
 
-        const response = await fetch(`/api/expenses/balances?eventId=${eventId}`);
-        if (response.ok) {
-          const data = await response.json();
-          const settlements = data.settlements || [];
+      const response = await fetch(`/api/expenses/balances?eventId=${eventId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const settlements = data.settlements || [];
 
-          if (settlements.length === 0) {
-            breakdownEl.innerHTML = `
+        if (settlements.length === 0) {
+          breakdownEl.innerHTML = `
               <div class="text-center py-8">
                 <p class="text-slate-600 dark:text-slate-400">✅ All settled up! No one owes anyone money.</p>
               </div>
             `;
-          } else {
-            breakdownEl.innerHTML = `
+        } else {
+          breakdownEl.innerHTML = `
               <div class="space-y-3">
                 ${settlements
                   .map(
@@ -2873,80 +2895,79 @@ async function loadUserGroups() {
                   .join('')}
               </div>
             `;
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load breakdown:', error);
-        const breakdownEl = document.getElementById('breakdownContent');
-        if (breakdownEl) {
-          breakdownEl.innerHTML =
-            '<p class="text-red-600 dark:text-red-400">Failed to load breakdown</p>';
         }
       }
+    } catch (error) {
+      console.error('Failed to load breakdown:', error);
+      const breakdownEl = document.getElementById('breakdownContent');
+      if (breakdownEl) {
+        breakdownEl.innerHTML =
+          '<p class="text-red-600 dark:text-red-400">Failed to load breakdown</p>';
+      }
     }
+  }
 
-    // Initialize: Load group info, content, total, and breakdown
-    // Toast notification helper
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
+  // Initialize: Load group info, content, total, and breakdown
+  // Toast notification helper
+  const toast = document.getElementById('toast');
+  const toastMessage = document.getElementById('toast-message');
 
-    function showToast(message) {
-      if (!toast || !toastMessage) return;
-      toastMessage.textContent = message;
-      toast.classList.remove('opacity-0');
-      setTimeout(() => {
-        toast.classList.add('opacity-0');
-      }, 3000);
-    }
+  function showToast(message) {
+    if (!toast || !toastMessage) return;
+    toastMessage.textContent = message;
+    toast.classList.remove('opacity-0');
+    setTimeout(() => {
+      toast.classList.add('opacity-0');
+    }, 3000);
+  }
 
-    loadGroupInfo();
-    loadContent();
-    updateTripTotal();
-    loadBreakdown();
-    loadDetailedSummary();
+  loadGroupInfo();
+  loadContent();
+  updateTripTotal();
+  loadBreakdown();
+  loadDetailedSummary();
 
-    // ===== Server-Sent Events (SSE) Real-time Updates =====
-    function connectToSSE(eventId) {
-      const eventSource = new EventSource(`/api/events/stream?eventId=${eventId}`);
+  // ===== Server-Sent Events (SSE) Real-time Updates =====
+  function connectToSSE(eventId) {
+    const eventSource = new EventSource(`/api/events/stream?eventId=${eventId}`);
 
-      eventSource.addEventListener('message', (event) => {
-        try {
-          const data = JSON.parse(event.data);
+    eventSource.addEventListener('message', (event) => {
+      try {
+        const data = JSON.parse(event.data);
 
-          if (data.type === 'connected') {
-            console.log('✅ Connected to real-time updates');
-          } else if (data.type === 'activity_created') {
-            console.log('📢 New activity:', data.activity);
-            showToast(`New activity: ${data.activity.title}`);
-            // Refresh activities list
-            setTimeout(() => loadContent(), 500);
-          } else if (data.type === 'expense_created') {
-            console.log('💰 New expense');
-            showToast('New expense added');
-            setTimeout(() => loadContent(), 500);
-          }
-        } catch (error) {
-          console.error('Error parsing SSE:', error);
+        if (data.type === 'connected') {
+          console.log('✅ Connected to real-time updates');
+        } else if (data.type === 'activity_created') {
+          console.log('📢 New activity:', data.activity);
+          showToast(`New activity: ${data.activity.title}`);
+          // Refresh activities list
+          setTimeout(() => loadContent(), 500);
+        } else if (data.type === 'expense_created') {
+          console.log('💰 New expense');
+          showToast('New expense added');
+          setTimeout(() => loadContent(), 500);
         }
-      });
+      } catch (error) {
+        console.error('Error parsing SSE:', error);
+      }
+    });
 
-      eventSource.onerror = () => {
-        console.log('SSE Connection lost, will auto-reconnect...');
-        eventSource.close();
-      };
+    eventSource.onerror = () => {
+      console.log('SSE Connection lost, will auto-reconnect...');
+      eventSource.close();
+    };
 
-      window.addEventListener('beforeunload', () => eventSource.close());
-    }
+    window.addEventListener('beforeunload', () => eventSource.close());
+  }
 
-    // Start listening for updates
-    connectToSSE(eventId);
-  </script>
+  // Start listening for updates
+  connectToSSE(eventId);
+</script>
 
-  <!-- Toast Notification -->
-  <div
-    id="toast"
-    class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 max-w-xs"
-  >
-    <span id="toast-message"></span>
-  </div>
-</Layout>
+<!-- Toast Notification -->
+<div
+  id="toast"
+  class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 max-w-xs"
+>
+  <span id="toast-message"></span>
+</div>

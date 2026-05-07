@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { db } from '@/db';
 import { events, sessions, expenseGroups, groupMembers } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export const POST: APIRoute = async (context) => {
   try {
@@ -76,7 +76,7 @@ export const POST: APIRoute = async (context) => {
       const [membership] = await db
         .select()
         .from(groupMembers)
-        .where(eq(groupMembers.groupId, groupId) && eq(groupMembers.userId, session.userId))
+        .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, session.userId)))
         .limit(1);
 
       if (!membership) {

@@ -579,7 +579,7 @@ const [eventGroup] = event.groupId
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start sm:items-center justify-center px-4 pt-10 pb-4 overflow-y-auto"
       >
         <div
-          class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-3xl lg:max-w-4xl border border-slate-200 dark:border-slate-700 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
         >
           <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
             <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
@@ -825,7 +825,7 @@ const [eventGroup] = event.groupId
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start sm:items-center justify-center px-4 pt-10 pb-4 overflow-y-auto"
       >
         <div
-          class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-[95vw] sm:max-w-xl md:max-w-4xl lg:max-w-5xl border border-slate-200 dark:border-slate-700 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
         >
           <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
             <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
@@ -911,7 +911,7 @@ const [eventGroup] = event.groupId
                 </div>
                 <p
                   id="editExpenseTipSuggest"
-                  class="text-xs text-slate-500 dark:text-slate-400 mt-1"
+                  class="text-xs text-indigo-700 dark:text-indigo-300 mt-1 min-h-4"
                 >
                 </p>
               </div>
@@ -2095,7 +2095,7 @@ const [eventGroup] = event.groupId
     const amount = parseFloat(editExpenseAmountInput.value) || 0;
     if (amount > 0) {
       const tip20 = parseFloat((amount * 0.2).toFixed(2));
-      editExpenseTipSuggest.textContent = `Suggested 20% tip: $${tip20.toFixed(2)}`;
+      editExpenseTipSuggest.textContent = `💡 Suggested 20% tip: $${tip20.toFixed(2)}`;
     } else {
       editExpenseTipSuggest.textContent = '';
     }
@@ -2111,6 +2111,7 @@ const [eventGroup] = event.groupId
       const amount = parseFloat(editExpenseAmountInput.value) || 0;
       const tip20 = parseFloat((amount * 0.2).toFixed(2));
       editExpenseTipInput.value = tip20;
+      updateEditExpenseTipSuggestion();
     });
   }
 

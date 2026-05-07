@@ -109,7 +109,7 @@ const errorParam = Astro.url.searchParams.get('error');
               <p
                 class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
               >
-                Trips
+                Events
               </p>
             </button>
             <button
@@ -176,667 +176,663 @@ const errorParam = Astro.url.searchParams.get('error');
                 Owes
               </p>
             </button>
-            <div></div>
-            <div>
+            <div class="text-left pl-[10px] ml-2 sm:ml-3 pt-[1px]">
               <p
                 id="statsTotalExpenses"
                 class="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400"
               >
                 $0
               </p>
-              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Total Spent</p>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                Total Spent
+              </p>
             </div>
           </div>
         </div>
-        <script type="module">
-          window.addEventListener('DOMContentLoaded', () => {
-            const mainEl = document.querySelector('main[data-user-id]');
-            const currentUserId = mainEl?.dataset?.userId;
-            if (currentUserId) {
-              fetch(`/api/expenses/user-total?userId=${currentUserId}`)
-                .then((r) => r.json())
-                .then((data) => {
-                  const dollars = (data.totalCents / 100).toFixed(2);
-                  const el = document.getElementById('statsTotalExpenses');
-                  if (el) el.textContent = `$${dollars}`;
-                })
-                .catch((err) => console.error('Failed to load total spent', err));
-            }
-          });
-        </script>
       </div>
-
-      <!-- Action Buttons -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-8">
-        <a
-          href="/events/create"
-          class="block p-5 sm:p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors active:bg-slate-50 dark:active:bg-slate-700 text-left w-full"
-        >
-          <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">
-            Create Event
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-            Create a new event to organize expenses
-          </p>
-        </a>
-
-        <a
-          href="/groups/create"
-          class="block p-5 sm:p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors active:bg-slate-50 dark:active:bg-slate-700"
-        >
-          <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">
-            Create Group
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-            Create a new group to split expenses with friends
-          </p>
-        </a>
-      </div>
-
-      <!-- Pending Invitations Section -->
-      <div class="mb-6 sm:mb-8">
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
-          Pending Invitations
-        </h2>
-        <div id="invitationsList" class="grid grid-cols-1 gap-4">
-          <!-- Pending invitations will be loaded here -->
-          <div
-            id="invitationsEmpty"
-            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
-          >
-            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              No pending invitations
-            </h3>
-            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              You'll see invitations here when someone invites you to a group
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- My Groups Section -->
-      <div class="mb-6 sm:mb-8">
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
-          Your Groups
-        </h2>
-        <div id="groupsList" class="grid grid-cols-1 gap-4">
-          <!-- Groups will be loaded here -->
-          <div
-            id="groupsEmpty"
-            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
-          >
-            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              No groups yet
-            </h3>
-            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              Create a group or accept an invitation to get started
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Events Section -->
-      <div>
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
-          Your Events
-        </h2>
-        <div id="eventsList" class="grid grid-cols-1 gap-4">
-          <!-- Events will be loaded here -->
-          <div
-            id="eventsEmpty"
-            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
-          >
-            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              No events yet
-            </h3>
-            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              Create your first event to get started
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Outstanding Balances Section -->
-      <div class="mt-6 sm:mt-8">
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
-          Outstanding Balances
-        </h2>
-        <div id="balancesList" class="grid grid-cols-1 gap-4">
-          <!-- Balances will be loaded here -->
-          <div
-            id="balancesEmpty"
-            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
-          >
-            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              All settled up!
-            </h3>
-            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              You don't owe anyone and nobody owes you right now.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Completed Settlements Section -->
-      <div class="mt-6 sm:mt-8">
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
-          Completed Settlements
-        </h2>
-        <div id="completedSettlementsList" class="grid grid-cols-1 gap-4">
-          <!-- Completed settlements will be loaded here -->
-          <div
-            id="completedSettlementsEmpty"
-            class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
-          >
-            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              No completed settlements yet
-            </h3>
-            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              Completed payment records will appear here
-            </p>
-          </div>
-        </div>
-      </div>
+      <script type="module">
+        window.addEventListener('DOMContentLoaded', () => {
+          const mainEl = document.querySelector('main[data-user-id]');
+          const currentUserId = mainEl?.dataset?.userId;
+          if (currentUserId) {
+            fetch(`/api/expenses/user-total?userId=${currentUserId}`)
+              .then((r) => r.json())
+              .then((data) => {
+                const dollars = (data.totalCents / 100).toFixed(2);
+                const el = document.getElementById('statsTotalExpenses');
+                if (el) el.textContent = `$${dollars}`;
+              })
+              .catch((err) => console.error('Failed to load total spent', err));
+          }
+        });
+      </script>
     </main>
 
-    <!-- Stats List Modal -->
-    <div
-      id="statsListModal"
-      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
-    >
-      <div
-        class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto"
+    <!-- Action Buttons -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <a
+        href="/events/create"
+        class="block p-5 sm:p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors active:bg-slate-50 dark:active:bg-slate-700 text-left w-full"
       >
-        <!-- Modal Header -->
-        <div
-          class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-4 flex justify-between items-center z-10"
-        >
-          <div class="flex items-center gap-2 sm:gap-3">
-            <button
-              id="statsListBackBtn"
-              class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-1 transition-colors px-3 py-1.5 -ml-2 rounded-md border border-transparent hover:border-blue-100 dark:hover:border-blue-800"
-              aria-label="Back to Dashboard"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                  clip-rule="evenodd"></path>
-              </svg>
-              <span class="text-sm font-bold">Back</span>
-            </button>
-            <h2
-              id="statsListTitle"
-              class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
-            >
-              Items
-            </h2>
-          </div>
-          <button
-            id="statsListCloseBtn"
-            class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 text-2xl leading-none px-2 py-1 transition-colors rounded hover:bg-slate-100 dark:hover:bg-slate-700"
-            aria-label="Close"
-          >
-            ×
-          </button>
-        </div>
+        <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          Create Event
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          Create a new event to organize expenses
+        </p>
+      </a>
 
-        <!-- Modal Content -->
-        <div id="statsListContent" class="p-6 space-y-3">
-          <!-- Items will be rendered here -->
-        </div>
-      </div>
+      <a
+        href="/groups/create"
+        class="block p-5 sm:p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors active:bg-slate-50 dark:active:bg-slate-700"
+      >
+        <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          Create Group
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          Create a new group to split expenses with friends
+        </p>
+      </a>
     </div>
 
-    <!-- Create Event Modal -->
-    <div
-      id="createEventModal"
-      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
-    >
-      <div
-        class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-2xl border border-slate-200 dark:border-slate-700 my-8"
-      >
-        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
-          <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-            Create New Event
-          </h2>
-        </div>
-
-        <form id="createEventForm" class="p-5 sm:p-6 space-y-4">
-          <!-- Event Name -->
-          <div>
-            <label
-              for="eventName"
-              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-            >
-              Event Name
-            </label>
-            <input
-              type="text"
-              id="eventName"
-              name="name"
-              required
-              placeholder="e.g., Vegas Trip, Houston Trip"
-              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-            />
-          </div>
-
-          <!-- Type & Timezone Row -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label
-                for="eventType"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                Event Type
-              </label>
-              <select
-                id="eventType"
-                name="type"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              >
-                <option value="general">General</option>
-                <option value="trip">Trip</option>
-                <option value="party">Party</option>
-                <option value="dinner">Dinner</option>
-                <option value="vacation">Vacation</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div>
-              <label
-                for="eventTimezone"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                Timezone
-              </label>
-              <select
-                id="eventTimezone"
-                name="timezone"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              >
-                <option value="UTC">UTC</option>
-                <option value="America/New_York">America/New_York</option>
-                <option value="America/Chicago">America/Chicago</option>
-                <option value="America/Denver">America/Denver</option>
-                <option value="America/Los_Angeles">America/Los_Angeles</option>
-                <option value="Europe/London">Europe/London</option>
-                <option value="Europe/Paris">Europe/Paris</option>
-                <option value="Europe/Berlin">Europe/Berlin</option>
-                <option value="Asia/Tokyo">Asia/Tokyo</option>
-                <option value="Asia/Shanghai">Asia/Shanghai</option>
-                <option value="Asia/Hong_Kong">Asia/Hong_Kong</option>
-                <option value="Asia/Singapore">Asia/Singapore</option>
-                <option value="Australia/Sydney">Australia/Sydney</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Location & Currency Row -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label
-                for="eventLocation"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                Location (Optional)
-              </label>
-              <input
-                type="text"
-                id="eventLocation"
-                name="location"
-                placeholder="e.g., Houston, TX"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              />
-            </div>
-            <div>
-              <label
-                for="eventCurrency"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                Currency
-              </label>
-              <select
-                id="eventCurrency"
-                name="currency"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              >
-                <option value="USD">USD - US Dollar</option>
-                <option value="EUR">EUR - Euro</option>
-                <option value="GBP">GBP - British Pound</option>
-                <option value="CAD">CAD - Canadian Dollar</option>
-                <option value="AUD">AUD - Australian Dollar</option>
-                <option value="JPY">JPY - Japanese Yen</option>
-                <option value="MXN">MXN - Mexican Peso</option>
-                <option value="INR">INR - Indian Rupee</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Start & End Date Row -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label
-                for="eventStartDate"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                Start Date (Optional)
-              </label>
-              <input
-                type="datetime-local"
-                id="eventStartDateTime"
-                name="startDate"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              />
-            </div>
-            <div>
-              <label
-                for="eventEndDateTime"
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
-                End Date (Optional)
-              </label>
-              <input
-                type="datetime-local"
-                id="eventEndDateTime"
-                name="endDate"
-                class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              />
-            </div>
-          </div>
-
-          <!-- Budget -->
-          <div>
-            <label
-              for="eventBudget"
-              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-            >
-              Budget (Optional)
-            </label>
-            <div class="relative">
-              <span
-                class="absolute left-4 top-3 text-slate-600 dark:text-slate-400 font-medium"
-                id="budgetSymbol"
-              >
-                $
-              </span>
-              <input
-                type="number"
-                id="eventBudget"
-                name="budget"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                class="w-full pl-8 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
-              />
-            </div>
-          </div>
-
-          <!-- Description -->
-          <div>
-            <label
-              for="eventDescription"
-              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-            >
-              Description (Optional)
-            </label>
-            <textarea
-              id="eventDescription"
-              name="description"
-              placeholder="Add details about this event..."
-              rows="2"
-              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base resize-none"
-            ></textarea>
-          </div>
-
-          <!-- Error Message -->
-          <div
-            id="eventError"
-            class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
-          >
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
-            <button
-              type="button"
-              id="cancelEventBtn"
-              class="px-4 py-2 text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium text-sm min-h-touch flex items-center justify-center"
-            >
-              Create Event
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Settlement Selection Modal -->
-    <div
-      id="settlementSelectionModal"
-      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
-    >
-      <div
-        class="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-lg border border-slate-200 dark:border-slate-700 my-8 overflow-hidden flex flex-col max-h-[90vh]"
-      >
+    <!-- Pending Invitations Section -->
+    <div class="mb-6 sm:mb-8">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
+        Pending Invitations
+      </h2>
+      <div id="invitationsList" class="grid grid-cols-1 gap-4">
+        <!-- Pending invitations will be loaded here -->
         <div
-          class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10 flex justify-between items-center"
+          id="invitationsEmpty"
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
         >
-          <div>
-            <h2
-              class="text-xl font-bold text-slate-900 dark:text-white"
-              id="settlementSelectionTitle"
-            >
-              Settle Up
-            </h2>
-            <p
-              class="text-sm text-slate-500 dark:text-slate-400 mt-1"
-              id="settlementSelectionSubtitle"
-            >
-              Select which items to pay off
-            </p>
-          </div>
-          <button
-            type="button"
-            id="closeSettlementSelectionBtn"
-            class="text-slate-400 hover:text-slate-500"
-          >
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-
-        <div class="p-5 sm:p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-900">
-          <div class="mb-4">
-            <label
-              id="selectAllExpensesLabel"
-              class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500"
-            >
-              <input
-                type="checkbox"
-                id="selectAllExpensesCheckbox"
-                class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                checked
-              />
-              <div class="flex-1">
-                <span class="block font-semibold text-slate-900 dark:text-white"
-                  >Pay Full Amount</span
-                >
-                <span class="block text-sm text-slate-500" id="settlementFullAmountText">$0.00</span
-                >
-              </div>
-            </label>
-          </div>
-
-          <div class="relative py-2">
-            <div class="absolute inset-0 flex items-center" aria-hidden="true">
-              <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
-            </div>
-            <div class="relative flex justify-center">
-              <span class="bg-slate-50 dark:bg-slate-900 px-2 text-sm text-gray-500"
-                >or select specific items</span
-              >
-            </div>
-          </div>
-
-          <div id="settlementExpensesList" class="space-y-2 mt-4">
-            <!-- Expenses will be populated here -->
-          </div>
-        </div>
-
-        <div
-          class="p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0 z-10 flex flex-col gap-4"
-        >
-          <div class="flex justify-between items-center text-lg font-bold">
-            <span class="text-slate-900 dark:text-white">Selected Total:</span>
-            <span class="text-indigo-600 dark:text-indigo-400" id="settlementSelectedTotal"
-              >$0.00</span
-            >
-          </div>
-          <button
-            type="button"
-            id="confirmSettlementSelectionBtn"
-            class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-base flex justify-center items-center gap-2"
-          >
-            💸 Record Payment
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Settlement Confirm Modal -->
-    <div
-      id="settleConfirmModal"
-      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 sm:p-6"
-    >
-      <div
-        class="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-slide-up"
-      >
-        <div class="p-5 sm:p-6 text-center">
-          <div
-            class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4"
-          >
-            <span class="text-xl text-indigo-600 dark:text-indigo-400">💸</span>
-          </div>
-          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Confirm Payment</h3>
-          <p id="settleConfirmMessage" class="text-sm text-slate-600 dark:text-slate-400 mb-6">
-            Are you sure you want to record this payment?
+          <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
+            No pending invitations
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+            You'll see invitations here when someone invites you to a group
           </p>
-          <div class="flex gap-3 justify-center">
-            <button
-              id="settleCancelBtn"
-              class="px-4 py-2 text-slate-700 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm flex-1"
-            >
-              Cancel
-            </button>
-            <button
-              id="settleConfirmBtn"
-              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium text-sm flex-1"
-            >
-              Yes, Settle
-            </button>
-          </div>
         </div>
       </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div
-      id="toast"
-      class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg hidden z-[100] max-w-xs"
-    >
-      <div class="flex items-center gap-2">
-        <span class="text-lg">✓</span>
-        <span id="toastMessage">Event created successfully!</span>
+    <!-- My Groups Section -->
+    <div class="mb-6 sm:mb-8">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">Your Groups</h2>
+      <div id="groupsList" class="grid grid-cols-1 gap-4">
+        <!-- Groups will be loaded here -->
+        <div
+          id="groupsEmpty"
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+        >
+          <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
+            No groups yet
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+            Create a group or accept an invitation to get started
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Section -->
+    <div>
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">Your Events</h2>
+      <div id="eventsList" class="grid grid-cols-1 gap-4">
+        <!-- Events will be loaded here -->
+        <div
+          id="eventsEmpty"
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+        >
+          <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
+            No events yet
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+            Create your first event to get started
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outstanding Balances Section -->
+    <div class="mt-6 sm:mt-8">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
+        Outstanding Balances
+      </h2>
+      <div id="balancesList" class="grid grid-cols-1 gap-4">
+        <!-- Balances will be loaded here -->
+        <div
+          id="balancesEmpty"
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+        >
+          <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
+            All settled up!
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+            You don't owe anyone and nobody owes you right now.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completed Settlements Section -->
+    <div class="mt-6 sm:mt-8">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-4">
+        Completed Settlements
+      </h2>
+      <div id="completedSettlementsList" class="grid grid-cols-1 gap-4">
+        <!-- Completed settlements will be loaded here -->
+        <div
+          id="completedSettlementsEmpty"
+          class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center"
+        >
+          <h3 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
+            No completed settlements yet
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+            Completed payment records will appear here
+          </p>
+        </div>
       </div>
     </div>
   </div>
 
-  <script is:inline>
-    console.log('Dashboard script loaded');
+  <!-- Stats List Modal -->
+  <div
+    id="statsListModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto"
+    >
+      <!-- Modal Header -->
+      <div
+        class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-4 flex justify-between items-center z-10"
+      >
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button
+            id="statsListBackBtn"
+            class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-1 transition-colors px-3 py-1.5 -ml-2 rounded-md border border-transparent hover:border-blue-100 dark:hover:border-blue-800"
+            aria-label="Back to Dashboard"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-sm font-bold">Back</span>
+          </button>
+          <h2
+            id="statsListTitle"
+            class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
+          >
+            Items
+          </h2>
+        </div>
+        <button
+          id="statsListCloseBtn"
+          class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 text-2xl leading-none px-2 py-1 transition-colors rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
 
-    // Show toast notification
-    function showToast(message = 'Event created successfully!', duration = 3000) {
-      const toast = document.getElementById('toast');
-      const toastMessage = document.getElementById('toastMessage');
-      if (toast && toastMessage) {
-        toastMessage.textContent = message;
-        toast.classList.remove('hidden');
-        setTimeout(() => {
-          toast.classList.add('hidden');
-        }, duration);
-      }
+      <!-- Modal Content -->
+      <div id="statsListContent" class="p-6 space-y-3">
+        <!-- Items will be rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Event Modal -->
+  <div
+    id="createEventModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-2xl border border-slate-200 dark:border-slate-700 my-8"
+    >
+      <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+          Create New Event
+        </h2>
+      </div>
+
+      <form id="createEventForm" class="p-5 sm:p-6 space-y-4">
+        <!-- Event Name -->
+        <div>
+          <label
+            for="eventName"
+            class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+          >
+            Event Name
+          </label>
+          <input
+            type="text"
+            id="eventName"
+            name="name"
+            required
+            placeholder="e.g., Vegas Trip, Houston Trip"
+            class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+          />
+        </div>
+
+        <!-- Type & Timezone Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label
+              for="eventType"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Event Type
+            </label>
+            <select
+              id="eventType"
+              name="type"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+            >
+              <option value="general">General</option>
+              <option value="trip">Trip</option>
+              <option value="party">Party</option>
+              <option value="dinner">Dinner</option>
+              <option value="vacation">Vacation</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label
+              for="eventTimezone"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Timezone
+            </label>
+            <select
+              id="eventTimezone"
+              name="timezone"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+            >
+              <option value="UTC">UTC</option>
+              <option value="America/New_York">America/New_York</option>
+              <option value="America/Chicago">America/Chicago</option>
+              <option value="America/Denver">America/Denver</option>
+              <option value="America/Los_Angeles">America/Los_Angeles</option>
+              <option value="Europe/London">Europe/London</option>
+              <option value="Europe/Paris">Europe/Paris</option>
+              <option value="Europe/Berlin">Europe/Berlin</option>
+              <option value="Asia/Tokyo">Asia/Tokyo</option>
+              <option value="Asia/Shanghai">Asia/Shanghai</option>
+              <option value="Asia/Hong_Kong">Asia/Hong_Kong</option>
+              <option value="Asia/Singapore">Asia/Singapore</option>
+              <option value="Australia/Sydney">Australia/Sydney</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Location & Currency Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label
+              for="eventLocation"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Location (Optional)
+            </label>
+            <input
+              type="text"
+              id="eventLocation"
+              name="location"
+              placeholder="e.g., Houston, TX"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+            />
+          </div>
+          <div>
+            <label
+              for="eventCurrency"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Currency
+            </label>
+            <select
+              id="eventCurrency"
+              name="currency"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+            >
+              <option value="USD">USD - US Dollar</option>
+              <option value="EUR">EUR - Euro</option>
+              <option value="GBP">GBP - British Pound</option>
+              <option value="CAD">CAD - Canadian Dollar</option>
+              <option value="AUD">AUD - Australian Dollar</option>
+              <option value="JPY">JPY - Japanese Yen</option>
+              <option value="MXN">MXN - Mexican Peso</option>
+              <option value="INR">INR - Indian Rupee</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Start & End Date Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label
+              for="eventStartDate"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              Start Date (Optional)
+            </label>
+            <input
+              type="datetime-local"
+              id="eventStartDateTime"
+              name="startDate"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+            />
+          </div>
+          <div>
+            <label
+              for="eventEndDateTime"
+              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+            >
+              End Date (Optional)
+            </label>
+            <input
+              type="datetime-local"
+              id="eventEndDateTime"
+              name="endDate"
+              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+            />
+          </div>
+        </div>
+
+        <!-- Budget -->
+        <div>
+          <label
+            for="eventBudget"
+            class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+          >
+            Budget (Optional)
+          </label>
+          <div class="relative">
+            <span
+              class="absolute left-4 top-3 text-slate-600 dark:text-slate-400 font-medium"
+              id="budgetSymbol"
+            >
+              $
+            </span>
+            <input
+              type="number"
+              id="eventBudget"
+              name="budget"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              class="w-full pl-8 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
+            />
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label
+            for="eventDescription"
+            class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
+          >
+            Description (Optional)
+          </label>
+          <textarea
+            id="eventDescription"
+            name="description"
+            placeholder="Add details about this event..."
+            rows="2"
+            class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Error Message -->
+        <div
+          id="eventError"
+          class="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-800 dark:text-red-200 hidden"
+        >
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
+          <button
+            type="button"
+            id="cancelEventBtn"
+            class="px-4 py-2 text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium text-sm min-h-touch flex items-center justify-center"
+          >
+            Create Event
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settlement Selection Modal -->
+  <div
+    id="settlementSelectionModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-lg border border-slate-200 dark:border-slate-700 my-8 overflow-hidden flex flex-col max-h-[90vh]"
+    >
+      <div
+        class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10 flex justify-between items-center"
+      >
+        <div>
+          <h2
+            class="text-xl font-bold text-slate-900 dark:text-white"
+            id="settlementSelectionTitle"
+          >
+            Settle Up
+          </h2>
+          <p
+            class="text-sm text-slate-500 dark:text-slate-400 mt-1"
+            id="settlementSelectionSubtitle"
+          >
+            Select which items to pay off
+          </p>
+        </div>
+        <button
+          type="button"
+          id="closeSettlementSelectionBtn"
+          class="text-slate-400 hover:text-slate-500"
+        >
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-900">
+        <div class="mb-4">
+          <label
+            id="selectAllExpensesLabel"
+            class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500"
+          >
+            <input
+              type="checkbox"
+              id="selectAllExpensesCheckbox"
+              class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+              checked
+            />
+            <div class="flex-1">
+              <span class="block font-semibold text-slate-900 dark:text-white">Pay Full Amount</span
+              >
+              <span class="block text-sm text-slate-500" id="settlementFullAmountText">$0.00</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="relative py-2">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+          </div>
+          <div class="relative flex justify-center">
+            <span class="bg-slate-50 dark:bg-slate-900 px-2 text-sm text-gray-500"
+              >or select specific items</span
+            >
+          </div>
+        </div>
+
+        <div id="settlementExpensesList" class="space-y-2 mt-4">
+          <!-- Expenses will be populated here -->
+        </div>
+      </div>
+
+      <div
+        class="p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0 z-10 flex flex-col gap-4"
+      >
+        <div class="flex justify-between items-center text-lg font-bold">
+          <span class="text-slate-900 dark:text-white">Selected Total:</span>
+          <span class="text-indigo-600 dark:text-indigo-400" id="settlementSelectedTotal"
+            >$0.00</span
+          >
+        </div>
+        <button
+          type="button"
+          id="confirmSettlementSelectionBtn"
+          class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-base flex justify-center items-center gap-2"
+        >
+          💸 Record Payment
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settlement Confirm Modal -->
+  <div
+    id="settleConfirmModal"
+    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 sm:p-6"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-slide-up"
+    >
+      <div class="p-5 sm:p-6 text-center">
+        <div
+          class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4"
+        >
+          <span class="text-xl text-indigo-600 dark:text-indigo-400">💸</span>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Confirm Payment</h3>
+        <p id="settleConfirmMessage" class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+          Are you sure you want to record this payment?
+        </p>
+        <div class="flex gap-3 justify-center">
+          <button
+            id="settleCancelBtn"
+            class="px-4 py-2 text-slate-700 dark:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-sm flex-1"
+          >
+            Cancel
+          </button>
+          <button
+            id="settleConfirmBtn"
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium text-sm flex-1"
+          >
+            Yes, Settle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div
+    id="toast"
+    class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg hidden z-[100] max-w-xs"
+  >
+    <div class="flex items-center gap-2">
+      <span class="text-lg">✓</span>
+      <span id="toastMessage">Event created successfully!</span>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline>
+  console.log('Dashboard script loaded');
+
+  // Show toast notification
+  function showToast(message = 'Event created successfully!', duration = 3000) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    if (toast && toastMessage) {
+      toastMessage.textContent = message;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, duration);
     }
+  }
 
-    // Custom Confirmation Modal
-    function customConfirm(message) {
-      return new Promise((resolve) => {
-        const modal = document.getElementById('settleConfirmModal');
-        const msgEl = document.getElementById('settleConfirmMessage');
-        const confirmBtn = document.getElementById('settleConfirmBtn');
-        const cancelBtn = document.getElementById('settleCancelBtn');
+  // Custom Confirmation Modal
+  function customConfirm(message) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('settleConfirmModal');
+      const msgEl = document.getElementById('settleConfirmMessage');
+      const confirmBtn = document.getElementById('settleConfirmBtn');
+      const cancelBtn = document.getElementById('settleCancelBtn');
 
-        msgEl.textContent = message;
-        modal.classList.remove('hidden');
+      msgEl.textContent = message;
+      modal.classList.remove('hidden');
 
-        const cleanup = () => {
-          modal.classList.add('hidden');
-          confirmBtn.removeEventListener('click', onConfirm);
-          cancelBtn.removeEventListener('click', onCancel);
-        };
+      const cleanup = () => {
+        modal.classList.add('hidden');
+        confirmBtn.removeEventListener('click', onConfirm);
+        cancelBtn.removeEventListener('click', onCancel);
+      };
 
-        const onConfirm = () => {
-          cleanup();
-          resolve(true);
-        };
-        const onCancel = () => {
-          cleanup();
-          resolve(false);
-        };
+      const onConfirm = () => {
+        cleanup();
+        resolve(true);
+      };
+      const onCancel = () => {
+        cleanup();
+        resolve(false);
+      };
 
-        confirmBtn.addEventListener('click', onConfirm);
-        cancelBtn.addEventListener('click', onCancel);
-      });
-    }
+      confirmBtn.addEventListener('click', onConfirm);
+      cancelBtn.addEventListener('click', onCancel);
+    });
+  }
 
-    // Load and display events
-    async function loadEvents() {
-      try {
-        const response = await fetch('/api/events/list');
-        if (response.ok) {
-          const data = await response.json();
-          console.log('📋 Events from API:', data.events);
-          const eventsList = document.getElementById('eventsList');
-          const eventsEmpty = document.getElementById('eventsEmpty');
+  // Load and display events
+  async function loadEvents() {
+    try {
+      const response = await fetch('/api/events/list');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📋 Events from API:', data.events);
+        const eventsList = document.getElementById('eventsList');
+        const eventsEmpty = document.getElementById('eventsEmpty');
 
-          if (data.events.length === 0) {
-            if (eventsList) eventsList.innerHTML = eventsEmpty?.outerHTML || '';
-          } else {
-            if (eventsList) {
-              eventsList.innerHTML = data.events
-                .map((event) => {
-                  try {
-                    const startDate = event.startTime || event.startDate;
-                    const endDate = event.endTime || event.endDate;
-                    const startStr = startDate ? new Date(startDate).toLocaleDateString() : '';
-                    const endStr = endDate ? new Date(endDate).toLocaleDateString() : '';
+        if (data.events.length === 0) {
+          if (eventsList) eventsList.innerHTML = eventsEmpty?.outerHTML || '';
+        } else {
+          if (eventsList) {
+            eventsList.innerHTML = data.events
+              .map((event) => {
+                try {
+                  const startDate = event.startTime || event.startDate;
+                  const endDate = event.endTime || event.endDate;
+                  const startStr = startDate ? new Date(startDate).toLocaleDateString() : '';
+                  const endStr = endDate ? new Date(endDate).toLocaleDateString() : '';
 
-                    return `
+                  return `
                 <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
                   <div class="flex justify-between items-start mb-3">
                     <div>
@@ -885,110 +881,110 @@ const errorParam = Astro.url.searchParams.get('error');
                   </div>
                 </div>
               `;
-                  } catch (e) {
-                    console.error('❌ Error rendering event:', event, e);
-                    return '';
-                  }
-                })
-                .join('');
+                } catch (e) {
+                  console.error('❌ Error rendering event:', event, e);
+                  return '';
+                }
+              })
+              .join('');
 
-              // Add event listeners to View and Edit buttons
-              document.querySelectorAll('.view-event-btn').forEach((btn) => {
-                btn.addEventListener('click', (e) => {
-                  const eventId = e.target.dataset.eventId;
-                  window.location.href = `/events/${eventId}`;
-                });
+            // Add event listeners to View and Edit buttons
+            document.querySelectorAll('.view-event-btn').forEach((btn) => {
+              btn.addEventListener('click', (e) => {
+                const eventId = e.target.dataset.eventId;
+                window.location.href = `/events/${eventId}`;
               });
-              document.querySelectorAll('.edit-event-btn').forEach((btn) => {
-                btn.addEventListener('click', (e) => {
-                  const eventId = e.target.dataset.eventId;
-                  window.location.href = `/events/${eventId}/edit`;
-                });
+            });
+            document.querySelectorAll('.edit-event-btn').forEach((btn) => {
+              btn.addEventListener('click', (e) => {
+                const eventId = e.target.dataset.eventId;
+                window.location.href = `/events/${eventId}/edit`;
               });
-            }
+            });
           }
         }
-      } catch (error) {
-        console.error('Failed to load events:', error);
       }
+    } catch (error) {
+      console.error('Failed to load events:', error);
     }
+  }
 
-    // Escape HTML to prevent XSS
-    function escapeHtml(text) {
-      if (!text) return '';
-      const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;',
-      };
-      return text.replace(/[&<>"']/g, (m) => map[m]);
-    }
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
 
-    // Load user info
-    async function loadUserInfo() {
-      try {
-        const response = await fetch('/api/auth/me');
-        if (response.ok) {
-          const user = await response.json();
-          currentUserId = user.id; // Store user ID for owes calculation
-          const username = user.username || user.email;
+  // Load user info
+  async function loadUserInfo() {
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const user = await response.json();
+        currentUserId = user.id; // Store user ID for owes calculation
+        const username = user.username || user.email;
 
-          console.log('🔧 loadUserInfo called with username:', username);
+        console.log('🔧 loadUserInfo called with username:', username);
 
-          const userName = document.getElementById('userName');
-          if (userName) {
-            userName.textContent = `Welcome ${username}`;
-            console.log('✓ Set header userName to: Welcome ' + username);
-          }
-
-          const userEmail = document.getElementById('userEmail');
-          if (userEmail) {
-            userEmail.textContent = user.email;
-            console.log('✓ Set header userEmail to:', user.email);
-          }
-
-          const welcomeMessage = document.getElementById('welcomeMessage');
-          console.log('🔍 welcomeMessage element:', welcomeMessage);
-          console.log('🔍 welcomeMessage HTML before:', welcomeMessage?.innerHTML);
-
-          if (welcomeMessage) {
-            // Use plain text first to test
-            welcomeMessage.textContent = `Welcome ${username}!`;
-            console.log('✓ Set welcomeMessage textContent to: Welcome ' + username + '!');
-            console.log('🔍 welcomeMessage text after:', welcomeMessage.textContent);
-          } else {
-            console.error('✗✗✗ welcomeMessage element NOT found!');
-          }
-
-          const welcomeEmail = document.getElementById('welcomeEmail');
-          if (welcomeEmail) {
-            welcomeEmail.textContent = user.email;
-            console.log('✓ Set welcomeEmail to:', user.email);
-          }
+        const userName = document.getElementById('userName');
+        if (userName) {
+          userName.textContent = `Welcome ${username}`;
+          console.log('✓ Set header userName to: Welcome ' + username);
         }
-      } catch (error) {
-        console.error('Failed to load user info:', error);
+
+        const userEmail = document.getElementById('userEmail');
+        if (userEmail) {
+          userEmail.textContent = user.email;
+          console.log('✓ Set header userEmail to:', user.email);
+        }
+
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        console.log('🔍 welcomeMessage element:', welcomeMessage);
+        console.log('🔍 welcomeMessage HTML before:', welcomeMessage?.innerHTML);
+
+        if (welcomeMessage) {
+          // Use plain text first to test
+          welcomeMessage.textContent = `Welcome ${username}!`;
+          console.log('✓ Set welcomeMessage textContent to: Welcome ' + username + '!');
+          console.log('🔍 welcomeMessage text after:', welcomeMessage.textContent);
+        } else {
+          console.error('✗✗✗ welcomeMessage element NOT found!');
+        }
+
+        const welcomeEmail = document.getElementById('welcomeEmail');
+        if (welcomeEmail) {
+          welcomeEmail.textContent = user.email;
+          console.log('✓ Set welcomeEmail to:', user.email);
+        }
       }
+    } catch (error) {
+      console.error('Failed to load user info:', error);
     }
+  }
 
-    // Load and display user groups
-    async function loadGroups() {
-      try {
-        const response = await fetch('/api/groups/list');
-        if (response.ok) {
-          const data = await response.json();
-          const groupsList = document.getElementById('groupsList');
-          const groupsEmpty = document.getElementById('groupsEmpty');
+  // Load and display user groups
+  async function loadGroups() {
+    try {
+      const response = await fetch('/api/groups/list');
+      if (response.ok) {
+        const data = await response.json();
+        const groupsList = document.getElementById('groupsList');
+        const groupsEmpty = document.getElementById('groupsEmpty');
 
-          if (!data.groups || data.groups.length === 0) {
-            if (groupsList) groupsList.innerHTML = groupsEmpty?.outerHTML || '';
-          } else {
-            if (groupsList) {
-              groupsList.innerHTML = data.groups
-                .map(
-                  (group) => `
+        if (!data.groups || data.groups.length === 0) {
+          if (groupsList) groupsList.innerHTML = groupsEmpty?.outerHTML || '';
+        } else {
+          if (groupsList) {
+            groupsList.innerHTML = data.groups
+              .map(
+                (group) => `
                 <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6" data-group-id="${group.id}">
                   <div class="flex justify-between items-start mb-3">
                     <div>
@@ -1019,294 +1015,294 @@ const errorParam = Astro.url.searchParams.get('error');
                   </div>
                 </div>
               `
-                )
-                .join('');
+              )
+              .join('');
 
-              // Load stats for each group
-              for (const group of data.groups) {
-                await loadGroupStats(group.id);
-              }
-
-              // Add event listeners to View and Edit buttons
-              document.querySelectorAll('.view-group-btn').forEach((btn) => {
-                btn.addEventListener('click', (e) => {
-                  const groupId = e.target.dataset.groupId;
-                  window.location.href = `/groups/${groupId}/manage`;
-                });
-              });
-              document.querySelectorAll('.edit-group-btn').forEach((btn) => {
-                btn.addEventListener('click', (e) => {
-                  const groupId = e.target.dataset.groupId;
-                  window.location.href = `/groups/${groupId}/edit`;
-                });
-              });
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load groups:', error);
-      }
-    }
-
-    // Load stats for a specific group
-    async function loadGroupStats(groupId) {
-      try {
-        const groupCard = document.querySelector(`[data-group-id="${groupId}"]`);
-        if (!groupCard) return;
-
-        // Get group details (members)
-        const response = await fetch(`/api/groups/list?id=${groupId}`);
-        if (response.ok) {
-          const data = await response.json();
-          const memberCount = data.members ? data.members.length : 0;
-
-          // Update member count
-          const memberCountEl = groupCard.querySelector('.group-member-count');
-          if (memberCountEl) memberCountEl.textContent = memberCount;
-
-          // For now, set expenses and total to 0 since expenses are tied to events
-          const expenseCountEl = groupCard.querySelector('.group-expense-count');
-          const totalSpentEl = groupCard.querySelector('.group-total-spent');
-
-          if (expenseCountEl) expenseCountEl.textContent = '0';
-          if (totalSpentEl) totalSpentEl.textContent = '$0.00';
-        }
-      } catch (error) {
-        console.error(`Failed to load stats for group ${groupId}:`, error);
-        // Fallback - set to 0
-        const groupCard = document.querySelector(`[data-group-id="${groupId}"]`);
-        if (groupCard) {
-          const expenseCountEl = groupCard.querySelector('.group-expense-count');
-          const totalSpentEl = groupCard.querySelector('.group-total-spent');
-          if (expenseCountEl) expenseCountEl.textContent = '0';
-          if (totalSpentEl) totalSpentEl.textContent = '$0.00';
-        }
-      }
-    }
-
-    // Update Quick Stats panel
-    async function updateStats() {
-      try {
-        // Get groups
-        const groupsResponse = await fetch('/api/groups/list');
-        let groupCount = 0;
-        let groupsMap = {}; // Map groupId to group name
-        statsData.groups = [];
-        if (groupsResponse.ok) {
-          const groupsData = await groupsResponse.json();
-          const groups = groupsData.groups || [];
-          groupCount = groups.length;
-          statsData.groups = groups;
-
-          // Build a map of groupId -> groupName
-          groups.forEach((group) => {
-            groupsMap[group.id] = group.name;
-          });
-
-          const statsGroupCount = document.getElementById('statsGroupCount');
-          if (statsGroupCount) {
-            statsGroupCount.textContent = groupCount;
-          }
-        }
-
-        // Get events
-        const eventsResponse = await fetch('/api/events/list');
-        let eventCount = 0;
-        let totalExpenseCount = 0;
-        let totalActivityCount = 0;
-        let standaloneActivityCount = 0;
-        let totalExpensesAmount = 0;
-        statsData.trips = [];
-        statsData.expenses = [];
-        statsData.activities = [];
-
-        if (eventsResponse.ok) {
-          const eventsData = await eventsResponse.json();
-          const events = eventsData.events || [];
-          eventCount = events.length;
-
-          // Enrich events with group names
-          statsData.trips = events.map((event) => ({
-            ...event,
-            displayTitle: event.title || event.name || 'Untitled Trip',
-            groupName: event.groupId ? groupsMap[event.groupId] : null,
-          }));
-
-          const statsEventCount = document.getElementById('statsEventCount');
-          if (statsEventCount) {
-            statsEventCount.textContent = eventCount;
-          }
-
-          // Fetch expenses and activities for all events
-          for (const event of events) {
-            try {
-              const expensesResp = await fetch(`/api/expenses/list?eventId=${event.id}`);
-              if (expensesResp.ok) {
-                const expensesData = await expensesResp.json();
-                const expenses = expensesData.expenses || [];
-                totalExpenseCount += expenses.length;
-
-                // Add expenses to statsData and sum totals
-                expenses.forEach((expense) => {
-                  const mySplit = expense.splits?.find((s) => s.userId === currentUserId);
-                  const myShareAmount = mySplit
-                    ? parseFloat(mySplit.amountDollars) || 0
-                    : parseFloat(expense.total) || 0;
-
-                  statsData.expenses.push({
-                    ...expense,
-                    tripName: event.title || event.name || 'Untitled Trip',
-                    currency: event.currency || 'USD',
-                    myShareAmount,
-                    hasMySplit: Boolean(mySplit),
-                  });
-                  totalExpensesAmount += parseFloat(expense.total) || 0;
-
-                  // Track owes: if current user didn't pay for this expense, they owe money
-                  if (expense.paidBy !== currentUserId && expense.splits) {
-                    if (mySplit) {
-                      statsData.owes.push({
-                        id: expense.id,
-                        description: expense.description,
-                        amount: parseFloat(mySplit.amountDollars) || 0,
-                        amountCents: mySplit.amountCents,
-                        currency: event.currency || 'USD',
-                        paidBy: expense.payerName,
-                        paidById: expense.paidBy,
-                        tripName: event.title || event.name || 'Untitled Trip',
-                        groupId: event.groupId,
-                      });
-                    }
-                  }
-                });
-              } else {
-                const errorData = await expensesResp.json().catch(() => ({}));
-                console.warn(
-                  `Failed to fetch expenses for event ${event.id}: ${expensesResp.status} ${errorData.error || expensesResp.statusText}`
-                );
-              }
-            } catch (e) {
-              console.error(`Failed to fetch expenses for event ${event.id}:`, e);
+            // Load stats for each group
+            for (const group of data.groups) {
+              await loadGroupStats(group.id);
             }
 
-            // Fetch activities for each event
-            try {
-              const activitiesResp = await fetch(`/api/activities/list?eventId=${event.id}`, {
-                credentials: 'same-origin',
+            // Add event listeners to View and Edit buttons
+            document.querySelectorAll('.view-group-btn').forEach((btn) => {
+              btn.addEventListener('click', (e) => {
+                const groupId = e.target.dataset.groupId;
+                window.location.href = `/groups/${groupId}/manage`;
               });
-              if (activitiesResp.ok) {
-                const activitiesData = await activitiesResp.json();
-                const activities = activitiesData.activities || [];
-                totalActivityCount += activities.length;
-
-                // Add activities to statsData
-                activities.forEach((activity) => {
-                  statsData.activities.push({
-                    ...activity,
-                    tripName: event.title || event.name || 'Untitled Trip',
-                  });
-                });
-              } else {
-                const errorData = await activitiesResp.json().catch(() => ({}));
-                console.warn(
-                  `Failed to fetch activities for event ${event.id}: ${activitiesResp.status} ${errorData.error || activitiesResp.statusText}`
-                );
-              }
-            } catch (e) {
-              console.error(`Failed to fetch activities for event ${event.id}:`, e);
-            }
-          }
-
-          // Fetch standalone activities and add to totalActivityCount
-          try {
-            const standaloneResp = await fetch('/api/activities/list?standalone=1', {
-              credentials: 'same-origin',
             });
-            if (standaloneResp.ok) {
-              const standaloneData = await standaloneResp.json();
-              const standaloneActivities = standaloneData.activities || [];
-              standaloneActivityCount = standaloneActivities.length;
-              totalActivityCount += standaloneActivityCount;
-              // Add standalone activities to statsData.activities with tripName 'Standalone'
-              standaloneActivities.forEach((activity) => {
-                statsData.activities.push({
-                  ...activity,
-                  tripName: 'Standalone',
+            document.querySelectorAll('.edit-group-btn').forEach((btn) => {
+              btn.addEventListener('click', (e) => {
+                const groupId = e.target.dataset.groupId;
+                window.location.href = `/groups/${groupId}/edit`;
+              });
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load groups:', error);
+    }
+  }
+
+  // Load stats for a specific group
+  async function loadGroupStats(groupId) {
+    try {
+      const groupCard = document.querySelector(`[data-group-id="${groupId}"]`);
+      if (!groupCard) return;
+
+      // Get group details (members)
+      const response = await fetch(`/api/groups/list?id=${groupId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const memberCount = data.members ? data.members.length : 0;
+
+        // Update member count
+        const memberCountEl = groupCard.querySelector('.group-member-count');
+        if (memberCountEl) memberCountEl.textContent = memberCount;
+
+        // For now, set expenses and total to 0 since expenses are tied to events
+        const expenseCountEl = groupCard.querySelector('.group-expense-count');
+        const totalSpentEl = groupCard.querySelector('.group-total-spent');
+
+        if (expenseCountEl) expenseCountEl.textContent = '0';
+        if (totalSpentEl) totalSpentEl.textContent = '$0.00';
+      }
+    } catch (error) {
+      console.error(`Failed to load stats for group ${groupId}:`, error);
+      // Fallback - set to 0
+      const groupCard = document.querySelector(`[data-group-id="${groupId}"]`);
+      if (groupCard) {
+        const expenseCountEl = groupCard.querySelector('.group-expense-count');
+        const totalSpentEl = groupCard.querySelector('.group-total-spent');
+        if (expenseCountEl) expenseCountEl.textContent = '0';
+        if (totalSpentEl) totalSpentEl.textContent = '$0.00';
+      }
+    }
+  }
+
+  // Update Quick Stats panel
+  async function updateStats() {
+    try {
+      // Get groups
+      const groupsResponse = await fetch('/api/groups/list');
+      let groupCount = 0;
+      let groupsMap = {}; // Map groupId to group name
+      statsData.groups = [];
+      if (groupsResponse.ok) {
+        const groupsData = await groupsResponse.json();
+        const groups = groupsData.groups || [];
+        groupCount = groups.length;
+        statsData.groups = groups;
+
+        // Build a map of groupId -> groupName
+        groups.forEach((group) => {
+          groupsMap[group.id] = group.name;
+        });
+
+        const statsGroupCount = document.getElementById('statsGroupCount');
+        if (statsGroupCount) {
+          statsGroupCount.textContent = groupCount;
+        }
+      }
+
+      // Get events
+      const eventsResponse = await fetch('/api/events/list');
+      let eventCount = 0;
+      let totalExpenseCount = 0;
+      let totalActivityCount = 0;
+      let standaloneActivityCount = 0;
+      let totalExpensesAmount = 0;
+      statsData.trips = [];
+      statsData.expenses = [];
+      statsData.activities = [];
+
+      if (eventsResponse.ok) {
+        const eventsData = await eventsResponse.json();
+        const events = eventsData.events || [];
+        eventCount = events.length;
+
+        // Enrich events with group names
+        statsData.trips = events.map((event) => ({
+          ...event,
+          displayTitle: event.title || event.name || 'Untitled Trip',
+          groupName: event.groupId ? groupsMap[event.groupId] : null,
+        }));
+
+        const statsEventCount = document.getElementById('statsEventCount');
+        if (statsEventCount) {
+          statsEventCount.textContent = eventCount;
+        }
+
+        // Fetch expenses and activities for all events
+        for (const event of events) {
+          try {
+            const expensesResp = await fetch(`/api/expenses/list?eventId=${event.id}`);
+            if (expensesResp.ok) {
+              const expensesData = await expensesResp.json();
+              const expenses = expensesData.expenses || [];
+              totalExpenseCount += expenses.length;
+
+              // Add expenses to statsData and sum totals
+              expenses.forEach((expense) => {
+                const mySplit = expense.splits?.find((s) => s.userId === currentUserId);
+                const myShareAmount = mySplit
+                  ? parseFloat(mySplit.amountDollars) || 0
+                  : parseFloat(expense.total) || 0;
+
+                statsData.expenses.push({
+                  ...expense,
+                  tripName: event.title || event.name || 'Untitled Trip',
+                  currency: event.currency || 'USD',
+                  myShareAmount,
+                  hasMySplit: Boolean(mySplit),
                 });
+                totalExpensesAmount += parseFloat(expense.total) || 0;
+
+                // Track owes: if current user didn't pay for this expense, they owe money
+                if (expense.paidBy !== currentUserId && expense.splits) {
+                  if (mySplit) {
+                    statsData.owes.push({
+                      id: expense.id,
+                      description: expense.description,
+                      amount: parseFloat(mySplit.amountDollars) || 0,
+                      amountCents: mySplit.amountCents,
+                      currency: event.currency || 'USD',
+                      paidBy: expense.payerName,
+                      paidById: expense.paidBy,
+                      tripName: event.title || event.name || 'Untitled Trip',
+                      groupId: event.groupId,
+                    });
+                  }
+                }
               });
             } else {
-              const errorData = await standaloneResp.json().catch(() => ({}));
+              const errorData = await expensesResp.json().catch(() => ({}));
               console.warn(
-                `Failed to fetch standalone activities: ${standaloneResp.status} ${errorData.error || standaloneResp.statusText}`
+                `Failed to fetch expenses for event ${event.id}: ${expensesResp.status} ${errorData.error || expensesResp.statusText}`
               );
             }
           } catch (e) {
-            console.error('Failed to fetch standalone activities:', e);
+            console.error(`Failed to fetch expenses for event ${event.id}:`, e);
           }
 
-          const statsActivityCount = document.getElementById('statsActivityCount');
-          if (statsActivityCount) {
-            statsActivityCount.textContent = totalActivityCount;
+          // Fetch activities for each event
+          try {
+            const activitiesResp = await fetch(`/api/activities/list?eventId=${event.id}`, {
+              credentials: 'same-origin',
+            });
+            if (activitiesResp.ok) {
+              const activitiesData = await activitiesResp.json();
+              const activities = activitiesData.activities || [];
+              totalActivityCount += activities.length;
+
+              // Add activities to statsData
+              activities.forEach((activity) => {
+                statsData.activities.push({
+                  ...activity,
+                  tripName: event.title || event.name || 'Untitled Trip',
+                });
+              });
+            } else {
+              const errorData = await activitiesResp.json().catch(() => ({}));
+              console.warn(
+                `Failed to fetch activities for event ${event.id}: ${activitiesResp.status} ${errorData.error || activitiesResp.statusText}`
+              );
+            }
+          } catch (e) {
+            console.error(`Failed to fetch activities for event ${event.id}:`, e);
           }
         }
 
-        // Update expense count
-        const statsExpenseCount = document.getElementById('statsExpenseCount');
-        if (statsExpenseCount) {
-          statsExpenseCount.textContent = totalExpenseCount;
+        // Fetch standalone activities and add to totalActivityCount
+        try {
+          const standaloneResp = await fetch('/api/activities/list?standalone=1', {
+            credentials: 'same-origin',
+          });
+          if (standaloneResp.ok) {
+            const standaloneData = await standaloneResp.json();
+            const standaloneActivities = standaloneData.activities || [];
+            standaloneActivityCount = standaloneActivities.length;
+            totalActivityCount += standaloneActivityCount;
+            // Add standalone activities to statsData.activities with tripName 'Standalone'
+            standaloneActivities.forEach((activity) => {
+              statsData.activities.push({
+                ...activity,
+                tripName: 'Standalone',
+              });
+            });
+          } else {
+            const errorData = await standaloneResp.json().catch(() => ({}));
+            console.warn(
+              `Failed to fetch standalone activities: ${standaloneResp.status} ${errorData.error || standaloneResp.statusText}`
+            );
+          }
+        } catch (e) {
+          console.error('Failed to fetch standalone activities:', e);
         }
 
-        // (Total Spent is now handled by the user-total fetch at the top of the file)
-
-        // Calculate and update total owes amount
-        const totalOwes = statsData.owes.reduce((sum, owe) => sum + owe.amount, 0);
-        const statsOwesAmount = document.getElementById('statsOwesAmount');
-        if (statsOwesAmount) {
-          statsOwesAmount.textContent = `$${totalOwes.toFixed(2)}`;
+        const statsActivityCount = document.getElementById('statsActivityCount');
+        if (statsActivityCount) {
+          statsActivityCount.textContent = totalActivityCount;
         }
-      } catch (error) {
-        console.error('Failed to update stats:', error);
       }
+
+      // Update expense count
+      const statsExpenseCount = document.getElementById('statsExpenseCount');
+      if (statsExpenseCount) {
+        statsExpenseCount.textContent = totalExpenseCount;
+      }
+
+      // (Total Spent is now handled by the user-total fetch at the top of the file)
+
+      // Calculate and update total owes amount
+      const totalOwes = statsData.owes.reduce((sum, owe) => sum + owe.amount, 0);
+      const statsOwesAmount = document.getElementById('statsOwesAmount');
+      if (statsOwesAmount) {
+        statsOwesAmount.textContent = `$${totalOwes.toFixed(2)}`;
+      }
+    } catch (error) {
+      console.error('Failed to update stats:', error);
     }
+  }
 
-    // Store data for stats list modal
-    let statsData = {
-      trips: [],
-      expenses: [],
-      activities: [],
-      groups: [],
-      owes: [],
-    };
-    let currentUserId = null; // Will be set by loadUserInfo
+  // Store data for stats list modal
+  let statsData = {
+    trips: [],
+    expenses: [],
+    activities: [],
+    groups: [],
+    owes: [],
+  };
+  let currentUserId = null; // Will be set by loadUserInfo
 
-    // Show stats list modal
-    function showStatsList(type, title) {
-      const modal = document.getElementById('statsListModal');
-      const titleElement = document.getElementById('statsListTitle');
-      const content = document.getElementById('statsListContent');
+  // Show stats list modal
+  function showStatsList(type, title) {
+    const modal = document.getElementById('statsListModal');
+    const titleElement = document.getElementById('statsListTitle');
+    const content = document.getElementById('statsListContent');
 
-      titleElement.textContent = title;
+    titleElement.textContent = title;
 
-      let items = [];
-      let html = '';
+    let items = [];
+    let html = '';
 
-      if (type === 'trips') {
-        items = statsData.trips;
-        html = items
-          .map(
-            (trip) => `
+    if (type === 'trips') {
+      items = statsData.trips;
+      html = items
+        .map(
+          (trip) => `
           <a href="/events/${trip.id}" class="block p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
             <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(trip.displayTitle || trip.title || trip.name || 'Untitled Trip')}</h3>
             <p class="text-sm text-slate-600 dark:text-slate-400">${trip.groupName ? `Group: ${escapeHtml(trip.groupName)}` : 'Personal'}</p>
           </a>
         `
-          )
-          .join('');
-      } else if (type === 'expenses') {
-        items = statsData.expenses;
-        html = items
-          .map(
-            (exp) => `
+        )
+        .join('');
+    } else if (type === 'expenses') {
+      items = statsData.expenses;
+      html = items
+        .map(
+          (exp) => `
           <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
             <div class="flex justify-between items-start gap-3">
               <div class="flex-1">
@@ -1321,50 +1317,49 @@ const errorParam = Astro.url.searchParams.get('error');
             </div>
           </div>
         `
-          )
-          .join('');
-      } else if (type === 'activities') {
-        items = statsData.activities;
-        html = items
-          .map((act) => {
-            // Show 'Standalone' if eventId is null or tripName is missing
-            const tripLabel =
-              act.tripName ||
-              (act.eventId === null || act.eventId === undefined ? 'Standalone' : '');
-            return `
+        )
+        .join('');
+    } else if (type === 'activities') {
+      items = statsData.activities;
+      html = items
+        .map((act) => {
+          // Show 'Standalone' if eventId is null or tripName is missing
+          const tripLabel =
+            act.tripName || (act.eventId === null || act.eventId === undefined ? 'Standalone' : '');
+          return `
                 <div class="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
                   <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(act.title || act.name || 'Untitled Activity')}</h3>
                   <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(tripLabel)}</p>
                 </div>
               `;
-          })
-          .join('');
-      } else if (type === 'groups') {
-        items = statsData.groups;
-        html = items
-          .map(
-            (grp) => `
+        })
+        .join('');
+    } else if (type === 'groups') {
+      items = statsData.groups;
+      html = items
+        .map(
+          (grp) => `
           <a href="/groups/${grp.id}/manage" class="block p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
             <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(grp.name)}</h3>
             <p class="text-sm text-slate-600 dark:text-slate-400">${grp.memberCount || 0} members</p>
           </a>
         `
-          )
-          .join('');
-      } else if (type === 'owes') {
-        items = statsData.owes;
-        html = items
-          .map((owe) => {
-            const activeDebt = window.globalBalances?.find(
-              (b) =>
-                b.fromUserId === currentUserId &&
-                b.toUserId === owe.paidById &&
-                b.groupId === owe.groupId &&
-                b.amountCents > 0
-            );
-            const showSettleBtn = owe.groupId && owe.paidById && !!activeDebt;
+        )
+        .join('');
+    } else if (type === 'owes') {
+      items = statsData.owes;
+      html = items
+        .map((owe) => {
+          const activeDebt = window.globalBalances?.find(
+            (b) =>
+              b.fromUserId === currentUserId &&
+              b.toUserId === owe.paidById &&
+              b.groupId === owe.groupId &&
+              b.amountCents > 0
+          );
+          const showSettleBtn = owe.groupId && owe.paidById && !!activeDebt;
 
-            return `
+          return `
           <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
             <div class="flex justify-between items-start gap-3">
               <div class="flex-1">
@@ -1392,103 +1387,103 @@ const errorParam = Astro.url.searchParams.get('error');
             </div>
           </div>
         `;
-          })
-          .join('');
-      }
+        })
+        .join('');
+    }
 
-      if (items.length === 0) {
-        html = `<p class="text-center text-slate-600 dark:text-slate-400 py-8">No ${title.toLowerCase()} yet</p>`;
-      }
+    if (items.length === 0) {
+      html = `<p class="text-center text-slate-600 dark:text-slate-400 py-8">No ${title.toLowerCase()} yet</p>`;
+    }
 
-      content.innerHTML = html;
+    content.innerHTML = html;
 
-      // Add event listeners for quick settle
-      if (type === 'owes') {
-        content.querySelectorAll('.quick-settle-btn').forEach((btn) => {
-          btn.addEventListener('click', async (e) => {
-            const target = e.currentTarget;
-            const toUserId = target.dataset.toUserId;
-            const toUserName = target.dataset.toUserName;
-            const amountCents = parseInt(target.dataset.amountCents);
-            const groupId = target.dataset.groupId;
-            const desc = target.dataset.desc;
-            const amountDollars = (amountCents / 100).toFixed(2);
+    // Add event listeners for quick settle
+    if (type === 'owes') {
+      content.querySelectorAll('.quick-settle-btn').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          const target = e.currentTarget;
+          const toUserId = target.dataset.toUserId;
+          const toUserName = target.dataset.toUserName;
+          const amountCents = parseInt(target.dataset.amountCents);
+          const groupId = target.dataset.groupId;
+          const desc = target.dataset.desc;
+          const amountDollars = (amountCents / 100).toFixed(2);
 
-            const isConfirmed = await customConfirm(
-              `Settle $${amountDollars} for "${desc}" with ${toUserName}?`
-            );
-            if (!isConfirmed) {
-              return;
-            }
+          const isConfirmed = await customConfirm(
+            `Settle $${amountDollars} for "${desc}" with ${toUserName}?`
+          );
+          if (!isConfirmed) {
+            return;
+          }
 
-            target.disabled = true;
-            target.textContent = 'Processing...';
+          target.disabled = true;
+          target.textContent = 'Processing...';
 
-            try {
-              const response = await fetch('/api/settlements/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  groupId,
-                  fromUserId: currentUserId,
-                  toUserId,
-                  amountCents,
-                  description: `Settled specific expense: ${desc}`,
-                }),
-              });
-              if (response.ok) {
-                showToast('Settlement recorded! 🎉');
-                window.location.reload(); // Reload to refresh all stats
-              } else {
-                const error = await response.json();
-                showToast(error.error || 'Failed to record settlement', 4000);
-                target.disabled = false;
-                target.textContent = 'Settle';
-              }
-            } catch (error) {
-              console.error('Error recording settlement:', error);
-              showToast('Error recording settlement', 4000);
+          try {
+            const response = await fetch('/api/settlements/create', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                groupId,
+                fromUserId: currentUserId,
+                toUserId,
+                amountCents,
+                description: `Settled specific expense: ${desc}`,
+              }),
+            });
+            if (response.ok) {
+              showToast('Settlement recorded! 🎉');
+              window.location.reload(); // Reload to refresh all stats
+            } else {
+              const error = await response.json();
+              showToast(error.error || 'Failed to record settlement', 4000);
               target.disabled = false;
               target.textContent = 'Settle';
             }
-          });
+          } catch (error) {
+            console.error('Error recording settlement:', error);
+            showToast('Error recording settlement', 4000);
+            target.disabled = false;
+            target.textContent = 'Settle';
+          }
         });
+      });
+    }
+
+    modal.classList.remove('hidden');
+  }
+
+  // Close stats list modal
+  function closeStatsList() {
+    const modal = document.getElementById('statsListModal');
+    modal.classList.add('hidden');
+  }
+
+  // Load and display pending invitations
+  async function loadPendingInvitations() {
+    try {
+      const response = await fetch('/api/dashboard/pending-invitations');
+
+      // Handle 404 (endpoint not yet available)
+      if (response.status === 404) {
+        console.warn(
+          '⚠️ Pending invitations endpoint not available. Please restart the dev server.'
+        );
+        return;
       }
 
-      modal.classList.remove('hidden');
-    }
+      if (response.ok) {
+        const data = await response.json();
+        const invitationsList = document.getElementById('invitationsList');
+        const invitationsEmpty = document.getElementById('invitationsEmpty');
 
-    // Close stats list modal
-    function closeStatsList() {
-      const modal = document.getElementById('statsListModal');
-      modal.classList.add('hidden');
-    }
-
-    // Load and display pending invitations
-    async function loadPendingInvitations() {
-      try {
-        const response = await fetch('/api/dashboard/pending-invitations');
-
-        // Handle 404 (endpoint not yet available)
-        if (response.status === 404) {
-          console.warn(
-            '⚠️ Pending invitations endpoint not available. Please restart the dev server.'
-          );
-          return;
-        }
-
-        if (response.ok) {
-          const data = await response.json();
-          const invitationsList = document.getElementById('invitationsList');
-          const invitationsEmpty = document.getElementById('invitationsEmpty');
-
-          if (!data.invitations || data.invitations.length === 0) {
-            if (invitationsList) invitationsList.innerHTML = invitationsEmpty?.outerHTML || '';
-          } else {
-            if (invitationsList) {
-              invitationsList.innerHTML = data.invitations
-                .map(
-                  (inv) => `
+        if (!data.invitations || data.invitations.length === 0) {
+          if (invitationsList) invitationsList.innerHTML = invitationsEmpty?.outerHTML || '';
+        } else {
+          if (invitationsList) {
+            invitationsList.innerHTML = data.invitations
+              .map(
+                (inv) => `
                 <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
                   <div class="flex justify-between items-start mb-3">
                     <div class="flex-1">
@@ -1516,106 +1511,106 @@ const errorParam = Astro.url.searchParams.get('error');
                   </div>
                 </div>
               `
-                )
-                .join('');
+              )
+              .join('');
 
-              // Add event listeners to accept/decline buttons
-              document.querySelectorAll('.accept-invitation-btn').forEach((btn) => {
-                btn.addEventListener('click', async (e) => {
-                  const invitationId = e.target.dataset.invitationId;
-                  try {
-                    btn.disabled = true;
-                    btn.textContent = 'Accepting...';
-                    const response = await fetch('/api/groups/invitations/accept', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ invitationId }),
-                    });
-                    if (response.ok) {
-                      showToast("Invitation accepted! You've joined the group.");
-                      loadPendingInvitations();
-                    } else {
-                      const error = await response.json();
-                      showToast(error.error || 'Failed to accept invitation', 4000);
-                      btn.disabled = false;
-                      btn.textContent = 'Accept';
-                    }
-                  } catch (error) {
-                    console.error('Error accepting invitation:', error);
-                    showToast('Error accepting invitation', 4000);
+            // Add event listeners to accept/decline buttons
+            document.querySelectorAll('.accept-invitation-btn').forEach((btn) => {
+              btn.addEventListener('click', async (e) => {
+                const invitationId = e.target.dataset.invitationId;
+                try {
+                  btn.disabled = true;
+                  btn.textContent = 'Accepting...';
+                  const response = await fetch('/api/groups/invitations/accept', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ invitationId }),
+                  });
+                  if (response.ok) {
+                    showToast("Invitation accepted! You've joined the group.");
+                    loadPendingInvitations();
+                  } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to accept invitation', 4000);
                     btn.disabled = false;
                     btn.textContent = 'Accept';
                   }
-                });
+                } catch (error) {
+                  console.error('Error accepting invitation:', error);
+                  showToast('Error accepting invitation', 4000);
+                  btn.disabled = false;
+                  btn.textContent = 'Accept';
+                }
               });
+            });
 
-              document.querySelectorAll('.decline-invitation-btn').forEach((btn) => {
-                btn.addEventListener('click', async (e) => {
-                  const invitationId = e.target.dataset.invitationId;
-                  try {
-                    btn.disabled = true;
-                    btn.textContent = 'Declining...';
-                    const response = await fetch('/api/groups/invitations/decline', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ invitationId }),
-                    });
-                    if (response.ok) {
-                      showToast('Invitation declined.');
-                      loadPendingInvitations();
-                    } else {
-                      const error = await response.json();
-                      showToast(error.error || 'Failed to decline invitation', 4000);
-                      btn.disabled = false;
-                      btn.textContent = 'Decline';
-                    }
-                  } catch (error) {
-                    console.error('Error declining invitation:', error);
-                    showToast('Error declining invitation', 4000);
+            document.querySelectorAll('.decline-invitation-btn').forEach((btn) => {
+              btn.addEventListener('click', async (e) => {
+                const invitationId = e.target.dataset.invitationId;
+                try {
+                  btn.disabled = true;
+                  btn.textContent = 'Declining...';
+                  const response = await fetch('/api/groups/invitations/decline', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ invitationId }),
+                  });
+                  if (response.ok) {
+                    showToast('Invitation declined.');
+                    loadPendingInvitations();
+                  } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to decline invitation', 4000);
                     btn.disabled = false;
                     btn.textContent = 'Decline';
                   }
-                });
+                } catch (error) {
+                  console.error('Error declining invitation:', error);
+                  showToast('Error declining invitation', 4000);
+                  btn.disabled = false;
+                  btn.textContent = 'Decline';
+                }
               });
-            }
+            });
           }
         }
-      } catch (error) {
-        console.error('Failed to load pending invitations:', error);
       }
+    } catch (error) {
+      console.error('Failed to load pending invitations:', error);
     }
+  }
 
-    // Load and display outstanding balances
-    async function loadSettlements() {
+  // Load and display outstanding balances
+  async function loadSettlements() {
+    try {
+      // Fetch outstanding balances for the current user across all groups
+      let allBalances = [];
       try {
-        // Fetch outstanding balances for the current user across all groups
-        let allBalances = [];
-        try {
-          const balancesResp = await fetch('/api/dashboard/balances');
-          if (balancesResp.ok) {
-            const data = await balancesResp.json();
-            allBalances = data.balances || [];
-            window.globalBalances = allBalances;
-          }
-        } catch (e) {
-          console.warn('Failed to load outstanding balances:', e);
+        const balancesResp = await fetch('/api/dashboard/balances');
+        if (balancesResp.ok) {
+          const data = await balancesResp.json();
+          allBalances = data.balances || [];
+          window.globalBalances = allBalances;
         }
+      } catch (e) {
+        console.warn('Failed to load outstanding balances:', e);
+      }
 
-        // Display balances
-        const balancesList = document.getElementById('balancesList');
-        const balancesEmpty = document.getElementById('balancesEmpty');
+      // Display balances
+      const balancesList = document.getElementById('balancesList');
+      const balancesEmpty = document.getElementById('balancesEmpty');
 
-        if (!allBalances || allBalances.length === 0) {
-          if (balancesList) balancesList.innerHTML = balancesEmpty?.outerHTML || '';
-        } else {
-          if (balancesList) {
-            balancesList.innerHTML = allBalances
-              .map((balance) => {
-                // If fromUserId === currentUserId, the user owes money
-                const userOwes = balance.fromUserId === currentUserId;
-                const otherUserName = userOwes ? balance.toUserName : balance.fromUserName;
+      if (!allBalances || allBalances.length === 0) {
+        if (balancesList) balancesList.innerHTML = balancesEmpty?.outerHTML || '';
+      } else {
+        if (balancesList) {
+          balancesList.innerHTML = allBalances
+            .map((balance) => {
+              // If fromUserId === currentUserId, the user owes money
+              const userOwes = balance.fromUserId === currentUserId;
+              const otherUserName = userOwes ? balance.toUserName : balance.fromUserName;
 
-                return `
+              return `
                 <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
                   <div class="flex justify-between items-start mb-3">
                     <div class="flex-1">
@@ -1652,198 +1647,198 @@ const errorParam = Astro.url.searchParams.get('error');
                   </div>
                 </div>
               `;
-              })
-              .join('');
+            })
+            .join('');
 
-            // Settlement Selection Modal Logic
-            const selectionModal = document.getElementById('settlementSelectionModal');
-            const closeSelectionBtn = document.getElementById('closeSettlementSelectionBtn');
-            const selectAllCheckbox = document.getElementById('selectAllExpensesCheckbox');
-            const expensesList = document.getElementById('settlementExpensesList');
-            const selectedTotalEl = document.getElementById('settlementSelectedTotal');
-            const fullAmountText = document.getElementById('settlementFullAmountText');
-            const titleEl = document.getElementById('settlementSelectionTitle');
-            const confirmBtn = document.getElementById('confirmSettlementSelectionBtn');
+          // Settlement Selection Modal Logic
+          const selectionModal = document.getElementById('settlementSelectionModal');
+          const closeSelectionBtn = document.getElementById('closeSettlementSelectionBtn');
+          const selectAllCheckbox = document.getElementById('selectAllExpensesCheckbox');
+          const expensesList = document.getElementById('settlementExpensesList');
+          const selectedTotalEl = document.getElementById('settlementSelectedTotal');
+          const fullAmountText = document.getElementById('settlementFullAmountText');
+          const titleEl = document.getElementById('settlementSelectionTitle');
+          const confirmBtn = document.getElementById('confirmSettlementSelectionBtn');
 
-            let currentSettleState = {
-              toUserId: null,
-              toUserName: null,
-              groupId: null,
-              fullAmountCents: 0,
-              specificOwes: [],
-            };
+          let currentSettleState = {
+            toUserId: null,
+            toUserName: null,
+            groupId: null,
+            fullAmountCents: 0,
+            specificOwes: [],
+          };
 
-            function setSpecificExpenseSelectionEnabled(isEnabled) {
+          function setSpecificExpenseSelectionEnabled(isEnabled) {
+            expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
+              cb.disabled = !isEnabled;
+              if (!isEnabled) {
+                cb.checked = true;
+              }
+            });
+          }
+
+          function updateSelectedTotal() {
+            const selectAllLabel = document.getElementById('selectAllExpensesLabel');
+
+            if (selectAllCheckbox.checked) {
+              // Style 'Pay Full Amount' as selected
+              selectAllLabel.className =
+                'flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
+
+              selectedTotalEl.textContent = `$${(currentSettleState.fullAmountCents / 100).toFixed(2)}`;
+              confirmBtn.disabled = false;
+              confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+              // Style all individual items as unselected
               expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
-                cb.disabled = !isEnabled;
-                if (!isEnabled) {
-                  cb.checked = true;
+                const label = cb.closest('.expense-label');
+                if (label) {
+                  label.className =
+                    'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60';
                 }
               });
+              return;
+            } else {
+              // Style 'Pay Full Amount' as unselected
+              selectAllLabel.className =
+                'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
             }
 
-            function updateSelectedTotal() {
-              const selectAllLabel = document.getElementById('selectAllExpensesLabel');
+            const checkboxes = expensesList.querySelectorAll('.expense-checkbox');
+            let totalCents = 0;
+
+            checkboxes.forEach((cb) => {
+              const label = cb.closest('.expense-label');
+              if (cb.checked) {
+                totalCents += parseInt(cb.value);
+                if (label) {
+                  label.className =
+                    'expense-label flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
+                }
+              } else {
+                if (label) {
+                  label.className =
+                    'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
+                }
+              }
+            });
+
+            selectedTotalEl.textContent = `$${(totalCents / 100).toFixed(2)}`;
+
+            if (totalCents === 0) {
+              confirmBtn.disabled = true;
+              confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+              confirmBtn.disabled = false;
+              confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+          }
+
+          if (closeSelectionBtn) {
+            closeSelectionBtn.addEventListener('click', () => {
+              selectionModal.classList.add('hidden');
+            });
+          }
+
+          if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', (e) => {
+              const isChecked = e.target.checked;
+              setSpecificExpenseSelectionEnabled(!isChecked);
+              updateSelectedTotal();
+            });
+          }
+
+          if (confirmBtn) {
+            confirmBtn.addEventListener('click', async () => {
+              let amountCents = 0;
+              let description = '';
 
               if (selectAllCheckbox.checked) {
-                // Style 'Pay Full Amount' as selected
-                selectAllLabel.className =
-                  'flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
+                amountCents = currentSettleState.fullAmountCents;
+                description = 'Settled via Split Dashboard (Full Amount)';
+              } else {
+                const checkedBoxes = Array.from(
+                  expensesList.querySelectorAll('.expense-checkbox:checked')
+                );
+                if (checkedBoxes.length === 0) return;
 
-                selectedTotalEl.textContent = `$${(currentSettleState.fullAmountCents / 100).toFixed(2)}`;
-                confirmBtn.disabled = false;
-                confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                amountCents = checkedBoxes.reduce((sum, cb) => sum + parseInt(cb.value), 0);
+                const names = checkedBoxes.map((cb) => cb.dataset.desc);
 
-                // Style all individual items as unselected
-                expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
-                  const label = cb.closest('.expense-label');
-                  if (label) {
-                    label.className =
-                      'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60';
-                  }
+                // Truncate description if it gets too long
+                description = `Settled: ${names.join(', ')}`;
+                if (description.length > 200) {
+                  description = description.substring(0, 197) + '...';
+                }
+              }
+
+              confirmBtn.disabled = true;
+              confirmBtn.innerHTML = '<span class="animate-spin mr-2">⏳</span> Processing...';
+
+              try {
+                const response = await fetch('/api/settlements/create', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    groupId: currentSettleState.groupId,
+                    fromUserId: currentUserId,
+                    toUserId: currentSettleState.toUserId,
+                    amountCents,
+                    description,
+                  }),
                 });
-                return;
-              } else {
-                // Style 'Pay Full Amount' as unselected
-                selectAllLabel.className =
-                  'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
-              }
-
-              const checkboxes = expensesList.querySelectorAll('.expense-checkbox');
-              let totalCents = 0;
-
-              checkboxes.forEach((cb) => {
-                const label = cb.closest('.expense-label');
-                if (cb.checked) {
-                  totalCents += parseInt(cb.value);
-                  if (label) {
-                    label.className =
-                      'expense-label flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
-                  }
+                if (response.ok) {
+                  showToast('Settlement recorded successfully! 🎉');
+                  setTimeout(() => window.location.reload(), 2000);
                 } else {
-                  if (label) {
-                    label.className =
-                      'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
-                  }
-                }
-              });
-
-              selectedTotalEl.textContent = `$${(totalCents / 100).toFixed(2)}`;
-
-              if (totalCents === 0) {
-                confirmBtn.disabled = true;
-                confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
-              } else {
-                confirmBtn.disabled = false;
-                confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-              }
-            }
-
-            if (closeSelectionBtn) {
-              closeSelectionBtn.addEventListener('click', () => {
-                selectionModal.classList.add('hidden');
-              });
-            }
-
-            if (selectAllCheckbox) {
-              selectAllCheckbox.addEventListener('change', (e) => {
-                const isChecked = e.target.checked;
-                setSpecificExpenseSelectionEnabled(!isChecked);
-                updateSelectedTotal();
-              });
-            }
-
-            if (confirmBtn) {
-              confirmBtn.addEventListener('click', async () => {
-                let amountCents = 0;
-                let description = '';
-
-                if (selectAllCheckbox.checked) {
-                  amountCents = currentSettleState.fullAmountCents;
-                  description = 'Settled via Split Dashboard (Full Amount)';
-                } else {
-                  const checkedBoxes = Array.from(
-                    expensesList.querySelectorAll('.expense-checkbox:checked')
-                  );
-                  if (checkedBoxes.length === 0) return;
-
-                  amountCents = checkedBoxes.reduce((sum, cb) => sum + parseInt(cb.value), 0);
-                  const names = checkedBoxes.map((cb) => cb.dataset.desc);
-
-                  // Truncate description if it gets too long
-                  description = `Settled: ${names.join(', ')}`;
-                  if (description.length > 200) {
-                    description = description.substring(0, 197) + '...';
-                  }
-                }
-
-                confirmBtn.disabled = true;
-                confirmBtn.innerHTML = '<span class="animate-spin mr-2">⏳</span> Processing...';
-
-                try {
-                  const response = await fetch('/api/settlements/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      groupId: currentSettleState.groupId,
-                      fromUserId: currentUserId,
-                      toUserId: currentSettleState.toUserId,
-                      amountCents,
-                      description,
-                    }),
-                  });
-                  if (response.ok) {
-                    showToast('Settlement recorded successfully! 🎉');
-                    setTimeout(() => window.location.reload(), 2000);
-                  } else {
-                    const error = await response.json();
-                    showToast(error.error || 'Failed to record settlement', 4000);
-                    confirmBtn.disabled = false;
-                    confirmBtn.innerHTML = '💸 Record Payment';
-                  }
-                } catch (error) {
-                  console.error('Error recording settlement:', error);
-                  showToast('Error recording settlement', 4000);
+                  const error = await response.json();
+                  showToast(error.error || 'Failed to record settlement', 4000);
                   confirmBtn.disabled = false;
                   confirmBtn.innerHTML = '💸 Record Payment';
                 }
-              });
-            }
+              } catch (error) {
+                console.error('Error recording settlement:', error);
+                showToast('Error recording settlement', 4000);
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '💸 Record Payment';
+              }
+            });
+          }
 
-            // Add event listeners to Settle Up buttons
-            document.querySelectorAll('.settle-up-btn').forEach((btn) => {
-              btn.addEventListener('click', async (e) => {
-                const target = e.currentTarget;
-                const toUserId = target.dataset.toUserId;
-                const toUserName = target.dataset.toUserName;
-                const amountCents = parseInt(target.dataset.amountCents);
-                const groupId = target.dataset.groupId;
-                const amountDollars = (amountCents / 100).toFixed(2);
+          // Add event listeners to Settle Up buttons
+          document.querySelectorAll('.settle-up-btn').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+              const target = e.currentTarget;
+              const toUserId = target.dataset.toUserId;
+              const toUserName = target.dataset.toUserName;
+              const amountCents = parseInt(target.dataset.amountCents);
+              const groupId = target.dataset.groupId;
+              const amountDollars = (amountCents / 100).toFixed(2);
 
-                // Find specific expenses owed to this user in this group
-                const specificOwes = statsData.owes.filter(
-                  (owe) => owe.groupId === groupId && owe.paidById === toUserId
-                );
+              // Find specific expenses owed to this user in this group
+              const specificOwes = statsData.owes.filter(
+                (owe) => owe.groupId === groupId && owe.paidById === toUserId
+              );
 
-                if (specificOwes.length > 0 && selectionModal) {
-                  // Show Selection Modal
-                  currentSettleState = {
-                    toUserId,
-                    toUserName,
-                    groupId,
-                    fullAmountCents: amountCents,
-                    specificOwes,
-                  };
+              if (specificOwes.length > 0 && selectionModal) {
+                // Show Selection Modal
+                currentSettleState = {
+                  toUserId,
+                  toUserName,
+                  groupId,
+                  fullAmountCents: amountCents,
+                  specificOwes,
+                };
 
-                  titleEl.textContent = `Settle Up with ${toUserName}`;
-                  fullAmountText.textContent = `$${amountDollars}`;
+                titleEl.textContent = `Settle Up with ${toUserName}`;
+                fullAmountText.textContent = `$${amountDollars}`;
 
-                  // Reset checkboxes
-                  selectAllCheckbox.checked = true;
+                // Reset checkboxes
+                selectAllCheckbox.checked = true;
 
-                  expensesList.innerHTML = specificOwes
-                    .map(
-                      (owe) => `
+                expensesList.innerHTML = specificOwes
+                  .map(
+                    (owe) => `
                     <label class="expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60">
                       <div class="pt-0.5">
                         <input type="checkbox" value="${owe.amountCents}" data-desc="${escapeHtml(owe.description)}" class="expense-checkbox w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" checked />
@@ -1857,94 +1852,94 @@ const errorParam = Astro.url.searchParams.get('error');
                       </div>
                     </label>
                   `
-                    )
-                    .join('');
+                  )
+                  .join('');
 
-                  expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
-                    cb.addEventListener('change', updateSelectedTotal);
+                expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
+                  cb.addEventListener('change', updateSelectedTotal);
+                });
+
+                setSpecificExpenseSelectionEnabled(false);
+                updateSelectedTotal();
+                confirmBtn.innerHTML = '💸 Record Payment';
+                selectionModal.classList.remove('hidden');
+              } else {
+                // Fallback: simple confirmation
+                const isConfirmed = await customConfirm(
+                  `Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`
+                );
+                if (!isConfirmed) return;
+
+                target.disabled = true;
+                target.textContent = 'Processing...';
+
+                try {
+                  const response = await fetch('/api/settlements/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      groupId,
+                      fromUserId: currentUserId,
+                      toUserId,
+                      amountCents,
+                      description: 'Settled via Split Dashboard',
+                    }),
                   });
-
-                  setSpecificExpenseSelectionEnabled(false);
-                  updateSelectedTotal();
-                  confirmBtn.innerHTML = '💸 Record Payment';
-                  selectionModal.classList.remove('hidden');
-                } else {
-                  // Fallback: simple confirmation
-                  const isConfirmed = await customConfirm(
-                    `Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`
-                  );
-                  if (!isConfirmed) return;
-
-                  target.disabled = true;
-                  target.textContent = 'Processing...';
-
-                  try {
-                    const response = await fetch('/api/settlements/create', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        groupId,
-                        fromUserId: currentUserId,
-                        toUserId,
-                        amountCents,
-                        description: 'Settled via Split Dashboard',
-                      }),
-                    });
-                    if (response.ok) {
-                      showToast('Settlement recorded successfully! 🎉');
-                      setTimeout(() => window.location.reload(), 2000);
-                    } else {
-                      const error = await response.json();
-                      showToast(error.error || 'Failed to record settlement', 4000);
-                      target.disabled = false;
-                      target.textContent = 'Settle Up';
-                    }
-                  } catch (error) {
-                    console.error('Error recording settlement:', error);
-                    showToast('Error recording settlement', 4000);
+                  if (response.ok) {
+                    showToast('Settlement recorded successfully! 🎉');
+                    setTimeout(() => window.location.reload(), 2000);
+                  } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to record settlement', 4000);
                     target.disabled = false;
                     target.textContent = 'Settle Up';
                   }
+                } catch (error) {
+                  console.error('Error recording settlement:', error);
+                  showToast('Error recording settlement', 4000);
+                  target.disabled = false;
+                  target.textContent = 'Settle Up';
                 }
-              });
-            });
-          }
-        }
-
-        // Fetch events to get completed settlements
-        const eventsResponse = await fetch('/api/events/list');
-        let allCompletedSettlements = [];
-        if (eventsResponse.ok) {
-          const eventsData = await eventsResponse.json();
-          const events = eventsData.events || [];
-          for (const event of events) {
-            try {
-              const settlementsResp = await fetch(`/api/settlements/for-event?eventId=${event.id}`);
-              if (settlementsResp.ok) {
-                const data = await settlementsResp.json();
-                allCompletedSettlements = allCompletedSettlements.concat(data.completed || []);
               }
-            } catch (e) {}
-          }
+            });
+          });
         }
+      }
 
-        // Display completed settlements
-        const completedSettlementsList = document.getElementById('completedSettlementsList');
-        const completedSettlementsEmpty = document.getElementById('completedSettlementsEmpty');
+      // Fetch events to get completed settlements
+      const eventsResponse = await fetch('/api/events/list');
+      let allCompletedSettlements = [];
+      if (eventsResponse.ok) {
+        const eventsData = await eventsResponse.json();
+        const events = eventsData.events || [];
+        for (const event of events) {
+          try {
+            const settlementsResp = await fetch(`/api/settlements/for-event?eventId=${event.id}`);
+            if (settlementsResp.ok) {
+              const data = await settlementsResp.json();
+              allCompletedSettlements = allCompletedSettlements.concat(data.completed || []);
+            }
+          } catch (e) {}
+        }
+      }
 
-        // Filter to only show completed settlements involving current user
-        const userCompletedSettlements = allCompletedSettlements.filter(
-          (s) => s.isCurrentUserPayer || s.isCurrentUserReceiver
-        );
+      // Display completed settlements
+      const completedSettlementsList = document.getElementById('completedSettlementsList');
+      const completedSettlementsEmpty = document.getElementById('completedSettlementsEmpty');
 
-        if (!userCompletedSettlements || userCompletedSettlements.length === 0) {
-          if (completedSettlementsList)
-            completedSettlementsList.innerHTML = completedSettlementsEmpty?.outerHTML || '';
-        } else {
-          if (completedSettlementsList) {
-            completedSettlementsList.innerHTML = userCompletedSettlements
-              .map((settlement) => {
-                return `
+      // Filter to only show completed settlements involving current user
+      const userCompletedSettlements = allCompletedSettlements.filter(
+        (s) => s.isCurrentUserPayer || s.isCurrentUserReceiver
+      );
+
+      if (!userCompletedSettlements || userCompletedSettlements.length === 0) {
+        if (completedSettlementsList)
+          completedSettlementsList.innerHTML = completedSettlementsEmpty?.outerHTML || '';
+      } else {
+        if (completedSettlementsList) {
+          completedSettlementsList.innerHTML = userCompletedSettlements
+            .map((settlement) => {
+              return `
                 <div class="bg-green-50 dark:bg-slate-700 rounded-lg shadow-sm border border-green-200 dark:border-green-600 p-5 sm:p-6">
                   <div class="flex justify-between items-start mb-3">
                     <div class="flex-1">
@@ -1970,48 +1965,48 @@ const errorParam = Astro.url.searchParams.get('error');
                   </div>
                 </div>
               `;
-              })
-              .join('');
-          }
+            })
+            .join('');
         }
-      } catch (error) {
-        console.error('Failed to load settlements:', error);
       }
+    } catch (error) {
+      console.error('Failed to load settlements:', error);
     }
+  }
 
-    // Update theme emoji based on dark class
+  // Update theme emoji based on dark class
 
-    // Global theme toggle function accessible from HTML onclick
-    window.toggleTheme = function () {
-      console.log('🖱️ Theme toggle clicked');
+  // Global theme toggle function accessible from HTML onclick
+  window.toggleTheme = function () {
+    console.log('🖱️ Theme toggle clicked');
 
-      const html = document.documentElement;
-      const isDark = html.classList.contains('dark');
-      const icon = document.getElementById('themeIcon');
-      const mainDiv = document.querySelector('div.min-h-screen');
+    const html = document.documentElement;
+    const isDark = html.classList.contains('dark');
+    const icon = document.getElementById('themeIcon');
+    const mainDiv = document.querySelector('div.min-h-screen');
 
-      if (isDark) {
-        // Switch to LIGHT mode
-        console.log('→ Switching to light mode');
-        html.classList.remove('dark');
-        document.body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
-        document.body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
+    if (isDark) {
+      // Switch to LIGHT mode
+      console.log('→ Switching to light mode');
+      html.classList.remove('dark');
+      document.body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+      document.body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
 
-        // Clear inline styles from main div
-        if (mainDiv) {
-          mainDiv.style.backgroundColor = '';
-          mainDiv.style.color = '';
-        }
+      // Clear inline styles from main div
+      if (mainDiv) {
+        mainDiv.style.backgroundColor = '';
+        mainDiv.style.color = '';
+      }
 
-        // Remove dark mode styles and apply light mode styles
-        let darkStyles = document.getElementById('dynamicDarkStyles');
-        if (darkStyles) darkStyles.remove();
+      // Remove dark mode styles and apply light mode styles
+      let darkStyles = document.getElementById('dynamicDarkStyles');
+      if (darkStyles) darkStyles.remove();
 
-        // Inject light mode styles
-        if (!document.getElementById('dynamicLightStyles')) {
-          const style = document.createElement('style');
-          style.id = 'dynamicLightStyles';
-          style.textContent = `
+      // Inject light mode styles
+      if (!document.getElementById('dynamicLightStyles')) {
+        const style = document.createElement('style');
+        style.id = 'dynamicLightStyles';
+        style.textContent = `
             html:not(.dark) header {
               background-color: rgb(255, 255, 255) !important;
               border-color: rgb(226, 232, 240) !important;
@@ -2046,34 +2041,34 @@ const errorParam = Astro.url.searchParams.get('error');
               backgroundColor: inherit !important;
             }
           `;
-          document.head.appendChild(style);
-        }
+        document.head.appendChild(style);
+      }
 
-        localStorage.setItem('theme', 'light');
-        console.log('✅ Switched to light mode');
-        if (icon) icon.textContent = '☀️';
-      } else {
-        // Switch to DARK mode
-        console.log('→ Switching to dark mode');
-        html.classList.add('dark');
-        document.body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
-        document.body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
+      localStorage.setItem('theme', 'light');
+      console.log('✅ Switched to light mode');
+      if (icon) icon.textContent = '☀️';
+    } else {
+      // Switch to DARK mode
+      console.log('→ Switching to dark mode');
+      html.classList.add('dark');
+      document.body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+      document.body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
 
-        // Set inline styles on main div for dark mode
-        if (mainDiv) {
-          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
-          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
-        }
+      // Set inline styles on main div for dark mode
+      if (mainDiv) {
+        mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
+      }
 
-        // Remove light mode styles and apply dark mode styles
-        let lightStyles = document.getElementById('dynamicLightStyles');
-        if (lightStyles) lightStyles.remove();
+      // Remove light mode styles and apply dark mode styles
+      let lightStyles = document.getElementById('dynamicLightStyles');
+      if (lightStyles) lightStyles.remove();
 
-        // Inject dark mode styles
-        if (!document.getElementById('dynamicDarkStyles')) {
-          const style = document.createElement('style');
-          style.id = 'dynamicDarkStyles';
-          style.textContent = `
+      // Inject dark mode styles
+      if (!document.getElementById('dynamicDarkStyles')) {
+        const style = document.createElement('style');
+        style.id = 'dynamicDarkStyles';
+        style.textContent = `
             html.dark header {
               background-color: rgb(15, 23, 42) !important;
               border-color: rgb(51, 65, 85) !important;
@@ -2122,40 +2117,40 @@ const errorParam = Astro.url.searchParams.get('error');
               border-color: rgb(51, 65, 85) !important;
             }
           `;
-          document.head.appendChild(style);
-        }
-
-        localStorage.setItem('theme', 'dark');
-        console.log('✅ Switched to dark mode');
-        if (icon) icon.textContent = '🌙';
-      }
-    };
-
-    // Setup theme toggle - set initial icon and styles
-    function setupThemeToggle() {
-      const btn = document.getElementById('themeToggle');
-      const icon = document.getElementById('themeIcon');
-      const html = document.documentElement;
-      const body = document.body;
-      const mainDiv = document.querySelector('div.min-h-screen');
-
-      if (!btn) {
-        console.error('❌ Theme toggle button not found');
-        return;
+        document.head.appendChild(style);
       }
 
-      console.log('✅ Theme toggle setup started');
+      localStorage.setItem('theme', 'dark');
+      console.log('✅ Switched to dark mode');
+      if (icon) icon.textContent = '🌙';
+    }
+  };
 
-      // Update icon to match current theme on initialization
-      const isDark = html.classList.contains('dark');
-      if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+  // Setup theme toggle - set initial icon and styles
+  function setupThemeToggle() {
+    const btn = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    const body = document.body;
+    const mainDiv = document.querySelector('div.min-h-screen');
 
-      // Inject CSS styles for current theme (both light and dark)
-      if (isDark && !document.getElementById('dynamicDarkStyles')) {
-        // Inject dark mode CSS
-        const darkStyle = document.createElement('style');
-        darkStyle.id = 'dynamicDarkStyles';
-        darkStyle.textContent = `
+    if (!btn) {
+      console.error('❌ Theme toggle button not found');
+      return;
+    }
+
+    console.log('✅ Theme toggle setup started');
+
+    // Update icon to match current theme on initialization
+    const isDark = html.classList.contains('dark');
+    if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+
+    // Inject CSS styles for current theme (both light and dark)
+    if (isDark && !document.getElementById('dynamicDarkStyles')) {
+      // Inject dark mode CSS
+      const darkStyle = document.createElement('style');
+      darkStyle.id = 'dynamicDarkStyles';
+      darkStyle.textContent = `
           html.dark header {
             background-color: rgb(15, 23, 42) !important;
             border-color: rgb(51, 65, 85) !important;
@@ -2192,12 +2187,12 @@ const errorParam = Astro.url.searchParams.get('error');
             border-color: rgb(51, 65, 85) !important;
           }
         `;
-        document.head.appendChild(darkStyle);
-      } else if (!isDark && !document.getElementById('dynamicLightStyles')) {
-        // Inject light mode CSS
-        const lightStyle = document.createElement('style');
-        lightStyle.id = 'dynamicLightStyles';
-        lightStyle.textContent = `
+      document.head.appendChild(darkStyle);
+    } else if (!isDark && !document.getElementById('dynamicLightStyles')) {
+      // Inject light mode CSS
+      const lightStyle = document.createElement('style');
+      lightStyle.id = 'dynamicLightStyles';
+      lightStyle.textContent = `
           html:not(.dark) header {
             background-color: rgb(255, 255, 255) !important;
             border-color: rgb(226, 232, 240) !important;
@@ -2229,311 +2224,309 @@ const errorParam = Astro.url.searchParams.get('error');
             color: rgb(15, 23, 42) !important;
           }
         `;
-        document.head.appendChild(lightStyle);
-      }
-
-      // Apply inline styles with setProperty to match current theme
-      if (isDark) {
-        html.style.setProperty('color-scheme', 'dark', 'important');
-        body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
-        body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
-        if (mainDiv) {
-          mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
-          mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
-        }
-      } else {
-        html.style.setProperty('color-scheme', 'light', 'important');
-        body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
-        body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
-        if (mainDiv) {
-          mainDiv.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
-          mainDiv.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
-        }
-      }
-
-      console.log('✅ Theme toggle ready');
+      document.head.appendChild(lightStyle);
     }
 
-    // Initialize dashboard with event listeners
-    async function initializeDashboard() {
-      console.log('Initializing dashboard...');
+    // Apply inline styles with setProperty to match current theme
+    if (isDark) {
+      html.style.setProperty('color-scheme', 'dark', 'important');
+      body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+      body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
+      if (mainDiv) {
+        mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+        mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
+      }
+    } else {
+      html.style.setProperty('color-scheme', 'light', 'important');
+      body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+      body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
+      if (mainDiv) {
+        mainDiv.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+        mainDiv.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
+      }
+    }
 
-      try {
-        // Load user info first (before other initialization)
-        await loadUserInfo();
-        // Load events list
-        await loadEvents();
-        // Load user groups
-        await loadGroups();
-        // Load pending settlements
-        await loadSettlements();
-        // Update stats panel
-        await updateStats();
-        // Load pending invitations
-        await loadPendingInvitations();
+    console.log('✅ Theme toggle ready');
+  }
 
-        // Setup theme toggle - with explicit logging
-        console.log('Before setupThemeToggle');
-        setupThemeToggle();
-        console.log('After setupThemeToggle');
+  // Initialize dashboard with event listeners
+  async function initializeDashboard() {
+    console.log('Initializing dashboard...');
 
-        // Logout button
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', async () => {
-            try {
-              await fetch('/api/auth/logout', { method: 'POST' });
-              window.location.href = '/';
-            } catch (error) {
-              console.error('Logout error:', error);
-            }
-          });
-        }
+    try {
+      // Load user info first (before other initialization)
+      await loadUserInfo();
+      // Load events list
+      await loadEvents();
+      // Load user groups
+      await loadGroups();
+      // Load pending settlements
+      await loadSettlements();
+      // Update stats panel
+      await updateStats();
+      // Load pending invitations
+      await loadPendingInvitations();
 
-        // Stats List Modal Event Listeners
-        const statsListCloseBtn = document.getElementById('statsListCloseBtn');
-        const statsListBackBtn = document.getElementById('statsListBackBtn');
-        const statsListModal = document.getElementById('statsListModal');
+      // Setup theme toggle - with explicit logging
+      console.log('Before setupThemeToggle');
+      setupThemeToggle();
+      console.log('After setupThemeToggle');
 
-        if (statsListCloseBtn) {
-          statsListCloseBtn.addEventListener('click', closeStatsList);
-        }
-
-        if (statsListBackBtn) {
-          statsListBackBtn.addEventListener('click', closeStatsList);
-        }
-
-        if (statsListModal) {
-          statsListModal.addEventListener('click', (e) => {
-            if (false && e.target === statsListModal) {
-              closeStatsList();
-            }
-          });
-        }
-
-        // Stats buttons
-        const statsTripsBtn = document.getElementById('statsTripsBtn');
-        const statsExpensesBtn = document.getElementById('statsExpensesBtn');
-        const statsActivitiesBtn = document.getElementById('statsActivitiesBtn');
-        const statsGroupsBtn = document.getElementById('statsGroupsBtn');
-
-        if (statsTripsBtn) {
-          statsTripsBtn.addEventListener('click', () => {
-            showStatsList('trips', 'Trips');
-          });
-        }
-
-        if (statsExpensesBtn) {
-          statsExpensesBtn.addEventListener('click', () => {
-            showStatsList('expenses', 'Expenses');
-          });
-        }
-
-        if (statsActivitiesBtn) {
-          statsActivitiesBtn.addEventListener('click', () => {
-            showStatsList('activities', 'Activities');
-          });
-        }
-
-        if (statsGroupsBtn) {
-          statsGroupsBtn.addEventListener('click', () => {
-            showStatsList('groups', 'Groups');
-          });
-        }
-
-        const statsOwesBtn = document.getElementById('statsOwesBtn');
-        if (statsOwesBtn) {
-          statsOwesBtn.addEventListener('click', () => {
-            showStatsList('owes', 'Amount Owed');
-          });
-        }
-
-        // Create Event Form Handler
-        const createEventForm = document.getElementById('createEventForm');
-        const createEventModal = document.getElementById('createEventModal');
-        const eventError = document.getElementById('eventError');
-
-        console.log('🔍 Form elements found:', {
-          form: !!createEventForm,
-          modal: !!createEventModal,
-          error: !!eventError,
+      // Logout button
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/';
+          } catch (error) {
+            console.error('Logout error:', error);
+          }
         });
+      }
 
-        if (createEventForm) {
-          console.log('📝 Attaching form submit listener');
-          createEventForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log('📝 Form submitted!');
+      // Stats List Modal Event Listeners
+      const statsListCloseBtn = document.getElementById('statsListCloseBtn');
+      const statsListBackBtn = document.getElementById('statsListBackBtn');
+      const statsListModal = document.getElementById('statsListModal');
 
-            // Get form fields - handle both old and new field names
-            const titleInput =
-              document.getElementById('eventTitle') || document.getElementById('eventName');
-            const descriptionInput = document.getElementById('eventDescription');
-            const startDateTimeInput =
-              document.getElementById('eventStartDateTime') ||
-              document.getElementById('eventStartDate');
-            const endDateTimeInput =
-              document.getElementById('eventEndDateTime') ||
-              document.getElementById('eventEndDate');
-            const typeSelect = document.getElementById('eventType');
-            const timezoneSelect = document.getElementById('eventTimezone');
-            const currencySelect = document.getElementById('eventCurrency');
-            const budgetInput = document.getElementById('eventBudget');
-            const locationInput = document.getElementById('eventLocation');
-            const isVirtualCheckbox = document.getElementById('eventIsVirtual');
-            const isPublicCheckbox = document.getElementById('eventIsPublic');
+      if (statsListCloseBtn) {
+        statsListCloseBtn.addEventListener('click', closeStatsList);
+      }
 
-            console.log('🔍 Input elements found:', {
-              title: !!titleInput,
-              description: !!descriptionInput,
-              startDateTime: !!startDateTimeInput,
-              endDateTime: !!endDateTimeInput,
-              type: !!typeSelect,
-              timezone: !!timezoneSelect,
-              currency: !!currencySelect,
-              budget: !!budgetInput,
-              location: !!locationInput,
-              isVirtual: !!isVirtualCheckbox,
-              isPublic: !!isPublicCheckbox,
-            });
+      if (statsListBackBtn) {
+        statsListBackBtn.addEventListener('click', closeStatsList);
+      }
 
-            // Get values with proper handling for datetime-local vs date inputs
-            const title = titleInput?.value?.trim() || '';
-            const description = descriptionInput?.value?.trim() || '';
-            const startDateTime = startDateTimeInput?.value?.trim() || '';
-            const endDateTime = endDateTimeInput?.value?.trim() || '';
-            const type = typeSelect?.value || 'general';
-            const timezone = timezoneSelect?.value || 'UTC';
-            const currency = currencySelect?.value || 'USD';
-            const budget = budgetInput?.value?.trim() || '';
-            const location = locationInput?.value?.trim() || '';
-            const isVirtual = isVirtualCheckbox?.checked || false;
-            const isPublic = isPublicCheckbox?.checked !== false;
+      if (statsListModal) {
+        statsListModal.addEventListener('click', (e) => {
+          if (false && e.target === statsListModal) {
+            closeStatsList();
+          }
+        });
+      }
 
-            console.log('📝 Form values collected:', {
-              title,
-              description,
-              startDateTime,
-              endDateTime,
-              type,
-              timezone,
-              currency,
-              budget,
-              location,
-              isVirtual,
-              isPublic,
-            });
+      // Stats buttons
+      const statsTripsBtn = document.getElementById('statsTripsBtn');
+      const statsExpensesBtn = document.getElementById('statsExpensesBtn');
+      const statsActivitiesBtn = document.getElementById('statsActivitiesBtn');
+      const statsGroupsBtn = document.getElementById('statsGroupsBtn');
 
-            if (eventError) {
-              eventError.textContent = '';
-              eventError.classList.add('hidden');
+      if (statsTripsBtn) {
+        statsTripsBtn.addEventListener('click', () => {
+          showStatsList('trips', 'Events');
+        });
+      }
+
+      if (statsExpensesBtn) {
+        statsExpensesBtn.addEventListener('click', () => {
+          showStatsList('expenses', 'Expenses');
+        });
+      }
+
+      if (statsActivitiesBtn) {
+        statsActivitiesBtn.addEventListener('click', () => {
+          showStatsList('activities', 'Activities');
+        });
+      }
+
+      if (statsGroupsBtn) {
+        statsGroupsBtn.addEventListener('click', () => {
+          showStatsList('groups', 'Groups');
+        });
+      }
+
+      const statsOwesBtn = document.getElementById('statsOwesBtn');
+      if (statsOwesBtn) {
+        statsOwesBtn.addEventListener('click', () => {
+          showStatsList('owes', 'Amount Owed');
+        });
+      }
+
+      // Create Event Form Handler
+      const createEventForm = document.getElementById('createEventForm');
+      const createEventModal = document.getElementById('createEventModal');
+      const eventError = document.getElementById('eventError');
+
+      console.log('🔍 Form elements found:', {
+        form: !!createEventForm,
+        modal: !!createEventModal,
+        error: !!eventError,
+      });
+
+      if (createEventForm) {
+        console.log('📝 Attaching form submit listener');
+        createEventForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          console.log('📝 Form submitted!');
+
+          // Get form fields - handle both old and new field names
+          const titleInput =
+            document.getElementById('eventTitle') || document.getElementById('eventName');
+          const descriptionInput = document.getElementById('eventDescription');
+          const startDateTimeInput =
+            document.getElementById('eventStartDateTime') ||
+            document.getElementById('eventStartDate');
+          const endDateTimeInput =
+            document.getElementById('eventEndDateTime') || document.getElementById('eventEndDate');
+          const typeSelect = document.getElementById('eventType');
+          const timezoneSelect = document.getElementById('eventTimezone');
+          const currencySelect = document.getElementById('eventCurrency');
+          const budgetInput = document.getElementById('eventBudget');
+          const locationInput = document.getElementById('eventLocation');
+          const isVirtualCheckbox = document.getElementById('eventIsVirtual');
+          const isPublicCheckbox = document.getElementById('eventIsPublic');
+
+          console.log('🔍 Input elements found:', {
+            title: !!titleInput,
+            description: !!descriptionInput,
+            startDateTime: !!startDateTimeInput,
+            endDateTime: !!endDateTimeInput,
+            type: !!typeSelect,
+            timezone: !!timezoneSelect,
+            currency: !!currencySelect,
+            budget: !!budgetInput,
+            location: !!locationInput,
+            isVirtual: !!isVirtualCheckbox,
+            isPublic: !!isPublicCheckbox,
+          });
+
+          // Get values with proper handling for datetime-local vs date inputs
+          const title = titleInput?.value?.trim() || '';
+          const description = descriptionInput?.value?.trim() || '';
+          const startDateTime = startDateTimeInput?.value?.trim() || '';
+          const endDateTime = endDateTimeInput?.value?.trim() || '';
+          const type = typeSelect?.value || 'general';
+          const timezone = timezoneSelect?.value || 'UTC';
+          const currency = currencySelect?.value || 'USD';
+          const budget = budgetInput?.value?.trim() || '';
+          const location = locationInput?.value?.trim() || '';
+          const isVirtual = isVirtualCheckbox?.checked || false;
+          const isPublic = isPublicCheckbox?.checked !== false;
+
+          console.log('📝 Form values collected:', {
+            title,
+            description,
+            startDateTime,
+            endDateTime,
+            type,
+            timezone,
+            currency,
+            budget,
+            location,
+            isVirtual,
+            isPublic,
+          });
+
+          if (eventError) {
+            eventError.textContent = '';
+            eventError.classList.add('hidden');
+          }
+
+          try {
+            // Convert datetime-local (2026-04-07T14:30) to ISO string
+            let startTime = startDateTime;
+            let endTime = endDateTime;
+
+            if (startDateTime && startDateTime.includes('T')) {
+              // datetime-local format, convert to ISO
+              startTime = new Date(startDateTime).toISOString();
+            } else if (startDateTime) {
+              // date format, convert to ISO at start of day
+              startTime = new Date(startDateTime + 'T00:00:00').toISOString();
             }
 
-            try {
-              // Convert datetime-local (2026-04-07T14:30) to ISO string
-              let startTime = startDateTime;
-              let endTime = endDateTime;
+            if (endDateTime && endDateTime.includes('T')) {
+              endTime = new Date(endDateTime).toISOString();
+            } else if (endDateTime) {
+              endTime = new Date(endDateTime + 'T23:59:59').toISOString();
+            }
 
-              if (startDateTime && startDateTime.includes('T')) {
-                // datetime-local format, convert to ISO
-                startTime = new Date(startDateTime).toISOString();
-              } else if (startDateTime) {
-                // date format, convert to ISO at start of day
-                startTime = new Date(startDateTime + 'T00:00:00').toISOString();
-              }
+            console.log('📦 Converted times:', { startTime, endTime });
 
-              if (endDateTime && endDateTime.includes('T')) {
-                endTime = new Date(endDateTime).toISOString();
-              } else if (endDateTime) {
-                endTime = new Date(endDateTime + 'T23:59:59').toISOString();
-              }
+            const response = await fetch('/api/events/create', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: title,
+                title,
+                description,
+                location,
+                startDate: startDateTime,
+                startTime,
+                endDate: endDateTime,
+                endTime,
+                currency,
+                budget: budget ? budget : undefined,
+                type,
+                timezone,
+                isVirtual,
+                isPublic,
+              }),
+            });
 
-              console.log('📦 Converted times:', { startTime, endTime });
+            const data = await response.json();
 
-              const response = await fetch('/api/events/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: title,
-                  title,
-                  description,
-                  location,
-                  startDate: startDateTime,
-                  startTime,
-                  endDate: endDateTime,
-                  endTime,
-                  currency,
-                  budget: budget ? budget : undefined,
-                  type,
-                  timezone,
-                  isVirtual,
-                  isPublic,
-                }),
-              });
-
-              const data = await response.json();
-
-              if (!response.ok) {
-                const errorMsg = data.error || 'Failed to create event';
-                console.error('Event creation error:', errorMsg);
-                if (eventError) {
-                  eventError.textContent = errorMsg;
-                  eventError.classList.remove('hidden');
-                }
-              } else {
-                console.log('✓ Event created:', data.event.id);
-                createEventForm.reset();
-                if (createEventModal) {
-                  createEventModal.classList.add('hidden');
-                }
-                showToast('Event created successfully!');
-                await loadEvents();
-                // Redirect to event detail page
-                window.location.href = `/events/${data.event.id}`;
-              }
-            } catch (error) {
-              console.error('Network error:', error);
+            if (!response.ok) {
+              const errorMsg = data.error || 'Failed to create event';
+              console.error('Event creation error:', errorMsg);
               if (eventError) {
-                eventError.textContent = 'An error occurred. Please try again.';
+                eventError.textContent = errorMsg;
                 eventError.classList.remove('hidden');
               }
+            } else {
+              console.log('✓ Event created:', data.event.id);
+              createEventForm.reset();
+              if (createEventModal) {
+                createEventModal.classList.add('hidden');
+              }
+              showToast('Event created successfully!');
+              await loadEvents();
+              // Redirect to event detail page
+              window.location.href = `/events/${data.event.id}`;
             }
-          });
-        }
-
-        // Create Event Modal Button - Show/Hide
-        const createEventBtn = document.getElementById('createEventBtn');
-        const cancelEventBtn = document.getElementById('cancelEventBtn');
-
-        if (createEventBtn && createEventModal) {
-          createEventBtn.addEventListener('click', () => {
-            createEventModal.classList.remove('hidden');
-          });
-        }
-
-        if (cancelEventBtn && createEventModal) {
-          cancelEventBtn.addEventListener('click', () => {
-            createEventModal.classList.add('hidden');
-          });
-        }
-      } catch (error) {
-        console.error('Dashboard initialization error:', error);
+          } catch (error) {
+            console.error('Network error:', error);
+            if (eventError) {
+              eventError.textContent = 'An error occurred. Please try again.';
+              eventError.classList.remove('hidden');
+            }
+          }
+        });
       }
-    }
 
-    // Always wait for DOM to be fully ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeDashboard);
-    } else if (document.readyState === 'interactive') {
-      // Interactive means DOM is ready but styles/images still loading
-      // Safe to initialize
-      initializeDashboard();
-    } else {
-      // Complete means everything is loaded
-      // Use requestAnimationFrame to ensure DOM is painted
-      requestAnimationFrame(() => {
-        initializeDashboard();
-      });
+      // Create Event Modal Button - Show/Hide
+      const createEventBtn = document.getElementById('createEventBtn');
+      const cancelEventBtn = document.getElementById('cancelEventBtn');
+
+      if (createEventBtn && createEventModal) {
+        createEventBtn.addEventListener('click', () => {
+          createEventModal.classList.remove('hidden');
+        });
+      }
+
+      if (cancelEventBtn && createEventModal) {
+        cancelEventBtn.addEventListener('click', () => {
+          createEventModal.classList.add('hidden');
+        });
+      }
+    } catch (error) {
+      console.error('Dashboard initialization error:', error);
     }
-  </script>
-</Layout>
+  }
+
+  // Always wait for DOM to be fully ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDashboard);
+  } else if (document.readyState === 'interactive') {
+    // Interactive means DOM is ready but styles/images still loading
+    // Safe to initialize
+    initializeDashboard();
+  } else {
+    // Complete means everything is loaded
+    // Use requestAnimationFrame to ensure DOM is painted
+    requestAnimationFrame(() => {
+      initializeDashboard();
+    });
+  }
+</script>

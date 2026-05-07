@@ -1029,7 +1029,7 @@ const errorParam = Astro.url.searchParams.get('error');
             document.querySelectorAll('.view-group-btn').forEach((btn) => {
               btn.addEventListener('click', (e) => {
                 const groupId = e.target.dataset.groupId;
-                window.location.href = `/groups/${groupId}/manage`;
+                window.location.href = `/groups/${groupId}/balances`;
               });
             });
             document.querySelectorAll('.edit-group-btn').forEach((btn) => {

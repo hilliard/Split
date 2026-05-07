@@ -12,11 +12,13 @@ const updateActivitySchema = z.object({
     .string()
     .datetime()
     .or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/))
+    .nullable()
     .optional(),
   endTime: z
     .string()
     .datetime()
     .or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/))
+    .nullable()
     .optional(),
   locationName: z.string().max(255).optional().nullable(),
   sequenceOrder: z.number().int().nonnegative().optional(),
@@ -89,7 +91,7 @@ export const POST: APIRoute = async (context) => {
         });
       }
 
-      let isCreator = event.creatorId === session.userId;
+      const isCreator = event.creatorId === session.userId;
       let isGroupMember = false;
       if (event.groupId) {
         const groupMember = await db
@@ -143,7 +145,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     // Update activity
-    const [updatedActivity] = (await db
+    const [updatedActivity] = await db
       .update(activities)
       .set({
         title: validatedData.title || undefined,
@@ -155,7 +157,7 @@ export const POST: APIRoute = async (context) => {
         metadata: validatedData.metadata || undefined,
       })
       .where(eq(activities.id, validatedData.activityId))
-      .returning()) as any;
+      .returning();
 
     return new Response(
       JSON.stringify({
@@ -171,7 +173,15 @@ export const POST: APIRoute = async (context) => {
     console.error('Error updating activity:', error);
 
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: error.flatten() }), {
+      const details = error.flatten();
+      const message =
+        details.formErrors[0] ||
+        Object.values(details.fieldErrors)
+          .flat()
+          .find((entry): entry is string => Boolean(entry)) ||
+        'Invalid activity update payload';
+
+      return new Response(JSON.stringify({ error: message, details }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

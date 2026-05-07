@@ -1148,16 +1148,22 @@ const errorParam = Astro.url.searchParams.get('error');
 
                 // Add expenses to statsData and sum totals
                 expenses.forEach((expense) => {
+                  const mySplit = expense.splits?.find((s) => s.userId === currentUserId);
+                  const myShareAmount = mySplit
+                    ? parseFloat(mySplit.amountDollars) || 0
+                    : parseFloat(expense.total) || 0;
+
                   statsData.expenses.push({
                     ...expense,
                     tripName: event.title || event.name || 'Untitled Trip',
                     currency: event.currency || 'USD',
+                    myShareAmount,
+                    hasMySplit: Boolean(mySplit),
                   });
                   totalExpensesAmount += parseFloat(expense.total) || 0;
 
                   // Track owes: if current user didn't pay for this expense, they owe money
                   if (expense.paidBy !== currentUserId && expense.splits) {
-                    const mySplit = expense.splits.find((s) => s.userId === currentUserId);
                     if (mySplit) {
                       statsData.owes.push({
                         id: expense.id,
@@ -1307,9 +1313,10 @@ const errorParam = Astro.url.searchParams.get('error');
                 <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(exp.description)}</h3>
                 <p class="text-sm text-slate-600 dark:text-slate-400">${escapeHtml(exp.tripName)}</p>
                 <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">Paid by: ${escapeHtml(exp.payerName || 'Unknown')}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">${exp.hasMySplit ? 'Your share' : 'Total'}</p>
               </div>
               <div class="text-right flex-shrink-0">
-                <p class="font-semibold text-green-600 dark:text-green-400">${exp.currency || 'USD'} ${parseFloat(exp.total || 0).toFixed(2)}</p>
+                <p class="font-semibold text-green-600 dark:text-green-400">${exp.currency || 'USD'} ${parseFloat(exp.myShareAmount || 0).toFixed(2)}</p>
               </div>
             </div>
           </div>

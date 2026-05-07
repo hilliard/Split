@@ -15,7 +15,7 @@ import {
   humans,
   groupMembers,
 } from '../../../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or, isNull } from 'drizzle-orm';
 import { centsToDollars } from '../../../utils/currency';
 
 export const GET: APIRoute = async (context) => {
@@ -82,8 +82,12 @@ export const GET: APIRoute = async (context) => {
       );
     }
 
-    // Get all expenses for this event
-    const eventExpenses = await db.select().from(expenses).where(eq(expenses.eventId, eventId));
+    // Get all expenses for this event, plus legacy/group-linked expenses that may not have eventId set.
+    const expenseFilter = event.groupId
+      ? or(eq(expenses.eventId, eventId), and(eq(expenses.groupId, event.groupId), isNull(expenses.eventId)))
+      : eq(expenses.eventId, eventId);
+
+    const eventExpenses = await db.select().from(expenses).where(expenseFilter);
 
     // Enrich with split details and payer name
     const enrichedExpenses = await Promise.all(

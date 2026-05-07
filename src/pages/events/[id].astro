@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { db } from '../../db';
-import { events, sessions, groupMembers } from '../../db/schema';
+import { events, sessions, groupMembers, expenseGroups } from '../../db/schema';
 import { eq, and, or, inArray } from 'drizzle-orm';
 
 // Check if user is authenticated
@@ -73,6 +73,11 @@ const endDate = event.endTime
   : 'Not set';
 
 const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not set';
+
+// Fetch associated group name if present
+const [eventGroup] = event.groupId
+  ? await db.select().from(expenseGroups).where(eq(expenseGroups.id, event.groupId)).limit(1)
+  : [undefined];
 ---
 
 <Layout title={event.title} description={event.description || 'Event details'} currentPage="events">
@@ -156,6 +161,21 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : 'Not s
                 <p class="text-lg font-semibold text-green-600 dark:text-green-400">
                   {event.currency}
                   {budget}
+                </p>
+              </div>
+            )
+          }
+          {
+            eventGroup && (
+              <div>
+                <p class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Group</p>
+                <p class="text-lg font-semibold text-slate-900 dark:text-white">
+                  <a
+                    href={`/groups/${eventGroup.id}`}
+                    class="text-indigo-600 dark:text-indigo-400 hover:underline"
+                  >
+                    {eventGroup.name}
+                  </a>
                 </p>
               </div>
             )

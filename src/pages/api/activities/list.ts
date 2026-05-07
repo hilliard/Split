@@ -2,6 +2,16 @@ import type { APIRoute } from 'astro';
 import { db } from '../../../db';
 import { activities, sessions, events, groupMembers } from '../../../db/schema';
 import { eq, and, asc } from 'drizzle-orm';
+import { formatDateTime, formatTime, formatTimeRange } from '../../../utils/time-format';
+
+const withDisplayTimeFields = <T extends { startTime?: Date | string | null; endTime?: Date | string | null }>(
+  activity: T
+) => ({
+  ...activity,
+  displayStartUtc: formatDateTime(activity.startTime, { mode: 'utc' }),
+  displayEndUtc: formatTime(activity.endTime, { mode: 'utc' }),
+  displayTimeRangeUtc: formatTimeRange(activity.startTime, activity.endTime, { mode: 'utc' }),
+});
 
 export const GET: APIRoute = async (context) => {
   try {
@@ -37,8 +47,10 @@ export const GET: APIRoute = async (context) => {
         .where(and(eq(activities.eventId, null), eq(activities.createdBy, userId)))
         .orderBy(asc(activities.sequenceOrder), asc(activities.startTime))
       ) as any;
+
+      const activitiesWithDisplay = activitiesList.map(withDisplayTimeFields);
       return new Response(
-        JSON.stringify({ activities: activitiesList }),
+        JSON.stringify({ activities: activitiesWithDisplay }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -94,8 +106,10 @@ export const GET: APIRoute = async (context) => {
       .where(eq(activities.eventId, eventIdStr))
       .orderBy(asc(activities.sequenceOrder), asc(activities.startTime))) as any;
 
+    const activitiesWithDisplay = activitiesList.map(withDisplayTimeFields);
+
     return new Response(
-      JSON.stringify({ activities: activitiesList }),
+      JSON.stringify({ activities: activitiesWithDisplay }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
     // Fallthrough: handled above with explicit response for event activities

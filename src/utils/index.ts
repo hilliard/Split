@@ -6,3 +6,4 @@ export {
   deleteSession,
   deleteSessionsByUserId,
 } from './session';
+export { formatDateTime, formatTime, formatTimeRange } from './time-format';

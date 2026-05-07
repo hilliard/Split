@@ -37,19 +37,33 @@ const errorParam = Astro.url.searchParams.get('error');
       class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
       data-user-id={session.userId}
     >
-      {errorParam === 'unauthorized_edit' && (
-        <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
-          <div class="text-red-500 dark:text-red-400 mt-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-            </svg>
+      {
+        errorParam === 'unauthorized_edit' && (
+          <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
+            <div class="text-red-500 dark:text-red-400 mt-0.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Access Denied</h3>
+              <p class="mt-1 text-sm text-red-700 dark:text-red-300">
+                You do not have permission to edit this event. Only the event creator can make
+                changes.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Access Denied</h3>
-            <p class="mt-1 text-sm text-red-700 dark:text-red-300">You do not have permission to edit this event. Only the event creator can make changes.</p>
-          </div>
-        </div>
-      )}
+        )
+      }
 
       <!-- Top Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -343,12 +357,23 @@ const errorParam = Astro.url.searchParams.get('error');
               class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-1 transition-colors px-3 py-1.5 -ml-2 rounded-md border border-transparent hover:border-blue-100 dark:hover:border-blue-800"
               aria-label="Back to Dashboard"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                  clip-rule="evenodd"></path>
               </svg>
               <span class="text-sm font-bold">Back</span>
             </button>
-            <h2 id="statsListTitle" class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+            <h2
+              id="statsListTitle"
+              class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
+            >
               Items
             </h2>
           </div>
@@ -604,25 +629,56 @@ const errorParam = Astro.url.searchParams.get('error');
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-lg border border-slate-200 dark:border-slate-700 my-8 overflow-hidden flex flex-col max-h-[90vh]"
       >
-        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10 flex justify-between items-center">
+        <div
+          class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10 flex justify-between items-center"
+        >
           <div>
-            <h2 class="text-xl font-bold text-slate-900 dark:text-white" id="settlementSelectionTitle">Settle Up</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1" id="settlementSelectionSubtitle">Select which items to pay off</p>
+            <h2
+              class="text-xl font-bold text-slate-900 dark:text-white"
+              id="settlementSelectionTitle"
+            >
+              Settle Up
+            </h2>
+            <p
+              class="text-sm text-slate-500 dark:text-slate-400 mt-1"
+              id="settlementSelectionSubtitle"
+            >
+              Select which items to pay off
+            </p>
           </div>
-          <button type="button" id="closeSettlementSelectionBtn" class="text-slate-400 hover:text-slate-500">
+          <button
+            type="button"
+            id="closeSettlementSelectionBtn"
+            class="text-slate-400 hover:text-slate-500"
+          >
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
         </div>
-        
+
         <div class="p-5 sm:p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-900">
           <div class="mb-4">
-            <label id="selectAllExpensesLabel" class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500">
-              <input type="checkbox" id="selectAllExpensesCheckbox" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" checked />
+            <label
+              id="selectAllExpensesLabel"
+              class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500"
+            >
+              <input
+                type="checkbox"
+                id="selectAllExpensesCheckbox"
+                class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                checked
+              />
               <div class="flex-1">
-                <span class="block font-semibold text-slate-900 dark:text-white">Pay Full Amount</span>
-                <span class="block text-sm text-slate-500" id="settlementFullAmountText">$0.00</span>
+                <span class="block font-semibold text-slate-900 dark:text-white"
+                  >Pay Full Amount</span
+                >
+                <span class="block text-sm text-slate-500" id="settlementFullAmountText">$0.00</span
+                >
               </div>
             </label>
           </div>
@@ -632,7 +688,9 @@ const errorParam = Astro.url.searchParams.get('error');
               <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
             </div>
             <div class="relative flex justify-center">
-              <span class="bg-slate-50 dark:bg-slate-900 px-2 text-sm text-gray-500">or select specific items</span>
+              <span class="bg-slate-50 dark:bg-slate-900 px-2 text-sm text-gray-500"
+                >or select specific items</span
+              >
             </div>
           </div>
 
@@ -641,10 +699,14 @@ const errorParam = Astro.url.searchParams.get('error');
           </div>
         </div>
 
-        <div class="p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0 z-10 flex flex-col gap-4">
+        <div
+          class="p-5 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 sticky bottom-0 z-10 flex flex-col gap-4"
+        >
           <div class="flex justify-between items-center text-lg font-bold">
             <span class="text-slate-900 dark:text-white">Selected Total:</span>
-            <span class="text-indigo-600 dark:text-indigo-400" id="settlementSelectedTotal">$0.00</span>
+            <span class="text-indigo-600 dark:text-indigo-400" id="settlementSelectedTotal"
+              >$0.00</span
+            >
           </div>
           <button
             type="button"
@@ -662,9 +724,13 @@ const errorParam = Astro.url.searchParams.get('error');
       id="settleConfirmModal"
       class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 sm:p-6"
     >
-      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-slide-up">
+      <div
+        class="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-slide-up"
+      >
         <div class="p-5 sm:p-6 text-center">
-          <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4">
+          <div
+            class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4"
+          >
             <span class="text-xl text-indigo-600 dark:text-indigo-400">💸</span>
           </div>
           <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Confirm Payment</h3>
@@ -724,19 +790,25 @@ const errorParam = Astro.url.searchParams.get('error');
         const msgEl = document.getElementById('settleConfirmMessage');
         const confirmBtn = document.getElementById('settleConfirmBtn');
         const cancelBtn = document.getElementById('settleCancelBtn');
-        
+
         msgEl.textContent = message;
         modal.classList.remove('hidden');
-        
+
         const cleanup = () => {
           modal.classList.add('hidden');
           confirmBtn.removeEventListener('click', onConfirm);
           cancelBtn.removeEventListener('click', onCancel);
         };
-        
-        const onConfirm = () => { cleanup(); resolve(true); };
-        const onCancel = () => { cleanup(); resolve(false); };
-        
+
+        const onConfirm = () => {
+          cleanup();
+          resolve(true);
+        };
+        const onCancel = () => {
+          cleanup();
+          resolve(false);
+        };
+
         confirmBtn.addEventListener('click', onConfirm);
         cancelBtn.addEventListener('click', onCancel);
       });
@@ -1084,7 +1156,7 @@ const errorParam = Astro.url.searchParams.get('error');
 
                   // Track owes: if current user didn't pay for this expense, they owe money
                   if (expense.paidBy !== currentUserId && expense.splits) {
-                    const mySplit = expense.splits.find(s => s.userId === currentUserId);
+                    const mySplit = expense.splits.find((s) => s.userId === currentUserId);
                     if (mySplit) {
                       statsData.owes.push({
                         id: expense.id,
@@ -1095,7 +1167,7 @@ const errorParam = Astro.url.searchParams.get('error');
                         paidBy: expense.payerName,
                         paidById: expense.paidBy,
                         tripName: event.name,
-                        groupId: event.groupId
+                        groupId: event.groupId,
                       });
                     }
                   }
@@ -1274,14 +1346,17 @@ const errorParam = Astro.url.searchParams.get('error');
       } else if (type === 'owes') {
         items = statsData.owes;
         html = items
-          .map(
-            (owe) => {
-              const activeDebt = window.globalBalances?.find(b => 
-                b.fromUserId === currentUserId && b.toUserId === owe.paidById && b.groupId === owe.groupId && b.amountCents > 0
-              );
-              const showSettleBtn = owe.groupId && owe.paidById && !!activeDebt;
-              
-              return `
+          .map((owe) => {
+            const activeDebt = window.globalBalances?.find(
+              (b) =>
+                b.fromUserId === currentUserId &&
+                b.toUserId === owe.paidById &&
+                b.groupId === owe.groupId &&
+                b.amountCents > 0
+            );
+            const showSettleBtn = owe.groupId && owe.paidById && !!activeDebt;
+
+            return `
           <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
             <div class="flex justify-between items-start gap-3">
               <div class="flex-1">
@@ -1291,7 +1366,9 @@ const errorParam = Astro.url.searchParams.get('error');
               </div>
               <div class="text-right flex-shrink-0 flex flex-col items-end gap-2">
                 <p class="font-semibold text-red-600 dark:text-red-400">${owe.currency} ${owe.amount.toFixed(2)}</p>
-                ${showSettleBtn ? `
+                ${
+                  showSettleBtn
+                    ? `
                   <button class="text-xs px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors quick-settle-btn"
                     data-to-user-id="${owe.paidById}"
                     data-to-user-name="${escapeHtml(owe.paidBy)}"
@@ -1300,13 +1377,14 @@ const errorParam = Astro.url.searchParams.get('error');
                     data-desc="${escapeHtml(owe.description)}">
                     Settle
                   </button>
-                ` : ''}
+                `
+                    : ''
+                }
               </div>
             </div>
           </div>
-        `
-            }
-          )
+        `;
+          })
           .join('');
       }
 
@@ -1327,12 +1405,14 @@ const errorParam = Astro.url.searchParams.get('error');
             const groupId = target.dataset.groupId;
             const desc = target.dataset.desc;
             const amountDollars = (amountCents / 100).toFixed(2);
-            
-            const isConfirmed = await customConfirm(`Settle $${amountDollars} for "${desc}" with ${toUserName}?`);
+
+            const isConfirmed = await customConfirm(
+              `Settle $${amountDollars} for "${desc}" with ${toUserName}?`
+            );
             if (!isConfirmed) {
               return;
             }
-            
+
             target.disabled = true;
             target.textContent = 'Processing...';
 
@@ -1345,8 +1425,8 @@ const errorParam = Astro.url.searchParams.get('error');
                   fromUserId: currentUserId,
                   toUserId,
                   amountCents,
-                  description: `Settled specific expense: ${desc}`
-                })
+                  description: `Settled specific expense: ${desc}`,
+                }),
               });
               if (response.ok) {
                 showToast('Settlement recorded! 🎉');
@@ -1526,7 +1606,7 @@ const errorParam = Astro.url.searchParams.get('error');
                 // If fromUserId === currentUserId, the user owes money
                 const userOwes = balance.fromUserId === currentUserId;
                 const otherUserName = userOwes ? balance.toUserName : balance.fromUserName;
-                
+
                 return `
                 <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
                   <div class="flex justify-between items-start mb-3">
@@ -1582,52 +1662,57 @@ const errorParam = Astro.url.searchParams.get('error');
               toUserName: null,
               groupId: null,
               fullAmountCents: 0,
-              specificOwes: []
+              specificOwes: [],
             };
 
             function updateSelectedTotal() {
               const selectAllLabel = document.getElementById('selectAllExpensesLabel');
-              
+
               if (selectAllCheckbox.checked) {
                 // Style 'Pay Full Amount' as selected
-                selectAllLabel.className = 'flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
-                
+                selectAllLabel.className =
+                  'flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
+
                 selectedTotalEl.textContent = `$${(currentSettleState.fullAmountCents / 100).toFixed(2)}`;
                 confirmBtn.disabled = false;
                 confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                
+
                 // Style all individual items as unselected
-                expensesList.querySelectorAll('.expense-checkbox').forEach(cb => {
+                expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
                   const label = cb.closest('.expense-label');
                   if (label) {
-                    label.className = 'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60';
+                    label.className =
+                      'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60';
                   }
                 });
                 return;
               } else {
                 // Style 'Pay Full Amount' as unselected
-                selectAllLabel.className = 'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
+                selectAllLabel.className =
+                  'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
               }
 
               const checkboxes = expensesList.querySelectorAll('.expense-checkbox');
               let totalCents = 0;
-              
-              checkboxes.forEach(cb => {
+
+              checkboxes.forEach((cb) => {
                 const label = cb.closest('.expense-label');
                 if (cb.checked) {
                   totalCents += parseInt(cb.value);
                   if (label) {
-                    label.className = 'expense-label flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
+                    label.className =
+                      'expense-label flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors shadow-sm bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500';
                   }
                 } else {
                   if (label) {
-                    label.className = 'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
+                    label.className =
+                      'expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors';
                   }
                 }
               });
 
               selectedTotalEl.textContent = `$${(totalCents / 100).toFixed(2)}`;
-              
+
               if (totalCents === 0) {
                 confirmBtn.disabled = true;
                 confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -1646,7 +1731,7 @@ const errorParam = Astro.url.searchParams.get('error');
             if (selectAllCheckbox) {
               selectAllCheckbox.addEventListener('change', (e) => {
                 const isChecked = e.target.checked;
-                expensesList.querySelectorAll('.expense-checkbox').forEach(cb => {
+                expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
                   cb.disabled = isChecked;
                   if (isChecked) cb.checked = true;
                 });
@@ -1663,12 +1748,14 @@ const errorParam = Astro.url.searchParams.get('error');
                   amountCents = currentSettleState.fullAmountCents;
                   description = 'Settled via Split Dashboard (Full Amount)';
                 } else {
-                  const checkedBoxes = Array.from(expensesList.querySelectorAll('.expense-checkbox:checked'));
+                  const checkedBoxes = Array.from(
+                    expensesList.querySelectorAll('.expense-checkbox:checked')
+                  );
                   if (checkedBoxes.length === 0) return;
-                  
+
                   amountCents = checkedBoxes.reduce((sum, cb) => sum + parseInt(cb.value), 0);
-                  const names = checkedBoxes.map(cb => cb.dataset.desc);
-                  
+                  const names = checkedBoxes.map((cb) => cb.dataset.desc);
+
                   // Truncate description if it gets too long
                   description = `Settled: ${names.join(', ')}`;
                   if (description.length > 200) {
@@ -1688,8 +1775,8 @@ const errorParam = Astro.url.searchParams.get('error');
                       fromUserId: currentUserId,
                       toUserId: currentSettleState.toUserId,
                       amountCents,
-                      description
-                    })
+                      description,
+                    }),
                   });
                   if (response.ok) {
                     showToast('Settlement recorded successfully! 🎉');
@@ -1718,23 +1805,31 @@ const errorParam = Astro.url.searchParams.get('error');
                 const amountCents = parseInt(target.dataset.amountCents);
                 const groupId = target.dataset.groupId;
                 const amountDollars = (amountCents / 100).toFixed(2);
-                
+
                 // Find specific expenses owed to this user in this group
-                const specificOwes = statsData.owes.filter(owe => 
-                  owe.groupId === groupId && owe.paidById === toUserId
+                const specificOwes = statsData.owes.filter(
+                  (owe) => owe.groupId === groupId && owe.paidById === toUserId
                 );
 
                 if (specificOwes.length > 0 && selectionModal) {
                   // Show Selection Modal
-                  currentSettleState = { toUserId, toUserName, groupId, fullAmountCents: amountCents, specificOwes };
-                  
+                  currentSettleState = {
+                    toUserId,
+                    toUserName,
+                    groupId,
+                    fullAmountCents: amountCents,
+                    specificOwes,
+                  };
+
                   titleEl.textContent = `Settle Up with ${toUserName}`;
                   fullAmountText.textContent = `$${amountDollars}`;
-                  
+
                   // Reset checkboxes
                   selectAllCheckbox.checked = true;
-                  
-                  expensesList.innerHTML = specificOwes.map(owe => `
+
+                  expensesList.innerHTML = specificOwes
+                    .map(
+                      (owe) => `
                     <label class="expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60">
                       <div class="pt-0.5">
                         <input type="checkbox" value="${owe.amountCents}" data-desc="${escapeHtml(owe.description)}" class="expense-checkbox w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" disabled checked />
@@ -1747,9 +1842,11 @@ const errorParam = Astro.url.searchParams.get('error');
                         <span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(owe.tripName)}</span>
                       </div>
                     </label>
-                  `).join('');
+                  `
+                    )
+                    .join('');
 
-                  expensesList.querySelectorAll('.expense-checkbox').forEach(cb => {
+                  expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
                     cb.addEventListener('change', updateSelectedTotal);
                   });
 
@@ -1758,9 +1855,11 @@ const errorParam = Astro.url.searchParams.get('error');
                   selectionModal.classList.remove('hidden');
                 } else {
                   // Fallback: simple confirmation
-                  const isConfirmed = await customConfirm(`Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`);
+                  const isConfirmed = await customConfirm(
+                    `Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`
+                  );
                   if (!isConfirmed) return;
-                  
+
                   target.disabled = true;
                   target.textContent = 'Processing...';
 
@@ -1773,8 +1872,8 @@ const errorParam = Astro.url.searchParams.get('error');
                         fromUserId: currentUserId,
                         toUserId,
                         amountCents,
-                        description: 'Settled via Split Dashboard'
-                      })
+                        description: 'Settled via Split Dashboard',
+                      }),
                     });
                     if (response.ok) {
                       showToast('Settlement recorded successfully! 🎉');
@@ -2176,24 +2275,6 @@ const errorParam = Astro.url.searchParams.get('error');
           });
         }
 
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
-
-        if (mobileMenuBtn && mobileMenu) {
-          mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-          });
-
-          // Close menu when clicking on a link
-          const links = mobileMenu.querySelectorAll('a');
-          links.forEach((link) => {
-            link.addEventListener('click', () => {
-              mobileMenu.classList.add('hidden');
-            });
-          });
-        }
-
         // Stats List Modal Event Listeners
         const statsListCloseBtn = document.getElementById('statsListCloseBtn');
         const statsListBackBtn = document.getElementById('statsListBackBtn');
@@ -2202,7 +2283,7 @@ const errorParam = Astro.url.searchParams.get('error');
         if (statsListCloseBtn) {
           statsListCloseBtn.addEventListener('click', closeStatsList);
         }
-        
+
         if (statsListBackBtn) {
           statsListBackBtn.addEventListener('click', closeStatsList);
         }

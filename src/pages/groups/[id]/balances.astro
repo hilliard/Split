@@ -19,7 +19,6 @@ if (!session) {
 
 // Get session and verify user
 
-
 // Get group ID from URL
 const { id } = Astro.params;
 
@@ -188,10 +187,10 @@ const members = await db
       <!-- Back Button -->
       <div class="mb-6">
         <a
-          href={`/groups/${id}/manage`}
+          href="/dashboard"
           class="inline-flex items-center px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
         >
-          ← Back to Group
+          ← Back to Dashboard
         </a>
       </div>
     </main>
@@ -273,10 +272,10 @@ const members = await db
         settlementsList.innerHTML = balances
           .map((balance) => {
             const isPayer = balance.fromUserId === userId;
-            const settleButton = isPayer 
-              ? `<button onclick="settleUp('${balance.toUserId}', '${balance.toUserName}', ${balance.amountCents})" class="mt-3 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md transition-colors">Settle Up</button>` 
+            const settleButton = isPayer
+              ? `<button onclick="settleUp('${balance.toUserId}', '${balance.toUserName}', ${balance.amountCents})" class="mt-3 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md transition-colors">Settle Up</button>`
               : '';
-              
+
             return `<div class="p-4 bg-amber-50 dark:bg-amber-900 rounded-lg border border-amber-200 dark:border-amber-700">
                 <p class="text-amber-900 dark:text-amber-100">
                   <strong>${balance.fromUserName}</strong> owes <strong>${balance.toUserName}</strong>
@@ -298,13 +297,16 @@ const members = await db
     }
 
     // Expose settleUp to global window so the inline onclick works
-    window.settleUp = async function(toUserId, toUserName, amountCents) {
+    window.settleUp = async function (toUserId, toUserName, amountCents) {
       const amountDollars = (amountCents / 100).toFixed(2);
-      const isConfirmed = await window.customConfirm(`Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`, 'Record Payment');
+      const isConfirmed = await window.customConfirm(
+        `Are you sure you want to record a $${amountDollars} payment to ${toUserName}?`,
+        'Record Payment'
+      );
       if (!isConfirmed) {
         return;
       }
-      
+
       try {
         const response = await fetch('/api/settlements/create', {
           method: 'POST',
@@ -314,12 +316,12 @@ const members = await db
             fromUserId: userId,
             toUserId,
             amountCents,
-            description: 'Settled via Split'
-          })
+            description: 'Settled via Split',
+          }),
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
           alert('Settlement recorded successfully!');
           window.location.reload();

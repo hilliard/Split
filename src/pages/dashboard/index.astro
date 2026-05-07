@@ -95,97 +95,97 @@ const errorParam = Astro.url.searchParams.get('error');
           >
             Quick Stats
           </h3>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 items-start">
             <button
               id="statsTripsBtn"
-              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+              class="flex w-full flex-col items-start text-left hover:opacity-80 transition-opacity cursor-pointer group"
             >
-              <p
+              <span
                 id="statsEventCount"
                 class="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 group-hover:underline"
               >
                 0
-              </p>
-              <p
+              </span>
+              <span
                 class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
               >
                 Events
-              </p>
+              </span>
             </button>
             <button
               id="statsExpensesBtn"
-              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+              class="flex w-full flex-col items-start text-left hover:opacity-80 transition-opacity cursor-pointer group"
             >
-              <p
+              <span
                 id="statsExpenseCount"
                 class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 group-hover:underline"
               >
                 0
-              </p>
-              <p
+              </span>
+              <span
                 class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
               >
                 Expenses
-              </p>
+              </span>
             </button>
             <button
               id="statsActivitiesBtn"
-              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+              class="flex w-full flex-col items-start text-left hover:opacity-80 transition-opacity cursor-pointer group"
             >
-              <p
+              <span
                 id="statsActivityCount"
                 class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 group-hover:underline"
               >
                 0
-              </p>
-              <p
+              </span>
+              <span
                 class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
               >
                 Activities
-              </p>
+              </span>
             </button>
             <button
               id="statsGroupsBtn"
-              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+              class="flex w-full flex-col items-start text-left hover:opacity-80 transition-opacity cursor-pointer group"
             >
-              <p
+              <span
                 id="statsGroupCount"
                 class="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 group-hover:underline"
               >
                 0
-              </p>
-              <p
+              </span>
+              <span
                 class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
               >
                 Groups
-              </p>
+              </span>
             </button>
             <button
               id="statsOwesBtn"
-              class="text-left hover:opacity-80 transition-opacity cursor-pointer group"
+              class="flex w-full flex-col items-start text-left hover:opacity-80 transition-opacity cursor-pointer group"
             >
-              <p
+              <span
                 id="statsOwesAmount"
                 class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400 group-hover:underline"
               >
                 $0
-              </p>
-              <p
+              </span>
+              <span
                 class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 group-hover:underline"
               >
                 Owes
-              </p>
+              </span>
             </button>
-            <div class="text-left pl-[10px] ml-2 sm:ml-3 pt-[1px]">
-              <p
+            <div class="flex w-full flex-col items-start text-left pt-[1px]">
+              <span
                 id="statsTotalExpenses"
                 class="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400"
               >
                 $0
-              </p>
-              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+              </span>
+              <span class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
                 Total Spent
-              </p>
+              </span>
             </div>
           </div>
         </div>

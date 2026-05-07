@@ -69,6 +69,11 @@ export const POST: APIRoute = async (context) => {
     const body = await context.request.json();
     console.log('📦 Create Expense Request Body:', JSON.stringify(body, null, 2));
 
+    // Normalize nullable ID fields so optional schema fields don't fail on explicit null.
+    if (body.groupId === null) body.groupId = undefined;
+    if (body.eventId === null) body.eventId = undefined;
+    if (body.activityId === null) body.activityId = undefined;
+
     // Convert string inputs to numbers if they come from forms
     if (typeof body.amount === 'string') body.amount = parseFloat(body.amount);
     if (typeof body.tipAmount === 'string') body.tipAmount = parseFloat(body.tipAmount);

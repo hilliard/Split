@@ -1017,6 +1017,7 @@ const [eventGroup] = event.groupId
             </button>
             <button
               type="submit"
+              form="editExpenseForm"
               class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors font-medium text-sm"
             >
               Update
@@ -2316,18 +2317,23 @@ const [eventGroup] = event.groupId
 
             if (expenseAmount > 0) {
               try {
+                const expensePayload = {
+                  eventId: eventId,
+                  activityId: newActivityId,
+                  amount: expenseAmount,
+                  description: formData.get('expenseDescription') || activityTitle,
+                  category: formData.get('expenseCategory') || 'misc',
+                  paidBy: currentUserId,
+                };
+
+                if (currentGroupId) {
+                  expensePayload.groupId = currentGroupId;
+                }
+
                 const expenseResponse = await fetch('/api/expenses/create', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    groupId: currentGroupId,
-                    eventId: eventId,
-                    activityId: newActivityId,
-                    amount: expenseAmount,
-                    description: formData.get('expenseDescription') || activityTitle,
-                    category: formData.get('expenseCategory') || 'misc',
-                    paidBy: currentUserId,
-                  }),
+                  body: JSON.stringify(expensePayload),
                 });
 
                 if (!expenseResponse.ok) {
@@ -2398,6 +2404,35 @@ const [eventGroup] = event.groupId
   // Function to load and render group members
   async function loadGroupMembers() {
     try {
+      const container = document.getElementById('splitAmongContainer');
+      if (!container) return;
+
+      if (!currentGroupId) {
+        container.innerHTML = '';
+
+        const div = document.createElement('div');
+        div.className = 'flex items-center';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'split_current_user';
+        checkbox.dataset.userId = currentUserId;
+        checkbox.className = 'w-4 h-4 text-blue-600 rounded cursor-pointer';
+        checkbox.checked = true;
+        checkbox.addEventListener('change', updateSplitCalculation);
+
+        const label = document.createElement('label');
+        label.htmlFor = 'split_current_user';
+        label.className = 'ml-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer';
+        label.textContent = 'You (no group linked yet)';
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        container.appendChild(div);
+        updateSplitCalculation();
+        return;
+      }
+
       const response = await fetch(`/api/groups/list?id=${currentGroupId}`);
       if (!response.ok) {
         console.error('Failed to fetch group:', response.status);
@@ -2406,9 +2441,6 @@ const [eventGroup] = event.groupId
 
       const data = await response.json();
       const members = data.members || [];
-      const container = document.getElementById('splitAmongContainer');
-
-      if (!container) return;
 
       container.innerHTML = '';
 
@@ -2552,20 +2584,25 @@ const [eventGroup] = event.groupId
           }
         }
 
+        const expensePayload = {
+          eventId: eventId,
+          amount: amount, // Already in dollars, API will convert to cents
+          tipAmount: tip, // Already in dollars, API will convert to cents
+          description,
+          category,
+          paidBy: currentUserId,
+          splitAmong: getSelectedSplitMembers(), // Include who to split among
+          metadata: Object.keys(metadata).length > 0 ? metadata : {},
+        };
+
+        if (currentGroupId) {
+          expensePayload.groupId = currentGroupId;
+        }
+
         const response = await fetch('/api/expenses/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            groupId: currentGroupId,
-            eventId: eventId,
-            amount: amount, // Already in dollars, API will convert to cents
-            tipAmount: tip, // Already in dollars, API will convert to cents
-            description,
-            category,
-            paidBy: currentUserId,
-            splitAmong: getSelectedSplitMembers(), // Include who to split among
-            metadata: Object.keys(metadata).length > 0 ? metadata : {},
-          }),
+          body: JSON.stringify(expensePayload),
         });
 
         const data = await response.json();

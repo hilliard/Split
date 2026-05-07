@@ -1673,6 +1673,15 @@ const errorParam = Astro.url.searchParams.get('error');
               specificOwes: [],
             };
 
+            function setSpecificExpenseSelectionEnabled(isEnabled) {
+              expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
+                cb.disabled = !isEnabled;
+                if (!isEnabled) {
+                  cb.checked = true;
+                }
+              });
+            }
+
             function updateSelectedTotal() {
               const selectAllLabel = document.getElementById('selectAllExpensesLabel');
 
@@ -1739,10 +1748,7 @@ const errorParam = Astro.url.searchParams.get('error');
             if (selectAllCheckbox) {
               selectAllCheckbox.addEventListener('change', (e) => {
                 const isChecked = e.target.checked;
-                expensesList.querySelectorAll('.expense-checkbox').forEach((cb) => {
-                  cb.disabled = isChecked;
-                  if (isChecked) cb.checked = true;
-                });
+                setSpecificExpenseSelectionEnabled(!isChecked);
                 updateSelectedTotal();
               });
             }
@@ -1840,7 +1846,7 @@ const errorParam = Astro.url.searchParams.get('error');
                       (owe) => `
                     <label class="expense-label flex items-start gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-60">
                       <div class="pt-0.5">
-                        <input type="checkbox" value="${owe.amountCents}" data-desc="${escapeHtml(owe.description)}" class="expense-checkbox w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" disabled checked />
+                        <input type="checkbox" value="${owe.amountCents}" data-desc="${escapeHtml(owe.description)}" class="expense-checkbox w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" checked />
                       </div>
                       <div class="flex-1">
                         <div class="flex justify-between items-start">
@@ -1858,6 +1864,7 @@ const errorParam = Astro.url.searchParams.get('error');
                     cb.addEventListener('change', updateSelectedTotal);
                   });
 
+                  setSpecificExpenseSelectionEnabled(false);
                   updateSelectedTotal();
                   confirmBtn.innerHTML = '💸 Record Payment';
                   selectionModal.classList.remove('hidden');

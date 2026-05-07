@@ -1,9 +1,9 @@
 ---
 import { getSession } from '../../../utils/session';
-import Layout from "../../../layouts/Layout.astro";
-import { db } from "../../../db";
-import { events, sessions, groupMembers } from "../../../db/schema";
-import { eq, and } from "drizzle-orm";
+import Layout from '../../../layouts/Layout.astro';
+import { db } from '../../../db';
+import { events, sessions, groupMembers } from '../../../db/schema';
+import { eq, and } from 'drizzle-orm';
 
 // Check if user is authenticated
 const sessionId = Astro.cookies.get('sessionId')?.value;
@@ -22,11 +22,10 @@ const { id } = Astro.params;
 
 // Redirect if no ID provided
 if (!id) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 
 // Get session and verify user
-
 
 // Get userId from session
 const userId = session.userId;
@@ -40,29 +39,29 @@ const [event] = await db
 
 // Verify event exists
 if (!event) {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect('/dashboard');
 }
 
 // For EDIT, only creator can edit (stricter than view)
 if (event.creatorId !== session.userId) {
-  return Astro.redirect("/dashboard?error=unauthorized_edit");
+  return Astro.redirect('/dashboard?error=unauthorized_edit');
 }
 
 // Format timestamps for form input (datetime-local expects YYYY-MM-DDTHH:mm format)
 const formatDatetimeLocal = (date: string | null | undefined) => {
-  if (!date) return "";
+  if (!date) return '';
   try {
     return new Date(date).toISOString().slice(0, 16);
   } catch {
-    return "";
+    return '';
   }
 };
 
-const startDateValue = event.startTime ? new Date(event.startTime).toISOString().slice(0, 10) : "";
-const startTimeValue = event.startTime ? new Date(event.startTime).toISOString().slice(11, 16) : "";
-const endDateValue = event.endTime ? new Date(event.endTime).toISOString().slice(0, 10) : "";
-const endTimeValue = event.endTime ? new Date(event.endTime).toISOString().slice(11, 16) : "";
-const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
+const startDateValue = event.startTime ? new Date(event.startTime).toISOString().slice(0, 10) : '';
+const startTimeValue = event.startTime ? new Date(event.startTime).toISOString().slice(11, 16) : '';
+const endDateValue = event.endTime ? new Date(event.endTime).toISOString().slice(0, 10) : '';
+const endTimeValue = event.endTime ? new Date(event.endTime).toISOString().slice(11, 16) : '';
+const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : '';
 ---
 
 <Layout title={`Edit ${event.title}`} description="Edit event details">
@@ -72,9 +71,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
       class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
       <div class="max-w-7xl mx-auto">
-        <h1
-          class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1"
-        >
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">
           Edit Event
         </h1>
         <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
@@ -84,9 +81,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
     </div>
 
     <!-- Main Content -->
-    <main
-      class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
-    >
+    <main class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
       <!-- Edit Form Card -->
       <div
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
@@ -163,9 +158,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
           <!-- DateTime Range -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
+              <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
                 Start Date & Time <span class="text-red-500">*</span>
               </label>
               <div class="flex gap-2">
@@ -188,9 +181,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
               </div>
             </div>
             <div>
-              <label
-                class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-              >
+              <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
                 End Date & Time (Optional)
               </label>
               <div class="flex gap-2">
@@ -226,44 +217,28 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
                 name="timezone"
                 class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base"
               >
-                <option value="UTC" selected={event.timezone === "UTC"}
-                  >UTC</option
-                >
-                <option
-                  value="America/New_York"
-                  selected={event.timezone === "America/New_York"}
+                <option value="UTC" selected={event.timezone === 'UTC'}>UTC</option>
+                <option value="America/New_York" selected={event.timezone === 'America/New_York'}
                   >Eastern Time</option
                 >
-                <option
-                  value="America/Chicago"
-                  selected={event.timezone === "America/Chicago"}
+                <option value="America/Chicago" selected={event.timezone === 'America/Chicago'}
                   >Central Time</option
                 >
-                <option
-                  value="America/Denver"
-                  selected={event.timezone === "America/Denver"}
+                <option value="America/Denver" selected={event.timezone === 'America/Denver'}
                   >Mountain Time</option
                 >
                 <option
                   value="America/Los_Angeles"
-                  selected={event.timezone === "America/Los_Angeles"}
-                  >Pacific Time</option
+                  selected={event.timezone === 'America/Los_Angeles'}>Pacific Time</option
                 >
-                <option
-                  value="Europe/London"
-                  selected={event.timezone === "Europe/London"}>London</option
+                <option value="Europe/London" selected={event.timezone === 'Europe/London'}
+                  >London</option
                 >
-                <option
-                  value="Europe/Paris"
-                  selected={event.timezone === "Europe/Paris"}>Paris</option
+                <option value="Europe/Paris" selected={event.timezone === 'Europe/Paris'}
+                  >Paris</option
                 >
-                <option
-                  value="Asia/Tokyo"
-                  selected={event.timezone === "Asia/Tokyo"}>Tokyo</option
-                >
-                <option
-                  value="Australia/Sydney"
-                  selected={event.timezone === "Australia/Sydney"}
+                <option value="Asia/Tokyo" selected={event.timezone === 'Asia/Tokyo'}>Tokyo</option>
+                <option value="Australia/Sydney" selected={event.timezone === 'Australia/Sydney'}
                   >Sydney</option
                 >
               </select>
@@ -277,9 +252,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
                   checked={event.isVirtual}
                   class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-indigo-600 focus:ring-2 focus:ring-indigo-600"
                 />
-                <span class="text-sm font-medium text-slate-900 dark:text-white"
-                  >Virtual</span
-                >
+                <span class="text-sm font-medium text-slate-900 dark:text-white">Virtual</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input
@@ -289,9 +262,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
                   checked={event.isPublic}
                   class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-indigo-600 focus:ring-2 focus:ring-indigo-600"
                 />
-                <span class="text-sm font-medium text-slate-900 dark:text-white"
-                  >Public</span
-                >
+                <span class="text-sm font-medium text-slate-900 dark:text-white">Public</span>
               </label>
             </div>
           </div>
@@ -338,15 +309,13 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
               placeholder="Add details about this event..."
               rows="4"
               class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 text-base resize-none"
-              >{event.description || ""}</textarea
+              >{event.description || ''}</textarea
             >
           </div>
 
           <!-- Details/Metadata Section -->
           <div>
-            <label
-              class="block text-sm font-medium text-slate-900 dark:text-white mb-2"
-            >
+            <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
               Event Details (Location, Venue, Contact, etc.)
             </label>
             <!-- Template Selector -->
@@ -376,7 +345,6 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
                 Apply Template
               </button>
             </div>
-
 
             <div id="metadataContainer" class="space-y-3">
               <!-- Dynamic metadata fields will be added here -->
@@ -409,9 +377,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
           </div>
 
           <!-- Action Buttons -->
-          <div
-            class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
-          >
+          <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
             <a
               href={`/events/${event.id}`}
               class="px-6 py-2 text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium"
@@ -432,15 +398,13 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
     <!-- Add Event Expense Modal -->
     <div
       id="addEventExpenseModal"
-      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start sm:items-center justify-center px-4 pt-10 pb-4 overflow-y-auto"
     >
       <div
-        class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 my-8"
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md border border-slate-200 dark:border-slate-700 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
       >
         <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-700">
-          <h2
-            class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white"
-          >
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
             Add Event Expense
           </h2>
         </div>
@@ -512,9 +476,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
           >
           </div>
 
-          <div
-            class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700"
-          >
+          <div class="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
             <button
               type="button"
               id="cancelExpenseBtn"
@@ -535,53 +497,48 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
 
     <script define:vars={{ eventId: id, userId, event }}>
       // Add Expense Modal
-      const addExpenseBtn = document.getElementById("addExpenseBtn");
-      const addEventExpenseModal = document.getElementById(
-        "addEventExpenseModal",
-      );
-      const cancelExpenseBtn = document.getElementById("cancelExpenseBtn");
-      const addEventExpenseForm = document.getElementById(
-        "addEventExpenseForm",
-      );
-      const expenseError = document.getElementById("expenseError");
+      const addExpenseBtn = document.getElementById('addExpenseBtn');
+      const addEventExpenseModal = document.getElementById('addEventExpenseModal');
+      const cancelExpenseBtn = document.getElementById('cancelExpenseBtn');
+      const addEventExpenseForm = document.getElementById('addEventExpenseForm');
+      const expenseError = document.getElementById('expenseError');
 
       if (addExpenseBtn) {
-        addExpenseBtn.addEventListener("click", () => {
-          addEventExpenseModal.classList.remove("hidden");
+        addExpenseBtn.addEventListener('click', () => {
+          addEventExpenseModal.classList.remove('hidden');
         });
       }
 
       if (cancelExpenseBtn) {
-        cancelExpenseBtn.addEventListener("click", () => {
-          addEventExpenseModal.classList.add("hidden");
+        cancelExpenseBtn.addEventListener('click', () => {
+          addEventExpenseModal.classList.add('hidden');
           addEventExpenseForm.reset();
-          expenseError.classList.add("hidden");
+          expenseError.classList.add('hidden');
         });
       }
 
       // Close modal when clicking outside
       if (addEventExpenseModal) {
-        addEventExpenseModal.addEventListener("click", (e) => {
+        addEventExpenseModal.addEventListener('click', (e) => {
           if (false && e.target === addEventExpenseModal) {
-            addEventExpenseModal.classList.add("hidden");
+            addEventExpenseModal.classList.add('hidden');
             addEventExpenseForm.reset();
-            expenseError.classList.add("hidden");
+            expenseError.classList.add('hidden');
           }
         });
       }
 
       // Add Expense Form Submission
       if (addEventExpenseForm) {
-        addEventExpenseForm.addEventListener("submit", async (e) => {
+        addEventExpenseForm.addEventListener('submit', async (e) => {
           e.preventDefault();
 
           // First, get the event to get groupId
           try {
             const eventResponse = await fetch(`/api/events/${eventId}`);
             if (!eventResponse.ok) {
-              expenseError.textContent =
-                "Could not fetch event details. Please try again.";
-              expenseError.classList.remove("hidden");
+              expenseError.textContent = 'Could not fetch event details. Please try again.';
+              expenseError.classList.remove('hidden');
               return;
             }
 
@@ -591,28 +548,28 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             if (!groupId) {
               expenseError.textContent =
                 "This event doesn't have a group assigned yet. Please assign a group first.";
-              expenseError.classList.remove("hidden");
+              expenseError.classList.remove('hidden');
               return;
             }
 
             // Get form data
             const formData = new FormData(addEventExpenseForm);
-            const amount = parseFloat(formData.get("amount")) || 0;
+            const amount = parseFloat(formData.get('amount')) || 0;
 
             if (amount <= 0) {
-              expenseError.textContent = "Amount must be greater than 0";
-              expenseError.classList.remove("hidden");
+              expenseError.textContent = 'Amount must be greater than 0';
+              expenseError.classList.remove('hidden');
               return;
             }
 
             // Create expense
-            const expenseResponse = await fetch("/api/expenses/create", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+            const expenseResponse = await fetch('/api/expenses/create', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 groupId: groupId,
-                description: formData.get("description"),
-                category: formData.get("category") || "misc",
+                description: formData.get('description'),
+                category: formData.get('category') || 'misc',
                 amount: Math.round(amount * 100),
                 paidBy: userId,
               }),
@@ -620,63 +577,54 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
 
             if (!expenseResponse.ok) {
               const error = await expenseResponse.json();
-              expenseError.textContent =
-                error.error || "Failed to create expense";
-              expenseError.classList.remove("hidden");
+              expenseError.textContent = error.error || 'Failed to create expense';
+              expenseError.classList.remove('hidden');
               return;
             }
 
             // Success
             showToast(`Expense of $${amount.toFixed(2)} added successfully!`);
-            addEventExpenseModal.classList.add("hidden");
+            addEventExpenseModal.classList.add('hidden');
             addEventExpenseForm.reset();
-            expenseError.classList.add("hidden");
+            expenseError.classList.add('hidden');
           } catch (error) {
-            console.error("Error:", error);
-            expenseError.textContent = "An error occurred. Please try again.";
-            expenseError.classList.remove("hidden");
+            console.error('Error:', error);
+            expenseError.textContent = 'An error occurred. Please try again.';
+            expenseError.classList.remove('hidden');
           }
         });
       }
 
       // Global theme toggle function accessible from HTML onclick
       window.toggleTheme = function () {
-        console.log("🖱️ Theme toggle clicked");
+        console.log('🖱️ Theme toggle clicked');
 
         const html = document.documentElement;
-        const isDark = html.classList.contains("dark");
-        const icon = document.getElementById("themeIcon");
-        const mainDiv = document.querySelector("div.min-h-screen");
+        const isDark = html.classList.contains('dark');
+        const icon = document.getElementById('themeIcon');
+        const mainDiv = document.querySelector('div.min-h-screen');
 
         if (isDark) {
           // Switch to LIGHT mode
-          console.log("→ Switching to light mode");
-          html.classList.remove("dark");
-          document.body.style.setProperty(
-            "background-color",
-            "rgb(255, 255, 255)",
-            "important",
-          );
-          document.body.style.setProperty(
-            "color",
-            "rgb(15, 23, 42)",
-            "important",
-          );
+          console.log('→ Switching to light mode');
+          html.classList.remove('dark');
+          document.body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+          document.body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
 
           // Clear inline styles from main div
           if (mainDiv) {
-            mainDiv.style.backgroundColor = "";
-            mainDiv.style.color = "";
+            mainDiv.style.backgroundColor = '';
+            mainDiv.style.color = '';
           }
 
           // Remove dark mode styles and apply light mode styles
-          let darkStyles = document.getElementById("dynamicDarkStyles");
+          let darkStyles = document.getElementById('dynamicDarkStyles');
           if (darkStyles) darkStyles.remove();
 
           // Inject light mode styles
-          if (!document.getElementById("dynamicLightStyles")) {
-            const style = document.createElement("style");
-            style.id = "dynamicLightStyles";
+          if (!document.getElementById('dynamicLightStyles')) {
+            const style = document.createElement('style');
+            style.id = 'dynamicLightStyles';
             style.textContent = `
             html:not(.dark) header {
               background-color: rgb(255, 255, 255) !important;
@@ -724,46 +672,30 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             document.head.appendChild(style);
           }
 
-          localStorage.setItem("theme", "light");
-          console.log("✅ Switched to light mode");
-          if (icon) icon.textContent = "☀️";
+          localStorage.setItem('theme', 'light');
+          console.log('✅ Switched to light mode');
+          if (icon) icon.textContent = '☀️';
         } else {
           // Switch to DARK mode
-          console.log("→ Switching to dark mode");
-          html.classList.add("dark");
-          document.body.style.setProperty(
-            "background-color",
-            "rgb(6, 6, 10)",
-            "important",
-          );
-          document.body.style.setProperty(
-            "color",
-            "rgb(248, 250, 252)",
-            "important",
-          );
+          console.log('→ Switching to dark mode');
+          html.classList.add('dark');
+          document.body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+          document.body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
 
           // Set inline styles on main div for dark mode
           if (mainDiv) {
-            mainDiv.style.setProperty(
-              "background-color",
-              "rgb(6, 6, 10)",
-              "important",
-            );
-            mainDiv.style.setProperty(
-              "color",
-              "rgb(248, 250, 252)",
-              "important",
-            );
+            mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+            mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
           }
 
           // Remove light mode styles and apply dark mode styles
-          let lightStyles = document.getElementById("dynamicLightStyles");
+          let lightStyles = document.getElementById('dynamicLightStyles');
           if (lightStyles) lightStyles.remove();
 
           // Inject dark mode styles
-          if (!document.getElementById("dynamicDarkStyles")) {
-            const style = document.createElement("style");
-            style.id = "dynamicDarkStyles";
+          if (!document.getElementById('dynamicDarkStyles')) {
+            const style = document.createElement('style');
+            style.id = 'dynamicDarkStyles';
             style.textContent = `
             html.dark header {
               background-color: rgb(15, 23, 42) !important;
@@ -816,36 +748,36 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             document.head.appendChild(style);
           }
 
-          localStorage.setItem("theme", "dark");
-          console.log("✅ Switched to dark mode");
-          if (icon) icon.textContent = "🌙";
+          localStorage.setItem('theme', 'dark');
+          console.log('✅ Switched to dark mode');
+          if (icon) icon.textContent = '🌙';
         }
       };
 
       // Setup theme toggle on page load
       function setupThemeToggle() {
-        const btn = document.getElementById("themeToggle");
-        const icon = document.getElementById("themeIcon");
+        const btn = document.getElementById('themeToggle');
+        const icon = document.getElementById('themeIcon');
         const html = document.documentElement;
         const body = document.body;
-        const mainDiv = document.querySelector("div.min-h-screen");
+        const mainDiv = document.querySelector('div.min-h-screen');
 
         if (!btn) {
-          console.error("❌ Theme toggle button not found");
+          console.error('❌ Theme toggle button not found');
           return;
         }
 
-        console.log("✅ Theme toggle setup started");
+        console.log('✅ Theme toggle setup started');
 
         // Update icon to match current theme on initialization
-        const isDark = html.classList.contains("dark");
-        if (icon) icon.textContent = isDark ? "🌙" : "☀️";
+        const isDark = html.classList.contains('dark');
+        if (icon) icon.textContent = isDark ? '🌙' : '☀️';
 
         // Inject CSS styles for current theme (both light and dark)
-        if (isDark && !document.getElementById("dynamicDarkStyles")) {
+        if (isDark && !document.getElementById('dynamicDarkStyles')) {
           // Inject dark mode CSS
-          const darkStyle = document.createElement("style");
-          darkStyle.id = "dynamicDarkStyles";
+          const darkStyle = document.createElement('style');
+          darkStyle.id = 'dynamicDarkStyles';
           darkStyle.textContent = `
           html.dark header {
             background-color: rgb(15, 23, 42) !important;
@@ -896,10 +828,10 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
           }
         `;
           document.head.appendChild(darkStyle);
-        } else if (!isDark && !document.getElementById("dynamicLightStyles")) {
+        } else if (!isDark && !document.getElementById('dynamicLightStyles')) {
           // Inject light mode CSS
-          const lightStyle = document.createElement("style");
-          lightStyle.id = "dynamicLightStyles";
+          const lightStyle = document.createElement('style');
+          lightStyle.id = 'dynamicLightStyles';
           lightStyle.textContent = `
           html:not(.dark) header {
             background-color: rgb(255, 255, 255) !important;
@@ -949,82 +881,62 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
 
         // Apply inline styles with setProperty to match current theme
         if (isDark) {
-          html.style.setProperty("color-scheme", "dark", "important");
-          body.style.setProperty(
-            "background-color",
-            "rgb(6, 6, 10)",
-            "important",
-          );
-          body.style.setProperty("color", "rgb(248, 250, 252)", "important");
+          html.style.setProperty('color-scheme', 'dark', 'important');
+          body.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+          body.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
           if (mainDiv) {
-            mainDiv.style.setProperty(
-              "background-color",
-              "rgb(6, 6, 10)",
-              "important",
-            );
-            mainDiv.style.setProperty(
-              "color",
-              "rgb(248, 250, 252)",
-              "important",
-            );
+            mainDiv.style.setProperty('background-color', 'rgb(6, 6, 10)', 'important');
+            mainDiv.style.setProperty('color', 'rgb(248, 250, 252)', 'important');
           }
         } else {
-          html.style.setProperty("color-scheme", "light", "important");
-          body.style.setProperty(
-            "background-color",
-            "rgb(255, 255, 255)",
-            "important",
-          );
-          body.style.setProperty("color", "rgb(15, 23, 42)", "important");
+          html.style.setProperty('color-scheme', 'light', 'important');
+          body.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+          body.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
           if (mainDiv) {
-            mainDiv.style.setProperty(
-              "background-color",
-              "rgb(255, 255, 255)",
-              "important",
-            );
-            mainDiv.style.setProperty("color", "rgb(15, 23, 42)", "important");
+            mainDiv.style.setProperty('background-color', 'rgb(255, 255, 255)', 'important');
+            mainDiv.style.setProperty('color', 'rgb(15, 23, 42)', 'important');
           }
         }
 
-        console.log("✅ Theme toggle ready");
+        console.log('✅ Theme toggle ready');
       }
 
       // Initialize theme on page load (wait for DOM to be fully ready)
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", setupThemeToggle);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupThemeToggle);
       } else {
         setTimeout(setupThemeToggle, 0);
       }
 
       // Update currency symbol
-      const eventCurrencySelect = document.getElementById("eventCurrency");
+      const eventCurrencySelect = document.getElementById('eventCurrency');
 
       // Toast notification helper
-      const toast = document.getElementById("toast");
-      const toastMessage = document.getElementById("toast-message");
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
 
       function showToast(message) {
         if (!toast || !toastMessage) return;
         toastMessage.textContent = message;
-        toast.classList.remove("opacity-0");
+        toast.classList.remove('opacity-0');
         setTimeout(() => {
-          toast.classList.add("opacity-0");
+          toast.classList.add('opacity-0');
         }, 3000);
       }
-      const budgetSymbol = document.getElementById("budgetSymbol");
+      const budgetSymbol = document.getElementById('budgetSymbol');
       const currencySymbols = {
-        USD: "$",
-        EUR: "€",
-        GBP: "£",
-        CAD: "$",
-        AUD: "$",
-        JPY: "¥",
-        MXN: "$",
-        INR: "₹",
+        USD: '$',
+        EUR: '€',
+        GBP: '£',
+        CAD: '$',
+        AUD: '$',
+        JPY: '¥',
+        MXN: '$',
+        INR: '₹',
       };
 
       if (eventCurrencySelect) {
-        eventCurrencySelect.addEventListener("change", () => {
+        eventCurrencySelect.addEventListener('change', () => {
           const selectedCurrency = eventCurrencySelect.value;
           const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
           if (budgetSymbol) {
@@ -1034,13 +946,13 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
       }
 
       // Form submission
-      const editEventForm = document.getElementById("editEventForm");
-      const eventError = document.getElementById("eventError");
+      const editEventForm = document.getElementById('editEventForm');
+      const eventError = document.getElementById('eventError');
 
       // Metadata field handlers
-      function addMetadataField(key = "", value = "") {
-        const container = document.getElementById("metadataContainer");
-        const fieldId = "metadata-" + Date.now() + Math.random();
+      function addMetadataField(key = '', value = '') {
+        const container = document.getElementById('metadataContainer');
+        const fieldId = 'metadata-' + Date.now() + Math.random();
         const fieldHTML = `
           <div class="flex gap-2" id="${fieldId}">
             <input
@@ -1066,63 +978,59 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
             </button>
           </div>
         `;
-        container.insertAdjacentHTML("beforeend", fieldHTML);
+        container.insertAdjacentHTML('beforeend', fieldHTML);
       }
 
       // Event Template Logic
       const eventTemplates = {
         wedding: {
-          "Venue": "",
-          "Address": "",
-          "Contact": "",
-          "Phone": "",
-          "Capacity": "",
-          "Dress Code": "",
-          "Menu Selection Due": ""
+          Venue: '',
+          Address: '',
+          Contact: '',
+          Phone: '',
+          Capacity: '',
+          'Dress Code': '',
+          'Menu Selection Due': '',
         },
         dinner: {
-          "Restaurant": "",
-          "Address": "",
-          "Reservation Name": "",
-          "Party Size": "",
-          "Budget Per Person": "",
-          "Time": "",
-          "Dietary Restrictions": ""
+          Restaurant: '',
+          Address: '',
+          'Reservation Name': '',
+          'Party Size': '',
+          'Budget Per Person': '',
+          Time: '',
+          'Dietary Restrictions': '',
         },
         conference: {
-          "Venue": "",
-          "Address": "",
-          "Contact": "",
-          "Phone": "",
-          "Capacity": "",
-          "Parking": "",
-          "WiFi Password": ""
-        }
+          Venue: '',
+          Address: '',
+          Contact: '',
+          Phone: '',
+          Capacity: '',
+          Parking: '',
+          'WiFi Password': '',
+        },
       };
 
-      const applyTemplateBtn = document.getElementById("applyTemplateBtn");
+      const applyTemplateBtn = document.getElementById('applyTemplateBtn');
       if (applyTemplateBtn) {
-        applyTemplateBtn.addEventListener("click", () => {
-          const templateSelect = document.getElementById("templateSelect");
+        applyTemplateBtn.addEventListener('click', () => {
+          const templateSelect = document.getElementById('templateSelect');
           const selectedTemplate = templateSelect.value;
-          
+
           if (selectedTemplate && eventTemplates[selectedTemplate]) {
             const template = eventTemplates[selectedTemplate];
-            Object.keys(template).forEach(key => {
-              addMetadataField(key, "");
+            Object.keys(template).forEach((key) => {
+              addMetadataField(key, '');
             });
-            templateSelect.value = "";
+            templateSelect.value = '';
           }
         });
       }
 
-
-
-      const addMetadataFieldBtn = document.getElementById(
-        "addMetadataFieldBtn",
-      );
+      const addMetadataFieldBtn = document.getElementById('addMetadataFieldBtn');
       if (addMetadataFieldBtn) {
-        addMetadataFieldBtn.addEventListener("click", (e) => {
+        addMetadataFieldBtn.addEventListener('click', (e) => {
           e.preventDefault();
           addMetadataField();
         });
@@ -1130,7 +1038,7 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
 
       // Load existing metadata
       function loadMetadata() {
-        if (event && event.metadata && typeof event.metadata === "object") {
+        if (event && event.metadata && typeof event.metadata === 'object') {
           Object.entries(event.metadata).forEach(([key, value]) => {
             addMetadataField(key, String(value));
           });
@@ -1140,15 +1048,15 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
       loadMetadata();
 
       if (editEventForm) {
-        editEventForm.addEventListener("submit", async (e) => {
+        editEventForm.addEventListener('submit', async (e) => {
           e.preventDefault();
 
           const formData = new FormData(editEventForm);
 
           // Collect metadata
           const metadata = {};
-          const metadataKeys = formData.getAll("metadataKey");
-          const metadataValues = formData.getAll("metadataValue");
+          const metadataKeys = formData.getAll('metadataKey');
+          const metadataValues = formData.getAll('metadataValue');
 
           for (let i = 0; i < metadataKeys.length; i++) {
             const key = metadataKeys[i]?.trim();
@@ -1159,35 +1067,33 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
           }
 
           // Combine date and time
-          const startDate = formData.get("startDate");
-          const startTime = formData.get("startTime");
-          const endDate = formData.get("endDate");
-          const endTime = formData.get("endTime");
-          
-          const startTimeInput = (startDate && startTime) ? `${startDate}T${startTime}` : undefined;
-          const endTimeInput = (endDate && endTime) ? `${endDate}T${endTime}` : undefined;
+          const startDate = formData.get('startDate');
+          const startTime = formData.get('startTime');
+          const endDate = formData.get('endDate');
+          const endTime = formData.get('endTime');
+
+          const startTimeInput = startDate && startTime ? `${startDate}T${startTime}` : undefined;
+          const endTimeInput = endDate && endTime ? `${endDate}T${endTime}` : undefined;
 
           const data = {
             eventId: eventId,
-            title: formData.get("title"),
-            type: formData.get("type"),
+            title: formData.get('title'),
+            type: formData.get('type'),
             startTime: startTimeInput,
             endTime: endTimeInput,
-            timezone: formData.get("timezone"),
-            isVirtual:
-              document.getElementById("eventIsVirtual")?.checked || false,
-            isPublic:
-              document.getElementById("eventIsPublic")?.checked || false,
-            currency: formData.get("currency"),
-            budget: formData.get("budget") || undefined,
-            description: formData.get("description") || undefined,
+            timezone: formData.get('timezone'),
+            isVirtual: document.getElementById('eventIsVirtual')?.checked || false,
+            isPublic: document.getElementById('eventIsPublic')?.checked || false,
+            currency: formData.get('currency'),
+            budget: formData.get('budget') || undefined,
+            description: formData.get('description') || undefined,
             metadata: Object.keys(metadata).length > 0 ? metadata : {},
           };
 
           try {
-            const response = await fetch("/api/events/update", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+            const response = await fetch('/api/events/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(data),
             });
 
@@ -1195,20 +1101,19 @@ const budget = event.budgetCents ? (event.budgetCents / 100).toFixed(2) : "";
 
             if (!response.ok) {
               if (eventError) {
-                eventError.textContent =
-                  result.error || "Failed to update event";
-                eventError.classList.remove("hidden");
+                eventError.textContent = result.error || 'Failed to update event';
+                eventError.classList.remove('hidden');
               }
             } else {
-              showToast("Event updated successfully!");
+              showToast('Event updated successfully!');
               setTimeout(() => {
                 window.location.href = `/events/${eventId}`;
               }, 1500);
             }
           } catch (error) {
             if (eventError) {
-              eventError.textContent = "An error occurred. Please try again.";
-              eventError.classList.remove("hidden");
+              eventError.textContent = 'An error occurred. Please try again.';
+              eventError.classList.remove('hidden');
             }
           }
         });

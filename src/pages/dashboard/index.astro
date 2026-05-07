@@ -1128,6 +1128,7 @@ const errorParam = Astro.url.searchParams.get('error');
           // Enrich events with group names
           statsData.trips = events.map((event) => ({
             ...event,
+            displayTitle: event.title || event.name || 'Untitled Trip',
             groupName: event.groupId ? groupsMap[event.groupId] : null,
           }));
 
@@ -1149,7 +1150,7 @@ const errorParam = Astro.url.searchParams.get('error');
                 expenses.forEach((expense) => {
                   statsData.expenses.push({
                     ...expense,
-                    tripName: event.name,
+                    tripName: event.title || event.name || 'Untitled Trip',
                     currency: event.currency || 'USD',
                   });
                   totalExpensesAmount += parseFloat(expense.total) || 0;
@@ -1166,7 +1167,7 @@ const errorParam = Astro.url.searchParams.get('error');
                         currency: event.currency || 'USD',
                         paidBy: expense.payerName,
                         paidById: expense.paidBy,
-                        tripName: event.name,
+                        tripName: event.title || event.name || 'Untitled Trip',
                         groupId: event.groupId,
                       });
                     }
@@ -1196,7 +1197,7 @@ const errorParam = Astro.url.searchParams.get('error');
                 activities.forEach((activity) => {
                   statsData.activities.push({
                     ...activity,
-                    tripName: event.name,
+                    tripName: event.title || event.name || 'Untitled Trip',
                   });
                 });
               } else {
@@ -1289,7 +1290,7 @@ const errorParam = Astro.url.searchParams.get('error');
           .map(
             (trip) => `
           <a href="/events/${trip.id}" class="block p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(trip.name)}</h3>
+            <h3 class="font-semibold text-slate-900 dark:text-white">${escapeHtml(trip.displayTitle || trip.title || trip.name || 'Untitled Trip')}</h3>
             <p class="text-sm text-slate-600 dark:text-slate-400">${trip.groupName ? `Group: ${escapeHtml(trip.groupName)}` : 'Personal'}</p>
           </a>
         `

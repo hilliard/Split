@@ -703,50 +703,54 @@ const endTimeValue = formatDatetimeLocal(activity.endTime);
       }
     });
 
-    const deleteActivityModal = document.getElementById('deleteActivityModal');
-    const cancelDeleteActivityBtn = document.getElementById('cancelDeleteActivityBtn');
-    const confirmDeleteActivityBtn = document.getElementById('confirmDeleteActivityBtn');
+    window.addEventListener('DOMContentLoaded', () => {
+      const deleteActivityModal = document.getElementById('deleteActivityModal');
+      const cancelDeleteActivityBtn = document.getElementById('cancelDeleteActivityBtn');
+      const confirmDeleteActivityBtn = document.getElementById('confirmDeleteActivityBtn');
 
-    deleteBtn.addEventListener('click', () => {
-      deleteActivityModal.classList.remove('hidden');
-    });
+      if (deleteBtn && deleteActivityModal) {
+        deleteBtn.addEventListener('click', () => {
+          deleteActivityModal.classList.remove('hidden');
+        });
+      }
 
-    if (cancelDeleteActivityBtn) {
-      cancelDeleteActivityBtn.addEventListener('click', () => {
-        deleteActivityModal.classList.add('hidden');
-      });
-    }
-
-    if (confirmDeleteActivityBtn) {
-      confirmDeleteActivityBtn.addEventListener('click', async () => {
-        try {
-          const response = await fetch('/api/activities/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              activityId,
-              eventId,
-            }),
-          });
-
-          if (!response.ok) {
-            const error = await response.json();
-            showToast(
-              'Error: ' + (error.error?.message || error.error || 'Failed to delete activity')
-            );
-            return;
-          }
-
+      if (cancelDeleteActivityBtn && deleteActivityModal) {
+        cancelDeleteActivityBtn.addEventListener('click', () => {
           deleteActivityModal.classList.add('hidden');
-          showToast('Activity deleted successfully!');
-          setTimeout(() => {
-            window.location.href = `/activities/index?eventId=${eventId}`;
-          }, 1500);
-        } catch (error) {
-          showToast('Error: ' + error.message);
-        }
-      });
-    }
+        });
+      }
+
+      if (confirmDeleteActivityBtn && deleteActivityModal) {
+        confirmDeleteActivityBtn.addEventListener('click', async () => {
+          try {
+            const response = await fetch('/api/activities/delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                activityId,
+                eventId,
+              }),
+            });
+
+            if (!response.ok) {
+              const error = await response.json();
+              showToast(
+                'Error: ' + (error.error?.message || error.error || 'Failed to delete activity')
+              );
+              return;
+            }
+
+            deleteActivityModal.classList.add('hidden');
+            showToast('Activity deleted successfully!');
+            setTimeout(() => {
+              window.location.href = `/activities/index?eventId=${eventId}`;
+            }, 1500);
+          } catch (error) {
+            showToast('Error: ' + error.message);
+          }
+        });
+      }
+    });
   </script>
   <!-- Delete Activity Confirmation Modal -->
   <div

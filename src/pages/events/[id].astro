@@ -237,7 +237,14 @@ const [eventGroup] = event.groupId
         class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8"
       >
         <div class="flex justify-between items-center mb-4 gap-3">
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Activities & Expenses</h2>
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+              Activities & Expenses (This Event)
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Counts only activities and expenses linked to this event ID.
+            </p>
+          </div>
           <div class="flex gap-2">
             <button
               id="addExpenseBtn"
@@ -1936,7 +1943,7 @@ const [eventGroup] = event.groupId
 
       // Add activities (below expenses)
       if (activitiesData.activities && activitiesData.activities.length > 0) {
-        html += `<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 ${html ? 'mt-8' : 'mt-2'}">Activities (${activitiesData.activities.length})</h2><div class="space-y-4">`;
+        html += `<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 ${html ? 'mt-8' : 'mt-2'}">Activities (This Event: ${activitiesData.activities.length})</h2><div class="space-y-4">`;
         html += activitiesData.activities
           .map((activity) => {
             const escapedTitle = escapeHtml(activity.title);

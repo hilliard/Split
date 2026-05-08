@@ -31,17 +31,23 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-console.log('🔗 DATABASE_URL:', process.env.DATABASE_URL);
-console.log(
-  '🔐 Has password:',
-  process.env.DATABASE_URL.includes(':') &&
-    process.env.DATABASE_URL.split('@')[0].split(':').length > 1
-);
+const databaseUrl = process.env.DATABASE_URL;
+let parsedUrl: URL | null = null;
+
+try {
+  parsedUrl = new URL(databaseUrl);
+} catch {
+  console.warn('⚠ Could not parse DATABASE_URL, using raw connection string');
+}
+
+console.log('🔗 DATABASE_URL:', databaseUrl);
+console.log('🔐 Has password:', parsedUrl ? parsedUrl.password.length > 0 : 'unknown');
 console.log('📊 Database schema: PHASE 1→2 TRANSITION (old and new schemas loaded)');
 
 // Use full connection string to preserve SSL and other parameters
 const config = {
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
+  ...(parsedUrl && parsedUrl.password.length === 0 ? { password: '' } : {}),
   max: 10,
   min: 0,
   idleTimeoutMillis: 30000,

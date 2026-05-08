@@ -188,16 +188,32 @@ export async function getUserGroupBalance(
 
     if (!memberExists.length) return null;
 
-    // Get expenses they paid
-    const paidExpenses = await db
+    // Get all expenses in the group
+    const groupExpenses = await db
       .select()
       .from(expenses)
-      .where(and(eq(expenses.groupId, groupId), eq(expenses.paidBy, userId)));
+      .where(eq(expenses.groupId, groupId));
+
+    const groupExpenseIds = groupExpenses.map((e) => e.id);
+
+    // Expenses they paid in this group
+    const paidExpenses = groupExpenses.filter((e) => e.paidBy === userId);
 
     const totalPaid = paidExpenses.reduce((sum, exp) => sum + exp.amount + (exp.tipAmount || 0), 0);
 
-    // Get splits they owe
-    const splits = await db.select().from(expenseSplits).where(eq(expenseSplits.userId, userId));
+    // Get splits they owe — scoped to this group's expenses only
+    const splits =
+      groupExpenseIds.length > 0
+        ? await db
+            .select()
+            .from(expenseSplits)
+            .where(
+              and(
+                eq(expenseSplits.userId, userId),
+                inArray(expenseSplits.expenseId, groupExpenseIds)
+              )
+            )
+        : [];
 
     const userExpenseIds = new Set(paidExpenses.map((e) => e.id));
     const amountOwed = splits
